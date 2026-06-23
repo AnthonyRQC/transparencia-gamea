@@ -1,80 +1,146 @@
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Fira+Code:wght@300..700&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 @layer base {
   :root {
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.708 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --radius: 0.5rem;
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.708 0 0)
+    /* Base Color Spaces (Space-separated OKLCH channels: Lightness Chroma Hue) */
+    --background: 0.99 0.005 301.12;
+    --foreground: 0.15 0.05 301.12;
+    
+    --card: 1.00 0 0;
+    --card-foreground: 0.15 0.05 301.12;
+    
+    --popover: 1.00 0 0;
+    --popover-foreground: 0.15 0.05 301.12;
+    
+    /* Primary brand color #690bb2 */
+    --primary: 0.4685 0.264 301.12;
+    --primary-foreground: 0.99 0.005 301.12;
+    
+    /* Secondary brand color #fecd2a */
+    --secondary: 0.884 0.165 91.5;
+    --secondary-foreground: 0.15 0.05 301.12; /* Dark text for high contrast */
+    
+    --muted: 0.96 0.015 301.12;
+    --muted-foreground: 0.50 0.04 301.12;
+    
+    --accent: 0.95 0.025 301.12;
+    --accent-foreground: 0.35 0.18 301.12;
+    
+    --destructive: 0.58 0.18 20;
+    --destructive-foreground: 0.99 0.005 301.12;
+    
+    --border: 0.92 0.015 301.12;
+    --input: 0.92 0.015 301.12;
+    --ring: 0.4685 0.264 301.12;
+    
+    --radius: 0.6rem;
+    
+    /* Premium shadows using Tailwind HSL references */
+    --shadow-2xs: 0px 4px 8px -2px hsl(301 10% 5% / 0.05);
+    --shadow-xs: 0px 4px 8px -2px hsl(301 10% 5% / 0.05);
+    --shadow-sm: 0px 4px 8px -2px hsl(301 10% 5% / 0.10), 0px 1px 2px -3px hsl(301 10% 5% / 0.10);
+    --shadow: 0px 4px 8px -2px hsl(301 10% 5% / 0.10), 0px 1px 2px -3px hsl(301 10% 5% / 0.10);
+    --shadow-md: 0px 4px 8px -2px hsl(301 10% 5% / 0.10), 0px 2px 4px -3px hsl(301 10% 5% / 0.10);
+    --shadow-lg: 0px 4px 8px -2px hsl(301 10% 5% / 0.10), 0px 4px 6px -3px hsl(301 10% 5% / 0.10);
+    --shadow-xl: 0px 4px 8px -2px hsl(301 10% 5% / 0.10), 0px 8px 10px -3px hsl(301 10% 5% / 0.10);
+    --shadow-2xl: 0px 4px 8px -2px hsl(301 10% 5% / 0.25);
   }
+
   .dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0)
+    --background: 0.10 0.03 301.12;
+    --foreground: 0.97 0.01 301.12;
+    
+    --card: 0.13 0.03 301.12;
+    --card-foreground: 0.97 0.01 301.12;
+    
+    --popover: 0.13 0.03 301.12;
+    --popover-foreground: 0.97 0.01 301.12;
+    
+    /* Slightly lighter primary in dark mode for better contrast */
+    --primary: 0.58 0.24 301.12;
+    --primary-foreground: 0.99 0.005 301.12;
+    
+    --secondary: 0.884 0.165 91.5;
+    --secondary-foreground: 0.10 0.03 301.12;
+    
+    --muted: 0.16 0.03 301.12;
+    --muted-foreground: 0.65 0.02 301.12;
+    
+    --accent: 0.18 0.03 301.12;
+    --accent-foreground: 0.97 0.01 301.12;
+    
+    --destructive: 0.50 0.18 20;
+    --destructive-foreground: 0.99 0.005 301.12;
+    
+    --border: 0.20 0.03 301.12;
+    --input: 0.20 0.03 301.12;
+    --ring: 0.58 0.24 301.12;
   }
 }
+
 @layer base {
   * {
-    @apply border-border;
+    @apply border-border outline-ring/30;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
   }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', sans-serif;
+  }
+  p, span, a, li, button, input, select, textarea {
+    font-family: 'Outfit', sans-serif;
+  }
+  code, pre {
+    font-family: 'Fira Code', monospace;
+  }
+}
+
+@layer components {
+  button {
+    cursor: pointer;
+  }
+  [class*="border"] {
+    @apply border-border;
+  }
+  button > a {
+    @apply inline-flex items-center gap-1;
+  }
+}
+
+@layer utilities {
+  .perspective-distant {
+    perspective: 1000px;
+  }
+
+  .transform-3d {
+    transform-style: preserve-3d;
+  }
+
+  .backface-hidden {
+    backface-visibility: hidden;
+  }
+
+  .rotate-y-180 {
+    transform: rotateY(180deg);
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+}
+
+/* Helps prevent CLS when dialogs/modals lock scroll */
+body[data-scroll-locked] {
+  margin-right: 0px !important;
+  margin-left: 0px !important;
+  overflow: visible !important;
 }
