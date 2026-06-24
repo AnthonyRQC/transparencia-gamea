@@ -13,6 +13,10 @@ export default {
     ],
     theme: {
         extend: {
+            screens: {
+                'xs': '475px',
+                ...defaultTheme.screens,
+            },
             fontFamily: {
                 sans: ['Outfit', ...defaultTheme.fontFamily.sans],
                 mono: ['Fira Code', ...defaultTheme.fontFamily.mono],
