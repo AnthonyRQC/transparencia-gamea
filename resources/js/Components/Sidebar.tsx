@@ -139,7 +139,10 @@ export default function Sidebar({
                                 className={`
                                     transition-all duration-300 ease-in-out origin-left whitespace-nowrap text-left
                                     opacity-100 scale-100 w-auto
-                                    md:${isSidebarCollapsed ? 'opacity-0 w-0 scale-95 pointer-events-none overflow-hidden' : 'opacity-100 w-auto'}
+                                    ${isSidebarCollapsed 
+                                        ? 'md:opacity-0 md:w-0 md:scale-95 md:pointer-events-none md:overflow-hidden' 
+                                        : 'md:opacity-100 md:w-auto'
+                                    }
                                 `}
                             >
                                 {item.label}
@@ -151,10 +154,10 @@ export default function Sidebar({
 
             {/* Sidebar Footer Info */}
             <div className="p-4 border-t border-border/60 text-center shrink-0">
-                <div className={`transition-all duration-300 md:${isSidebarCollapsed ? 'scale-0 h-0 overflow-hidden' : 'scale-100'}`}>
+                <div className={`transition-all duration-300 ${isSidebarCollapsed ? 'md:scale-0 md:h-0 md:overflow-hidden' : 'md:scale-100'}`}>
                     <span className="text-[10px] text-muted-foreground font-mono">v1.0.0 Alpha</span>
                 </div>
-                <div className={`w-2.5 h-2.5 rounded-full mx-auto bg-primary transition-all duration-300 md:${isSidebarCollapsed ? 'scale-100' : 'scale-0 h-0'}`} />
+                <div className={`w-2.5 h-2.5 rounded-full mx-auto bg-primary transition-all duration-300 ${isSidebarCollapsed ? 'md:scale-100' : 'md:scale-0 md:h-0'}`} />
             </div>
         </aside>
     );

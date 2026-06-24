@@ -25,17 +25,17 @@ export default function Header({
                     aria-label="Toggle Sidebar"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                        {/* Desktop paths */}
+                        {/* Desktop paths: Hamburguesa si está colapsado, Chevron Izquierdo si está expandido */}
                         <path 
                             strokeLinecap="round" 
                             strokeLinejoin="round" 
                             d={isSidebarCollapsed 
                                 ? "M4 6h16M4 12h16M4 18h16" 
-                                : "M6 18L18 6M6 6l12 12"
+                                : "M15 19l-7-7 7-7"
                             } 
                             className="hidden md:block" 
                         />
-                        {/* Mobile paths */}
+                        {/* Mobile paths: X si está abierto, Hamburguesa si está cerrado */}
                         <path 
                             strokeLinecap="round" 
                             strokeLinejoin="round" 
@@ -49,7 +49,7 @@ export default function Header({
                 </button>
 
                 <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-primary flex items-center justify-center text-primary-foreground font-bold text-lg sm:text-xl shadow-md shadow-primary/20 animate-pulse shrink-0">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-primary flex items-center justify-center text-primary-foreground font-bold text-lg sm:text-xl shadow-md shadow-primary/20 hover:scale-110 hover:rotate-6 transition-all duration-300 shrink-0 cursor-pointer">
                         T
                     </div>
                     <div className="min-w-0">
