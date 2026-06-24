@@ -1,239 +1,468 @@
-import React, { useState } from 'react';
-import { Head } from '@inertiajs/react';
+import React, { useState, useEffect } from 'react';
+import { Head, Link } from '@inertiajs/react';
+import { 
+    Search, 
+    FileText, 
+    CheckCircle2, 
+    Clock, 
+    AlertCircle, 
+    Moon, 
+    Sun, 
+    ArrowRight, 
+    LayoutDashboard, 
+    Palette, 
+    ShieldCheck, 
+    Lock,
+    HelpCircle,
+    PhoneCall,
+    Mail,
+    FileSpreadsheet
+} from 'lucide-react';
 import { Button } from '@/Components/ui/button';
-import AppLayout from '@/Components/Layout/AppLayout';
 
-export default function Welcome() {
-    const [activeTab, setActiveTab] = useState('inicio');
-    const [clickCount, setClickCount] = useState(0);
+interface WelcomeProps {
+    auth: {
+        user?: any;
+    };
+    canLogin: boolean;
+    canRegister: boolean;
+}
+
+// Estructura de tickets mock para simulación en la Fase 0
+const MOCK_TICKETS = [
+    {
+        code: 'DEN-2026-0001',
+        type: 'Corrupción',
+        description: 'Presunto desvío de fondos destinados a refacciones escolares en la Unidad de Adquisiciones.',
+        status: 'Cerrado',
+        currentStep: 4,
+        dateReceived: '10 de Mayo, 2026',
+        lastUpdated: '12 de Junio, 2026',
+        resolutionType: 'Sin Indicios / Archivado',
+        advanceDetail: 'El expediente de investigación concluyó que no existen indicios suficientes de responsabilidad administrativa ni civil en contra del personal sindicado. Se emitió la resolución de archivo UTLCC-012/2026 de acuerdo con la normativa legal vigente, notificando a las partes y remitiendo copia digital al SITPRECO.',
+        statusColor: 'green'
+    },
+    {
+        code: 'DEN-2026-0002',
+        type: 'Negación de Información',
+        description: 'Negativa injustificada de entrega de informes financieros relativos a la construcción de la plaza distrital.',
+        status: 'En Investigación',
+        currentStep: 3,
+        dateReceived: '18 de Junio, 2026',
+        lastUpdated: '24 de Junio, 2026',
+        resolutionType: 'Pendiente',
+        advanceDetail: 'La denuncia fue admitida. Actualmente, el analista asignado se encuentra evaluando las pruebas y ha formalizado solicitudes de información complementaria a la Dirección Administrativa y Financiera, otorgando un plazo máximo de descargo hasta el 02 de Julio de 2026.',
+        statusColor: 'purple'
+    },
+    {
+        code: 'DEN-2026-0003',
+        type: 'Corrupción',
+        description: 'Cobro irregular de aranceles y comisiones en trámites de catastro técnico.',
+        status: 'En Evaluación',
+        currentStep: 2,
+        dateReceived: '22 de Junio, 2026',
+        lastUpdated: '23 de Junio, 2026',
+        resolutionType: 'Pendiente',
+        advanceDetail: 'El expediente está siendo evaluado por el Jefe de la Unidad para determinar su admisibilidad legal. Se está verificando que cumpla con los requisitos mínimos de competencia territorial y descripción clara de hechos. Plazo máximo estimado de admisión: 29 de Junio de 2026.',
+        statusColor: 'yellow'
+    },
+    {
+        code: 'DEN-2026-0004',
+        type: 'Corrupción',
+        description: 'Uso indebido de vehículos oficiales del municipio fuera de horarios y días laborales.',
+        status: 'Recepción',
+        currentStep: 1,
+        dateReceived: '24 de Junio, 2026',
+        lastUpdated: '24 de Junio, 2026',
+        resolutionType: 'Pendiente',
+        advanceDetail: 'Denuncia registrada de manera presencial en la ventanilla de transparencia. Se ha generado la versión digital del expediente y está en cola para la asignación inmediata de un analista técnico de la UTLCC.',
+        statusColor: 'blue'
+    }
+];
+
+export default function Welcome({ auth, canLogin, canRegister }: WelcomeProps) {
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searchedTicket, setSearchedTicket] = useState<typeof MOCK_TICKETS[0] | null>(null);
+    const [hasSearched, setHasSearched] = useState(false);
+    const [searchError, setSearchError] = useState('');
+    
+    // Modo oscuro local
+    const [isDarkMode, setIsDarkMode] = useState(() => {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('dark_mode') === 'true';
+        }
+        return false;
+    });
+
+    useEffect(() => {
+        document.documentElement.classList.toggle('dark', isDarkMode);
+    }, [isDarkMode]);
+
+    const handleToggleDarkMode = () => {
+        const nextState = !isDarkMode;
+        setIsDarkMode(nextState);
+        localStorage.setItem('dark_mode', String(nextState));
+    };
+
+    const handleSearch = (e: React.FormEvent) => {
+        e.preventDefault();
+        const trimmedQuery = searchQuery.trim().toUpperCase();
+        
+        if (!trimmedQuery) {
+            setSearchError('Por favor ingrese un código de ticket.');
+            setSearchedTicket(null);
+            setHasSearched(false);
+            return;
+        }
+
+        const ticket = MOCK_TICKETS.find(t => t.code === trimmedQuery);
+        
+        setHasSearched(true);
+        if (ticket) {
+            setSearchedTicket(ticket);
+            setSearchError('');
+        } else {
+            setSearchedTicket(null);
+            setSearchError(`No se encontró ningún ticket con el código "${trimmedQuery}". Intente con: DEN-2026-0002`);
+        }
+    };
+
+    const handleQuickSelect = (code: string) => {
+        setSearchQuery(code);
+        const ticket = MOCK_TICKETS.find(t => t.code === code);
+        setHasSearched(true);
+        if (ticket) {
+            setSearchedTicket(ticket);
+            setSearchError('');
+        }
+    };
+
+    const steps = [
+        { name: 'Recepción', desc: 'Registro de denuncia' },
+        { name: 'Evaluación', desc: 'Análisis de admisibilidad' },
+        { name: 'Investigación', desc: 'Búsqueda y análisis de pruebas' },
+        { name: 'Resolución / Cierre', desc: 'Informe final y SITPRECO' }
+    ];
 
     return (
-        <AppLayout activeTab={activeTab} onSelectTab={setActiveTab}>
-            <Head title="Línea Gráfica - Transparencia" />
+        <div className="min-h-screen bg-background text-foreground transition-colors duration-300 flex flex-col font-sans">
+            <Head title="Seguimiento Ciudadano - Transparencia" />
 
-            {/* Hero section */}
-            <section className="bg-gradient-to-br from-primary/10 via-secondary/5 to-transparent border border-primary/20 rounded-3xl p-6 sm:p-8 relative overflow-hidden shadow-sm">
-                <div className="absolute right-0 bottom-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl -z-10" />
-                <div className="max-w-2xl space-y-4">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs text-primary font-semibold tracking-wide uppercase">
-                        Visual Design System
+            {/* Header Público */}
+            <header className="border-b border-border bg-card/70 backdrop-blur sticky top-0 z-50 px-4 py-3 sm:px-8 sm:py-4 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-primary-foreground font-bold text-lg shadow-md shadow-primary/20 hover:scale-105 hover:rotate-3 transition-all cursor-pointer">
+                        T
                     </div>
-                            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight leading-tight">
-                                Línea Gráfica Premium para <span className="text-primary bg-clip-text">Shadcn + React</span>
-                            </h2>
-                            <p className="text-muted-foreground text-sm sm:text-base md:text-lg leading-relaxed">
-                                Diseño contemporáneo con paleta personalizada usando el color principal <strong className="text-foreground">#690bb2 (Morado)</strong> y el secundario <strong className="text-foreground">#fecd2a (Amarillo)</strong>. Implementado nativamente en el espacio de color <code className="bg-muted px-1.5 py-0.5 rounded text-sm text-primary font-bold">OKLCH</code> con soporte para opacidad dinámica y modo oscuro automático.
-                            </p>
+                    <div>
+                        <h1 className="text-base sm:text-lg font-bold tracking-tight text-foreground leading-none">Portal de Transparencia</h1>
+                        <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">Unidad de Transparencia y Lucha Contra la Corrupción</span>
+                    </div>
+                </div>
+
+                <div className="flex items-center gap-2 sm:gap-4">
+                    {/* Botón Modo Oscuro */}
+                    <button
+                        onClick={handleToggleDarkMode}
+                        className="p-2 rounded-lg bg-muted text-foreground border hover:bg-accent/15 transition-all duration-200 flex items-center justify-center cursor-pointer"
+                        aria-label="Toggle dark mode"
+                    >
+                        {isDarkMode ? <Sun className="w-4 h-4 text-secondary" /> : <Moon className="w-4 h-4 text-primary" />}
+                    </button>
+
+                    {/* Guía de Estilos (Ruta maqueta visible) */}
+                    <Link
+                        href={route('design-system')}
+                        className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold hover:bg-muted transition-colors"
+                    >
+                        <Palette className="w-3.5 h-3.5 text-primary" />
+                        Guía de Estilos
+                    </Link>
+
+                    {/* Links de Autenticación */}
+                    {auth.user ? (
+                        <Link
+                            href={route('dashboard')}
+                            className="px-3.5 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs sm:text-sm font-bold shadow-md shadow-primary/10 hover:scale-105 transition-all duration-200 flex items-center gap-1.5"
+                        >
+                            <LayoutDashboard className="w-3.5 h-3.5" />
+                            Panel de Control
+                        </Link>
+                    ) : (
+                        <Link
+                            href={route('login')}
+                            className="px-3.5 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs sm:text-sm font-bold shadow-md shadow-primary/10 hover:scale-105 transition-all duration-200 flex items-center gap-1.5"
+                        >
+                            <Lock className="w-3.5 h-3.5" />
+                            Iniciar Sesión
+                        </Link>
+                    )}
+                </div>
+            </header>
+
+            {/* Contenido Principal */}
+            <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-8 sm:py-12 space-y-12">
+                {/* Hero Section */}
+                <section className="text-center space-y-4 max-w-3xl mx-auto">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary/15 border border-secondary/30 text-xs text-secondary-foreground font-bold tracking-wide uppercase">
+                        <ShieldCheck className="w-4 h-4 text-secondary" />
+                        Trámite Transparente e Informativo
+                    </div>
+                    <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight leading-tight">
+                        Consulta el Estado de tu <span className="text-primary bg-clip-text">Denuncia</span>
+                    </h2>
+                    <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
+                        Ingresa el código único del ticket otorgado por la Unidad de Transparencia para conocer en qué fase de resolución se encuentra tu solicitud.
+                    </p>
+                </section>
+
+                {/* Formulario de Búsqueda */}
+                <section className="bg-card border rounded-3xl p-6 sm:p-8 shadow-md relative overflow-hidden max-w-2xl mx-auto">
+                    <div className="absolute left-0 top-0 w-2 h-full bg-primary" />
+                    <form onSubmit={handleSearch} className="space-y-4">
+                        <label htmlFor="ticket-search" className="block text-sm font-bold tracking-wide uppercase text-muted-foreground">
+                            Código de Ticket Ciudadano
+                        </label>
+                        <div className="flex flex-col sm:flex-row gap-3">
+                            <div className="relative flex-1">
+                                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                                <input
+                                    id="ticket-search"
+                                    type="text"
+                                    placeholder="Ej: DEN-2026-0002"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    className="w-full pl-11 pr-4 py-3 rounded-xl border border-input bg-background focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all font-mono font-bold tracking-wider text-base text-foreground"
+                                />
+                            </div>
+                            <Button 
+                                type="submit" 
+                                className="w-full sm:w-auto px-6 py-3 rounded-xl bg-primary text-primary-foreground font-bold shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2"
+                            >
+                                Consultar Estado
+                                <ArrowRight className="w-4 h-4" />
+                            </Button>
                         </div>
-                    </section>
+                    </form>
 
-                    {/* Grid Layout: Palettes and Live Previews */}
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                        {/* Left Column: Design System Tokens (5 Cols) */}
-                        <section className="lg:col-span-5 space-y-6">
-                            <h3 className="text-2xl font-bold tracking-tight">Paleta de Colores</h3>
-                            
-                            {/* Primary Color Card */}
-                            <div className="bg-card border rounded-2xl p-5 shadow-xs space-y-4">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-6 h-6 rounded-md bg-primary" />
-                                    <span className="font-bold">Color Principal (Primary)</span>
-                                </div>
-                                <div className="bg-primary text-primary-foreground p-4 rounded-xl space-y-1">
-                                    <div className="text-lg font-bold">#690bb2</div>
-                                    <div className="text-xs opacity-90 font-mono">oklch(0.4685 0.264 301.12)</div>
-                                </div>
-                                <div className="grid grid-cols-5 gap-2">
-                                    <div className="h-10 rounded-lg bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary">10%</div>
-                                    <div className="h-10 rounded-lg bg-primary/30 flex items-center justify-center text-[10px] font-bold text-primary">30%</div>
-                                    <div className="h-10 rounded-lg bg-primary/50 flex items-center justify-center text-[10px] font-bold text-primary-foreground">50%</div>
-                                    <div className="h-10 rounded-lg bg-primary/75 flex items-center justify-center text-[10px] font-bold text-primary-foreground">75%</div>
-                                    <div className="h-10 rounded-lg bg-primary/90 flex items-center justify-center text-[10px] font-bold text-primary-foreground">90%</div>
-                                </div>
-                            </div>
+                    {/* Accesos rápidos maqueta */}
+                    <div className="mt-5 pt-4 border-t border-dashed flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                        <span className="text-muted-foreground font-medium flex items-center gap-1">
+                            <HelpCircle className="w-3.5 h-3.5" />
+                            Tickets de prueba para la maqueta:
+                        </span>
+                        <div className="flex flex-wrap gap-2">
+                            {MOCK_TICKETS.map(t => (
+                                <button
+                                    key={t.code}
+                                    onClick={() => handleQuickSelect(t.code)}
+                                    className="px-2.5 py-1 rounded bg-muted border border-border text-foreground hover:bg-primary/10 hover:border-primary hover:text-primary transition-colors cursor-pointer font-mono font-bold"
+                                >
+                                    {t.code}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </section>
 
-                            {/* Secondary Color Card */}
-                            <div className="bg-card border rounded-2xl p-5 shadow-xs space-y-4">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-6 h-6 rounded-md bg-secondary" />
-                                    <span className="font-bold">Color Secundario (Secondary)</span>
-                                </div>
-                                <div className="bg-secondary text-secondary-foreground p-4 rounded-xl space-y-1">
-                                    <div className="text-lg font-bold">#fecd2a</div>
-                                    <div className="text-xs opacity-90 font-mono">oklch(0.884 0.165 91.5)</div>
-                                </div>
-                                <div className="grid grid-cols-5 gap-2">
-                                    <div className="h-10 rounded-lg bg-secondary/10 flex items-center justify-center text-[10px] font-bold text-secondary-foreground/70">10%</div>
-                                    <div className="h-10 rounded-lg bg-secondary/30 flex items-center justify-center text-[10px] font-bold text-secondary-foreground/80">30%</div>
-                                    <div className="h-10 rounded-lg bg-secondary/50 flex items-center justify-center text-[10px] font-bold text-secondary-foreground/90">50%</div>
-                                    <div className="h-10 rounded-lg bg-secondary/75 flex items-center justify-center text-[10px] font-bold text-secondary-foreground">75%</div>
-                                    <div className="h-10 rounded-lg bg-secondary/90 flex items-center justify-center text-[10px] font-bold text-secondary-foreground">90%</div>
+                {/* Resultados de la Búsqueda */}
+                {hasSearched && (
+                    <div className="animate-fade-in space-y-6">
+                        {searchError ? (
+                            <div className="bg-destructive/10 border border-destructive/20 text-destructive p-5 rounded-2xl flex items-start gap-3 max-w-2xl mx-auto shadow-sm">
+                                <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+                                <div>
+                                    <h4 className="font-bold text-sm">Código No Encontrado</h4>
+                                    <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{searchError}</p>
                                 </div>
                             </div>
-
-                            {/* Typography Showcase */}
-                            <div className="bg-card border rounded-2xl p-5 shadow-xs space-y-4">
-                                <h4 className="font-bold text-lg">Tipografía del Sistema</h4>
-                                <div className="space-y-3">
-                                    <div>
-                                        <span className="text-xs text-muted-foreground font-mono">Fuente Principal (Sans-serif)</span>
-                                        <div className="text-xl font-bold">Outfit</div>
-                                        <p className="text-xs text-muted-foreground">Utilizada para encabezados, menús y textos generales de alta legibilidad.</p>
-                                    </div>
-                                    <hr className="border-border" />
-                                    <div>
-                                        <span className="text-xs text-muted-foreground font-mono">Fuente Código (Monospace)</span>
-                                        <div className="text-sm font-mono">Fira Code</div>
-                                        <p className="text-xs text-muted-foreground">Utilizada para datos estructurados, números, tablas y código.</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
-
-                        {/* Right Column: Interactive Previews (7 Cols) */}
-                        <section className="lg:col-span-7 space-y-6">
-                            <div className="flex items-center justify-between">
-                                <h3 className="text-2xl font-bold tracking-tight">Componentes & Dashboard</h3>
-                                <span className="text-xs bg-primary/10 text-primary border border-primary/20 px-2.5 py-0.5 rounded-full font-semibold">Interactivo</span>
-                            </div>
-
-                            {/* Button Showcase */}
-                            <div className="bg-card border rounded-2xl p-6 shadow-xs space-y-4">
-                                <h4 className="font-bold text-lg">Variaciones de Botón (Shadcn Button)</h4>
-                                <div className="flex flex-wrap gap-3">
-                                    <Button 
-                                        className="cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95"
-                                        onClick={() => setClickCount(c => c + 1)}
-                                    >
-                                        Botón Principal
-                                    </Button>
-                                    
-                                    <Button 
-                                        variant="secondary" 
-                                        className="cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95"
-                                        onClick={() => setClickCount(c => c + 1)}
-                                    >
-                                        Botón Secundario
-                                    </Button>
-
-                                    <Button 
-                                        variant="outline" 
-                                        className="cursor-pointer transition-all duration-200 hover:bg-accent/10"
-                                    >
-                                        Delineado
-                                    </Button>
-
-                                    <Button 
-                                        variant="ghost" 
-                                        className="cursor-pointer hover:bg-primary/5 hover:text-primary"
-                                    >
-                                        Fantasma
-                                    </Button>
-
-                                    <Button 
-                                        variant="link" 
-                                        className="text-primary hover:text-primary/80"
-                                    >
-                                        Enlace
-                                    </Button>
-                                </div>
-                                
-                                {clickCount > 0 && (
-                                    <p className="text-xs text-muted-foreground font-mono animate-fade-in">
-                                        Acción disparada: Botón presionado <strong className="text-primary">{clickCount}</strong> veces.
-                                    </p>
-                                )}
-                            </div>
-
-                            {/* Visual Card Component Showcase (Inspired by Hotel Dashboard design) */}
-                            <div className="bg-card border rounded-2xl p-6 shadow-xs space-y-6">
-                                <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b pb-4 gap-2">
-                                    <div className="flex items-center gap-2">
-                                        <h4 className="font-bold text-lg">Panel de Control</h4>
-                                        <span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded font-mono uppercase">
-                                            Vista: {activeTab}
-                                        </span>
-                                    </div>
-                                    <div className="flex gap-1.5 self-end sm:self-auto">
-                                        <span className="w-3 h-3 rounded-full bg-red-400" />
-                                        <span className="w-3 h-3 rounded-full bg-yellow-400" />
-                                        <span className="w-3 h-3 rounded-full bg-green-400" />
-                                    </div>
-                                </div>
-
-                                {/* Dashboard Stats Grid */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {/* Card 1: Main Metric */}
-                                    <div className="border border-border rounded-xl p-4 bg-background hover:shadow-md transition-all duration-300 space-y-3 group">
-                                        <div className="flex justify-between items-center text-xs text-muted-foreground">
-                                            <span className="font-medium uppercase tracking-wider">Solicitudes Totales</span>
-                                            <span className="px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 font-bold">+12.4%</span>
-                                        </div>
+                        ) : (
+                            searchedTicket && (
+                                <div className="space-y-6 max-w-4xl mx-auto">
+                                    {/* Cabecera del Expediente */}
+                                    <div className="bg-card border rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
                                         <div className="space-y-1">
-                                            <div className="text-3xl font-extrabold tracking-tight font-mono text-foreground">1,248</div>
-                                            <p className="text-xs text-muted-foreground">Solicitudes recibidas este mes</p>
+                                            <span className="text-xs text-muted-foreground font-mono font-bold">{searchedTicket.type}</span>
+                                            <div className="flex items-center gap-3">
+                                                <h3 className="text-xl sm:text-2xl font-black font-mono tracking-tight text-foreground">{searchedTicket.code}</h3>
+                                                <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                                                    searchedTicket.status === 'Cerrado' 
+                                                        ? 'bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-400' 
+                                                        : searchedTicket.status === 'En Investigación'
+                                                        ? 'bg-purple-100 dark:bg-purple-950/40 text-purple-700 dark:text-purple-400'
+                                                        : searchedTicket.status === 'En Evaluación'
+                                                        ? 'bg-yellow-100 dark:bg-yellow-950/40 text-yellow-700 dark:text-yellow-400'
+                                                        : 'bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400'
+                                                }`}>
+                                                    {searchedTicket.status}
+                                                </span>
+                                            </div>
+                                            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{searchedTicket.description}</p>
                                         </div>
-                                        {/* Mini visual indicator graph */}
-                                        <div className="flex items-end gap-1.5 h-10 pt-2">
-                                            {[30, 45, 35, 60, 50, 75, 90, 85, 95].map((h, i) => (
-                                                <div
-                                                    key={i}
-                                                    style={{ height: `${h}%` }}
-                                                    className={`w-full rounded-t-sm transition-all duration-300 ${
-                                                        i === 8 ? 'bg-primary' : 'bg-primary/30 group-hover:bg-primary/50'
-                                                    }`}
-                                                />
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    {/* Card 2: Secondary Metric */}
-                                    <div className="border border-border rounded-xl p-4 bg-background hover:shadow-md transition-all duration-300 space-y-3 group">
-                                        <div className="flex justify-between items-center text-xs text-muted-foreground">
-                                            <span className="font-medium uppercase tracking-wider">Tasa de Respuesta</span>
-                                            <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary font-bold">Excelente</span>
-                                        </div>
-                                        <div className="space-y-1">
-                                            <div className="text-3xl font-extrabold tracking-tight font-mono text-foreground">94.8%</div>
-                                            <p className="text-xs text-muted-foreground">Tiempo promedio de respuesta: 24h</p>
-                                        </div>
-                                        {/* Progress Bar using Secondary color */}
-                                        <div className="pt-2">
-                                            <div className="w-full bg-muted h-3 rounded-full overflow-hidden">
-                                                <div 
-                                                    className="bg-secondary h-full rounded-full transition-all duration-1000 shadow-sm"
-                                                    style={{ width: '94.8%' }}
-                                                />
+                                        <div className="grid grid-cols-2 md:flex md:flex-col md:text-right gap-3 text-xs border-t md:border-t-0 pt-3 md:pt-0">
+                                            <div>
+                                                <span className="text-muted-foreground block">Fecha Registro</span>
+                                                <strong className="text-foreground">{searchedTicket.dateReceived}</strong>
+                                            </div>
+                                            <div>
+                                                <span className="text-muted-foreground block">Última Actualización</span>
+                                                <strong className="text-foreground">{searchedTicket.lastUpdated}</strong>
                                             </div>
                                         </div>
-                                        <div className="flex justify-between text-[10px] text-muted-foreground font-mono">
-                                            <span>Meta: 90%</span>
-                                            <span>Actual: 94.8%</span>
+                                    </div>
+
+                                    {/* Stepper Visual */}
+                                    <div className="bg-card border rounded-2xl p-6 sm:p-8 shadow-sm space-y-8">
+                                        <h4 className="font-bold text-sm text-muted-foreground tracking-wide uppercase">Línea de Avance del Proceso</h4>
+                                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 relative">
+                                            {steps.map((step, idx) => {
+                                                const stepNum = idx + 1;
+                                                const isCompleted = stepNum < searchedTicket.currentStep;
+                                                const isActive = stepNum === searchedTicket.currentStep;
+                                                const isPending = stepNum > searchedTicket.currentStep;
+
+                                                return (
+                                                    <div key={idx} className="relative flex flex-row md:flex-col items-center md:items-start gap-4 md:gap-3 group">
+                                                        {/* Conector Lineal en Desktop */}
+                                                        {idx < steps.length - 1 && (
+                                                            <div className="hidden md:block absolute left-6 top-6 right-0 h-1 bg-border -z-10">
+                                                                <div 
+                                                                    className="h-full bg-primary transition-all duration-500" 
+                                                                    style={{ 
+                                                                        width: isCompleted ? '100%' : isActive ? '50%' : '0%' 
+                                                                    }}
+                                                                />
+                                                            </div>
+                                                        )}
+
+                                                        {/* Círculo del Indicador */}
+                                                        <div className="relative">
+                                                            {isCompleted ? (
+                                                                <div className="w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-md shadow-primary/20 scale-100">
+                                                                    <CheckCircle2 className="w-6 h-6" />
+                                                                </div>
+                                                            ) : isActive ? (
+                                                                <div className="w-12 h-12 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center shadow-lg shadow-secondary/30 ring-4 ring-secondary/20 animate-pulse">
+                                                                    <Clock className="w-6 h-6" />
+                                                                </div>
+                                                            ) : (
+                                                                <div className="w-12 h-12 rounded-full border bg-background text-muted-foreground flex items-center justify-center">
+                                                                    <span className="font-bold font-mono text-sm">{stepNum}</span>
+                                                                </div>
+                                                            )}
+                                                        </div>
+
+                                                        {/* Textos del Paso */}
+                                                        <div className="flex-1 md:mt-2 text-left">
+                                                            <div className="flex items-center gap-1.5">
+                                                                <h5 className={`font-bold text-sm ${isActive ? 'text-secondary-foreground' : isCompleted ? 'text-primary' : 'text-muted-foreground'}`}>
+                                                                    {step.name}
+                                                                </h5>
+                                                                {isActive && (
+                                                                    <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-ping" />
+                                                                )}
+                                                            </div>
+                                                            <p className="text-xs text-muted-foreground leading-snug mt-0.5">{step.desc}</p>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+
+                                    {/* Detalle Informativo */}
+                                    <div className="bg-card border rounded-2xl p-6 shadow-sm space-y-4 relative overflow-hidden">
+                                        <div className="absolute left-0 top-0 h-2 w-full bg-gradient-to-r from-primary to-secondary" />
+                                        <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                                            <FileText className="w-4 h-4 text-primary" />
+                                            Estado de Avance Oficial
+                                        </div>
+                                        <div className="space-y-4">
+                                            <p className="text-sm sm:text-base leading-relaxed text-foreground bg-muted/30 border p-4 sm:p-5 rounded-xl font-medium">
+                                                "{searchedTicket.advanceDetail}"
+                                            </p>
+                                            
+                                            {searchedTicket.status === 'Cerrado' && (
+                                                <div className="bg-green-500/10 border border-green-500/20 text-green-700 dark:text-green-300 p-4 rounded-xl text-xs sm:text-sm font-medium flex items-center gap-2">
+                                                    <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
+                                                    El trámite de este ticket ha finalizado formalmente.
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
-
-                                {/* Badge and Status Showcase */}
-                                <div className="space-y-3">
-                                    <h5 className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Estados y Avisos</h5>
-                                    <div className="flex flex-wrap gap-2">
-                                        <span className="px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20">
-                                            Principal / Activo
-                                        </span>
-                                        <span className="px-3 py-1 rounded-full text-xs font-semibold bg-secondary/20 text-secondary-foreground border border-secondary/30">
-                                            Secundario / Alerta
-                                        </span>
-                                        <span className="px-3 py-1 rounded-full text-xs font-semibold bg-muted text-muted-foreground border">
-                                            Muted / Inactivo
-                                        </span>
-                                        <span className="px-3 py-1 rounded-full text-xs font-semibold bg-destructive/10 text-destructive border border-destructive/20">
-                                            Destructivo / Error
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
+                            )
+                        )}
                     </div>
-        </AppLayout>
+                )}
+
+                {/* Sección Informativa para el Ciudadano (Guía FAQ) */}
+                <hr className="border-border" />
+                <section className="space-y-6">
+                    <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-center">Información y Preguntas Frecuentes</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="bg-card border rounded-2xl p-5 space-y-3 hover:shadow-md transition-shadow">
+                            <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                                <ShieldCheck className="w-5 h-5" />
+                            </div>
+                            <h4 className="font-bold text-base">Garantía de Confidencialidad</h4>
+                            <p className="text-xs text-muted-foreground leading-relaxed">
+                                El sistema resguarda de manera encriptada y bajo estricto control administrativo los datos personales de todo denunciante que requiera reserva de identidad.
+                            </p>
+                        </div>
+
+                        <div className="bg-card border rounded-2xl p-5 space-y-3 hover:shadow-md transition-shadow">
+                            <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                                <FileSpreadsheet className="w-5 h-5" />
+                            </div>
+                            <h4 className="font-bold text-base">Tipos de Denuncia Permitidas</h4>
+                            <p className="text-xs text-muted-foreground leading-relaxed">
+                                Se atienden hechos concretos referidos a Corrupción (desvíos, cobros ilícitos) y Negación de Información Pública garantizando el derecho a la rendición de cuentas.
+                            </p>
+                        </div>
+
+                        <div className="bg-card border rounded-2xl p-5 space-y-3 hover:shadow-md transition-shadow">
+                            <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                                <Clock className="w-5 h-5" />
+                            </div>
+                            <h4 className="font-bold text-base">Plazos y Tiempos de Respuesta</h4>
+                            <p className="text-xs text-muted-foreground leading-relaxed">
+                                Las denuncias son evaluadas en un lapso máximo de 5 días hábiles. Las solicitudes de informe a dependencias externas gozan de 10 días hábiles.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                {/* Canales de Soporte */}
+                <section className="bg-gradient-to-br from-primary/5 via-secondary/5 to-transparent border rounded-2xl p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div className="space-y-1">
+                        <h4 className="font-bold text-lg">¿Necesitas asistencia técnica o registrar una denuncia?</h4>
+                        <p className="text-xs sm:text-sm text-muted-foreground">Puedes comunicarte con la ventanilla única de atención para guías procedimentales.</p>
+                    </div>
+                    <div className="flex flex-wrap gap-3 shrink-0">
+                        <a 
+                            href="tel:+591000000" 
+                            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-card border text-xs font-semibold hover:bg-muted transition-colors text-foreground"
+                        >
+                            <PhoneCall className="w-3.5 h-3.5 text-primary" />
+                            Llamar Soporte
+                        </a>
+                        <a 
+                            href="mailto:transparencia@example.com" 
+                            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-card border text-xs font-semibold hover:bg-muted transition-colors text-foreground"
+                        >
+                            <Mail className="w-3.5 h-3.5 text-secondary" />
+                            Enviar Correo
+                        </a>
+                    </div>
+                </section>
+            </main>
+
+            {/* Footer */}
+            <footer className="border-t border-border py-8 text-center text-xs text-muted-foreground bg-card/20 font-mono mt-auto">
+                <p>Portal de Transparencia — Gobierno Autónomo Municipal</p>
+                <p className="text-[10px] opacity-75 mt-1">Línea Gráfica Premium • React & Tailwind • 2026</p>
+            </footer>
+        </div>
     );
 }
