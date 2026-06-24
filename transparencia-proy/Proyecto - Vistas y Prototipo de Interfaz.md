@@ -176,10 +176,10 @@ Vista enfocada para evitar distracciones.
 
 ## 4. Estética y Experiencia Premium (UI/UX)
 
-*   **Paleta de Colores (Diseño Limpio y Profesional)**:
-    *   *Fondo*: Gris ultra-claro (`#f8fafc`) con tarjetas blancas.
-    *   *Primario*: Azul pizarra oscuro (`#0f172a`) para barras laterales y navegación.
-    *   *Acentos*: Verde esmeralda (`#10b981`) para éxitos/admisiones y Naranja quemado (`#f97316`) para alertas y prórrogas.
+*   **Paleta de Colores (Diseño Limpio e Institucional)**:
+    *   *Fondo*: Gris ultra-claro (variables de oklch) con tarjetas de fondo blanco.
+    *   *Primario (Institucional)*: Morado (`#690bb2`) para elementos de realce, marcas del menú activo, logo y acentos del dashboard.
+    *   *Secundario (Institucional)*: Amarillo (`#fecd2a`) para llamadas de atención, alertas secundarias y detalles de foco de contraste.
 *   **Animación en Transición de Tarjetas**:
     *   El paso de tarjetas en el Kanban del Jefe se realiza mediante efectos de arrastrar y soltar (*drag and drop* fluidos utilizando `@hello-pangea/dnd` o `dnd-kit`), con animaciones de reordenamiento sutiles.
 *   **Micro-interacciones en Botones**:

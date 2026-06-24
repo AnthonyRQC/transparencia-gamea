@@ -44,10 +44,13 @@ Es un sistema tipo **Kanban avanzado** para la gestión integral de denuncias ci
 | **Estilos** | Tailwind CSS | **v3** (no v4) |
 | **Componentes UI** | shadcn/ui | **2.3.0** (compatible con Tailwind v3) |
 | **Autenticación** | Laravel Breeze (con React + TS) | Latest |
-| **Base de Datos** | MySQL (vía Laragon) | Latest |
+| **Base de Datos** | MySQL (vía Laragon) | Latest (Postergado en maqueta) |
 | **Entorno Local** | Laragon | Latest |
 | **Gestor de paquetes** | npm | Latest |
 | **Bundler** | Vite | Latest |
+
+> [!NOTE] Base de Datos en la Maqueta Interactiva
+> Durante la maqueta inicial (Fase 0), para permitir cambios ultra-rápidos sobre los campos solicitados por el cliente, los controladores de Laravel servirán arrays de datos ficticios directo a React vía Inertia. La base de datos MySQL en Laragon se conectará y configurará al finalizar la aprobación de la interfaz.
 
 ### Notas críticas de la instalación
 > [!WARNING] Problema de mayúsculas (RESUELTO)

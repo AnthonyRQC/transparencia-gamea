@@ -6,29 +6,21 @@
 
 ---
 
-## 1. Estrategia de Prototipo (Fase 0 — Sin Backend Real)
+## 1. Estrategia de Prototipo (Fase 0 — Maqueta Dinámica vía Laravel Controllers)
 
-### ¿Qué es un prototipo funcional?
-Un prototipo funcional (también llamado *mockup interactivo*) es una aplicación React completamente navegable, con flujos reales, estados reales y transiciones reales — pero cuyos datos viven en el frontend, no en una base de datos.
+### ¿Qué es una maqueta dinámica?
+Es una aplicación que simula el flujo completo y las interacciones del sistema final. Para evitar el costo y la rigidez de estar modificando constantemente la base de datos (migraciones, rollback, redefinición de esquemas) ante comentarios y cambios solicitados por el cliente en la fase de prototipado, utilizaremos un **enfoque de controladores con datos mock**.
 
-**Objetivo de esta fase:** Mostrar al cliente el flujo completo del sistema y la interfaz gráfica antes de escribir una sola línea de Laravel, para validar requerimientos y evitar cambios costosos en la base de datos después.
+**Cómo funciona:**
+* **Laravel en el Backend**: Los controladores de Laravel sirviendo las páginas mediante Inertia enviarán colecciones y arrays de datos ficticios (nombres de denuncias, técnicos, plazos, etc.) directamente como variables y propiedades en PHP.
+* **React en el Frontend**: Los componentes de React consumen los datos de forma transparente mediante `props` estándares de Inertia.
+* **Ventajas de esta arquitectura**:
+  * **Cero fricción ante cambios de datos**: Añadir, renombrar o quitar un campo en la denuncia toma solo unos segundos (cambiar una llave en un array de PHP en el controlador) en lugar de alterar migraciones.
+  * **Cero reescritura de código**: La comunicación ya usa la infraestructura definitiva (`Laravel -> Inertia -> React`), por lo que al conectar la base de datos real en la fase posterior, el código de los componentes React no cambiará en lo absoluto.
+  * **Persistencia básica**: Las acciones interactivas de cambio de estado (ej. mover una tarjeta en el Kanban) se pueden sincronizar en la sesión de Laravel o localmente en el estado del cliente.
 
----
-
-### ¿Qué datos usar? Mi consejo según el caso
-
-| Opción | Cuándo usarla | Ventajas | Desventajas |
-|--------|--------------|----------|-------------|
-| **Arrays/Objetos en el código** | Estado inicial de componentes sencillos (lista de usuarios, roles) | Cero configuración, cambia al vuelo | Se pierde al refrescar la página |
-| **Archivos `.json` locales** | Datos grandes o estructurados que importas con `import data from './data.json'` | Fácil de editar, simula una API | Se pierde al refrescar; no persiste cambios |
-| **`localStorage`** | ✅ **RECOMENDADO para el Kanban** | Persiste entre recargas, simula una DB real | Solo funciona en ese navegador |
-| **SQLite (vía `sql.js` o Turso)** | Si necesitas queries complejas tipo JOIN | Muy cercano a producción | Configuración más compleja, innecesario para un prototipo |
-
-> [!TIP] Mi recomendación para este proyecto
-> Usa **`localStorage` + archivos `.json` estáticos**. Es el balance perfecto:
-> - Los datos base (denuncias de ejemplo, usuarios, roles) viven en archivos `.json` que importas al arranque.
-> - El **estado del Kanban** (qué columna tiene qué tarjeta, qué cambios hizo el usuario) se guarda en `localStorage` para que el cliente pueda navegar, mover tarjetas, y volver a entrar sin perder los cambios.
-> - Cuando llegue el momento de conectar Laravel, solo reemplazas la capa de datos (las funciones que leen del `.json` / `localStorage`) por llamadas a la API de Inertia. **Los componentes React no cambian nada.**
+### ¿Qué datos usar? Elección del proyecto
+Utilizaremos **arrays y colecciones mock definidos en los controladores de Laravel**, junto con persistencia de estado selectiva en el cliente. De este modo, la conexión de red local a MySQL de Laragon se posterga de forma intencional hasta que el cliente final valide por completo la interfaz y el comportamiento del prototipo.
 
 ### Estructura de datos sugerida para el prototipo
 
@@ -58,122 +50,27 @@ Un prototipo funcional (también llamado *mockup interactivo*) es una aplicació
 ]
 ```
 
----
+## 2. El Diseño Visual — Decisión Final: Morado & Amarillo Institucional
 
-## 2. El Diseño Visual — Decisión Final: Plantilla Base de Shadcn
+### 📌 Decisión del Proyecto: Colores Oficiales en OKLCH
+Para este proyecto se ha establecido de forma oficial el uso de la **paleta institucional de colores**:
+*   **Morado (`#690bb2`)**: Como color primario de acento, marcas y estados activos.
+*   **Amarillo (`#fecd2a`)**: Como color secundario para llamadas de atención y contrastes altos de UI.
 
-### 📌 Decisión del Proyecto: Shadcn Base + Personalización mediante CSS
-Tras analizar las opciones de diseño, se ha decidido **no utilizar Neobrutalism** debido a que requiere hardcodear clases y estilos complejos (`border-2 border-black`, sombras rígidas offset, etc.) directamente en los archivos `.tsx` de cada componente. Esto dificulta enormemente los cambios de estilo si el cliente no está satisfecho.
-
-En su lugar, utilizaremos la **plantilla base de Shadcn** y personalizaremos los estilos visuales mediante **variables de CSS** en `app.css` (o `global.css`).
+Se descarta el uso de estilos Neo-brutalistas o paletas genéricas para mantener la seriedad de la institución pública. Para asegurar la máxima precisión cromática y soporte nativo de opacidades y modo oscuro, toda la paleta se ha implementado utilizando el espacio de color **`OKLCH`** mediante variables CSS centralizadas.
 
 #### Ventajas de este enfoque:
 1. **Estilos Centralizados:** Modificando únicamente el archivo `app.css` podemos cambiar el color primario, el radio de las esquinas (`--radius`), el grosor de los bordes o el sombreado de todo el sistema.
-2. **Cero dolor en cambios de tema:** Si el cliente solicita pasar de un estilo moderno/violeta a uno clásico/azul, solo editamos las variables de CSS en un solo lugar. No hay que tocar ni una línea de código `.tsx` de los componentes.
-3. **Alineación con la UI propuesta:** Podemos lograr el estilo moderno con tonos pasteles, morados/violetas y sombras suaves que te gustaron modificando solo las variables de `:root`.
+2. **Cero dolor ante cambios futuros:** Si en el futuro la institución decidiera renovar su imagen o ajustar la tonalidad, solo se actualizan las variables de color en `app.css`. No hay que tocar ni una línea de código `.tsx` de los componentes.
+3. **Modo Oscuro Integrado:** El uso de las variables en los bloques `:root` y `.dark` de CSS permite una transición instantánea y fluida de todos los componentes de Shadcn (botones, tarjetas, dropdowns) sin código condicional en React.
 
 ---
 
-## 3. Cómo Presentar Opciones de UI (Ej. Violeta Moderno vs Azul Corporativo)
+## 3. Estructuración del Layout en el Prototipo
 
-Dado que todo el sistema de Shadcn se basa en **variables CSS** dentro del archivo `app.css`, podemos configurar múltiples combinaciones de color y bordes para que el cliente elija.
-
-### La magia: CSS Variables en `:root`
-
-Aquí tienes un ejemplo de cómo definir las variables en `app.css` para dos propuestas diferentes:
-
-```css
-/* Opción A: Tema Violeta Moderno (Pasteles, violeta vibrante, bordes curvos y suaves) */
-:root {
-  --background: 260 30% 98%;
-  --foreground: 263 39% 12%;
-  --primary: 262 83% 58%;       /* Violeta */
-  --primary-foreground: 210 20% 98%;
-  --border: 260 20% 90%;
-  --radius: 0.75rem;            /* Bordes bastante redondeados y modernos */
-}
-
-/* Opción B: Tema Azul Corporativo (Estilo limpio, serio, bordes estándar) */
-:root {
-  --background: 0 0% 100%;
-  --foreground: 222 47% 11%;
-  --primary: 221 83% 53%;       /* Azul corporativo */
-  --primary-foreground: 210 20% 98%;
-  --border: 214 32% 91%;
-  --radius: 0.5rem;             /* Bordes clásicos */
-}
-```
-
-### Estrategia práctica: Selector de Tema en el Prototipo
-
-Para permitir que el cliente cambie y compare ambas opciones visuales en vivo durante la presentación, podemos implementar este componente:
-
-```tsx
-// src/Components/ThemeSwitcher.tsx
-// ── Un archivo, dos temas de Shadcn — el cliente decide en vivo ──
-import { useState } from 'react';
-
-const TEMAS = {
-  violeta: {
-    nombre: "Violeta Moderno",
-    variables: {
-      "--background": "260 30% 98%",
-      "--foreground": "263 39% 12%",
-      "--primary": "262 83% 58%",
-      "--primary-foreground": "210 20% 98%",
-      "--border": "260 20% 90%",
-      "--radius": "0.75rem",
-    }
-  },
-  azul: {
-    nombre: "Azul Corporativo",
-    variables: {
-      "--background": "0 0% 100%",
-      "--foreground": "222 47% 11%",
-      "--primary": "221 83% 53%",
-      "--primary-foreground": "210 20% 98%",
-      "--border": "214 32% 91%",
-      "--radius": "0.5rem",
-    }
-  }
-};
-
-export function ThemeSwitcher() {
-  const [tema, setTema] = useState<keyof typeof TEMAS>("violeta");
-
-  const cambiarTema = (nuevoTema: keyof typeof TEMAS) => {
-    const root = document.documentElement;
-    // Aplica cada variable CSS directamente en el :root
-    Object.entries(TEMAS[nuevoTema].variables).forEach(([key, value]) => {
-      root.style.setProperty(key, value);
-    });
-    setTema(nuevoTema);
-  };
-
-  return (
-    <div className="flex items-center gap-2 p-2 border rounded-lg bg-card text-card-foreground shadow-sm">
-      <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">🎨 Propuesta UI:</span>
-      <div className="flex gap-1">
-        {Object.entries(TEMAS).map(([key, config]) => (
-          <button
-            key={key}
-            onClick={() => cambiarTema(key as keyof typeof TEMAS)}
-            className={`px-3 py-1 text-xs font-medium rounded-md transition-all border
-              ${tema === key 
-                ? "bg-primary text-primary-foreground border-primary shadow-sm" 
-                : "bg-background text-foreground hover:bg-muted border-input"}`}
-          >
-            {config.nombre}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
-```
-
-> [!TIP] Dónde poner el ThemeSwitcher para la presentación
-> Ubícalo temporalmente en la barra de navegación superior (Navbar) durante la demo con el cliente. Una vez que aprueben el estilo visual definitivo, retiras este componente y dejas los valores fijos en el archivo `app.css`.
+Para la presentación con el cliente, el prototipo estructurará de forma clara los dos tipos de acceso:
+*   **Acceso Público (Buscador y Login)**: Páginas totalmente independientes, minimalistas y despejadas, sin la estructura del Header ni Sidebar. Esto da una experiencia limpia al ciudadano denunciante.
+*   **Acceso Privado (Funcionarios)**: Una vez iniciada la sesión, las páginas privadas (Kanban general, Kanban personal, detalles de investigación, reportes) se renderizan dentro del layout global **`AppLayout.tsx`**, heredando automáticamente la cabecera y el sidebar responsivo de forma cohesiva.
 
 ---
 

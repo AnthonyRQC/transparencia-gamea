@@ -388,7 +388,7 @@ Los plazos son el corazón del sistema. La ley es estricta y el sistema debe gar
 | Frontend | React 18 + TypeScript |
 | Estilos | Tailwind CSS v3 + shadcn/ui |
 | Autenticación | Laravel Breeze |
-| Base de Datos | MySQL |
+| Base de Datos | MySQL (Postergada en maqueta, con mocks en controladores) |
 | Entorno Local | Laragon |
 
 ---
