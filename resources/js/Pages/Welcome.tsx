@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Head } from '@inertiajs/react';
 import { Button } from '@/Components/ui/button';
-import AppLayout from '@/Layouts/AppLayout';
+import AppLayout from '@/Components/Layout/AppLayout';
 
 export default function Welcome() {
     const [activeTab, setActiveTab] = useState('inicio');

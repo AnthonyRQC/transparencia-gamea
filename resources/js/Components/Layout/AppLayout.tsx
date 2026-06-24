@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import Header from '@/Components/Header';
-import Sidebar from '@/Components/Sidebar';
+import React, { useState, useEffect } from 'react';
+import Header from './Header';
+import Sidebar from './Sidebar';
 
 interface AppLayoutProps {
     children: React.ReactNode;
@@ -13,21 +13,44 @@ export default function AppLayout({
     activeTab = 'inicio',
     onSelectTab = () => {},
 }: AppLayoutProps) {
-    const [isDarkMode, setIsDarkMode] = useState(false);
-    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+    // Modo oscuro inicializado de localStorage
+    const [isDarkMode, setIsDarkMode] = useState(() => {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('dark_mode') === 'true';
+        }
+        return false;
+    });
+
+    // Sidebar colapsado por defecto (true) a menos que haya un estado guardado en localStorage
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+        if (typeof window !== 'undefined') {
+            const saved = localStorage.getItem('sidebar_collapsed');
+            return saved !== null ? saved === 'true' : true;
+        }
+        return true;
+    });
+
     const [isSidebarOpenMobile, setIsSidebarOpenMobile] = useState(false);
+
+    // Sincronizar clase .dark reactivamente
+    useEffect(() => {
+        document.documentElement.classList.toggle('dark', isDarkMode);
+    }, [isDarkMode]);
 
     const handleToggleSidebar = () => {
         if (window.innerWidth < 768) {
             setIsSidebarOpenMobile(!isSidebarOpenMobile);
         } else {
-            setIsSidebarCollapsed(!isSidebarCollapsed);
+            const nextState = !isSidebarCollapsed;
+            setIsSidebarCollapsed(nextState);
+            localStorage.setItem('sidebar_collapsed', String(nextState));
         }
     };
 
     const handleToggleDarkMode = () => {
-        setIsDarkMode(!isDarkMode);
-        document.documentElement.classList.toggle('dark');
+        const nextState = !isDarkMode;
+        setIsDarkMode(nextState);
+        localStorage.setItem('dark_mode', String(nextState));
     };
 
     return (
