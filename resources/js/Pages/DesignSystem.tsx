@@ -1,11 +1,87 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Head } from '@inertiajs/react';
 import { Button } from '@/Components/ui/button';
 import AppLayout from '@/Components/Layout/AppLayout';
+import { 
+    Clock, 
+    Lock, 
+    Unlock, 
+    Upload, 
+    Check, 
+    Plus, 
+    Trash2, 
+    UserCheck, 
+    RefreshCw, 
+    AlertCircle, 
+    Eye, 
+    EyeOff, 
+    FileText, 
+    ShieldAlert, 
+    ChevronRight, 
+    MoreVertical 
+} from 'lucide-react';
 
 export default function DesignSystem() {
     const [activeTab, setActiveTab] = useState('inicio');
     const [clickCount, setClickCount] = useState(0);
+
+    // Estados para el Playground Interactivos
+    const [revealIdentity, setRevealIdentity] = useState(false);
+    const [auditLog, setAuditLog] = useState<string[]>([]);
+    
+    // Estado para carga de archivos
+    const [uploadedFile, setUploadedFile] = useState<{name: string, size: string} | null>(null);
+    const [isUploading, setIsUploading] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0);
+
+    // Estado para solicitudes de información mock
+    const [requestsList, setRequestsList] = useState([
+        { id: 1, entity: 'Dirección de Finanzas', request: 'Kardex de pagos gestión 2025', date: '2026-06-20', limitDays: 10, status: 'Pendiente' },
+        { id: 2, entity: 'Recursos Humanos', request: 'Planilla de asistencia biométrica', date: '2026-06-18', limitDays: 5, status: 'Recibida' },
+        { id: 3, entity: 'Asesoría Jurídica', request: 'Informe legal de adquisiciones', date: '2026-06-22', limitDays: 10, status: 'Pendiente' }
+    ]);
+
+    const handleToggleIdentity = () => {
+        const nextState = !revealIdentity;
+        setRevealIdentity(nextState);
+        
+        if (nextState) {
+            const time = new Date().toLocaleTimeString();
+            const logMsg = `[${time}] AUDITORÍA: El usuario "Jefe de Unidad" reveló la identidad del denunciante.`;
+            setAuditLog(prev => [logMsg, ...prev]);
+            console.warn(logMsg);
+        }
+    };
+
+    const handleSimulateUpload = () => {
+        setIsUploading(true);
+        setUploadProgress(0);
+        setUploadedFile(null);
+        
+        let currentProgress = 0;
+        const interval = setInterval(() => {
+            currentProgress += 10;
+            setUploadProgress(currentProgress);
+            if (currentProgress >= 100) {
+                clearInterval(interval);
+                setIsUploading(false);
+                setUploadedFile({
+                    name: 'documento_de_prueba_escaneado.pdf',
+                    size: '2.4 MB'
+                });
+            }
+        }, 150);
+    };
+
+    const handleResolveRequest = (id: number) => {
+        setRequestsList(prev => 
+            prev.map(req => 
+                req.id === id 
+                    ? { ...req, status: req.status === 'Pendiente' ? 'Recibida' : 'Pendiente' } 
+                    : req
+            )
+        );
+    };
 
     return (
         <AppLayout activeTab={activeTab} onSelectTab={setActiveTab}>
@@ -234,6 +310,252 @@ export default function DesignSystem() {
                     </div>
                 </section>
             </div>
+
+            {/* Separador Horizontal */}
+            <hr className="my-10 border-border" />
+
+            {/* NUEVA SECCIÓN: Playground de Módulos de Gestión */}
+            <section className="space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b">
+                    <div>
+                        <h3 className="text-2xl font-bold tracking-tight">Playground de Componentes para Módulos de Gestión</h3>
+                        <p className="text-sm text-muted-foreground">Maquetas visuales e interactivas para tableros Kanban, flujos de investigación y protección al denunciante.</p>
+                    </div>
+                    <span className="self-start sm:self-auto px-3 py-1 rounded-full text-xs font-bold bg-secondary/20 text-secondary-foreground border border-secondary/30">
+                        Playground Interactivo
+                    </span>
+                </div>
+
+                <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
+                    
+                    {/* 1. Kanban Card Showcase (Col 4) */}
+                    <div className="xl:col-span-4 space-y-4">
+                        <div className="flex items-center justify-between">
+                            <h4 className="font-bold text-md text-foreground">Tarjeta Kanban de Expediente</h4>
+                            <span className="text-[10px] bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400 font-bold px-2 py-0.5 rounded">Urgente</span>
+                        </div>
+
+                        {/* Kanban Card Component */}
+                        <div className="bg-card border-y border-r border-l-4 border-l-destructive rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow space-y-3 cursor-grab active:cursor-grabbing relative group">
+                            <div className="flex items-center justify-between">
+                                <span className="text-[10px] font-mono font-bold text-muted-foreground">DEN-2026-0002</span>
+                                <span className="text-[10px] font-semibold bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded">
+                                    Negación Info.
+                                </span>
+                            </div>
+                            
+                            <div className="space-y-1">
+                                <h5 className="font-bold text-sm text-foreground line-clamp-1">Inconsistencias en Obras del Distrito 4</h5>
+                                <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                                    Se alega ocultación intencionada de facturas y reportes de avance financiero solicitados en reiteradas oportunidades.
+                                </p>
+                            </div>
+
+                            <div className="flex items-center justify-between pt-2 border-t text-[11px] text-muted-foreground">
+                                <div className="flex items-center gap-1.5 font-medium">
+                                    <div className="w-5 h-5 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-[9px]">
+                                        AT
+                                    </div>
+                                    <span>Ana Torres (Analista)</span>
+                                </div>
+                                <span className="flex items-center gap-1 font-semibold text-destructive">
+                                    <Clock className="w-3.5 h-3.5" />
+                                    3 días plazo
+                                </span>
+                            </div>
+
+                            {/* Acciones simuladas */}
+                            <div className="pt-3 flex gap-2">
+                                <Button size="sm" className="w-full text-[10px] h-8 bg-primary hover:bg-primary/95">
+                                    Asignar
+                                </Button>
+                                <Button size="sm" variant="outline" className="w-full text-[10px] h-8">
+                                    Ver Expediente
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* 2. Escudo de Privacidad - Reserva de Identidad (Col 4) */}
+                    <div className="xl:col-span-4 space-y-4">
+                        <div className="flex items-center justify-between">
+                            <h4 className="font-bold text-md text-foreground">Escudo de Privacidad (Reserva)</h4>
+                            <span className="text-[10px] bg-primary/10 text-primary border border-primary/20 font-bold px-2 py-0.5 rounded">Seguridad</span>
+                        </div>
+
+                        {/* Privacy Shield Component */}
+                        <div className="bg-card border rounded-xl p-5 shadow-sm space-y-4 relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-16 h-16 bg-primary/5 rounded-bl-full pointer-events-none" />
+                            
+                            <div className="flex items-center gap-2 text-xs font-bold text-primary uppercase tracking-wider pb-2 border-b">
+                                <ShieldAlert className="w-4 h-4 text-primary" />
+                                Reserva de Identidad
+                            </div>
+
+                            <div className="space-y-3 text-xs">
+                                <div>
+                                    <span className="text-muted-foreground block mb-0.5">Nombre del Denunciante:</span>
+                                    <strong className={`text-sm tracking-wide font-semibold block transition-all duration-300 ${
+                                        revealIdentity ? 'text-foreground' : 'blur-md select-none text-muted-foreground'
+                                    }`}>
+                                        Juan Carlos Pérez Ramos
+                                    </strong>
+                                </div>
+                                <div>
+                                    <span className="text-muted-foreground block mb-0.5">Documento de Identidad:</span>
+                                    <strong className={`font-mono block tracking-wider transition-all duration-300 ${
+                                        revealIdentity ? 'text-foreground' : 'blur-md select-none text-muted-foreground'
+                                    }`}>
+                                        4728912 LP
+                                    </strong>
+                                </div>
+                            </div>
+
+                            <div className="pt-2 flex flex-col gap-2">
+                                <button
+                                    onClick={handleToggleIdentity}
+                                    className="w-full px-3 py-2 rounded-lg bg-secondary text-secondary-foreground text-xs font-bold flex items-center justify-center gap-1.5 hover:scale-102 active:scale-98 transition-all cursor-pointer shadow-sm"
+                                >
+                                    {revealIdentity ? (
+                                        <>
+                                            <EyeOff className="w-3.5 h-3.5" />
+                                            Ocultar Identidad
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Eye className="w-3.5 h-3.5" />
+                                            Revelar Identidad
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+
+                            {/* Historial de Auditoría Local */}
+                            {auditLog.length > 0 && (
+                                <div className="mt-3 pt-3 border-t space-y-1">
+                                    <span className="text-[9px] uppercase tracking-wider text-muted-foreground font-bold font-mono">Bitácora de Auditoría (Simulación)</span>
+                                    <div className="bg-muted p-2 rounded text-[10px] font-mono text-foreground leading-relaxed max-h-20 overflow-y-auto">
+                                        {auditLog.map((log, i) => (
+                                            <div key={i} className="border-b border-border/40 py-0.5 last:border-0">{log}</div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* 3. Drag & Drop File Uploader (Col 4) */}
+                    <div className="xl:col-span-4 space-y-4">
+                        <h4 className="font-bold text-md text-foreground">Carga de Medios de Prueba</h4>
+                        
+                        {/* Drag and Drop Box */}
+                        <div className="bg-card border-2 border-dashed border-border rounded-xl p-5 shadow-sm text-center flex flex-col items-center justify-center min-h-[175px] space-y-3 relative group hover:border-primary/50 transition-colors">
+                            {!uploadedFile && !isUploading ? (
+                                <>
+                                    <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center group-hover:scale-110 transition-transform">
+                                        <Upload className="w-5 h-5 text-primary" />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <p className="text-xs font-bold text-foreground">Arrastra tus archivos aquí o haz clic</p>
+                                        <p className="text-[10px] text-muted-foreground">PDF, PNG, JPG (Máx. 10MB)</p>
+                                    </div>
+                                    <button 
+                                        onClick={handleSimulateUpload}
+                                        className="px-3 py-1 rounded bg-muted hover:bg-primary/10 hover:text-primary transition-all text-[10px] border font-bold cursor-pointer"
+                                    >
+                                        Simular Selección
+                                    </button>
+                                </>
+                            ) : isUploading ? (
+                                <div className="w-full space-y-3 px-4">
+                                    <RefreshCw className="w-6 h-6 text-primary animate-spin mx-auto" />
+                                    <div className="space-y-1">
+                                        <p className="text-xs font-bold text-foreground">Subiendo archivo...</p>
+                                        <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
+                                            <div 
+                                                className="bg-primary h-full transition-all duration-150"
+                                                style={{ width: `${uploadProgress}%` }}
+                                            />
+                                        </div>
+                                        <p className="text-[9px] text-muted-foreground font-mono">{uploadProgress}% cargado</p>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="space-y-3 w-full px-2">
+                                    <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-950/30 text-green-600 dark:text-green-400 flex items-center justify-center mx-auto">
+                                        <Check className="w-5 h-5" />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <p className="text-xs font-bold text-foreground truncate max-w-full">{uploadedFile?.name}</p>
+                                        <p className="text-[10px] text-muted-foreground font-mono">{uploadedFile?.size}</p>
+                                    </div>
+                                    <div className="flex gap-2 justify-center">
+                                        <button
+                                            onClick={() => setUploadedFile(null)}
+                                            className="px-3 py-1 rounded bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive hover:text-destructive-foreground transition-all text-[10px] font-bold cursor-pointer"
+                                        >
+                                            Eliminar
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* 4. Solicitudes de Información Table (Col 12 - Full Width) */}
+                    <div className="xl:col-span-12 space-y-4">
+                        <div className="flex items-center justify-between">
+                            <h4 className="font-bold text-md text-foreground">Bandeja de Solicitudes de Información (Técnico / Analista)</h4>
+                            <span className="text-[10px] bg-secondary/15 text-secondary-foreground border border-secondary/30 px-2 py-0.5 rounded font-mono font-bold">Mock de Requerimientos</span>
+                        </div>
+
+                        {/* Interactive Table Mock */}
+                        <div className="bg-card border rounded-xl overflow-hidden shadow-sm">
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left text-xs border-collapse">
+                                    <thead>
+                                        <tr className="bg-muted/50 border-b border-border/80 text-muted-foreground uppercase font-bold tracking-wider text-[10px]">
+                                            <th className="p-3">Destinatario</th>
+                                            <th className="p-3">Información Requerida</th>
+                                            <th className="p-3">Fecha Solicitud</th>
+                                            <th className="p-3">Plazo Límite</th>
+                                            <th className="p-3">Estado</th>
+                                            <th className="p-3 text-right">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y">
+                                        {requestsList.map((req) => (
+                                            <tr key={req.id} className="hover:bg-muted/20 transition-colors">
+                                                <td className="p-3 font-semibold text-foreground">{req.entity}</td>
+                                                <td className="p-3 text-muted-foreground">{req.request}</td>
+                                                <td className="p-3 font-mono text-[11px]">{req.date}</td>
+                                                <td className="p-3 font-mono text-[11px] font-semibold text-destructive">{req.limitDays} días hábiles</td>
+                                                <td className="p-3">
+                                                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                                        req.status === 'Recibida' 
+                                                            ? 'bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400' 
+                                                            : 'bg-orange-100 dark:bg-orange-950/30 text-orange-700 dark:text-orange-400'
+                                                    }`}>
+                                                        {req.status}
+                                                    </span>
+                                                </td>
+                                                <td className="p-3 text-right">
+                                                    <button
+                                                        onClick={() => handleResolveRequest(req.id)}
+                                                        className="px-2.5 py-1 rounded bg-primary/10 border border-primary/20 text-primary hover:bg-primary hover:text-primary-foreground text-[10px] font-bold cursor-pointer transition-colors"
+                                                    >
+                                                        {req.status === 'Pendiente' ? 'Registrar Respuesta' : 'Marcar Pendiente'}
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </AppLayout>
     );
 }
