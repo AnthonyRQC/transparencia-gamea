@@ -5,6 +5,18 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+/*
+|--------------------------------------------------------------------------
+| Web Routes — Sistema de Gestión de Denuncias UTLCC
+|--------------------------------------------------------------------------
+| Sprint 0: Estructura base de navegación. Las páginas son placeholders
+| que se reemplazarán en los siguientes sprints con la lógica real.
+*/
+
+// ============================================================
+// RUTAS PÚBLICAS
+// ============================================================
+
 Route::get('/', function () {
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
@@ -12,20 +24,63 @@ Route::get('/', function () {
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
     ]);
-});
+})->name('home');
+
+// Seguimiento público (Sprint 6)
+Route::get('/seguimiento', function () {
+    return Inertia::render('Seguimiento/Buscar');
+})->name('seguimiento.buscar');
+
+// ============================================================
+// DESIGN SYSTEM (interno, sin auth para poder revisar tema)
+// ============================================================
 
 Route::get('/design-system', function () {
     return Inertia::render('DesignSystem');
 })->name('design-system');
 
+// ============================================================
+// RUTAS AUTENTICADAS — Sistema UTLCC
+// ============================================================
+
+// Dashboard / Inicio
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->name('dashboard');
 
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+// ----- Denuncias -----
+Route::prefix('denuncias')->name('denuncias.')->group(function () {
+    // Kanban (Sprint 2)
+    Route::get('/', function () {
+        return Inertia::render('Denuncias/Kanban');
+    })->name('kanban');
+
+    // Registro de nueva denuncia (Sprint 1)
+    Route::get('/registrar', function () {
+        return Inertia::render('Denuncias/RegistroDenuncia');
+    })->name('registrar');
+
+    // Detalle de denuncia (Sprint 3)
+    Route::get('/{id}', function ($id) {
+        return Inertia::render('Denuncias/DetalleDenuncia', ['id' => $id]);
+    })->name('detalle');
 });
+
+// ----- Reportes (Sprint 7) -----
+Route::get('/reportes', function () {
+    return Inertia::render('Reportes/Index');
+})->name('reportes.index');
+
+// ----- Administración (Sprint 8) -----
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/feriados', function () {
+        return Inertia::render('Admin/Feriados');
+    })->name('feriados');
+});
+
+// ----- Perfil de usuario -----
+Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
 require __DIR__.'/auth.php';
