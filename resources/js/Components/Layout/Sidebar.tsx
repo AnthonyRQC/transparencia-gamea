@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import {
     LayoutDashboard,
@@ -9,7 +9,6 @@ import {
     CalendarDays,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import InstitutionalLogo from './InstitutionalLogo';
 
 interface MenuItem {
     key: string;
@@ -31,6 +30,8 @@ export default function Sidebar({
     isSidebarOpenMobile,
     onCloseSidebarMobile,
 }: SidebarProps) {
+    const { logo_url } = usePage().props as { logo_url?: string };
+
     const menuItems: MenuItem[] = [
         {
             key: 'inicio',
@@ -79,21 +80,25 @@ export default function Sidebar({
     return (
         <aside
             className={cn(
-                'bg-card border-r border-border flex flex-col pt-6 select-none shrink-0 transition-all duration-300 ease-in-out',
-                'fixed inset-y-0 left-0 z-50 w-64 transform md:relative md:translate-x-0 md:z-auto',
+                'bg-sidebar border-r border-sidebar-border flex flex-col select-none shrink-0 transition-all duration-300 ease-in-out',
+                'fixed inset-y-0 left-0 z-50 w-64 transform md:relative md:translate-x-0 md:z-auto text-sidebar-foreground',
                 isSidebarOpenMobile ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:translate-x-0',
                 isSidebarCollapsed ? 'md:w-16' : 'md:w-64'
             )}
         >
-            {/* Mobile Sidebar Header with Close Button */}
-            <div className="flex md:hidden items-center justify-between px-4 pb-4 border-b border-border/60 mb-4 shrink-0">
+            {/* Mobile sidebar header */}
+            <div className="flex md:hidden items-center justify-between px-4 pb-4 border-b border-sidebar-border/60 mb-4 shrink-0 pt-4">
                 <div className="flex items-center gap-2">
-                    <InstitutionalLogo size="sm" />
-                    <span className="font-bold text-sm tracking-tight text-foreground">Transparencia</span>
+                    <img
+                        src={logo_url || ''}
+                        alt="GAMEA"
+                        className="w-8 h-8 object-contain drop-shadow-[0_2px_6px_rgba(255,255,255,0.2)] brightness-110"
+                    />
+                    <span className="font-bold text-sm tracking-tight">Transparencia</span>
                 </div>
                 <button
                     onClick={onCloseSidebarMobile}
-                    className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground transition-colors cursor-pointer"
+                    className="p-1.5 rounded-lg hover:bg-sidebar-muted text-sidebar-foreground/60 transition-colors cursor-pointer"
                     aria-label="Cerrar menú"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -102,82 +107,117 @@ export default function Sidebar({
                 </button>
             </div>
 
-            {/* Logo Section (Desktop) */}
+            {/* Brand banner - desktop only */}
             <div
                 className={cn(
-                    'hidden md:flex items-center gap-3 px-4 pb-5 border-b border-border/60 mb-4 shrink-0',
-                    isSidebarCollapsed ? 'md:justify-center md:px-2' : 'md:px-4'
+                    'hidden md:flex flex-col items-center shrink-0 transition-all duration-300',
+                    'relative overflow-hidden',
+                    isSidebarCollapsed
+                        ? 'py-3 mb-2'
+                        : 'pt-6 pb-5 mb-3 mx-3 rounded-2xl bg-gradient-to-b from-sidebar-muted/80 to-sidebar'
                 )}
             >
-                <InstitutionalLogo size={isSidebarCollapsed ? 'sm' : 'md'} />
+                {/* Subtle brand glow */}
+                {!isSidebarCollapsed && (
+                    <div className="absolute inset-0 bg-gradient-to-b from-primary/[0.08] to-transparent pointer-events-none" />
+                )}
+
+                {/* Logo */}
                 <div
                     className={cn(
-                        'min-w-0 transition-all duration-300 origin-left',
-                        isSidebarCollapsed ? 'md:opacity-0 md:w-0 md:scale-95 md:pointer-events-none md:overflow-hidden' : 'md:opacity-100 md:w-auto'
+                        'relative z-10 flex items-center justify-center',
+                        isSidebarCollapsed ? 'w-9 h-9' : 'w-14 h-14 mb-2.5'
                     )}
                 >
-                    <h2 className="font-bold text-sm tracking-tight text-foreground leading-tight truncate">
-                        Transparencia
+                    <img
+                        src={logo_url || ''}
+                        alt="GAMEA - Gobierno Autónomo Municipal de El Alto"
+                        className="w-full h-full object-contain drop-shadow-[0_2px_8px_rgba(255,255,255,0.25)] brightness-110"
+                    />
+                </div>
+
+                {/* Institution name - hidden on collapsed */}
+                <div
+                    className={cn(
+                        'relative z-10 text-center transition-all duration-300 origin-top',
+                        isSidebarCollapsed
+                            ? 'opacity-0 h-0 scale-95 pointer-events-none overflow-hidden'
+                            : 'opacity-100 h-auto'
+                    )}
+                >
+                    <h2 className="text-xs font-extrabold tracking-[0.15em] text-sidebar-accent uppercase">
+                        GAMEA · El Alto
                     </h2>
-                    <p className="text-[10px] text-muted-foreground font-medium leading-none mt-0.5">
-                        GAMEA · UTLCC
+                    <p className="text-[11px] font-bold text-sidebar-foreground/90 leading-tight mt-1">
+                        Transparencia
+                    </p>
+                    <p className="text-[9px] font-medium text-sidebar-foreground/50 leading-tight mt-0.5">
+                        Unidad UTLCC
                     </p>
                 </div>
             </div>
 
-            {/* Navigation Items */}
-            <nav className="flex-1 px-3 space-y-1.5 overflow-y-auto">
+            {/* Navigation */}
+            <nav className="flex-1 px-2.5 space-y-0.5 overflow-y-auto">
                 {menuItems.map((item) => {
                     const active = isActive(item.routeName);
-                    return (
+
+                    const linkContent = (
                         <Link
-                            key={item.key}
                             href={item.href}
                             onClick={onCloseSidebarMobile}
-                            className={cn(
-                                'w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer relative overflow-hidden group focus:outline-none',
-                                active
-                                    ? 'bg-primary text-primary-foreground shadow-sm shadow-primary/10'
-                                    : 'text-muted-foreground hover:bg-primary/8 hover:text-primary'
-                            )}
                             title={isSidebarCollapsed ? item.label : undefined}
+                            className={cn(
+                                'w-full flex items-center gap-3 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer relative group/link focus:outline-none',
+                                active
+                                    ? 'bg-sidebar-muted text-sidebar-accent'
+                                    : 'text-sidebar-foreground/70 hover:bg-sidebar-muted/50 hover:text-sidebar-foreground',
+                                isSidebarCollapsed ? 'justify-center py-2' : 'px-3 py-2'
+                            )}
                         >
-                            {/* Sidebar Active Indicator Bar */}
+                            {/* Active indicator bar */}
                             {active && (
-                                <div className="absolute left-0 top-1/4 bottom-1/4 w-1 bg-secondary rounded-full" />
+                                <div
+                                    className={cn(
+                                        'absolute bg-sidebar-accent rounded-full',
+                                        isSidebarCollapsed
+                                            ? 'left-0 top-1/4 bottom-1/4 w-0.5'
+                                            : 'left-0 top-1/4 bottom-1/4 w-0.5'
+                                    )}
+                                />
                             )}
 
                             {/* Icon */}
                             <span
                                 className={cn(
-                                    'transition-transform duration-200 group-hover:scale-110',
-                                    active ? 'text-inherit' : 'text-primary'
+                                    'shrink-0 transition-transform duration-200 group-hover/link:scale-110',
+                                    active ? 'text-sidebar-accent' : ''
                                 )}
                             >
                                 {item.icon}
                             </span>
 
-                            {/* Label Text - Responsive collapse */}
+                            {/* Label */}
                             <span
                                 className={cn(
-                                    'transition-all duration-300 ease-in-out origin-left whitespace-nowrap text-left',
-                                    'opacity-100 scale-100 w-auto',
+                                    'transition-all duration-300 ease-in-out whitespace-nowrap text-left',
                                     isSidebarCollapsed
-                                        ? 'md:opacity-0 md:w-0 md:scale-95 md:pointer-events-none md:overflow-hidden'
-                                        : 'md:opacity-100 md:w-auto'
+                                        ? 'opacity-0 w-0 overflow-hidden pointer-events-none'
+                                        : 'opacity-100 w-auto'
                                 )}
                             >
                                 {item.label}
                             </span>
 
-                            {/* Optional Badge */}
+                            {/* Badge */}
                             {item.badge !== undefined && item.badge > 0 && (
                                 <span
                                     className={cn(
-                                        'ml-auto text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center',
+                                        'ml-auto text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center transition-all',
                                         active
-                                            ? 'bg-secondary text-secondary-foreground'
-                                            : 'bg-destructive text-destructive-foreground'
+                                            ? 'bg-sidebar-accent text-sidebar'
+                                            : 'bg-destructive text-destructive-foreground',
+                                        isSidebarCollapsed ? 'hidden' : ''
                                     )}
                                 >
                                     {item.badge}
@@ -185,27 +225,43 @@ export default function Sidebar({
                             )}
                         </Link>
                     );
+
+                    return (
+                        <div key={item.key} className={cn(isSidebarCollapsed ? 'flex justify-center' : '')}>
+                            {linkContent}
+                        </div>
+                    );
                 })}
             </nav>
 
-            {/* Sidebar Footer Info */}
-            <div className="p-4 border-t border-border/60 text-center shrink-0">
+            {/* Footer */}
+            <div className="shrink-0 border-t border-sidebar-border/60">
                 <div
                     className={cn(
-                        'transition-all duration-300',
-                        isSidebarCollapsed ? 'md:scale-0 md:h-0 md:overflow-hidden' : 'md:scale-100'
+                        'text-center transition-all duration-300',
+                        isSidebarCollapsed ? 'py-2' : 'py-3'
                     )}
                 >
-                    <span className="text-[10px] text-muted-foreground font-mono">
+                    {/* Dot indicator when collapsed */}
+                    <div
+                        className={cn(
+                            'transition-all duration-300',
+                            isSidebarCollapsed ? 'scale-100' : 'scale-0 h-0 overflow-hidden'
+                        )}
+                    >
+                        <div className="w-1.5 h-1.5 rounded-full mx-auto bg-sidebar-accent/60" />
+                    </div>
+
+                    {/* Version text when expanded */}
+                    <span
+                        className={cn(
+                            'text-[10px] text-sidebar-foreground/40 font-mono transition-all duration-300',
+                            isSidebarCollapsed ? 'hidden' : 'block'
+                        )}
+                    >
                         Ley N° 974 · v0.1.0
                     </span>
                 </div>
-                <div
-                    className={cn(
-                        'w-2.5 h-2.5 rounded-full mx-auto bg-primary transition-all duration-300',
-                        isSidebarCollapsed ? 'md:scale-100' : 'md:scale-0 md:h-0'
-                    )}
-                />
             </div>
         </aside>
     );

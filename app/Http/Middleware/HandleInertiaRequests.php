@@ -34,6 +34,7 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            'logo_url' => asset('LOGO-OFICIAL-EL-ALTO.png'),
         ];
     }
 }

@@ -55,6 +55,14 @@ export default {
                     DEFAULT: "oklch(var(--card) / <alpha-value>)",
                     foreground: "oklch(var(--card-foreground) / <alpha-value>)",
                 },
+                sidebar: {
+                    DEFAULT: "oklch(var(--sidebar) / <alpha-value>)",
+                    foreground: "oklch(var(--sidebar-foreground) / <alpha-value>)",
+                    border: "oklch(var(--sidebar-border) / <alpha-value>)",
+                    accent: "oklch(var(--sidebar-accent) / <alpha-value>)",
+                    muted: "oklch(var(--sidebar-muted) / <alpha-value>)",
+                    ring: "oklch(var(--sidebar-ring) / <alpha-value>)",
+                },
             },
             borderRadius: {
                 lg: "var(--radius)",
@@ -96,6 +104,10 @@ export default {
                     from: { transform: 'translateY(0)' },
                     to: { transform: 'translateY(calc(-100% - var(--gap, 1rem)))' },
                 },
+                'tooltip-in': {
+                    '0%': { opacity: '0', transform: 'translateX(-6px)' },
+                    '100%': { opacity: '1', transform: 'translateX(0)' },
+                },
             },
             animation: {
                 'accordion-down': 'accordion-down 0.2s ease-out',
@@ -104,6 +116,7 @@ export default {
                 'fade-out': 'fade-out 0.4s ease-out forwards',
                 marquee: 'marquee 25s linear infinite',
                 'marquee-vertical': 'marquee-vertical 25s linear infinite',
+                'tooltip-in': 'tooltip-in 0.2s ease-out forwards',
             },
         },
     },

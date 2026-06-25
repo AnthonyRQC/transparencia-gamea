@@ -36,12 +36,12 @@ export default function Header({
     }, []);
 
     return (
-        <header className="border-b border-border bg-card/70 backdrop-blur sticky top-0 z-50 px-3 py-3 sm:px-6 sm:py-4 flex items-center justify-between">
+        <header className="border-b border-sidebar-border bg-sidebar sticky top-0 z-50 px-3 py-3 sm:px-6 sm:py-4 flex items-center justify-between">
             <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
                 {/* Sidebar Toggle Button */}
                 <button
                     onClick={onToggleSidebar}
-                    className="p-1.5 sm:p-2 rounded-lg hover:bg-muted transition-colors cursor-pointer text-foreground shrink-0 focus:outline-none focus:ring-2 focus:ring-primary/40"
+                    className="p-1.5 sm:p-2 rounded-lg hover:bg-sidebar-muted transition-colors cursor-pointer text-sidebar-foreground shrink-0 focus:outline-none focus:ring-2 focus:ring-sidebar-ring/40"
                     aria-label="Toggle Sidebar"
                 >
                     <svg
@@ -71,10 +71,10 @@ export default function Header({
                 <Link href={route('dashboard')} className="flex items-center gap-2 sm:gap-3 min-w-0 group">
                     <InstitutionalLogo size="sm" className="hidden sm:block" />
                     <div className="min-w-0">
-                        <h1 className="text-sm xs:text-base sm:text-lg font-bold tracking-tight text-foreground leading-tight truncate group-hover:text-primary transition-colors">
+                        <h1 className="text-sm xs:text-base sm:text-lg font-bold tracking-tight text-sidebar-foreground leading-tight truncate group-hover:text-sidebar-accent transition-colors">
                             Gobierno Autónomo Municipal de El Alto
                         </h1>
-                        <p className="hidden xs:block text-[10px] sm:text-xs text-muted-foreground font-medium leading-none mt-0.5 truncate">
+                        <p className="hidden xs:block text-[10px] sm:text-xs text-sidebar-foreground/60 font-medium leading-none mt-0.5 truncate">
                             Unidad de Transparencia y Lucha Contra la Corrupción · UTLCC
                         </p>
                     </div>
@@ -84,7 +84,7 @@ export default function Header({
             <div className="flex items-center gap-2 shrink-0">
                 {/* Notifications Bell */}
                 <button
-                    className="relative p-2 rounded-lg hover:bg-muted transition-colors cursor-pointer text-muted-foreground hover:text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
+                    className="relative p-2 rounded-lg hover:bg-sidebar-muted transition-colors cursor-pointer text-sidebar-foreground/60 hover:text-sidebar-foreground focus:outline-none focus:ring-2 focus:ring-sidebar-ring/40"
                     aria-label="Notificaciones"
                     title="Notificaciones"
                 >
@@ -95,7 +95,7 @@ export default function Header({
                 {/* Dark Mode Toggle */}
                 <button
                     onClick={onToggleDarkMode}
-                    className="p-2 sm:px-3 sm:py-2 rounded-lg bg-secondary text-secondary-foreground text-xs sm:text-sm font-semibold shadow hover:scale-105 active:scale-95 transition-all duration-200 flex items-center gap-2 cursor-pointer"
+                    className="p-2 sm:px-3 sm:py-2 rounded-lg bg-sidebar-accent text-sidebar font-semibold text-xs sm:text-sm shadow hover:scale-105 active:scale-95 transition-all duration-200 flex items-center gap-2 cursor-pointer"
                     title={isDarkMode ? 'Cambiar a Modo Claro' : 'Cambiar a Modo Oscuro'}
                 >
                     {isDarkMode ? (
@@ -115,21 +115,21 @@ export default function Header({
                 <div className="relative" ref={dropdownRef}>
                     <button
                         onClick={() => setDropdownOpen((o) => !o)}
-                        className="flex items-center gap-2 p-1 sm:pl-2 sm:pr-2 rounded-lg hover:bg-muted transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/40"
+                        className="flex items-center gap-2 p-1 sm:pl-2 sm:pr-2 rounded-lg hover:bg-sidebar-muted transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-sidebar-ring/40"
                     >
-                        <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground font-bold text-sm flex items-center justify-center shrink-0">
+                        <div className="w-8 h-8 rounded-full bg-sidebar-accent text-sidebar font-bold text-sm flex items-center justify-center shrink-0">
                             {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
                         </div>
                         <div className="hidden lg:flex flex-col items-start min-w-0">
-                            <span className="text-sm font-semibold text-foreground truncate max-w-[140px]">
+                            <span className="text-sm font-semibold text-sidebar-foreground truncate max-w-[140px]">
                                 {user?.name || 'Usuario'}
                             </span>
-                            <span className="text-[10px] text-muted-foreground truncate max-w-[140px]">
+                            <span className="text-[10px] text-sidebar-foreground/60 truncate max-w-[140px]">
                                 {user?.email || ''}
                             </span>
                         </div>
                         <ChevronDown
-                            className={`w-4 h-4 text-muted-foreground transition-transform duration-200 hidden sm:block ${
+                            className={`w-4 h-4 text-sidebar-foreground/60 transition-transform duration-200 hidden sm:block ${
                                 dropdownOpen ? 'rotate-180' : ''
                             }`}
                         />
