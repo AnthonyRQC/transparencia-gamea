@@ -26,24 +26,24 @@ export default function Header({
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                         {/* Desktop paths: Hamburguesa si está colapsado, Chevron Izquierdo si está expandido */}
-                        <path 
-                            strokeLinecap="round" 
-                            strokeLinejoin="round" 
-                            d={isSidebarCollapsed 
-                                ? "M4 6h16M4 12h16M4 18h16" 
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d={isSidebarCollapsed
+                                ? "M4 6h16M4 12h16M4 18h16"
                                 : "M15 19l-7-7 7-7"
-                            } 
-                            className="hidden md:block" 
+                            }
+                            className="hidden md:block"
                         />
                         {/* Mobile paths: X si está abierto, Hamburguesa si está cerrado */}
-                        <path 
-                            strokeLinecap="round" 
-                            strokeLinejoin="round" 
-                            d={isSidebarOpenMobile 
-                                ? "M6 18L18 6M6 6l12 12" 
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d={isSidebarOpenMobile
+                                ? "M6 18L18 6M6 6l12 12"
                                 : "M4 6h16M4 12h16M4 18h16"
-                            } 
-                            className="block md:hidden" 
+                            }
+                            className="block md:hidden"
                         />
                     </svg>
                 </button>
@@ -53,8 +53,8 @@ export default function Header({
                         T
                     </div>
                     <div className="min-w-0">
-                        <h1 className="text-sm xs:text-base sm:text-xl font-bold tracking-tight text-foreground leading-tight truncate">Portal de Transparencia</h1>
-                        <p className="hidden xs:block text-[9px] sm:text-xs text-muted-foreground font-medium leading-none mt-0.5">Línea Gráfica & Componentes</p>
+                        <h1 className="text-sm xs:text-base sm:text-xl font-bold tracking-tight text-foreground leading-tight truncate">Gobierno Autónomo Municipal El Alto</h1>
+                        <p className="hidden xs:block text-[9px] sm:text-xs text-muted-foreground font-medium leading-none mt-0.5">Unidad de Transparencia y Lucha Contra la Corrupción</p>
                     </div>
                 </div>
             </div>
@@ -66,12 +66,12 @@ export default function Header({
                 >
                     {isDarkMode ? (
                         <>
-                            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="4" /><path d="M12 2v2" /><path d="M12 20v2" /><path d="m4.93 4.93 1.41 1.41" /><path d="m17.66 17.66 1.41 1.41" /><path d="M2 12h2" /><path d="M20 12h2" /><path d="m6.34 17.66-1.41 1.41" /><path d="m19.07 4.93-1.41 1.41" /></svg>
                             <span className="hidden xs:inline">Modo Claro</span>
                         </>
                     ) : (
                         <>
-                            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" /></svg>
                             <span className="hidden xs:inline">Modo Oscuro</span>
                         </>
                     )}
