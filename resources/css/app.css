@@ -99,6 +99,9 @@
     max-width: 100%;
     overflow-x: hidden;
   }
+  html {
+    scrollbar-gutter: stable;
+  }
   * {
     @apply border-border outline-ring/30;
   }
@@ -154,9 +157,24 @@
   }
 }
 
-/* Helps prevent CLS when dialogs/modals lock scroll */
-body[data-scroll-locked] {
-  margin-right: 0px !important;
-  margin-left: 0px !important;
-  overflow: visible !important;
+/* Radix UI scroll-lock compensation.
+   When Radix modals/selects/popovers/dropdowns open,
+   react-remove-scroll-bar sets data-scroll-locked on body and applies
+   margin-right: 15px !important to absorb the hidden native scrollbar.
+   This shifts position:sticky and normal-flow children left by ~15px
+   while leaving position:fixed elements anchored to the viewport,
+   causing visible layout jumps.
+
+   We preserve the scroll lock (overflow: hidden) and zero out both
+   the body margin and padding so the layout does not shift at all.
+   The --removed-body-scroll-bar-size CSS variable (also set by Radix)
+   remains available for specific elements that need to opt back in
+   to the gap compensation. */
+body[data-scroll-locked],
+html body[data-scroll-locked] {
+  margin-right: 0 !important;
+  padding-right: 0 !important;
+  overflow: hidden !important;
+  overscroll-behavior: contain;
+  position: relative !important;
 }

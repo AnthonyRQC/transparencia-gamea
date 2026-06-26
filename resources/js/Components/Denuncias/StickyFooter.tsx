@@ -37,7 +37,8 @@ export default function StickyFooter({
             <div ref={sentinelRef} className="h-px" />
             <div
                 className={cn(
-                    'fixed bottom-0 left-0 right-0 z-40 bg-background/90 backdrop-blur border-t border-border shadow-lg transition-all duration-300',
+                    'fixed bottom-0 right-0 z-40 bg-background/90 backdrop-blur border-t border-border shadow-lg transition-all duration-300',
+                    'md:left-[var(--sidebar-width)]',
                     show ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0 pointer-events-none'
                 )}
             >

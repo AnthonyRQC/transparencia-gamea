@@ -37,7 +37,7 @@ export default function ProgressBar({ percent, totalFields, completedFields }: P
                         : 'relative'
                 )}
             >
-                <div className={cn('px-4 py-2', stuck && 'md:pl-[272px] md:pr-6')}>
+                <div className={cn('px-4 py-2', stuck && 'md:pl-[calc(var(--sidebar-width)+1rem)] md:pr-6')}>
                     <div className="flex items-center gap-3 max-w-4xl mx-auto">
                         <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
                             <div

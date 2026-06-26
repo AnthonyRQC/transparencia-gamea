@@ -31,6 +31,13 @@ export default function AppLayout({ children }: AppLayoutProps) {
         document.documentElement.classList.toggle('dark', isDarkMode);
     }, [isDarkMode]);
 
+    useEffect(() => {
+        document.documentElement.style.setProperty(
+            '--sidebar-width',
+            isSidebarCollapsed ? '64px' : '256px'
+        );
+    }, [isSidebarCollapsed]);
+
     const handleToggleSidebar = () => {
         if (window.innerWidth < 768) {
             setIsSidebarOpenMobile((v) => !v);
@@ -48,32 +55,32 @@ export default function AppLayout({ children }: AppLayoutProps) {
     };
 
     return (
-        <div className="min-h-screen bg-background text-foreground transition-colors duration-300 flex flex-col font-sans">
-            <Header
-                isDarkMode={isDarkMode}
-                onToggleDarkMode={handleToggleDarkMode}
-                onToggleSidebar={handleToggleSidebar}
+        <div className="min-h-screen flex bg-background text-foreground transition-colors duration-300 font-sans">
+            <Toaster position="top-right" richColors />
+
+            {isSidebarOpenMobile && (
+                <div
+                    className="fixed inset-0 bg-black/50 z-40 md:hidden transition-opacity duration-300 animate-fade-in"
+                    onClick={() => setIsSidebarOpenMobile(false)}
+                />
+            )}
+
+            <Sidebar
                 isSidebarCollapsed={isSidebarCollapsed}
                 isSidebarOpenMobile={isSidebarOpenMobile}
+                onCloseSidebarMobile={() => setIsSidebarOpenMobile(false)}
             />
 
-            <div className="flex-1 flex flex-row relative min-h-[calc(100vh-73px)]">
-                <Toaster position="top-right" richColors />
-
-                {isSidebarOpenMobile && (
-                    <div
-                        className="fixed inset-0 bg-black/50 z-40 md:hidden transition-opacity duration-300 animate-fade-in"
-                        onClick={() => setIsSidebarOpenMobile(false)}
-                    />
-                )}
-
-                <Sidebar
+            <div className="flex-1 flex flex-col min-w-0">
+                <Header
+                    isDarkMode={isDarkMode}
+                    onToggleDarkMode={handleToggleDarkMode}
+                    onToggleSidebar={handleToggleSidebar}
                     isSidebarCollapsed={isSidebarCollapsed}
                     isSidebarOpenMobile={isSidebarOpenMobile}
-                    onCloseSidebarMobile={() => setIsSidebarOpenMobile(false)}
                 />
 
-                <main className="flex-1 p-4 sm:p-6 md:p-8 space-y-6 overflow-y-auto overflow-x-hidden">
+                <main className="flex-1 overflow-y-scroll overflow-x-hidden p-4 sm:p-6 md:p-8 space-y-6">
                     {children}
                 </main>
             </div>
