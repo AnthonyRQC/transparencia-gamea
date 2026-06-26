@@ -54,7 +54,7 @@ class DenunciaController extends Controller
 
                 'pruebas' => 'nullable|array',
                 'pruebas.*.tipo' => 'required_with:pruebas.*|in:archivo,fisica,testigo',
-                'pruebas.*.descripcion' => 'required_if:pruebas.*.tipo,archivo,fisica|nullable|string',
+                'pruebas.*.descripcion' => 'required_with:pruebas.*|string',
                 'pruebas.*.testigo_nombre' => 'required_if:pruebas.*.tipo,testigo|nullable|string|max:100',
                 'pruebas.*.testigo_telefono' => 'required_if:pruebas.*.tipo,testigo|nullable|digits:8',
             ]);

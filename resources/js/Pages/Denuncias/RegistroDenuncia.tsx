@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo } from 'react';
 import { Head, router, usePage } from '@inertiajs/react';
-import { FilePlus2, RefreshCw } from 'lucide-react';
+import { FilePlus2 } from 'lucide-react';
 import { toast } from 'sonner';
 import AppLayout from '@/Components/Layout/AppLayout';
 import { Separator } from '@/Components/ui/separator';
@@ -49,6 +49,16 @@ interface FormState {
     hechos: string;
     pruebas: ReturnType<typeof createPruebaItem>[];
     declaracion_jurada: boolean;
+    // Simple form fields (flat at root for backend compatibility)
+    nombres: string;
+    ci: string;
+    dependencia_funcionario: string;
+    motivo: string;
+    resolucion: string;
+    dependencia_observada: string;
+    referencia_nota: string;
+    archivo: string;
+    archivo_data: string;
 }
 
 const initialDenunciante: DenuncianteData = { nombres: '', ci: '', email: '', telefono: '' };
@@ -63,6 +73,15 @@ const initialForm: FormState = {
     hechos: '',
     pruebas: [],
     declaracion_jurada: false,
+    nombres: '',
+    ci: '',
+    dependencia_funcionario: '',
+    motivo: '',
+    resolucion: '',
+    dependencia_observada: '',
+    referencia_nota: '',
+    archivo: '',
+    archivo_data: '',
 };
 
 const staticErrors: Record<string, string> = {};
@@ -134,13 +153,31 @@ export default function RegistroDenuncia() {
         );
     }, [form]);
 
-    const handleResetTipo = () => {
-        setForm({ ...initialForm });
-        setErrors({});
-    };
-
     const progressFields = useMemo(() => {
-        if (!isComplejo) return { total: 1, completed: form.tipo ? 1 : 0 };
+        if (!isComplejo) {
+            if (form.tipo === 'acompaniamiento') {
+                const total = 5;
+                let completed = 0;
+                if (form.nombres.length >= 2) completed += 1;
+                if (form.dependencia_funcionario.length >= 2) completed += 1;
+                if (form.motivo.length >= 20) completed += 1;
+                if (form.resolucion.length >= 10) completed += 1;
+                if (form.declaracion_jurada) completed += 1;
+                return { total, completed };
+            }
+            if (form.tipo === 'intervencion') {
+                const total = 5;
+                let completed = 0;
+                if (form.dependencia_observada.length >= 2) completed += 1;
+                if (form.referencia_nota.length >= 2) completed += 1;
+                if (form.motivo.length >= 20) completed += 1;
+                if (form.archivo.length > 0) completed += 1;
+                if (form.declaracion_jurada) completed += 1;
+                return { total, completed };
+            }
+            return { total: 0, completed: 0 };
+        }
+
         let total = 0;
         let completed = 0;
 
@@ -154,9 +191,8 @@ export default function RegistroDenuncia() {
             if (form.denunciante.email.includes('@')) completed += 1;
             if (form.denunciante.telefono.length === 8) completed += 1;
         } else {
-            total += 2;
+            total += 1;
             if (form.denunciante.email?.includes('@') || form.denunciante.telefono?.length === 8) completed += 1;
-            completed += 1;
         }
 
         total += 1;
@@ -215,7 +251,7 @@ export default function RegistroDenuncia() {
                 </p>
             </div>
 
-            <div className="max-w-4xl mx-auto w-full space-y-6">
+            <div className={`max-w-4xl mx-auto w-full space-y-6 ${form.tipo ? 'pb-20' : ''}`}>
                 <ProgressBar
                     percent={percent}
                     totalFields={progressFields.total}
@@ -231,7 +267,7 @@ export default function RegistroDenuncia() {
                             </label>
                         </div>
                         <div className="flex items-center gap-3">
-                            <div className="flex-1 max-w-sm">
+                            <div className="flex-1">
                                 <Select
                                     value={form.tipo}
                                     onValueChange={(v) => setForm((prev) => ({ ...prev, tipo: v }))}
@@ -247,16 +283,6 @@ export default function RegistroDenuncia() {
                                     </SelectContent>
                                 </Select>
                             </div>
-                            {form.tipo && (
-                                <button
-                                    type="button"
-                                    onClick={handleResetTipo}
-                                    className="flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-primary/80 transition-colors cursor-pointer shrink-0"
-                                >
-                                    <RefreshCw className="w-3.5 h-3.5" />
-                                    ¿Cambiar tipo?
-                                </button>
-                            )}
                         </div>
                         {errors.tipo && (
                             <p className="text-xs text-destructive font-medium">{errors.tipo}</p>
@@ -356,14 +382,14 @@ export default function RegistroDenuncia() {
                         <div className="space-y-4">
                             <div className={sectionClasses}>
                                 <FormularioAcompaniamiento
-                                    data={form.denunciante as unknown as Record<string, string>}
-                                    onChange={(f, v) => {
-                                        if (f in form.denunciante) {
-                                            updateField('denunciante', f, v);
-                                        } else {
-                                            setForm((prev) => ({ ...prev, [f]: v }));
-                                        }
+                                    data={{
+                                        nombres: form.nombres,
+                                        ci: form.ci,
+                                        dependencia_funcionario: form.dependencia_funcionario,
+                                        motivo: form.motivo,
+                                        resolucion: form.resolucion,
                                     }}
+                                    onChange={(f, v) => setForm((prev) => ({ ...prev, [f]: v }))}
                                     errors={errors}
                                 />
                             </div>
@@ -383,7 +409,13 @@ export default function RegistroDenuncia() {
                         <div className="space-y-4">
                             <div className={sectionClasses}>
                                 <FormularioIntervencion
-                                    data={{}} 
+                                    data={{
+                                        dependencia_observada: form.dependencia_observada,
+                                        referencia_nota: form.referencia_nota,
+                                        motivo: form.motivo,
+                                        archivo: form.archivo,
+                                        archivo_data: form.archivo_data,
+                                    }}
                                     onChange={(f, v) => setForm((prev) => ({ ...prev, [f]: v }))}
                                     errors={errors}
                                 />
@@ -403,7 +435,11 @@ export default function RegistroDenuncia() {
                 {/* Sticky Footer */}
                 {form.tipo && (
                     <StickyFooter
-                        onCancel={() => setForm(initialForm)}
+                        onCancel={() => {
+                            if (window.confirm('¿Está seguro de cancelar? Se perderán todos los datos ingresados.')) {
+                                setForm(initialForm);
+                            }
+                        }}
                         onSubmit={handleSubmit}
                         submitDisabled={!form.tipo || !form.declaracion_jurada}
                     />

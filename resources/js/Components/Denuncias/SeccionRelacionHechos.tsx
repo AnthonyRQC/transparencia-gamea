@@ -18,7 +18,7 @@ export default function SeccionRelacionHechos({ value, onChange, error }: Seccio
     return (
         <div className="space-y-3">
             <div className="flex items-center gap-1.5">
-                <Label className="text-sm font-semibold text-foreground">
+                <Label className={cn('text-sm font-semibold', error ? 'text-destructive' : 'text-foreground')}>
                     Relación de Hechos <span className="text-destructive">*</span>
                 </Label>
                 <FieldHelp text="Describa con claridad: qué pasó, cómo sucedió, dónde ocurrió, cuándo fue y quiénes participaron." />

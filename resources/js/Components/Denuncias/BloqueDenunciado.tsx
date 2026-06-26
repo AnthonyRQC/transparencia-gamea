@@ -4,6 +4,7 @@ import { Label } from '@/Components/ui/label';
 import { Textarea } from '@/Components/ui/textarea';
 import { Switch } from '@/Components/ui/switch';
 import InputError from './InputError';
+import FieldHelp from './FieldHelp';
 import { cn } from '@/lib/utils';
 
 export interface DenunciadoItem {
@@ -104,10 +105,10 @@ export default function BloqueDenunciado({ items, onChange, errors }: BloqueDenu
 
                         {item.conoce_identidad ? (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-1.5">
-                                    <Label className="text-xs font-medium text-muted-foreground">
-                                        Nombres y Apellidos <span className="text-destructive">*</span>
-                                    </Label>
+                            <div className="space-y-1.5">
+                                <Label className={cn('text-xs font-medium', getError(index, 'nombres') ? 'text-destructive' : 'text-muted-foreground')}>
+                                    Nombres y Apellidos <span className="text-destructive">*</span>
+                                </Label>
                                     <div className="relative">
                                         <Input
                                             placeholder="Nombre completo"
@@ -123,9 +124,9 @@ export default function BloqueDenunciado({ items, onChange, errors }: BloqueDenu
                                     </div>
                                 </div>
                                 <div className="space-y-1.5">
-                                    <Label className="text-xs font-medium text-muted-foreground">
-                                        Cargo y/o Dependencia de trabajo <span className="text-destructive">*</span>
-                                    </Label>
+                                <Label className={cn('text-xs font-medium', getError(index, 'dependencia') ? 'text-destructive' : 'text-muted-foreground')}>
+                                    Cargo y/o Dependencia de trabajo <span className="text-destructive">*</span>
+                                </Label>
                                     <div className="relative">
                                         <Input
                                             placeholder="Ej: Director de Catastro, Jefe de Compras, etc."
@@ -143,9 +144,12 @@ export default function BloqueDenunciado({ items, onChange, errors }: BloqueDenu
                             </div>
                         ) : (
                             <div className="space-y-1.5">
-                                <Label className="text-xs font-medium text-muted-foreground">
-                                    Descripción física y vestimenta <span className="text-destructive">*</span>
-                                </Label>
+                                <div className="flex items-center gap-1.5">
+                                    <Label className={cn('text-xs font-medium', getError(index, 'descripcion') ? 'text-destructive' : 'text-muted-foreground')}>
+                                        Descripción física y vestimenta <span className="text-destructive">*</span>
+                                    </Label>
+                                    <FieldHelp text="Indique rasgos físicos visibles (estatura, complexión, color de cabello) y vestimenta que llevaba al momento del hecho." />
+                                </div>
                                 <div className="relative">
                                     <Textarea
                                         placeholder="Indique rasgos físicos visibles (estatura, complexión, color de cabello) y vestimenta que llevaba al momento del hecho."

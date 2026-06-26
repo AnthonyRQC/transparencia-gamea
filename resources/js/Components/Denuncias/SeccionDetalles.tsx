@@ -38,7 +38,7 @@ export default function SeccionDetalles({ data, onChange, categorias, errors }: 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Categoría */}
                 <div className="space-y-1.5">
-                    <Label htmlFor="categoria" className="text-xs font-medium text-muted-foreground">
+                    <Label htmlFor="categoria" className={cn('text-xs font-medium', errors['detalles.categoria'] ? 'text-destructive' : 'text-muted-foreground')}>
                         Categoría <span className="text-destructive">*</span>
                     </Label>
                     <Select
@@ -76,7 +76,7 @@ export default function SeccionDetalles({ data, onChange, categorias, errors }: 
 
                 {/* Fecha */}
                 <div className="space-y-1.5">
-                    <Label htmlFor="fecha" className="text-xs font-medium text-muted-foreground">
+                    <Label htmlFor="fecha" className={cn('text-xs font-medium', errors['detalles.fecha'] ? 'text-destructive' : 'text-muted-foreground')}>
                         Fecha del incidente <span className="text-destructive">*</span>
                     </Label>
                     <div className="relative">
@@ -114,7 +114,7 @@ export default function SeccionDetalles({ data, onChange, categorias, errors }: 
 
                 {/* Lugar */}
                 <div className="space-y-1.5">
-                    <Label htmlFor="lugar" className="text-xs font-medium text-muted-foreground">
+                    <Label htmlFor="lugar" className={cn('text-xs font-medium', errors['detalles.lugar'] ? 'text-destructive' : 'text-muted-foreground')}>
                         Lugar <span className="text-destructive">*</span>
                     </Label>
                     <div className="relative">

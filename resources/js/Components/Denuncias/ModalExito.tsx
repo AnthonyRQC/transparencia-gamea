@@ -8,7 +8,7 @@ interface ModalExitoProps {
 
 export default function ModalExito({ ticket, onClose }: ModalExitoProps) {
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" role="dialog" aria-modal="true" aria-labelledby="modal-exito-title" onClick={onClose}>
             <div
                 className="bg-card border border-border rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden animate-fade-in"
                 onClick={(e) => e.stopPropagation()}
@@ -18,7 +18,7 @@ export default function ModalExito({ ticket, onClose }: ModalExitoProps) {
                         <CheckCircle className="w-8 h-8 text-primary" />
                     </div>
                     <div className="space-y-1">
-                        <h3 className="text-xl font-bold text-foreground">Denuncia registrada</h3>
+                        <h3 id="modal-exito-title" className="text-xl font-bold text-foreground">Denuncia registrada</h3>
                         <p className="text-sm text-muted-foreground">
                             Su denuncia ha sido recibida exitosamente.
                         </p>

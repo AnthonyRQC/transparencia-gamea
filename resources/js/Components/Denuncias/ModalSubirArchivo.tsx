@@ -60,14 +60,14 @@ export default function ModalSubirArchivo({ onSelect, onClose }: ModalSubirArchi
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" role="dialog" aria-modal="true" aria-labelledby="modal-upload-title" onClick={onClose}>
             <div
                 className="bg-card border border-border rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden animate-fade-in"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header */}
                 <div className="flex items-center justify-between px-5 py-4 border-b border-border">
-                    <h3 className="text-base font-bold text-foreground">Subir archivo</h3>
+                    <h3 id="modal-upload-title" className="text-base font-bold text-foreground">Subir archivo</h3>
                     <button
                         type="button"
                         onClick={onClose}

@@ -90,7 +90,7 @@ export default function SeccionDenunciante({ escenario, data, onChange, errors }
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                    <Label htmlFor="nombres" className="text-xs font-medium text-muted-foreground">
+                    <Label htmlFor="nombres" className={cn('text-xs font-medium', errors['denunciante.nombres'] ? 'text-destructive' : 'text-muted-foreground')}>
                         Nombres y Apellidos <span className="text-destructive">*</span>
                     </Label>
                     <div className="relative">
@@ -110,7 +110,7 @@ export default function SeccionDenunciante({ escenario, data, onChange, errors }
                 </div>
                 <div className="space-y-1.5">
                     <div className="flex items-center gap-1.5">
-                        <Label htmlFor="ci" className="text-xs font-medium text-muted-foreground">
+                        <Label htmlFor="ci" className={cn('text-xs font-medium', errors['denunciante.ci'] ? 'text-destructive' : 'text-muted-foreground')}>
                             Cédula de Identidad <span className="text-destructive">*</span>
                         </Label>
                         <FieldHelp text="Ingrese el número sin puntos ni guiones. Ej: 1234567" />
@@ -133,7 +133,7 @@ export default function SeccionDenunciante({ escenario, data, onChange, errors }
                 </div>
                 <div className="space-y-1.5">
                     <div className="flex items-center gap-1.5">
-                        <Label htmlFor="email" className="text-xs font-medium text-muted-foreground">
+                        <Label htmlFor="email" className={cn('text-xs font-medium', errors['denunciante.email'] ? 'text-destructive' : 'text-muted-foreground')}>
                             Correo electrónico <span className="text-destructive">*</span>
                         </Label>
                         <FieldHelp text="Correo electrónico válido para notificaciones del caso." />
@@ -156,7 +156,7 @@ export default function SeccionDenunciante({ escenario, data, onChange, errors }
                 </div>
                 <div className="space-y-1.5">
                     <div className="flex items-center gap-1.5">
-                        <Label htmlFor="telefono" className="text-xs font-medium text-muted-foreground">
+                        <Label htmlFor="telefono" className={cn('text-xs font-medium', errors['denunciante.telefono'] ? 'text-destructive' : 'text-muted-foreground')}>
                             Teléfono / Celular <span className="text-destructive">*</span>
                         </Label>
                         <FieldHelp text="8 dígitos, sin código de país. Ej: 70123456" />
