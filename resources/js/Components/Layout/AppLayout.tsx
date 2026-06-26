@@ -55,7 +55,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
     };
 
     return (
-        <div className="min-h-screen flex bg-background text-foreground transition-colors duration-300 font-sans">
+        <div className="h-screen flex bg-background text-foreground transition-colors duration-300 font-sans overflow-hidden">
             <Toaster position="top-right" richColors />
 
             {isSidebarOpenMobile && (
@@ -80,7 +80,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                     isSidebarOpenMobile={isSidebarOpenMobile}
                 />
 
-                <main className="flex-1 overflow-y-scroll overflow-x-hidden p-4 sm:p-6 md:p-8 space-y-6">
+                <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-6 md:p-8 space-y-6">
                     {children}
                 </main>
             </div>

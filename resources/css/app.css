@@ -99,9 +99,6 @@
     max-width: 100%;
     overflow-x: hidden;
   }
-  html {
-    scrollbar-gutter: stable;
-  }
   * {
     @apply border-border outline-ring/30;
   }
