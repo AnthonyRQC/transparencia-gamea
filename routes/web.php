@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\DenunciaController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -56,9 +57,8 @@ Route::prefix('denuncias')->name('denuncias.')->group(function () {
     })->name('kanban');
 
     // Registro de nueva denuncia (Sprint 1)
-    Route::get('/registrar', function () {
-        return Inertia::render('Denuncias/RegistroDenuncia');
-    })->name('registrar');
+    Route::get('/registrar', [DenunciaController::class, 'create'])->name('registrar');
+    Route::post('/', [DenunciaController::class, 'store'])->name('store');
 
     // Detalle de denuncia (Sprint 3)
     Route::get('/{id}', function ($id) {

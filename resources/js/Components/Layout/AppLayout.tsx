@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Toaster } from '@/Components/ui/sonner';
 import Header from './Header';
 import Sidebar from './Sidebar';
 
@@ -57,6 +58,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
             />
 
             <div className="flex-1 flex flex-row relative min-h-[calc(100vh-73px)]">
+                <Toaster position="top-right" richColors />
+
                 {isSidebarOpenMobile && (
                     <div
                         className="fixed inset-0 bg-black/50 z-40 md:hidden transition-opacity duration-300 animate-fade-in"

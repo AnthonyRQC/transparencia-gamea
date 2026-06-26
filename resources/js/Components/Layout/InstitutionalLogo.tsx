@@ -19,7 +19,7 @@ export default function InstitutionalLogo({ size = 'md', className = '' }: Insti
             <img
                 src={logo_url || ''}
                 alt="GAMEA - Gobierno Autónomo Municipal de El Alto"
-                className="w-full h-full object-contain drop-shadow-[0_2px_6px_rgba(255,255,255,0.2)] brightness-110"
+                className="w-full h-full object-contain drop-shadow-[0_2px_6px_rgba(255,255,255,0.2)] brightness-120"
             />
         </div>
     );
