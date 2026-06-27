@@ -238,7 +238,17 @@ export default function RegistroDenuncia() {
     }
 
     return (
-        <AppLayout>
+        <AppLayout
+            headerBottom={
+                form.tipo ? (
+                    <ProgressBar
+                        percent={percent}
+                        totalFields={progressFields.total}
+                        completedFields={progressFields.completed}
+                    />
+                ) : null
+            }
+        >
             <Head title="Registrar Denuncia — Transparencia UTLCC" />
 
             <div className="flex flex-col gap-1 mb-2">
@@ -252,12 +262,6 @@ export default function RegistroDenuncia() {
             </div>
 
             <div className={`max-w-4xl mx-auto w-full space-y-6 ${form.tipo ? 'pb-20' : ''}`}>
-                <ProgressBar
-                    percent={percent}
-                    totalFields={progressFields.total}
-                    completedFields={progressFields.completed}
-                />
-
                 <div className="bg-card border border-border rounded-2xl shadow-xs p-5 sm:p-6 md:p-8 space-y-6">
                     {/* Tipo selector */}
                     <div className="space-y-3">

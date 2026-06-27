@@ -7,9 +7,10 @@ interface AppLayoutProps {
     children: React.ReactNode;
     activeTab?: string;
     onSelectTab?: (tab: string) => void;
+    headerBottom?: React.ReactNode;
 }
 
-export default function AppLayout({ children }: AppLayoutProps) {
+export default function AppLayout({ children, headerBottom }: AppLayoutProps) {
     const [isDarkMode, setIsDarkMode] = useState(() => {
         if (typeof window !== 'undefined') {
             return localStorage.getItem('dark_mode') === 'true';
@@ -79,6 +80,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
                     isSidebarCollapsed={isSidebarCollapsed}
                     isSidebarOpenMobile={isSidebarOpenMobile}
                 />
+
+                {headerBottom}
 
                 <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-6 md:p-8 space-y-6">
                     {children}
