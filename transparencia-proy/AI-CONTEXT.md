@@ -12,8 +12,7 @@ Tailwind v3 · shadcn/ui (New York) · Laragon (Windows local)
 ## Estado Actual
 **Fase 0 (Maqueta Frontend)** — Cerrada ✅
 **Sprint 0** (Sidebar/Header institucional) — Cerrado ✅
-**Sprint 1** (Registro de Denuncia, formulario complejo) —
-Completado — bugs críticos de estado corregidos (closure stale en BloquePrueba)
+**Sprint 1** (Registro de Denuncia, formulario complejo) — Cerrado ✅ (Barra de progreso fija bajo header, modal de éxito vinculado mediante Inertia flash y panel temporal de autocompletado ficticio)
 
 ## Documentación Esencial (LEER EN ORDEN)
 1. `transparencia-proy/Plan de Desarrollo.md` — Hoja de ruta

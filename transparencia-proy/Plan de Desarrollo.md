@@ -102,7 +102,7 @@ Los roles se implementarán formalmente en la Fase 1 (conexión a BD).
 
 ---
 
-### Sprint 1 — Registro de Denuncia
+### Sprint 1 — Registro de Denuncia ✅ COMPLETADO
 
 **Objetivo:** Formulario completo de registro con 3 variantes según tipo de denuncia.
 

@@ -500,7 +500,9 @@ Esto es compatible con el backend mock actual (que espera campos a root) y fáci
 | Junio 2026 | State plano a root para formularios simples | State anidado por sección | Compatible con backend actual y más simple de migrar a JSONB |
 | Junio 2026 | Modal con `role="dialog"` y `aria-modal` | Sin accesibilidad | Requisito de a11y para modales |
 | Junio 2026 | Label cambia a `text-destructive` en error (per-spec) | — | Mejora feedback visual del error |
-| Junio 2026 | ProgressBar: `position: sticky` dentro del card | `fixed top-[79px]` con variable CSS | Más minimalista y funciona en mobile sin hardcodear altura del header |
+| Junio 2026 | ProgressBar: Ubicación en `headerBottom` de `AppLayout` | `position: sticky` dentro de la tarjeta del formulario | Evita que haya un espacio de scroll o padding entre la cabecera y el progreso. Queda fijo en el layout y alinea el padding dinámicamente (`px-4 sm:px-6 md:px-8`). |
+| Junio 2026 | Vinculación del ticket mediante Inertia global share | Parsing manual de `page.props` en el callback `onSuccess` | Más robusto e independiente del ciclo de vida del callback. Permite usar un `useEffect` para gatillar el modal de confirmación y limpiar el estado al recibir los flashes del servidor. |
+| Junio 2026 | Modo Demostración temporal | Llenado manual para pruebas | Permite validar rápidamente los 4 flujos en la maqueta sin tener que teclear campos largos repetidamente. |
 | Junio 2026 | StickyFooter: `pb-16` spacer en el form | `position: sticky` en el footer | Cambio rápido, 1 línea, evita tapar último campo |
 | Junio 2026 | `updateItem` consolidado con `Partial<PruebaItem>` patch (1 solo `onChange` por evento) | Múltiples llamadas `updateItem` secuenciales (causaban closure stale) | Previene race condition: elimina closure stale (solo el último `setForm` ganaba y se perdían cambios) |
 | Junio 2026 | SelectItem simplificado a texto plano (sin `<span>` con iconos) | `<span className="flex items-center gap-2"><Icon/> Texto</span>` dentro de SelectItem | Radix SelectValue no renderiza bien children complejos; el icono se mantiene fuera del Select en el `div` del trigger |

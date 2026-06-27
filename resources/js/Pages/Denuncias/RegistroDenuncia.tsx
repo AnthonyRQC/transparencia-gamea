@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { Head, router, usePage } from '@inertiajs/react';
 import { FilePlus2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -24,6 +24,7 @@ import FormularioIntervencion from '@/Components/Denuncias/FormularioIntervencio
 import ModalExito from '@/Components/Denuncias/ModalExito';
 import ProgressBar from '@/Components/Denuncias/ProgressBar';
 import StickyFooter from '@/Components/Denuncias/StickyFooter';
+import ModalConfirmar from '@/Components/Denuncias/ModalConfirmar';
 
 interface DenuncianteData {
     nombres: string;
@@ -100,6 +101,180 @@ export default function RegistroDenuncia() {
     const [submitting, setSubmitting] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
     const [ticket, setTicket] = useState('');
+    const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+
+    useEffect(() => {
+        if (success && successTicket) {
+            setTicket(successTicket);
+            setShowSuccess(true);
+            setForm(initialForm);
+            toast.success(`Denuncia N° ${successTicket} registrada exitosamente`);
+        }
+    }, [success, successTicket]);
+
+    // Funciones temporales para llenar el formulario con datos ficticios
+    const fillCorrupcion = () => {
+        setErrors({});
+        setForm({
+            tipo: 'corrupcion',
+            escenario: 'revelada',
+            denunciante: {
+                nombres: 'Juan Pérez Mamani',
+                ci: '1234567',
+                email: 'juan.perez@gmail.com',
+                telefono: '71234567',
+            },
+            denunciados: [
+                {
+                    id: 'mock-den-1',
+                    conoce_identidad: true,
+                    nombres: 'Ing. René Choque Vilca',
+                    dependencia: 'Jefe de Unidad de Adquisiciones',
+                    descripcion: '',
+                }
+            ],
+            detalles: {
+                categoria: 'cohecho',
+                categoria_otro: '',
+                fecha: new Date().toISOString().split('T')[0],
+                hora: '10:30',
+                lugar: 'Edificio Central GAMEA, Piso 3',
+            },
+            hechos: 'El funcionario público en cuestión solicitó una comisión del 10% en efectivo para agilizar el pago de las planillas correspondientes a la construcción de la jardinera central de la Avenida 6 de Marzo, bajo amenaza de retrasar la firma del informe de conformidad.',
+            pruebas: [
+                {
+                    id: 'mock-prb-1',
+                    tipo: 'testigo',
+                    archivo_nombre: '',
+                    archivo_data: '',
+                    descripcion: 'El señor asistente de almacén presenció el momento en que se exigió el dinero.',
+                    testigo_nombre: 'Pedro Quispe Callisaya',
+                    testigo_telefono: '60123456',
+                },
+                {
+                    id: 'mock-prb-2',
+                    tipo: 'archivo',
+                    archivo_nombre: 'conversacion_whatsapp.pdf',
+                    archivo_data: 'data:application/pdf;base64,MOCK_PDF_DATA',
+                    descripcion: 'Capturas de pantalla del chat de WhatsApp donde se menciona el porcentaje.',
+                    testigo_nombre: '',
+                    testigo_telefono: '',
+                }
+            ],
+            declaracion_jurada: true,
+            nombres: '',
+            ci: '',
+            dependencia_funcionario: '',
+            motivo: '',
+            resolucion: '',
+            dependencia_observada: '',
+            referencia_nota: '',
+            archivo: '',
+            archivo_data: '',
+        });
+        toast.info('Formulario de Corrupción cargado con datos de demostración');
+    };
+
+    const fillNegacion = () => {
+        setErrors({});
+        setForm({
+            tipo: 'negacion',
+            escenario: 'anonimo',
+            denunciante: {
+                nombres: '',
+                ci: '',
+                email: 'ciudadano.alto@gmail.com',
+                telefono: '78912345',
+            },
+            denunciados: [
+                {
+                    id: 'mock-den-1',
+                    conoce_identidad: true,
+                    nombres: 'Dra. María Laura Miranda',
+                    dependencia: 'Responsable de la Dirección de Recursos Humanos',
+                    descripcion: '',
+                }
+            ],
+            detalles: {
+                categoria: 'incumplimiento',
+                categoria_otro: '',
+                fecha: new Date().toISOString().split('T')[0],
+                hora: '14:15',
+                lugar: 'Oficina de Recursos Humanos - Jach\'a Uta',
+            },
+            hechos: 'Se solicitó formalmente el reporte de planillas y designaciones de personal eventual mediante nota recibida el 05 de junio. Habiendo transcurrido los plazos legales, la responsable se niega a recibir la solicitud de insistencia y argumenta verbalmente que dicha información es confidencial sin sustento legal alguno.',
+            pruebas: [
+                {
+                    id: 'mock-prb-1',
+                    tipo: 'archivo',
+                    archivo_nombre: 'solicitud_recibida.pdf',
+                    archivo_data: 'data:application/pdf;base64,MOCK_PDF_DATA',
+                    descripcion: 'Copia digitalizada de la nota de solicitud inicial con sello de recepción y fecha visible.',
+                    testigo_nombre: '',
+                    testigo_telefono: '',
+                }
+            ],
+            declaracion_jurada: true,
+            nombres: '',
+            ci: '',
+            dependencia_funcionario: '',
+            motivo: '',
+            resolucion: '',
+            dependencia_observada: '',
+            referencia_nota: '',
+            archivo: '',
+            archivo_data: '',
+        });
+        toast.info('Formulario de Negación de Información cargado con datos de demostración');
+    };
+
+    const fillAcompaniamiento = () => {
+        setErrors({});
+        setForm({
+            tipo: 'acompaniamiento',
+            escenario: 'revelada',
+            denunciante: { ...initialDenunciante },
+            denunciados: [createDenunciadoItem()],
+            detalles: { ...initialDetalles },
+            hechos: '',
+            pruebas: [],
+            declaracion_jurada: true,
+            nombres: 'Carlos Condori Ticona',
+            ci: '8765432',
+            dependencia_funcionario: 'Secretaría de Movilidad Urbana - Técnico Evaluador de Líneas',
+            motivo: 'El ciudadano manifiesta que lleva esperando más de 3 meses por la homologación de su ruta de transporte sindical, siendo que el trámite cuenta con todos los informes técnicos favorables y se encuentra estancado sin justificación.',
+            resolucion: 'Se realizó la mediación presencial. El técnico se comprometió a remitir la carpeta para firma del Secretario en el plazo máximo de 48 horas bajo acta de compromiso suscrita.',
+            dependencia_observada: '',
+            referencia_nota: '',
+            archivo: '',
+            archivo_data: '',
+        });
+        toast.info('Formulario de Acompañamiento cargado con datos de demostración');
+    };
+
+    const fillIntervencion = () => {
+        setErrors({});
+        setForm({
+            tipo: 'intervencion',
+            escenario: 'revelada',
+            denunciante: { ...initialDenunciante },
+            denunciados: [createDenunciadoItem()],
+            detalles: { ...initialDetalles },
+            hechos: '',
+            pruebas: [],
+            declaracion_jurada: true,
+            nombres: '',
+            ci: '',
+            dependencia_funcionario: '',
+            motivo: 'Se evidencia que de forma sistemática se está solicitando a los contribuyentes fotocopias de documentos de identidad vigentes de gestiones pasadas que ya constan digitalizados en la base de datos de Ruat, contraviniendo el principio de desburocratización y simplificación de trámites.',
+            resolucion: '',
+            dependencia_observada: 'Dirección de Recaudaciones - Sección Patentes',
+            referencia_nota: 'REF: NOTA-UTLCC-2026-042',
+            archivo: 'informe_inspeccion_patentes.pdf',
+            archivo_data: 'data:application/pdf;base64,MOCK_PDF_DATA',
+        });
+        toast.info('Formulario de Intervención cargado con datos de demostración');
+    };
 
     const isComplejo = form.tipo === 'corrupcion' || form.tipo === 'negacion';
 
@@ -130,15 +305,8 @@ export default function RegistroDenuncia() {
             { ...form, declaracion_jurada: form.declaracion_jurada ? 1 : 0 } as any,
             {
                 preserveScroll: true,
-                onSuccess: (page) => {
+                onSuccess: () => {
                     setSubmitting(false);
-                    const data = page.props as Record<string, unknown>;
-                    if (data.success && data.ticket) {
-                        setTicket(data.ticket as string);
-                        setShowSuccess(true);
-                        setForm(initialForm);
-                        toast.success(`Denuncia N° ${data.ticket} registrada exitosamente`);
-                    }
                 },
                 onError: (errs) => {
                     setSubmitting(false);
@@ -262,6 +430,52 @@ export default function RegistroDenuncia() {
             </div>
 
             <div className={`max-w-4xl mx-auto w-full space-y-6 ${form.tipo ? 'pb-20' : ''}`}>
+                
+                {/* Demo filling tools (temporal) */}
+                <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 shadow-sm animate-in fade-in duration-300">
+                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                        <div className="space-y-0.5">
+                            <h4 className="text-sm font-semibold text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
+                                <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                                Modo Demostración (Llenado Rápido)
+                            </h4>
+                            <p className="text-xs text-muted-foreground">
+                                Complete instantáneamente cualquiera de las variantes del formulario con información ficticia.
+                            </p>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                            <button
+                                type="button"
+                                onClick={fillCorrupcion}
+                                className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-amber-500/20 text-amber-700 dark:text-amber-300 hover:bg-amber-500/30 transition-all duration-200 cursor-pointer shadow-2xs"
+                            >
+                                ⚡ Corrupción
+                            </button>
+                            <button
+                                type="button"
+                                onClick={fillNegacion}
+                                className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-amber-500/20 text-amber-700 dark:text-amber-300 hover:bg-amber-500/30 transition-all duration-200 cursor-pointer shadow-2xs"
+                            >
+                                ⚡ Negación
+                            </button>
+                            <button
+                                type="button"
+                                onClick={fillAcompaniamiento}
+                                className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-amber-500/20 text-amber-700 dark:text-amber-300 hover:bg-amber-500/30 transition-all duration-200 cursor-pointer shadow-2xs"
+                            >
+                                ⚡ Acompañamiento
+                            </button>
+                            <button
+                                type="button"
+                                onClick={fillIntervencion}
+                                className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-amber-500/20 text-amber-700 dark:text-amber-300 hover:bg-amber-500/30 transition-all duration-200 cursor-pointer shadow-2xs"
+                            >
+                                ⚡ Intervención
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <div className="bg-card border border-border rounded-2xl shadow-xs p-5 sm:p-6 md:p-8 space-y-6">
                     {/* Tipo selector */}
                     <div className="space-y-3">
@@ -439,16 +653,21 @@ export default function RegistroDenuncia() {
                 {/* Sticky Footer */}
                 {form.tipo && (
                     <StickyFooter
-                        onCancel={() => {
-                            if (window.confirm('¿Está seguro de cancelar? Se perderán todos los datos ingresados.')) {
-                                setForm(initialForm);
-                            }
-                        }}
+                        onCancel={() => setShowCancelConfirm(true)}
                         onSubmit={handleSubmit}
                         submitDisabled={!form.tipo || !form.declaracion_jurada}
                     />
                 )}
             </div>
+
+            <ModalConfirmar
+                isOpen={showCancelConfirm}
+                onClose={() => setShowCancelConfirm(false)}
+                onConfirm={() => {
+                    setForm(initialForm);
+                    toast.info('Formulario cancelado y restablecido');
+                }}
+            />
         </AppLayout>
     );
 }
