@@ -15,10 +15,21 @@ class BandejaController extends Controller
 
         $mapPlazo = fn($d) => array_merge($d, ['plazo' => DenunciaData::getPlazoInfo($d)]);
 
+        $enCurso = array_values(array_map($mapPlazo, array_merge(
+            DenunciaData::getByEstado('asignada'),
+            DenunciaData::getByEstado('investigacion'),
+            DenunciaData::getByEstado('informe'),
+        )));
+        $historial = array_values(array_map($mapPlazo, array_merge(
+            DenunciaData::getByEstado('rechazada'),
+            DenunciaData::getByEstado('cerrada'),
+        )));
+
         return Inertia::render('Denuncias/Bandeja', [
             'denuncias' => array_values(array_map($mapPlazo, DenunciaData::getByEstado('ingresada'))),
             'porAsignar' => array_values(array_map($mapPlazo, DenunciaData::getByEstado('admitida'))),
-            'rechazadas' => array_values(array_map($mapPlazo, DenunciaData::getByEstado('rechazada'))),
+            'enCurso' => $enCurso,
+            'historial' => $historial,
             'contadores' => DenunciaData::getContadores(),
             'tecnicos' => DenunciaData::TECNICOS_MOCK,
             'cargaTecnicos' => DenunciaData::getCargaTecnicos(),

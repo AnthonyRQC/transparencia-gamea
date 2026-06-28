@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
+import { route } from 'ziggy-js';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/Components/ui/dialog';
 import { Label } from '@/Components/ui/label';
@@ -22,7 +23,7 @@ export default function ModalRechazo({ ticket, open, onOpenChange }: ModalRechaz
     if (!ticket || !canSubmit) return;
     setProcessing(true);
     router.post(
-      `/denuncias/${ticket}/rechazar`,
+      route('denuncias.rechazar', { ticket }),
       { justificacion },
       {
         preserveScroll: true,

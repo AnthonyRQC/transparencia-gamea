@@ -80,7 +80,7 @@ export default function MisCasos({ grouped, tecnicoActual, tecnicos }: PageProps
 
   const handleIniciar = (ticket: string) => {
     setProcessingTicket(ticket);
-    router.post(`/denuncias/${ticket}/iniciar`, {}, {
+    router.post(route('denuncias.iniciar', { ticket }), {}, {
       preserveScroll: true,
       onSuccess: () => {
         toast.success(`Investigación iniciada para ${ticket}`);

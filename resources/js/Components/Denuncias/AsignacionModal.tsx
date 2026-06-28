@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
+import { route } from 'ziggy-js';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/Components/ui/dialog';
 import { Button } from '@/Components/ui/button';
@@ -35,7 +36,7 @@ export default function AsignacionModal({ ticket, open, tecnicos: _tecnicos, car
     if (!ticket || !selectedTecnico) return;
     setProcessing(true);
     router.post(
-      `/denuncias/${ticket}/asignar`,
+      route('denuncias.asignar', { ticket }),
       { tecnico_id: selectedTecnico },
       {
         preserveScroll: true,

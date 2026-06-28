@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { router } from '@inertiajs/react';
+import { route } from 'ziggy-js';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -23,13 +24,20 @@ export default function ReabrirModal({ ticket, open, onOpenChange }: ReabrirModa
   const [nuevaFechaLimite, setNuevaFechaLimite] = useState<Date | undefined>(undefined);
   const [processing, setProcessing] = useState(false);
 
+  useEffect(() => {
+    if (open) {
+      setJustificacion('');
+      setNuevaFechaLimite(undefined);
+    }
+  }, [open]);
+
   const canSubmit = justificacion.trim().length >= 20 && nuevaFechaLimite && ticket;
 
   const handleSubmit = () => {
     if (!canSubmit) return;
     setProcessing(true);
     router.post(
-      `/denuncias/${ticket}/reabrir`,
+      route('denuncias.reabrir', { ticket }),
       {
         justificacion,
         nueva_fecha_limite: format(nuevaFechaLimite!, 'yyyy-MM-dd'),

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
+import { route } from 'ziggy-js';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/Components/ui/dialog';
 import { Label } from '@/Components/ui/label';
@@ -20,7 +21,7 @@ export default function ModalAdmision({ ticket, open, onOpenChange }: ModalAdmis
     if (!ticket) return;
     setProcessing(true);
     router.post(
-      `/denuncias/${ticket}/admitir`,
+      route('denuncias.admitir', { ticket }),
       { justificacion },
       {
         preserveScroll: true,

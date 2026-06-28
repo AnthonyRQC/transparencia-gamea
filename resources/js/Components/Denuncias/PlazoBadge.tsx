@@ -56,7 +56,9 @@ export default function PlazoBadge({ plazo }: PlazoBadgeProps) {
   return (
     <TooltipProvider delayDuration={300}>
       <Tooltip>
-        <TooltipTrigger asChild>{badgeContent}</TooltipTrigger>
+        <TooltipTrigger asChild>
+          <span className="inline-flex" tabIndex={0}>{badgeContent}</span>
+        </TooltipTrigger>
         <TooltipContent side="top" className="text-xs flex items-center gap-1.5">
           <CalendarClock className="w-3.5 h-3.5 text-muted-foreground" />
           Vence el <strong>{formatDate(plazo.fecha_vencimiento)}</strong>

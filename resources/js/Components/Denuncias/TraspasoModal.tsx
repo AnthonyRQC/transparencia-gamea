@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { router } from '@inertiajs/react';
+import { route } from 'ziggy-js';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/Components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
@@ -27,6 +28,13 @@ export default function TraspasoModal({ ticket, open, tecnicos, onOpenChange }: 
   const [justificacion, setJustificacion] = useState('');
   const [processing, setProcessing] = useState(false);
 
+  useEffect(() => {
+    if (open) {
+      setTecnicoId('');
+      setJustificacion('');
+    }
+  }, [open]);
+
   const canSubmit = tecnicoId && justificacion.trim().length >= 10 && ticket;
   const tecnicosList = tecnicos ? Object.values(tecnicos) : [];
 
@@ -34,7 +42,7 @@ export default function TraspasoModal({ ticket, open, tecnicos, onOpenChange }: 
     if (!canSubmit) return;
     setProcessing(true);
     router.post(
-      `/denuncias/${ticket}/traspasar`,
+      route('denuncias.traspasar', { ticket }),
       { tecnico_id: tecnicoId, justificacion },
       {
         preserveScroll: true,

@@ -74,7 +74,8 @@ interface Contador {
 interface PageProps {
   denuncias: Denuncia[];
   porAsignar: Denuncia[];
-  rechazadas: Denuncia[];
+  enCurso: Denuncia[];
+  historial: Denuncia[];
   contadores: Contador;
   tecnicos: Record<string, { id: string; nombre: string; iniciales: string; color: string }>;
   cargaTecnicos?: Array<{ id: string; nombre: string; iniciales: string; color: string; activos: number; por_vencer: number; vencidos: number }>;
@@ -96,7 +97,7 @@ const contadorConfig = [
   { key: 'cerrada', label: 'Cerradas', icon: Archive, color: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300' },
 ];
 
-export default function Bandeja({ denuncias, porAsignar, rechazadas, contadores, tecnicos, cargaTecnicos }: PageProps) {
+export default function Bandeja({ denuncias, porAsignar, enCurso, historial, contadores, tecnicos, cargaTecnicos }: PageProps) {
   const [selectedDenuncia, setSelectedDenuncia] = useState<Denuncia | null>(null);
   const [modalAdmisionTicket, setModalAdmisionTicket] = useState<string | null>(null);
   const [modalRechazoTicket, setModalRechazoTicket] = useState<string | null>(null);
@@ -107,7 +108,8 @@ export default function Bandeja({ denuncias, porAsignar, rechazadas, contadores,
   const tabs = [
     { value: 'por-admitir', label: 'Por admitir', count: contadores.ingresada },
     { value: 'por-asignar', label: 'Por asignar', count: contadores.admitida },
-    { value: 'rechazadas', label: 'Rechazadas', count: contadores.rechazada },
+    { value: 'en-curso', label: 'En curso', count: contadores.asignada + contadores.investigacion + contadores.informe },
+    { value: 'historial', label: 'Historial', count: contadores.rechazada + contadores.cerrada },
     { value: 'vision-general', label: 'Visión general' },
   ];
 
@@ -120,7 +122,7 @@ export default function Bandeja({ denuncias, porAsignar, rechazadas, contadores,
         <h1 className="text-3xl font-bold tracking-tight">Bandeja de Admisión</h1>
       </div>
       <p className="text-muted-foreground mb-6">
-        Gestión de denuncias ingresadas. Click en una card para ver detalle.
+        Gestión de denuncias. Click en una card para ver detalle y acciones.
       </p>
 
       <TabsDenuncias tabs={tabs} defaultValue="por-admitir">
@@ -199,16 +201,38 @@ export default function Bandeja({ denuncias, porAsignar, rechazadas, contadores,
             );
           }
 
-          if (value === 'rechazadas') {
-            return rechazadas.length === 0 ? (
+          if (value === 'en-curso') {
+            return enCurso.length === 0 ? (
               <ListaVacia
-                icon={X}
-                titulo="No hay denuncias rechazadas"
-                descripcion="Ninguna denuncia ha sido rechazada."
+                icon={Eye}
+                titulo="No hay denuncias en curso"
+                descripcion="Todas las denuncias admitidas ya fueron asignadas y están en proceso."
               />
             ) : (
               <div className="space-y-3">
-                {rechazadas.map((d) => (
+                {enCurso.map((d) => (
+                  <DenunciaCard
+                    key={d.ticket}
+                    denuncia={d}
+                    plazo={d.plazo}
+                    tecnicos={tecnicos}
+                    onClick={() => setSelectedDenuncia(d)}
+                  />
+                ))}
+              </div>
+            );
+          }
+
+          if (value === 'historial') {
+            return historial.length === 0 ? (
+              <ListaVacia
+                icon={Archive}
+                titulo="No hay denuncias en el historial"
+                descripcion="No hay denuncias rechazadas o cerradas registradas."
+              />
+            ) : (
+              <div className="space-y-3">
+                {historial.map((d) => (
                   <DenunciaCard
                     key={d.ticket}
                     denuncia={d}
@@ -216,7 +240,7 @@ export default function Bandeja({ denuncias, porAsignar, rechazadas, contadores,
                     tecnicos={tecnicos}
                     onClick={() => setSelectedDenuncia(d)}
                   >
-                    {d.justificacion_rechazo && (
+                    {d.estado === 'rechazada' && d.justificacion_rechazo && (
                       <div className="pt-1">
                         <p className="text-xs text-destructive italic line-clamp-2">{d.justificacion_rechazo}</p>
                       </div>
