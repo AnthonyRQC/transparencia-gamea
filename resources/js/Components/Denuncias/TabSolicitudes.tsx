@@ -1,11 +1,27 @@
+import { useState } from 'react';
 import { FileSearch, Plus } from 'lucide-react';
 import SolicitudCard from './SolicitudCard';
+import SolicitudDetailModal from './SolicitudDetailModal';
 import ListaVacia from './ListaVacia';
 
 interface SolicitudArchivo {
   nombre: string;
   tamano?: string;
   fecha_subida?: string;
+}
+
+interface SolicitudAmpliacion {
+  dias: number;
+  justificacion: string;
+  fecha: string;
+  archivo?: unknown;
+}
+
+interface SolicitudEdicion {
+  fecha: string;
+  campo: string;
+  anterior?: unknown;
+  nuevo?: unknown;
 }
 
 interface Solicitud {
@@ -17,6 +33,14 @@ interface Solicitud {
   fecha_vencimiento: string;
   estado: string;
   archivos?: SolicitudArchivo[];
+  ampliaciones?: SolicitudAmpliacion[];
+  plazo_info?: { dias_restantes: number; color: string; texto: string; fecha_vencimiento: string };
+  plazo_dias?: number;
+  fecha_respuesta?: string;
+  respuesta?: string;
+  motivo_cancelacion?: string;
+  fecha_cancelacion?: string;
+  ediciones?: SolicitudEdicion[];
 }
 
 interface TabSolicitudesProps {
@@ -26,14 +50,26 @@ interface TabSolicitudesProps {
   onNuevaSolicitud?: (ticket: string) => void;
   onResponder?: (id: number) => void;
   onAmpliar?: (id: number) => void;
+  onCancelar?: (id: number) => void;
+  onEditar?: (id: number) => void;
+  onEliminar?: (id: number) => void;
 }
 
-export default function TabSolicitudes({ solicitudes, canAct, ticket, onNuevaSolicitud, onResponder, onAmpliar }: TabSolicitudesProps) {
-  const sorted = [...solicitudes].sort((a, b) => {
-    const aVencida = a.estado !== 'respondida' ? new Date(a.fecha_vencimiento).getTime() : Infinity;
-    const bVencida = b.estado !== 'respondida' ? new Date(b.fecha_vencimiento).getTime() : Infinity;
-    return aVencida - bVencida;
-  });
+export default function TabSolicitudes({ solicitudes, canAct, ticket, onNuevaSolicitud, onResponder, onAmpliar, onCancelar, onEditar, onEliminar }: TabSolicitudesProps) {
+  const [detailSolicitudId, setDetailSolicitudId] = useState<number | null>(null);
+
+  const pendientes = solicitudes.filter(s => !['respondida', 'cancelada'].includes(s.estado));
+  const completadas = solicitudes.filter(s => ['respondida', 'cancelada'].includes(s.estado));
+  const sorted = [
+    ...pendientes.sort((a, b) => new Date(a.fecha_vencimiento).getTime() - new Date(b.fecha_vencimiento).getTime()),
+    ...completadas.sort((a, b) => new Date(b.fecha_envio).getTime() - new Date(a.fecha_envio).getTime()),
+  ];
+
+  const detailSolicitud = detailSolicitudId ? solicitudes.find(s => s.id === detailSolicitudId) || null : null;
+
+  const handleClick = (s: Solicitud) => {
+    setDetailSolicitudId(s.id);
+  };
 
   if (solicitudes.length === 0) {
     return (
@@ -55,6 +91,19 @@ export default function TabSolicitudes({ solicitudes, canAct, ticket, onNuevaSol
           titulo="Sin solicitudes de información"
           descripcion={canAct ? 'Cree una solicitud a una unidad externa para recabar documentación.' : 'El técnico no ha creado solicitudes aún.'}
         />
+        {detailSolicitud && (
+          <SolicitudDetailModal
+            solicitud={detailSolicitud}
+            open={detailSolicitudId !== null}
+            onOpenChange={(v) => { if (!v) setDetailSolicitudId(null); }}
+            canAct={canAct}
+            onResponder={onResponder}
+            onAmpliar={onAmpliar}
+            onCancelar={onCancelar}
+            onEditar={(id) => { setDetailSolicitudId(null); onEditar?.(id); }}
+            onEliminar={(id) => { setDetailSolicitudId(null); onEliminar?.(id); }}
+          />
+        )}
       </div>
     );
   }
@@ -80,11 +129,29 @@ export default function TabSolicitudes({ solicitudes, canAct, ticket, onNuevaSol
             key={s.id}
             solicitud={s}
             canAct={canAct}
+            onClick={handleClick}
             onResponder={onResponder}
             onAmpliar={onAmpliar}
+            onCancelar={onCancelar}
+            onEditar={onEditar}
+            onEliminar={onEliminar}
           />
         ))}
       </div>
+
+      {detailSolicitud && (
+        <SolicitudDetailModal
+          solicitud={detailSolicitud}
+          open={detailSolicitudId !== null}
+          onOpenChange={(v) => { if (!v) setDetailSolicitudId(null); }}
+          canAct={canAct}
+          onResponder={onResponder}
+          onAmpliar={onAmpliar}
+          onCancelar={onCancelar}
+          onEditar={(id) => { setDetailSolicitudId(null); onEditar?.(id); }}
+          onEliminar={(id) => { setDetailSolicitudId(null); onEliminar?.(id); }}
+        />
+      )}
     </div>
   );
 }

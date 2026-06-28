@@ -83,12 +83,17 @@ Route::prefix('denuncias')->name('denuncias.')->group(function () {
     Route::post('/{ticket}/solicitudes', [SolicitudController::class, 'store'])->name('solicitudes.store');
     Route::post('/solicitudes/{id}/responder', [SolicitudController::class, 'responder'])->name('solicitudes.responder');
     Route::post('/solicitudes/{id}/ampliar', [SolicitudController::class, 'ampliar'])->name('solicitudes.ampliar');
+    Route::post('/solicitudes/{id}/cancelar', [SolicitudController::class, 'cancelar'])->name('solicitudes.cancelar');
+    Route::post('/solicitudes/{id}/editar', [SolicitudController::class, 'editar'])->name('solicitudes.editar');
+    Route::post('/solicitudes/{id}/eliminar', [SolicitudController::class, 'eliminar'])->name('solicitudes.eliminar');
 
     // Sprint 4 — Descargos
     Route::post('/{ticket}/descargos', [DescargoController::class, 'store'])->name('descargos.store');
     Route::post('/descargos/{id}/notificar', [DescargoController::class, 'notificar'])->name('descargos.notificar');
     Route::post('/descargos/{id}/responder', [DescargoController::class, 'responder'])->name('descargos.responder');
     Route::post('/descargos/{id}/ampliar', [DescargoController::class, 'ampliar'])->name('descargos.ampliar');
+    Route::post('/descargos/{id}/editar', [DescargoController::class, 'editar'])->name('descargos.editar');
+    Route::post('/descargos/{id}/eliminar', [DescargoController::class, 'eliminar'])->name('descargos.eliminar');
 
     // Mis Casos + Mi Resumen (Sprint 2)
     Route::get('/mis-casos', [MisCasosController::class, 'index'])->name('mis-casos');

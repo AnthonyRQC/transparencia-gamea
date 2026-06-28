@@ -46,6 +46,10 @@ export default function ModalResponderDescargo({ descargoId, open, onOpenChange 
     e.target.value = '';
   };
 
+  const removeDocumento = (index: number) => {
+    setDocumentos((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = () => {
     if (!canSubmit || !descargoId) return;
     setProcessing(true);
@@ -111,7 +115,7 @@ export default function ModalResponderDescargo({ descargoId, open, onOpenChange 
             {documentos.length > 0 && (
               <div className="space-y-1 mt-2">
                 {documentos.map((d, i) => (
-                  <ArchivoAdjunto key={i} nombre={d.nombre} tamano={d.tamano} onVer={() => {}} />
+                  <ArchivoAdjunto key={i} nombre={d.nombre} tamano={d.tamano} onEliminar={() => removeDocumento(i)} />
                 ))}
               </div>
             )}

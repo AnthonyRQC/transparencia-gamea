@@ -27,7 +27,7 @@ class DescargoData
 
     public static function getByTicket(string $ticket): array
     {
-        return array_values(array_filter(self::getAll(), fn($d) => ($d['ticket'] ?? '') === $ticket));
+        return array_values(array_filter(self::getAll(), fn($d) => ($d['ticket'] ?? '') === $ticket && empty($d['eliminado'])));
     }
 
     public static function find(int $id): ?array
@@ -95,6 +95,9 @@ class DescargoData
             'documentos' => [],
             'estado' => 'pendiente_notif',
             'ampliaciones' => [],
+            'ediciones' => [],
+            'eliminado' => false,
+            'fecha_eliminacion' => null,
         ];
 
         $items = self::getAll();
@@ -158,6 +161,50 @@ class DescargoData
         return false;
     }
 
+    public static function editar(int $id, array $cambios): bool
+    {
+        $items = self::getAll();
+        foreach ($items as $i => $d) {
+            if (($d['id'] ?? 0) === $id) {
+                if (!empty($d['eliminado'])) return false;
+
+                $ediciones = [];
+                $camposPermitidos = ['nombres_denunciado', 'dependencia_denunciado'];
+                foreach ($camposPermitidos as $campo) {
+                    if (array_key_exists($campo, $cambios) && ($d[$campo] ?? null) !== $cambios[$campo]) {
+                        $ediciones[] = [
+                            'fecha' => Carbon::now()->toDateTimeString(),
+                            'campo' => $campo,
+                            'anterior' => $d[$campo] ?? null,
+                            'nuevo' => $cambios[$campo],
+                        ];
+                        $items[$i][$campo] = $cambios[$campo];
+                    }
+                }
+
+                $items[$i]['ediciones'] = array_merge($d['ediciones'] ?? [], $ediciones);
+                session()->put(self::SESSION_KEY, $items);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static function eliminar(int $id): bool
+    {
+        $items = self::getAll();
+        foreach ($items as $i => $d) {
+            if (($d['id'] ?? 0) === $id) {
+                if (!empty($d['eliminado'])) return false;
+                $items[$i]['eliminado'] = true;
+                $items[$i]['fecha_eliminacion'] = Carbon::now()->toDateTimeString();
+                session()->put(self::SESSION_KEY, $items);
+                return true;
+            }
+        }
+        return false;
+    }
+
     // ──────────────────────────────────────────────
     //  HELPERS
     // ──────────────────────────────────────────────
@@ -184,6 +231,9 @@ class DescargoData
                 'documentos' => [],
                 'estado' => 'notificado',
                 'ampliaciones' => [],
+                'ediciones' => [],
+                'eliminado' => false,
+                'fecha_eliminacion' => null,
             ],
             [
                 'id' => 2,
@@ -203,6 +253,9 @@ class DescargoData
                 ],
                 'estado' => 'respondido',
                 'ampliaciones' => [],
+                'ediciones' => [],
+                'eliminado' => false,
+                'fecha_eliminacion' => null,
             ],
         ];
 

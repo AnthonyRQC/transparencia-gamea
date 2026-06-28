@@ -1,4 +1,4 @@
-import { CircleCheck, Bell, RotateCcw, FileText } from 'lucide-react';
+import { CircleCheck, Bell, RotateCcw, FileText, Pencil, Trash2 } from 'lucide-react';
 import PlazoProgress from './PlazoProgress';
 import { Badge } from '@/Components/ui/badge';
 import { Avatar, AvatarFallback } from '@/Components/ui/avatar';
@@ -27,9 +27,12 @@ interface Descargo {
 interface DescargoCardProps {
   descargo: Descargo;
   canAct: boolean;
+  onClick?: (descargo: Descargo) => void;
   onNotificar?: (id: number) => void;
   onResponder?: (id: number) => void;
   onAmpliar?: (id: number) => void;
+  onEditar?: (id: number) => void;
+  onEliminar?: (id: number) => void;
 }
 
 const estadoBadge: Record<string, { label: string; variant: 'default' | 'secondary' | 'outline' | 'destructive' }> = {
@@ -49,12 +52,15 @@ function formatDate(d?: string): string {
   return new Date(d).toLocaleDateString('es-BO', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
-export default function DescargoCard({ descargo, canAct, onNotificar, onResponder, onAmpliar }: DescargoCardProps) {
+export default function DescargoCard({ descargo, canAct, onClick, onNotificar, onResponder, onAmpliar, onEditar, onEliminar }: DescargoCardProps) {
   const badge = estadoBadge[descargo.estado] || estadoBadge.pendiente_notif;
   const isVencido = descargo.estado === 'notificado' && descargo.fecha_vencimiento && new Date(descargo.fecha_vencimiento) < new Date();
 
   return (
-    <div className="border border-border rounded-xl p-3 space-y-2 hover:bg-muted/20 transition-colors">
+    <div
+      className="border border-border rounded-xl p-3 space-y-2 hover:bg-muted/20 transition-colors cursor-pointer"
+      onClick={() => onClick?.(descargo)}
+    >
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2 min-w-0">
           <Avatar className="w-7 h-7">
@@ -117,7 +123,7 @@ export default function DescargoCard({ descargo, canAct, onNotificar, onResponde
         )}
 
         {canAct && (
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
             {descargo.estado === 'pendiente_notif' && onNotificar && (
               <button
                 type="button"
@@ -151,6 +157,31 @@ export default function DescargoCard({ descargo, canAct, onNotificar, onResponde
           </div>
         )}
       </div>
+
+      {canAct && (
+        <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+          {onEditar && (
+            <button
+              type="button"
+              onClick={() => onEditar(descargo.id)}
+              className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-blue-100 text-blue-700 text-[11px] font-semibold hover:bg-blue-200 transition-colors dark:bg-blue-900/30 dark:text-blue-300"
+            >
+              <Pencil className="w-3 h-3" />
+              Editar
+            </button>
+          )}
+          {onEliminar && (
+            <button
+              type="button"
+              onClick={() => onEliminar(descargo.id)}
+              className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-red-50 text-red-600 text-[11px] font-semibold hover:bg-red-100 transition-colors dark:bg-red-900/20 dark:text-red-400"
+            >
+              <Trash2 className="w-3 h-3" />
+              Eliminar
+            </button>
+          )}
+        </div>
+      )}
 
       {descargo.documentos && descargo.documentos.length > 0 && (
         <div className="flex items-center gap-1 text-[10px] text-muted-foreground">

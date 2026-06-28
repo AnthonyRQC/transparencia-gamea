@@ -114,7 +114,7 @@ export default function ModalResponderSolicitud({ solicitudId, open, onOpenChang
             {archivos.length > 0 && (
               <div className="space-y-1 mt-2">
                 {archivos.map((a, i) => (
-                  <ArchivoAdjunto key={i} nombre={a.nombre} tamano={a.tamano} onVer={() => {}} />
+                  <ArchivoAdjunto key={i} nombre={a.nombre} tamano={a.tamano} onEliminar={() => removeArchivo(i)} />
                 ))}
               </div>
             )}

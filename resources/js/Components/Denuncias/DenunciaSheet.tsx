@@ -102,9 +102,15 @@ interface DenunciaSheetProps {
   onNuevaSolicitud?: (ticket: string) => void;
   onResponderSolicitud?: (id: number) => void;
   onAmpliarSolicitud?: (id: number) => void;
+  onCancelarSolicitud?: (id: number) => void;
+  onEditarSolicitud?: (id: number) => void;
+  onEliminarSolicitud?: (id: number) => void;
   onNotificarDescargo?: (id: number) => void;
   onResponderDescargo?: (id: number) => void;
   onAmpliarDescargo?: (id: number) => void;
+  onNuevoDescargo?: (ticket: string) => void;
+  onEditarDescargo?: (id: number) => void;
+  onEliminarDescargo?: (id: number) => void;
 }
 
 const escenarioLabel: Record<string, string> = {
@@ -141,8 +147,10 @@ const estadosConTabs = ['asignada', 'investigacion', 'informe', 'cerrada'];
 export default function DenunciaSheet({
   denuncia, plazo, tecnicos, open, onOpenChange, children,
   solicitudes = [], descargos = [], canAct = false,
-  onNuevaSolicitud, onResponderSolicitud, onAmpliarSolicitud,
-  onNotificarDescargo, onResponderDescargo, onAmpliarDescargo,
+  onNuevaSolicitud, onResponderSolicitud, onAmpliarSolicitud, onCancelarSolicitud,
+  onEditarSolicitud, onEliminarSolicitud,
+  onNotificarDescargo, onResponderDescargo, onAmpliarDescargo, onNuevoDescargo,
+  onEditarDescargo, onEliminarDescargo,
 }: DenunciaSheetProps) {
   if (!denuncia) return null;
 
@@ -188,12 +196,15 @@ export default function DenunciaSheet({
                 <p className="text-xs text-muted-foreground mb-3 italic">Modo lectura — use MisCasos con 'Ver como:' para actuar.</p>
               )}
               <TabSolicitudes
-                solicitudes={solicitudes.filter(s => s.estado !== 'respondida')}
+                solicitudes={solicitudes}
                 canAct={canAct}
                 ticket={denuncia.ticket}
                 onNuevaSolicitud={onNuevaSolicitud}
                 onResponder={onResponderSolicitud}
                 onAmpliar={onAmpliarSolicitud}
+                onCancelar={onCancelarSolicitud}
+                onEditar={onEditarSolicitud}
+                onEliminar={onEliminarSolicitud}
               />
             </TabsContent>
 
@@ -205,9 +216,13 @@ export default function DenunciaSheet({
                 descargos={descargos}
                 canAct={canAct}
                 ticket={denuncia.ticket}
+                denunciados={denuncia.denunciados || []}
                 onNotificar={onNotificarDescargo}
                 onResponder={onResponderDescargo}
                 onAmpliar={onAmpliarDescargo}
+                onNuevoDescargo={onNuevoDescargo}
+                onEditar={onEditarDescargo}
+                onEliminar={onEliminarDescargo}
               />
             </TabsContent>
           </Tabs>
@@ -296,7 +311,7 @@ function SheetInfoContent({ denuncia, hechos, tecnicoInfo, tecnicoAnteriorInfo, 
         <>
           <section>
             <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Relación de Hechos</h4>
-            <p className="text-sm whitespace-pre-wrap leading-relaxed">{hechos}</p>
+            <p className="text-sm whitespace-pre-wrap break-words leading-relaxed">{hechos}</p>
           </section>
           <Separator />
         </>

@@ -12,8 +12,9 @@ class SolicitudController extends Controller
     public function store(string $ticket, Request $request)
     {
         $validated = $request->validate([
-            'unidad_destino' => 'required|string|in:' . implode(',', array_keys(UnidadData::UNIDADES)),
+            'unidad_destino' => 'required|string|min:2|max:200',
             'detalle' => 'required|string|min:10|max:2000',
+            'plazo_dias' => 'required|integer|min:1|max:45',
         ]);
 
         $denuncia = DenunciaData::find($ticket);
@@ -25,12 +26,11 @@ class SolicitudController extends Controller
             return redirect()->back()->with('error', 'No se pueden crear solicitudes en el estado actual de la denuncia.');
         }
 
-        $id = SolicitudData::add($ticket, $validated['unidad_destino'], $validated['detalle']);
-        $unidadNombre = UnidadData::getNombre($validated['unidad_destino']);
+        $id = SolicitudData::add($ticket, $validated['unidad_destino'], $validated['detalle'], (int) $validated['plazo_dias']);
 
-        DenunciaData::registrarAccion($ticket, 'solicitud_creada', "Solicitud de información enviada a {$unidadNombre}: {$validated['detalle']}", 'sistema');
+        DenunciaData::registrarAccion($ticket, 'solicitud_creada', "Solicitud de información enviada a {$validated['unidad_destino']}: {$validated['detalle']}. Plazo: {$validated['plazo_dias']} días.", 'sistema');
 
-        return redirect()->back()->with('success', "Solicitud creada correctamente para {$unidadNombre}.");
+        return redirect()->back()->with('success', "Solicitud creada correctamente para {$validated['unidad_destino']}.");
     }
 
     public function responder(int $id, Request $request)
@@ -62,10 +62,37 @@ class SolicitudController extends Controller
         return redirect()->back()->with('success', 'Respuesta de solicitud registrada correctamente.');
     }
 
+    public function cancelar(int $id, Request $request)
+    {
+        $validated = $request->validate([
+            'motivo' => 'required|string|min:10|max:2000',
+        ]);
+
+        $solicitud = SolicitudData::find($id);
+        if (!$solicitud) {
+            return redirect()->back()->with('error', 'Solicitud no encontrada.');
+        }
+
+        if (!in_array($solicitud['estado'] ?? '', ['pendiente', 'ampliada'])) {
+            return redirect()->back()->with('error', 'No se puede cancelar esta solicitud porque ya fue respondida o cancelada.');
+        }
+
+        SolicitudData::cancelar($id, $validated['motivo']);
+
+        DenunciaData::registrarAccion(
+            $solicitud['ticket'],
+            'solicitud_cancelada',
+            "Solicitud a {$solicitud['unidad_destino']} cancelada. Motivo: {$validated['motivo']}",
+            'sistema'
+        );
+
+        return redirect()->back()->with('success', "Solicitud a {$solicitud['unidad_destino']} cancelada.");
+    }
+
     public function ampliar(int $id, Request $request)
     {
         $validated = $request->validate([
-            'dias' => 'required|integer|min:1|max:5',
+            'dias' => 'required|integer|min:1|max:45',
             'justificacion' => 'required|string|min:20|max:2000',
             'archivo' => 'nullable|array',
         ]);
@@ -75,21 +102,53 @@ class SolicitudController extends Controller
             return redirect()->back()->with('error', 'Solicitud no encontrada.');
         }
 
-        if ($solicitud['estado'] === 'respondida') {
-            return redirect()->back()->with('error', 'No se puede ampliar una solicitud ya respondida.');
+        if (in_array($solicitud['estado'] ?? '', ['respondida', 'cancelada'])) {
+            return redirect()->back()->with('error', 'No se puede ampliar una solicitud ya respondida o cancelada.');
         }
 
         $archivo = $validated['archivo'] ?? null;
 
         SolicitudData::ampliar($id, $validated['dias'], $validated['justificacion'], $archivo);
 
+        $numAmpliaciones = count($solicitud['ampliaciones']) + 1;
+
         DenunciaData::registrarAccion(
             $solicitud['ticket'],
             'solicitud_ampliada',
-            "Plazo ampliado {$validated['dias']} días para solicitud a {$solicitud['unidad_destino']}. Justificación: {$validated['justificacion']}",
+            "Plazo ampliado {$validated['dias']} días (ampliación #{$numAmpliaciones}) para solicitud a {$solicitud['unidad_destino']}. Justificación: {$validated['justificacion']}",
             'sistema'
         );
 
-        return redirect()->back()->with('success', "Plazo ampliado {$validated['dias']} días correctamente.");
+        return redirect()->back()->with('success', "Plazo ampliado {$validated['dias']} días correctamente (ampliación #{$numAmpliaciones}).");
+    }
+
+    public function editar(int $id, Request $request)
+    {
+        $validated = $request->validate([
+            'unidad_destino' => 'required|string|min:2|max:200',
+            'detalle' => 'required|string|min:10|max:2000',
+            'plazo_dias' => 'required|integer|min:1|max:45',
+        ]);
+
+        $solicitud = SolicitudData::find($id);
+        if (!$solicitud) {
+            return redirect()->back()->with('error', 'Solicitud no encontrada.');
+        }
+
+        SolicitudData::editar($id, $validated);
+
+        return redirect()->back()->with('success', "Solicitud a {$validated['unidad_destino']} actualizada correctamente.");
+    }
+
+    public function eliminar(int $id, Request $request)
+    {
+        $solicitud = SolicitudData::find($id);
+        if (!$solicitud) {
+            return redirect()->back()->with('error', 'Solicitud no encontrada.');
+        }
+
+        SolicitudData::eliminar($id);
+
+        return redirect()->back()->with('success', "Solicitud a {$solicitud['unidad_destino']} eliminada correctamente.");
     }
 }

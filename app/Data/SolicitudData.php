@@ -20,7 +20,7 @@ class SolicitudData
 
     public static function getByTicket(string $ticket): array
     {
-        return array_values(array_filter(self::getAll(), fn($s) => ($s['ticket'] ?? '') === $ticket));
+        return array_values(array_filter(self::getAll(), fn($s) => ($s['ticket'] ?? '') === $ticket && empty($s['eliminado'])));
     }
 
     public static function find(int $id): ?array
@@ -45,9 +45,16 @@ class SolicitudData
             $texto = $solicitud['fecha_respuesta']
                 ? 'Respondida ' . Carbon::parse($solicitud['fecha_respuesta'])->diffForHumans()
                 : 'Respondida';
+        } elseif ($estado === 'cancelada') {
+            $color = 'gray';
+            $texto = 'Cancelada';
         } elseif ($vencida) {
             $color = 'red';
             $texto = 'Vencida hace ' . abs($diasRestantes) . 'd';
+        } elseif ($estado === 'ampliada') {
+            $color = $diasRestantes > 5 ? 'green' : 'yellow';
+            $texto = 'Ampliada · Vence en ' . $diasRestantes . 'd';
+            if ($diasRestantes === 0) $texto = 'Ampliada · Vence hoy';
         } else {
             $color = $diasRestantes > 5 ? 'green' : 'yellow';
             $texto = 'Vence en ' . $diasRestantes . 'd';
@@ -66,24 +73,30 @@ class SolicitudData
     //  ACCIONES
     // ──────────────────────────────────────────────
 
-    public static function add(string $ticket, string $unidadDestino, string $detalle): int
+    public static function add(string $ticket, string $unidadDestino, string $detalle, int $plazoDias = 10): int
     {
         $id = self::nextId();
         $now = Carbon::now();
+        $plazo = max(1, min(45, $plazoDias));
 
         $solicitud = [
             'id' => $id,
             'ticket' => $ticket,
             'unidad_destino' => $unidadDestino,
             'detalle' => $detalle,
-            'plazo_dias' => 10,
+            'plazo_dias' => $plazo,
             'fecha_envio' => $now->toDateTimeString(),
-            'fecha_vencimiento' => (clone $now)->addDays(10)->endOfDay()->toDateTimeString(),
+            'fecha_vencimiento' => (clone $now)->addDays($plazo)->endOfDay()->toDateTimeString(),
             'fecha_respuesta' => null,
             'respuesta' => null,
             'archivos' => [],
             'estado' => 'pendiente',
             'ampliaciones' => [],
+            'motivo_cancelacion' => null,
+            'fecha_cancelacion' => null,
+            'ediciones' => [],
+            'eliminado' => false,
+            'fecha_eliminacion' => null,
         ];
 
         $items = self::getAll();
@@ -109,6 +122,21 @@ class SolicitudData
         return false;
     }
 
+    public static function cancelar(int $id, string $motivo): bool
+    {
+        $items = self::getAll();
+        foreach ($items as $i => $s) {
+            if (($s['id'] ?? 0) === $id && in_array($s['estado'] ?? '', ['pendiente', 'ampliada'])) {
+                $items[$i]['estado'] = 'cancelada';
+                $items[$i]['motivo_cancelacion'] = $motivo;
+                $items[$i]['fecha_cancelacion'] = Carbon::now()->toDateTimeString();
+                session()->put(self::SESSION_KEY, $items);
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static function ampliar(int $id, int $dias, string $justificacion, ?array $archivo = null): bool
     {
         $items = self::getAll();
@@ -123,6 +151,56 @@ class SolicitudData
                     'fecha' => Carbon::now()->toDateTimeString(),
                     'archivo' => $archivo,
                 ];
+                session()->put(self::SESSION_KEY, $items);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static function editar(int $id, array $cambios): bool
+    {
+        $items = self::getAll();
+        foreach ($items as $i => $s) {
+            if (($s['id'] ?? 0) === $id) {
+                if (!empty($s['eliminado'])) return false;
+
+                $ediciones = [];
+                $camposPermitidos = ['unidad_destino', 'detalle', 'plazo_dias'];
+                foreach ($camposPermitidos as $campo) {
+                    if (array_key_exists($campo, $cambios) && ($s[$campo] ?? null) !== $cambios[$campo]) {
+                        $ediciones[] = [
+                            'fecha' => Carbon::now()->toDateTimeString(),
+                            'campo' => $campo,
+                            'anterior' => $s[$campo] ?? null,
+                            'nuevo' => $cambios[$campo],
+                        ];
+                        $items[$i][$campo] = $cambios[$campo];
+                    }
+                }
+
+                if (!empty($cambios['plazo_dias'] ?? null)) {
+                    $nuevoPlazo = max(1, min(45, (int) $cambios['plazo_dias']));
+                    $items[$i]['plazo_dias'] = $nuevoPlazo;
+                    $items[$i]['fecha_vencimiento'] = Carbon::parse($s['fecha_envio'])->addDays($nuevoPlazo)->endOfDay()->toDateTimeString();
+                }
+
+                $items[$i]['ediciones'] = array_merge($s['ediciones'] ?? [], $ediciones);
+                session()->put(self::SESSION_KEY, $items);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static function eliminar(int $id): bool
+    {
+        $items = self::getAll();
+        foreach ($items as $i => $s) {
+            if (($s['id'] ?? 0) === $id) {
+                if (!empty($s['eliminado'])) return false;
+                $items[$i]['eliminado'] = true;
+                $items[$i]['fecha_eliminacion'] = Carbon::now()->toDateTimeString();
                 session()->put(self::SESSION_KEY, $items);
                 return true;
             }
@@ -153,6 +231,9 @@ class SolicitudData
                 'archivos' => [],
                 'estado' => 'pendiente',
                 'ampliaciones' => [],
+                'ediciones' => [],
+                'eliminado' => false,
+                'fecha_eliminacion' => null,
             ],
             [
                 'id' => 2,
@@ -170,6 +251,9 @@ class SolicitudData
                 ],
                 'estado' => 'respondida',
                 'ampliaciones' => [],
+                'ediciones' => [],
+                'eliminado' => false,
+                'fecha_eliminacion' => null,
             ],
             [
                 'id' => 3,
@@ -184,6 +268,11 @@ class SolicitudData
                 'archivos' => [],
                 'estado' => 'pendiente',
                 'ampliaciones' => [],
+                'motivo_cancelacion' => null,
+                'fecha_cancelacion' => null,
+                'ediciones' => [],
+                'eliminado' => false,
+                'fecha_eliminacion' => null,
             ],
         ];
 

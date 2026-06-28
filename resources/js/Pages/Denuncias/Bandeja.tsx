@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
+import { toast } from 'sonner';
 import {
   Inbox, CheckCircle2, ClipboardList, Eye, Archive,
   InboxIcon, X, UserPlus, RotateCcw, ArrowRightLeft, Search
@@ -24,6 +25,9 @@ import ModalAmpliarSolicitud from '@/Components/Denuncias/ModalAmpliarSolicitud'
 import ModalNotificarDescargo from '@/Components/Denuncias/ModalNotificarDescargo';
 import ModalResponderDescargo from '@/Components/Denuncias/ModalResponderDescargo';
 import ModalAmpliarDescargo from '@/Components/Denuncias/ModalAmpliarDescargo';
+import ModalCancelarSolicitud from '@/Components/Denuncias/ModalCancelarSolicitud';
+import ModalNuevoDescargo from '@/Components/Denuncias/ModalNuevoDescargo';
+import ModalConfirmarEliminar from '@/Components/Denuncias/ModalConfirmarEliminar';
 
 interface PlazoInfo {
   dias_restantes: number;
@@ -61,7 +65,14 @@ interface Solicitud {
   fecha_envio: string;
   fecha_vencimiento: string;
   estado: string;
+  plazo_dias?: number;
+  fecha_respuesta?: string;
+  respuesta?: string;
+  motivo_cancelacion?: string;
+  fecha_cancelacion?: string;
   archivos?: Array<{ nombre: string; tamano?: string; fecha_subida?: string }>;
+  ampliaciones?: Array<{ dias: number; justificacion: string; fecha: string; archivo?: unknown }>;
+  plazo_info?: { dias_restantes: number; color: string; texto: string; fecha_vencimiento: string };
 }
 
 interface Descargo {
@@ -72,10 +83,13 @@ interface Descargo {
   dependencia_denunciado?: string;
   fecha_notificacion?: string | null;
   medio?: string | null;
+  respaldo_archivo?: { nombre: string; tamano?: string } | null;
   fecha_vencimiento?: string | null;
+  fecha_respuesta?: string | null;
   estado: string;
   resumen_descargo?: string | null;
   documentos?: Array<{ nombre: string; tamano?: string; fecha_subida?: string }>;
+  ampliaciones?: Array<{ dias: number; justificacion: string; fecha: string }>;
 }
 
 interface Denuncia {
@@ -151,6 +165,14 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
   const [modalNotificarDescId, setModalNotificarDescId] = useState<number | null>(null);
   const [modalRespDescId, setModalRespDescId] = useState<number | null>(null);
   const [modalAmpliaDescId, setModalAmpliaDescId] = useState<number | null>(null);
+  const [modalCancelarSolId, setModalCancelarSolId] = useState<number | null>(null);
+  const [modalNuevoDescTicket, setModalNuevoDescTicket] = useState<string | null>(null);
+  // Edit/Delete modals
+  const [modalEditarSol, setModalEditarSol] = useState<Solicitud | null>(null);
+  const [modalEliminarSol, setModalEliminarSol] = useState<{ id: number; nombre: string } | null>(null);
+  const [modalEditarDesc, setModalEditarDesc] = useState<Descargo | null>(null);
+  const [modalEliminarDesc, setModalEliminarDesc] = useState<{ id: number; nombre: string } | null>(null);
+  const [processingEliminar, setProcessingEliminar] = useState(false);
   const [search, setSearch] = useState('');
   const [filterTipo, setFilterTipo] = useState('all');
   const [sortBy, setSortBy] = useState('plazo');
@@ -392,9 +414,27 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
           onNuevaSolicitud={(t) => { setSelectedDenuncia(null); setModalNuevaSolTicket(t); }}
           onResponderSolicitud={(id) => { setSelectedDenuncia(null); setModalRespondeSolId(id); }}
           onAmpliarSolicitud={(id) => { setSelectedDenuncia(null); setModalAmpliaSolId(id); }}
+          onCancelarSolicitud={(id) => { setSelectedDenuncia(null); setModalCancelarSolId(id); }}
+          onNuevoDescargo={(t) => { setSelectedDenuncia(null); setModalNuevoDescTicket(t); }}
           onNotificarDescargo={(id) => { setSelectedDenuncia(null); setModalNotificarDescId(id); }}
           onResponderDescargo={(id) => { setSelectedDenuncia(null); setModalRespDescId(id); }}
           onAmpliarDescargo={(id) => { setSelectedDenuncia(null); setModalAmpliaDescId(id); }}
+          onEditarSolicitud={(id) => {
+            const sol = solicitudesByTicket[selectedDenuncia.ticket]?.find(s => s.id === id) || null;
+            setModalEditarSol(sol);
+          }}
+          onEliminarSolicitud={(id) => {
+            const sol = solicitudesByTicket[selectedDenuncia.ticket]?.find(s => s.id === id);
+            if (sol) setModalEliminarSol({ id: sol.id, nombre: sol.unidad_destino });
+          }}
+          onEditarDescargo={(id) => {
+            const desc = descargosByTicket[selectedDenuncia.ticket]?.find(d => d.id === id) || null;
+            setModalEditarDesc(desc);
+          }}
+          onEliminarDescargo={(id) => {
+            const desc = descargosByTicket[selectedDenuncia.ticket]?.find(d => d.id === id);
+            if (desc) setModalEliminarDesc({ id: desc.id, nombre: desc.nombres_denunciado });
+          }}
         >
           {selectedDenuncia.estado === 'ingresada' && (
             <>
@@ -478,9 +518,10 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
         onOpenChange={(v) => { if (!v) setModalReabrirTicket(null); }}
       />
       <ModalNuevaSolicitud
-        ticket={modalNuevaSolTicket}
-        open={modalNuevaSolTicket !== null}
-        onOpenChange={(v) => { if (!v) setModalNuevaSolTicket(null); }}
+        ticket={modalEditarSol ? modalEditarSol.ticket : modalNuevaSolTicket}
+        solicitudToEdit={modalEditarSol}
+        open={modalNuevaSolTicket !== null || modalEditarSol !== null}
+        onOpenChange={(v) => { if (!v) { setModalNuevaSolTicket(null); setModalEditarSol(null); } }}
       />
       <ModalResponderSolicitud
         solicitudId={modalRespondeSolId}
@@ -506,6 +547,54 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
         descargoId={modalAmpliaDescId}
         open={modalAmpliaDescId !== null}
         onOpenChange={(v) => { if (!v) setModalAmpliaDescId(null); }}
+      />
+      <ModalCancelarSolicitud
+        solicitudId={modalCancelarSolId}
+        open={modalCancelarSolId !== null}
+        onOpenChange={(v: boolean) => { if (!v) setModalCancelarSolId(null); }}
+      />
+      <ModalNuevoDescargo
+        ticket={modalEditarDesc ? modalEditarDesc.ticket : modalNuevoDescTicket}
+        denunciados={selectedDenuncia?.denunciados || []}
+        descargoToEdit={modalEditarDesc}
+        open={modalNuevoDescTicket !== null || modalEditarDesc !== null}
+        onOpenChange={(v: boolean) => { if (!v) { setModalNuevoDescTicket(null); setModalEditarDesc(null); } }}
+      />
+      <ModalConfirmarEliminar
+        open={modalEliminarSol !== null}
+        onOpenChange={(v) => { if (!v) setModalEliminarSol(null); }}
+        onConfirm={() => {
+          if (!modalEliminarSol) return;
+          setProcessingEliminar(true);
+          router.post(route('denuncias.solicitudes.eliminar', { id: modalEliminarSol.id }), {}, {
+            preserveScroll: true,
+            onSuccess: () => { toast.success('Solicitud eliminada correctamente'); setModalEliminarSol(null); setProcessingEliminar(false); },
+            onError: () => { toast.error('Error al eliminar solicitud'); setProcessingEliminar(false); },
+            onFinish: () => setProcessingEliminar(false),
+          });
+        }}
+        titulo="¿Eliminar solicitud?"
+        descripcion="Esta solicitud se ocultará de la lista. Los datos se conservarán para auditoría."
+        itemNombre={modalEliminarSol?.nombre || ''}
+        processing={processingEliminar}
+      />
+      <ModalConfirmarEliminar
+        open={modalEliminarDesc !== null}
+        onOpenChange={(v) => { if (!v) setModalEliminarDesc(null); }}
+        onConfirm={() => {
+          if (!modalEliminarDesc) return;
+          setProcessingEliminar(true);
+          router.post(route('denuncias.descargos.eliminar', { id: modalEliminarDesc.id }), {}, {
+            preserveScroll: true,
+            onSuccess: () => { toast.success('Descargo eliminado correctamente'); setModalEliminarDesc(null); setProcessingEliminar(false); },
+            onError: () => { toast.error('Error al eliminar descargo'); setProcessingEliminar(false); },
+            onFinish: () => setProcessingEliminar(false),
+          });
+        }}
+        titulo="¿Eliminar descargo?"
+        descripcion="Este descargo se ocultará de la lista. Los datos se conservarán para auditoría."
+        itemNombre={modalEliminarDesc?.nombre || ''}
+        processing={processingEliminar}
       />
     </AppLayout>
   );

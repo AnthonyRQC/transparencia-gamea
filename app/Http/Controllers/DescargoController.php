@@ -125,4 +125,36 @@ class DescargoController extends Controller
 
         return redirect()->back()->with('success', "Plazo ampliado {$validated['dias']} días para el descargo de {$descargo['nombres_denunciado']}.");
     }
+
+    public function editar(int $id, Request $request)
+    {
+        $validated = $request->validate([
+            'nombres' => 'required|string|max:200',
+            'dependencia' => 'nullable|string|max:200',
+        ]);
+
+        $descargo = DescargoData::find($id);
+        if (!$descargo) {
+            return redirect()->back()->with('error', 'Descargo no encontrado.');
+        }
+
+        DescargoData::editar($id, [
+            'nombres_denunciado' => $validated['nombres'],
+            'dependencia_denunciado' => $validated['dependencia'] ?? '',
+        ]);
+
+        return redirect()->back()->with('success', "Descargo de {$validated['nombres']} actualizado correctamente.");
+    }
+
+    public function eliminar(int $id, Request $request)
+    {
+        $descargo = DescargoData::find($id);
+        if (!$descargo) {
+            return redirect()->back()->with('error', 'Descargo no encontrado.');
+        }
+
+        DescargoData::eliminar($id);
+
+        return redirect()->back()->with('success', "Descargo de {$descargo['nombres_denunciado']} eliminado correctamente.");
+    }
 }

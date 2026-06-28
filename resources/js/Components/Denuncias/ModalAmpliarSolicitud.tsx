@@ -8,6 +8,7 @@ import { Input } from '@/Components/ui/input';
 import { Textarea } from '@/Components/ui/textarea';
 import { Button } from '@/Components/ui/button';
 import { RotateCcw, Paperclip } from 'lucide-react';
+import ArchivoAdjunto from './ArchivoAdjunto';
 
 interface ModalAmpliarSolicitudProps {
   solicitudId: number | null;
@@ -120,9 +121,9 @@ export default function ModalAmpliarSolicitud({ solicitudId, open, onOpenChange 
               <input type="file" className="hidden" onChange={handleFileChange} />
             </label>
             {archivo && (
-              <p className="text-xs text-muted-foreground mt-1">
-                {archivo.nombre} ({archivo.tamano})
-              </p>
+              <div className="mt-1">
+                <ArchivoAdjunto nombre={archivo.nombre} tamano={archivo.tamano} onEliminar={() => setArchivo(null)} />
+              </div>
             )}
           </div>
         </div>
