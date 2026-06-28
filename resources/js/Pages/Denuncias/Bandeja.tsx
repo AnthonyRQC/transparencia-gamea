@@ -2,9 +2,11 @@ import { useState } from 'react';
 import { Head } from '@inertiajs/react';
 import {
   Inbox, CheckCircle2, ClipboardList, Eye, Archive,
-  InboxIcon, X, UserPlus, RotateCcw, ArrowRightLeft
+  InboxIcon, X, UserPlus, RotateCcw, ArrowRightLeft, Search
 } from 'lucide-react';
 import { FileText } from 'lucide-react';
+import { Input } from '@/Components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
 import AppLayout from '@/Components/Layout/AppLayout';
 import DenunciaCard from '@/Components/Denuncias/DenunciaCard';
 import DenunciaSheet from '@/Components/Denuncias/DenunciaSheet';
@@ -104,6 +106,9 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
   const [modalAsignacionTicket, setModalAsignacionTicket] = useState<string | null>(null);
   const [modalTraspasoTicket, setModalTraspasoTicket] = useState<string | null>(null);
   const [modalReabrirTicket, setModalReabrirTicket] = useState<string | null>(null);
+  const [search, setSearch] = useState('');
+  const [filterTipo, setFilterTipo] = useState('all');
+  const [sortBy, setSortBy] = useState('plazo');
 
   const tabs = [
     { value: 'por-admitir', label: 'Por admitir', count: contadores.ingresada },
@@ -112,6 +117,29 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
     { value: 'historial', label: 'Historial', count: contadores.rechazada + contadores.cerrada },
     { value: 'vision-general', label: 'Visión general' },
   ];
+
+  const isNewHours = (dateStr: string): boolean => {
+    if (!dateStr) return false;
+    const d = new Date(dateStr);
+    return (Date.now() - d.getTime()) / (1000 * 60 * 60) < 24;
+  };
+
+  const filterAndSort = (items: Denuncia[]): Denuncia[] => {
+    let filtered = items;
+    if (search) {
+      filtered = filtered.filter((d) =>
+        d.ticket.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+    if (filterTipo !== 'all') {
+      filtered = filtered.filter((d) => d.tipo === filterTipo);
+    }
+    return [...filtered].sort((a, b) => {
+      if (sortBy === 'fecha') return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      if (sortBy === 'tecnico') return (a.tecnico || '').localeCompare(b.tecnico || '');
+      return (a.plazo?.dias_restantes ?? 999) - (b.plazo?.dias_restantes ?? 999);
+    });
+  };
 
   return (
     <AppLayout>
@@ -125,10 +153,45 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
         Gestión de denuncias. Click en una card para ver detalle y acciones.
       </p>
 
+      <div className="flex items-center gap-2 mb-4">
+        <div className="relative flex-1 max-w-xs">
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            placeholder="Buscar por ticket..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-8 h-9 text-sm"
+          />
+        </div>
+        <Select value={filterTipo} onValueChange={setFilterTipo}>
+          <SelectTrigger className="w-36 h-9 text-sm">
+            <SelectValue placeholder="Tipo" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos</SelectItem>
+            <SelectItem value="corrupcion">Corrupción</SelectItem>
+            <SelectItem value="negacion">Negación</SelectItem>
+            <SelectItem value="acompaniamiento">Acompañamiento</SelectItem>
+            <SelectItem value="intervencion">Intervención</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={sortBy} onValueChange={setSortBy}>
+          <SelectTrigger className="w-36 h-9 text-sm">
+            <SelectValue placeholder="Ordenar" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="plazo">Plazo</SelectItem>
+            <SelectItem value="fecha">Fecha</SelectItem>
+            <SelectItem value="tecnico">Técnico</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
       <TabsDenuncias tabs={tabs} defaultValue="por-admitir">
         {(value) => {
           if (value === 'por-admitir') {
-            return denuncias.length === 0 ? (
+            const filtered = filterAndSort(denuncias);
+            return filtered.length === 0 ? (
               <ListaVacia
                 icon={Inbox}
                 titulo="No hay denuncias por admitir"
@@ -136,15 +199,16 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
               />
             ) : (
               <div className="space-y-3">
-                {denuncias.map((d) => (
-                  <DenunciaCard
-                    key={d.ticket}
-                    denuncia={d}
-                    plazo={d.plazo}
-                    tecnicos={tecnicos}
-                    onClick={() => setSelectedDenuncia(d)}
-                  >
-                    <div className="flex items-center gap-2 pt-1">
+                {filtered.map((d) => (
+                    <DenunciaCard
+                      key={d.ticket}
+                      denuncia={d}
+                      plazo={d.plazo}
+                      tecnicos={tecnicos}
+                      onClick={() => setSelectedDenuncia(d)}
+                      isNew={d.estado === 'ingresada' && isNewHours(d.created_at)}
+                    >
+                      <div className="flex items-center gap-2 pt-1">
                       <button
                         type="button"
                         onClick={(e) => { e.stopPropagation(); setModalAdmisionTicket(d.ticket); }}
@@ -169,7 +233,8 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
           }
 
           if (value === 'por-asignar') {
-            return porAsignar.length === 0 ? (
+            const filtered = filterAndSort(porAsignar);
+            return filtered.length === 0 ? (
               <ListaVacia
                 icon={ClipboardList}
                 titulo="No hay denuncias por asignar"
@@ -177,7 +242,7 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
               />
             ) : (
               <div className="space-y-3">
-                {porAsignar.map((d) => (
+                {filtered.map((d) => (
                   <DenunciaCard
                     key={d.ticket}
                     denuncia={d}
@@ -202,7 +267,8 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
           }
 
           if (value === 'en-curso') {
-            return enCurso.length === 0 ? (
+            const filtered = filterAndSort(enCurso);
+            return filtered.length === 0 ? (
               <ListaVacia
                 icon={Eye}
                 titulo="No hay denuncias en curso"
@@ -210,7 +276,7 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
               />
             ) : (
               <div className="space-y-3">
-                {enCurso.map((d) => (
+                {filtered.map((d) => (
                   <DenunciaCard
                     key={d.ticket}
                     denuncia={d}
@@ -224,7 +290,8 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
           }
 
           if (value === 'historial') {
-            return historial.length === 0 ? (
+            const filtered = filterAndSort(historial);
+            return filtered.length === 0 ? (
               <ListaVacia
                 icon={Archive}
                 titulo="No hay denuncias en el historial"
@@ -232,7 +299,7 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
               />
             ) : (
               <div className="space-y-3">
-                {historial.map((d) => (
+                {filtered.map((d) => (
                   <DenunciaCard
                     key={d.ticket}
                     denuncia={d}

@@ -3,6 +3,8 @@ import { cn } from '@/lib/utils';
 
 interface TipoDenunciaBadgeProps {
   tipo: string;
+  categoria?: string;
+  categoriaOtro?: string;
   className?: string;
 }
 
@@ -25,12 +27,33 @@ const tipoConfig: Record<string, { label: string; color: string }> = {
   },
 };
 
-export default function TipoDenunciaBadge({ tipo, className }: TipoDenunciaBadgeProps) {
+const categoriaLabel: Record<string, string> = {
+  cohecho: 'Cohecho',
+  concusion: 'Concusión',
+  incumplimiento: 'Incumplimiento',
+  malversacion: 'Malversación',
+  negociaciones: 'Negociaciones incompatibles',
+  omision: 'Omisión',
+  peculado: 'Peculado',
+  trafico: 'Tráfico de influencias',
+};
+
+export default function TipoDenunciaBadge({ tipo, categoria, categoriaOtro, className }: TipoDenunciaBadgeProps) {
   const config = tipoConfig[tipo] ?? { label: tipo, color: 'bg-gray-100 text-gray-800 border-gray-300' };
+
+  let catLabel: string | null = null;
+  if (categoria) {
+    if (categoria === 'otro') {
+      catLabel = categoriaOtro || 'Otro';
+    } else {
+      catLabel = categoriaLabel[categoria] || categoria;
+    }
+  }
 
   return (
     <Badge variant="outline" className={cn('text-[11px] font-semibold', config.color, className)}>
       {config.label}
+      {catLabel && <span className="font-normal opacity-70"> · {catLabel}</span>}
     </Badge>
   );
 }

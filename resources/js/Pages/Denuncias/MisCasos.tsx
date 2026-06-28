@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import { route } from 'ziggy-js';
 import {
   ClipboardList, Search, FileText, Archive, ChevronDown, ChevronRight,
-  Inbox, Eye, Play, CircleArrowRight
+  Inbox, Eye, Play, CircleArrowRight, ArrowUpDown
 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
 import AppLayout from '@/Components/Layout/AppLayout';
@@ -47,6 +47,7 @@ interface Denuncia {
   estado: string;
   subestado?: string | null;
   tecnico?: string | null;
+  fecha_asignada?: string | null;
   plazo: PlazoInfo | null;
 }
 
@@ -73,6 +74,7 @@ export default function MisCasos({ grouped, tecnicoActual, tecnicos }: PageProps
   const [selectedDenuncia, setSelectedDenuncia] = useState<Denuncia | null>(null);
   const [archivadasOpen, setArchivadasOpen] = useState(false);
   const [processingTicket, setProcessingTicket] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState('plazo');
 
   const handleTecnicoChange = (value: string) => {
     router.get(route('denuncias.mis-casos'), { tecnico: value }, { preserveState: true, preserveScroll: true });
@@ -105,6 +107,20 @@ export default function MisCasos({ grouped, tecnicoActual, tecnicos }: PageProps
       count: countVisible,
     };
   });
+
+  const isNewHours = (dateStr?: string | null): boolean => {
+    if (!dateStr) return false;
+    const d = new Date(dateStr);
+    return (Date.now() - d.getTime()) / (1000 * 60 * 60) < 24;
+  };
+
+  const sortItems = (items: Denuncia[]): Denuncia[] => {
+    return [...items].sort((a, b) => {
+      if (sortBy === 'fecha') return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      if (sortBy === 'tecnico') return (a.tecnico || '').localeCompare(b.tecnico || '');
+      return (a.plazo?.dias_restantes ?? 999) - (b.plazo?.dias_restantes ?? 999);
+    });
+  };
 
   const renderActions = (denuncia: Denuncia) => {
     if (denuncia.estado === 'asignada') {
@@ -152,6 +168,18 @@ export default function MisCasos({ grouped, tecnicoActual, tecnicos }: PageProps
               ))}
             </SelectContent>
           </Select>
+          <span className="text-xs text-muted-foreground font-medium">Ordenar:</span>
+          <Select value={sortBy} onValueChange={setSortBy}>
+            <SelectTrigger className="w-28 h-8 text-sm">
+              <ArrowUpDown className="w-3 h-3" />
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="plazo">Plazo</SelectItem>
+              <SelectItem value="fecha">Fecha</SelectItem>
+              <SelectItem value="tecnico">Técnico</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
       <p className="text-muted-foreground mb-6">
@@ -162,7 +190,8 @@ export default function MisCasos({ grouped, tecnicoActual, tecnicos }: PageProps
         {(value) => {
           const items = grouped[value] || [];
           const isCierre = value === 'cerrada';
-          const visible = isCierre ? items.filter((d) => !d.subestado) : items;
+          const sorted = sortItems(items);
+          const visible = isCierre ? sorted.filter((d) => !d.subestado) : sorted;
           const archivadas = isCierre ? items.filter((d) => d.subestado === 'archivada') : [];
 
           return (
@@ -182,6 +211,7 @@ export default function MisCasos({ grouped, tecnicoActual, tecnicos }: PageProps
                   plazo={d.plazo}
                   tecnicos={tecnicos}
                   onClick={() => setSelectedDenuncia(d)}
+                  isNew={d.estado === 'asignada' && isNewHours(d.fecha_asignada || d.created_at)}
                 >
                   {renderActions(d) && (
                     <div className="pt-1">{renderActions(d)}</div>
@@ -205,7 +235,7 @@ export default function MisCasos({ grouped, tecnicoActual, tecnicos }: PageProps
                   </button>
                   {archivadasOpen && (
                     <div className="space-y-2 p-3">
-                      {archivadas.map((d) => (
+                      {sortItems(archivadas).map((d) => (
                         <DenunciaCard
                           key={d.ticket}
                           denuncia={d}

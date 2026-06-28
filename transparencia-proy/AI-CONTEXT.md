@@ -14,15 +14,26 @@ Tailwind v3 · shadcn/ui (New York) · Laragon (Windows local)
 **Sprint 0** (Sidebar/Header institucional) — Cerrado ✅
 **Sprint 1** (Registro de Denuncia, formulario complejo) — Cerrado ✅ (Barra de progreso fija bajo header, modal de éxito vinculado mediante Inertia flash y panel temporal de autocompletado ficticio)
 **Sprint 2** (Bandeja de Admisión + Mis Casos + Mi Resumen) — Cerrado ✅ (Tabs en lugar de Kanban, Sheet lateral para detalle, modales Admisión/Rechazo con justificación, 4 tabs en Mis Casos, 4 ContadorCards en Mi Resumen, 12 seed items con técnicos, Dropdown "Ver como:" de técnico)
-**Sprint 3** (Asignación de Técnico + Traspaso + Reapertura + Mejoras Detalle) — Cerrado ✅ (AsignacionModal con carga de trabajo visible, TraspasoModal con justificación obligatoria, ReabrirModal con nueva fecha límite manual, bitácora en Sheet, tooltip en PlazoBadge, secciones Admisión/Rechazo/Asignación en Sheet, avatar de técnico en cards, badge Reasignado en traspasos recientes)
+**Sprint 3** (Asignación de Técnico + Traspaso + Reapertura + Mejoras Detalle) — Cerrado ✅ (AsignacionModal con carga de trabajo visible, TraspasoModal con justificación obligatoria, ReabrirModal con nueva fecha límite manual, historial del caso en Sheet, tooltip en PlazoBadge, secciones Admisión/Rechazo/Asignación en Sheet, avatar de técnico en cards, badge Reasignado en traspasos recientes, redesigned DenunciaCard con 3 filas + fecha contextual + categoría + filtros/ordenamiento/highlight en Bandeja)
 
-## Documentación Esencial (LEER EN ORDEN)
-1. `transparencia-proy/Plan de Desarrollo.md` — Hoja de ruta
-2. `transparencia-proy/RESUMEN LEY 974.md` — Marco legal
-3. `transparencia-proy/Sprint 1 - Registro de Denuncia.md` — Detalle Sprint 1
-4. `transparencia-proy/Sprint 2 - Bandeja de Admisión y Mis Casos.md` — Detalle Sprint 2
-5. `transparencia-proy/Proyecto - Resumen General del Sistema.md` — Overview funcional
-6. `transparencia-proy/Proyecto - Prototipo y Estrategia de Diseño.md` — Diseño
+## Documentación Esencial (LEER SIEMPRE)
+> Este archivo + los 2 siguientes son el snapshot del estado del proyecto.
+> Leerlos SIEMPRE al iniciar una conversación o antes de trabajar.
+1. `transparencia-proy/AI-CONTEXT.md` (este archivo) — Snapshot del estado actual
+2. `transparencia-proy/Plan de Desarrollo.md` — Hoja de ruta, sprints, decisiones
+3. `transparencia-proy/RESUMEN LEY 974.md` — Marco legal
+
+## Documentación de Referencia (LEER SOLO SI NECESARIO)
+> ⚠️ NO leer por defecto. Contienen detalles extensos que saturan la memoria de contexto.
+> Solo consultar si el usuario pide trabajar en un sprint específico o necesitas
+> contexto histórico detallado de un componente/flujo concreto.
+
+- `transparencia-proy/Sprint 1 - Registro de Denuncia.md` — Detalle Sprint 1
+- `transparencia-proy/Sprint 2 - Bandeja de Admisión y Mis Casos.md` — Detalle Sprint 2
+- `transparencia-proy/Sprint 3 - Asignación, Traspaso y Reapertura.md` — Detalle Sprint 3
+- `transparencia-proy/Proyecto - Resumen General del Sistema.md` — Overview funcional completo
+- `transparencia-proy/Proyecto - Prototipo y Estrategia de Diseño.md` — Decisiones de diseño
+- `transparencia-proy/Proyecto - Transparencia Stack y Conceptos.md` — Conceptos del stack
 
 ## Convenciones Vigentes
 - Colores institucionales: morado `#690bb2` + gold `#fecd2a` (CSS vars OKLCH)
@@ -41,11 +52,10 @@ Tailwind v3 · shadcn/ui (New York) · Laragon (Windows local)
 - `resources/js/Components/Layout/AppLayout.tsx` — Layout root
 - `resources/js/Components/Denuncias/` — Componentes de denuncias (Card, Sheet, Badges, Modales, AsignacionModal, TraspasoModal, ReabrirModal, TecnicoCargaCard)
 - `resources/js/Pages/Denuncias/RegistroDenuncia.tsx` — Formulario de registro
-- `resources/js/Pages/Denuncias/Bandeja.tsx` — Bandeja del Jefe (4 tabs)
+- `resources/js/Pages/Denuncias/Bandeja.tsx` — Bandeja del Jefe (5 tabs: Por admitir, Por asignar, En curso, Historial, Visión general)
 - `resources/js/Pages/Denuncias/MisCasos.tsx` — Mis Casos del Técnico (4 tabs)
 - `resources/js/Pages/Denuncias/MiResumen.tsx` — Resumen del Técnico (4 cards)
-- `resources/js/Components/ui/` — shadcn components (tooltip added Sprint 3)
-- `resources/js/Components/ui/tooltip.tsx` — Tooltip shadcn para PlazoBadge
+- `resources/js/Components/ui/` — shadcn components (tooltip, progress, scroll-area agregados Sprint 3)
 
 ## Comandos
 - `npm run dev` / `npm run build` — Vite

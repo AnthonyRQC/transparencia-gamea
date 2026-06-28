@@ -194,7 +194,7 @@ npx shadcn@2.3.0 add switch radio-group checkbox calendar popover textarea selec
 
 | Archivo | Descripción |
 |---------|-------------|
-| `Pages/Denuncias/Bandeja.tsx` | 4 tabs: Por admitir, Por asignar, Rechazadas, Visión general (6 ContadorCards) |
+| `Pages/Denuncias/Bandeja.tsx` | 5 tabs: Por admitir, Por asignar, En curso, Historial, Visión general (6 ContadorCards) |
 | `Pages/Denuncias/MisCasos.tsx` | 4 tabs: Bandeja de entrada, Investigación, Informe Final, Cierre + Dropdown "Ver como:" |
 | `Pages/Denuncias/MiResumen.tsx` | 4 ContadorCards: Activos, Vencidos, Por vencer, Cerrados + Dropdown "Ver como:" |
 
@@ -258,15 +258,15 @@ npx shadcn@2.3.0 add switch radio-group checkbox calendar popover textarea selec
 
 | Archivo | Cambio |
 |---------|--------|
-| `DenunciaSheet.tsx` | Nuevas secciones: Admisión (fecha+justificación), Rechazo (fecha+justificación), Técnico Asignado (avatar+fecha+historial traspaso), Reapertura (fecha+justificación), Bitácora (timeline últimas acciones) |
-| `DenunciaCard.tsx` | Avatar del técnico asignado en esquina superior derecha con tooltip, badge "Reasignado" en traspasos recientes (< 7 días) |
+| `DenunciaSheet.tsx` | Nuevas secciones: Admisión (fecha+justificación), Rechazo (fecha+justificación), Técnico Asignado (avatar+fecha+historial traspaso), Reapertura (fecha+justificación). "Bitácora" renombrado a "Historial del caso" (timeline últimas acciones) |
+| `DenunciaCard.tsx` | Rediseño 3 filas + acción: categoría en TipoDenunciaBadge, técnico con nombre, fecha contextual por etapa, highlight NUEVO para < 24h, borde izquierdo primario para nuevos, labels explícitos "Denunciante:" / "Asignado a:", badge "Reasignado" en traspasos recientes (< 7 días) |
 | `PlazoBadge.tsx` | Tooltip con fecha exacta de vencimiento, textos "Vence hoy" y "Vencida hace Xd" |
 
 #### Backend creado/modificado
 
 | Archivo | Cambio |
 |---------|--------|
-| `app/Data/DenunciaData.php` | Nuevos campos: `justificacion_traspaso`, `fecha_traspaso`, `tecnico_anterior`, `fecha_reapertura`, `justificacion_reapertura`, `plazo_reapertura`, `fecha_rechazada`, `bitacora[]`. Nuevos métodos: `asignarTecnico()`, `traspasar()`, `reabrir()`, `getCargaTecnicos()`, `getBitacora()`. Todas las acciones registran bitácora automáticamente. |
+| `app/Data/DenunciaData.php` | Nuevos campos: `justificacion_traspaso`, `fecha_traspaso`, `tecnico_anterior`, `fecha_reapertura`, `justificacion_reapertura`, `plazo_reapertura`, `fecha_rechazada`, `bitacora[]`. Nuevos métodos: `asignarTecnico()`, `traspasar()`, `reabrir()`, `getCargaTecnicos()`, `getBitacora()`. Todas las acciones registran en historial automáticamente. |
 | `app/Http/Controllers/DenunciaController.php` | Nuevos métodos: `asignar()`, `traspasar()`, `reabrir()`, `cargaTecnicos()` |
 | `BandejaController.php` | Envía `cargaTecnicos` como prop para AsignacionModal |
 
@@ -286,16 +286,16 @@ npx shadcn@2.3.0 add tooltip progress scroll-area
 #### Páginas modificadas
 | Archivo | Cambio |
 |---------|--------|
-| `Pages/Denuncias/Bandeja.tsx` | Tab "Por asignar" funcional: botón [Asignar técnico] abre AsignacionModal. Sheet con acciones contextuales (traspaso en asignada/investigacion/informe, reapertura en rechazada/cerrada). Nuevos estados modales. |
-| `Pages/Denuncias/MisCasos.tsx` | Pasa `tecnicos` a DenunciaCard (avatar). Badge Reasignado en cards traspasadas. |
+| `Pages/Denuncias/Bandeja.tsx` | Tab "Por asignar" funcional: botón [Asignar técnico] abre AsignacionModal. Sheet con acciones contextuales (traspaso en asignada/investigacion/informe, reapertura en rechazada/cerrada). Nuevos estados modales. + Filtros (buscar ticket + tipo) + Sort (plazo/fecha/técnico) + Highlight NUEVO (< 24h en ingresada). |
+| `Pages/Denuncias/MisCasos.tsx` | Pasa `tecnicos` a DenunciaCard (avatar). Badge Reasignado en cards traspasadas. + Sort (plazo/fecha/técnico) + Highlight NUEVO (< 24h en asignada). |
 
 #### Decisiones del Sprint
 | Decisión | Opción elegida |
 |----------|---------------|
 | Reapertura → estado destino | `ingresada` (pasa por admisión de nuevo) |
 | Plazo al reabrir | Jefe define fecha manual (DatePicker) |
-| Traspaso: historial | Técnico B ve toda la bitácora |
-| Bitácora visible en | Sección al pie del Sheet (últimas acciones) |
+| Traspaso: historial | Técnico B ve todo el historial |
+| Historial del caso visible en | Sección al pie del Sheet (últimas acciones) |
 | Carga de técnicos | Prop inline desde BandejaController |
 | Badge "Reasignado" | Visible 7 días desde el traspaso |
 

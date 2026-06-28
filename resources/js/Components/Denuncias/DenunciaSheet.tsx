@@ -320,7 +320,7 @@ export default function DenunciaSheet({ denuncia, plazo, tecnicos, open, onOpenC
               <section>
                 <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1.5">
                   <History className="w-3.5 h-3.5 text-muted-foreground" />
-                  Bitácora ({bitacora.length})
+                  Historial del caso ({bitacora.length})
                 </h4>
                 <div className="space-y-2">
                   {bitacora.map((entry, i) => (
