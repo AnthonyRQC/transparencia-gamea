@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\BandejaController;
+use App\Http\Controllers\MisCasosController;
+use App\Http\Controllers\MiResumenController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DenunciaController;
 use Illuminate\Foundation\Application;
@@ -51,16 +54,23 @@ Route::get('/dashboard', function () {
 
 // ----- Denuncias -----
 Route::prefix('denuncias')->name('denuncias.')->group(function () {
-    // Kanban (Sprint 2)
-    Route::get('/', function () {
-        return Inertia::render('Denuncias/Kanban');
-    })->name('kanban');
+    // Bandeja de Admisión (Sprint 2)
+    Route::get('/', [BandejaController::class, 'index'])->name('bandeja');
 
     // Registro de nueva denuncia (Sprint 1)
     Route::get('/registrar', [DenunciaController::class, 'create'])->name('registrar');
     Route::post('/', [DenunciaController::class, 'store'])->name('store');
 
-    // Detalle de denuncia (Sprint 3)
+    // Acciones (Sprint 2)
+    Route::post('/{ticket}/admitir', [DenunciaController::class, 'admitir'])->name('admitir');
+    Route::post('/{ticket}/rechazar', [DenunciaController::class, 'rechazar'])->name('rechazar');
+    Route::post('/{ticket}/iniciar', [DenunciaController::class, 'iniciarInvestigacion'])->name('iniciar');
+
+    // Mis Casos + Mi Resumen (Sprint 2)
+    Route::get('/mis-casos', [MisCasosController::class, 'index'])->name('mis-casos');
+    Route::get('/mi-resumen', [MiResumenController::class, 'index'])->name('mi-resumen');
+
+    // Detalle de denuncia (Sprint 3) — último por catch-all /{id}
     Route::get('/{id}', function ($id) {
         return Inertia::render('Denuncias/DetalleDenuncia', ['id' => $id]);
     })->name('detalle');

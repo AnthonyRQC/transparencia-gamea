@@ -5,6 +5,7 @@ import {
     LayoutDashboard,
     FilePlus2,
     KanbanSquare,
+    ClipboardList,
     BarChart3,
     CalendarDays,
 } from 'lucide-react';
@@ -48,11 +49,25 @@ export default function Sidebar({
             icon: <FilePlus2 className="w-5 h-5 shrink-0" />,
         },
         {
-            key: 'kanban',
-            label: 'Tablero Kanban',
-            href: route('denuncias.kanban'),
-            routeName: 'denuncias.kanban',
+            key: 'bandeja',
+            label: 'Bandeja de Admisión',
+            href: route('denuncias.bandeja'),
+            routeName: 'denuncias.bandeja',
             icon: <KanbanSquare className="w-5 h-5 shrink-0" />,
+        },
+        {
+            key: 'mis-casos',
+            label: 'Mis Casos [Técnico]',
+            href: route('denuncias.mis-casos'),
+            routeName: 'denuncias.mis-casos',
+            icon: <ClipboardList className="w-5 h-5 shrink-0" />,
+        },
+        {
+            key: 'mi-resumen',
+            label: 'Mi Resumen [Técnico]',
+            href: route('denuncias.mi-resumen'),
+            routeName: 'denuncias.mi-resumen',
+            icon: <BarChart3 className="w-5 h-5 shrink-0" />,
         },
         {
             key: 'reportes',

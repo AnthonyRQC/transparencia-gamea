@@ -89,4 +89,48 @@ class DenunciaController extends Controller
             'ticket' => $ticket,
         ]);
     }
+
+    public function admitir(string $ticket, Request $request)
+    {
+        $validated = $request->validate([
+            'justificacion' => 'nullable|string|max:500',
+        ]);
+
+        $denuncia = DenunciaData::find($ticket);
+        if (!$denuncia || $denuncia['estado'] !== 'ingresada') {
+            return redirect()->back()->with('error', 'No se puede admitir esta denuncia.');
+        }
+
+        DenunciaData::admitir($ticket, $validated['justificacion'] ?? null);
+
+        return redirect()->back()->with('success', "Denuncia {$ticket} admitida correctamente.");
+    }
+
+    public function rechazar(string $ticket, Request $request)
+    {
+        $validated = $request->validate([
+            'justificacion' => 'required|string|min:10|max:2000',
+        ]);
+
+        $denuncia = DenunciaData::find($ticket);
+        if (!$denuncia || $denuncia['estado'] !== 'ingresada') {
+            return redirect()->back()->with('error', 'No se puede rechazar esta denuncia.');
+        }
+
+        DenunciaData::rechazar($ticket, $validated['justificacion']);
+
+        return redirect()->back()->with('success', "Denuncia {$ticket} rechazada.");
+    }
+
+    public function iniciarInvestigacion(string $ticket)
+    {
+        $denuncia = DenunciaData::find($ticket);
+        if (!$denuncia || $denuncia['estado'] !== 'asignada') {
+            return redirect()->back()->with('error', 'No se puede iniciar investigación.');
+        }
+
+        DenunciaData::iniciarInvestigacion($ticket);
+
+        return redirect()->back()->with('success', "Investigación iniciada para {$ticket}.");
+    }
 }

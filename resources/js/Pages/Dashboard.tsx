@@ -8,7 +8,7 @@ import {
     Clock,
     ArrowRight,
     FilePlus2,
-    KanbanSquare,
+    Inbox,
     BarChart3,
 } from 'lucide-react';
 
@@ -61,14 +61,14 @@ export default function Dashboard() {
                         className="group bg-card border rounded-2xl p-5 shadow-xs hover:shadow-md transition-all duration-300 hover:border-primary/40"
                     >
                         <div className="flex items-start justify-between mb-3">
-                            <div className="w-11 h-11 rounded-xl bg-secondary/20 text-secondary-foreground flex items-center justify-center group-hover:scale-110 transition-transform">
-                                <KanbanSquare className="w-5 h-5" />
+                            <div className="w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <Inbox className="w-5 h-5" />
                             </div>
                             <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
                         </div>
-                        <h4 className="font-bold mb-1">Tablero Kanban</h4>
+                        <h4 className="font-bold mb-1">Bandeja de Admisión</h4>
                         <p className="text-xs text-muted-foreground">
-                            Ver el flujo de todas las denuncias por fase.
+                            Admita o rechace las denuncias ingresadas.
                         </p>
                     </Link>
 
