@@ -18,6 +18,12 @@ import ModalRechazo from '@/Components/Denuncias/ModalRechazo';
 import AsignacionModal from '@/Components/Denuncias/AsignacionModal';
 import TraspasoModal from '@/Components/Denuncias/TraspasoModal';
 import ReabrirModal from '@/Components/Denuncias/ReabrirModal';
+import ModalNuevaSolicitud from '@/Components/Denuncias/ModalNuevaSolicitud';
+import ModalResponderSolicitud from '@/Components/Denuncias/ModalResponderSolicitud';
+import ModalAmpliarSolicitud from '@/Components/Denuncias/ModalAmpliarSolicitud';
+import ModalNotificarDescargo from '@/Components/Denuncias/ModalNotificarDescargo';
+import ModalResponderDescargo from '@/Components/Denuncias/ModalResponderDescargo';
+import ModalAmpliarDescargo from '@/Components/Denuncias/ModalAmpliarDescargo';
 
 interface PlazoInfo {
   dias_restantes: number;
@@ -40,6 +46,38 @@ interface Prueba {
   archivo_nombre?: string;
 }
 
+interface BitacoraEntry {
+  fecha: string;
+  accion: string;
+  detalle: string;
+  usuario: string;
+}
+
+interface Solicitud {
+  id: number;
+  ticket: string;
+  unidad_destino: string;
+  detalle: string;
+  fecha_envio: string;
+  fecha_vencimiento: string;
+  estado: string;
+  archivos?: Array<{ nombre: string; tamano?: string; fecha_subida?: string }>;
+}
+
+interface Descargo {
+  id: number;
+  ticket: string;
+  denunciado_idx: number;
+  nombres_denunciado: string;
+  dependencia_denunciado?: string;
+  fecha_notificacion?: string | null;
+  medio?: string | null;
+  fecha_vencimiento?: string | null;
+  estado: string;
+  resumen_descargo?: string | null;
+  documentos?: Array<{ nombre: string; tamano?: string; fecha_subida?: string }>;
+}
+
 interface Denuncia {
   ticket: string;
   tipo: string;
@@ -56,10 +94,14 @@ interface Denuncia {
   justificacion_reapertura?: string | null;
   fecha_reapertura?: string | null;
   tecnico_anterior?: string | null;
-  bitacora?: Array<{ fecha: string; accion: string; detalle: string; usuario: string }>;
+  bitacora?: BitacoraEntry[];
   estado: string;
   subestado?: string | null;
   tecnico?: string | null;
+  fecha_asignada?: string | null;
+  fecha_traspaso?: string | null;
+  justificacion_traspaso?: string | null;
+  fecha_rechazada?: string | null;
   plazo: PlazoInfo | null;
 }
 
@@ -81,13 +123,9 @@ interface PageProps {
   contadores: Contador;
   tecnicos: Record<string, { id: string; nombre: string; iniciales: string; color: string }>;
   cargaTecnicos?: Array<{ id: string; nombre: string; iniciales: string; color: string; activos: number; por_vencer: number; vencidos: number }>;
-}
-
-interface BitacoraEntry {
-  fecha: string;
-  accion: string;
-  detalle: string;
-  usuario: string;
+  solicitudesByTicket?: Record<string, Solicitud[]>;
+  descargosByTicket?: Record<string, Descargo[]>;
+  canAct?: boolean;
 }
 
 const contadorConfig = [
@@ -99,13 +137,20 @@ const contadorConfig = [
   { key: 'cerrada', label: 'Cerradas', icon: Archive, color: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300' },
 ];
 
-export default function Bandeja({ denuncias, porAsignar, enCurso, historial, contadores, tecnicos, cargaTecnicos }: PageProps) {
+export default function Bandeja({ denuncias, porAsignar, enCurso, historial, contadores, tecnicos, cargaTecnicos, solicitudesByTicket = {}, descargosByTicket = {}, canAct = false }: PageProps) {
   const [selectedDenuncia, setSelectedDenuncia] = useState<Denuncia | null>(null);
   const [modalAdmisionTicket, setModalAdmisionTicket] = useState<string | null>(null);
   const [modalRechazoTicket, setModalRechazoTicket] = useState<string | null>(null);
   const [modalAsignacionTicket, setModalAsignacionTicket] = useState<string | null>(null);
   const [modalTraspasoTicket, setModalTraspasoTicket] = useState<string | null>(null);
   const [modalReabrirTicket, setModalReabrirTicket] = useState<string | null>(null);
+  // Sprint 4 modals
+  const [modalNuevaSolTicket, setModalNuevaSolTicket] = useState<string | null>(null);
+  const [modalRespondeSolId, setModalRespondeSolId] = useState<number | null>(null);
+  const [modalAmpliaSolId, setModalAmpliaSolId] = useState<number | null>(null);
+  const [modalNotificarDescId, setModalNotificarDescId] = useState<number | null>(null);
+  const [modalRespDescId, setModalRespDescId] = useState<number | null>(null);
+  const [modalAmpliaDescId, setModalAmpliaDescId] = useState<number | null>(null);
   const [search, setSearch] = useState('');
   const [filterTipo, setFilterTipo] = useState('all');
   const [sortBy, setSortBy] = useState('plazo');
@@ -318,7 +363,6 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
             );
           }
 
-          // vision-general
           return (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
               {contadorConfig.map((c) => (
@@ -342,6 +386,15 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
           tecnicos={tecnicos}
           open={selectedDenuncia !== null}
           onOpenChange={(v) => { if (!v) setSelectedDenuncia(null); }}
+          solicitudes={solicitudesByTicket[selectedDenuncia.ticket] || []}
+          descargos={descargosByTicket[selectedDenuncia.ticket] || []}
+          canAct={canAct}
+          onNuevaSolicitud={(t) => { setSelectedDenuncia(null); setModalNuevaSolTicket(t); }}
+          onResponderSolicitud={(id) => { setSelectedDenuncia(null); setModalRespondeSolId(id); }}
+          onAmpliarSolicitud={(id) => { setSelectedDenuncia(null); setModalAmpliaSolId(id); }}
+          onNotificarDescargo={(id) => { setSelectedDenuncia(null); setModalNotificarDescId(id); }}
+          onResponderDescargo={(id) => { setSelectedDenuncia(null); setModalRespDescId(id); }}
+          onAmpliarDescargo={(id) => { setSelectedDenuncia(null); setModalAmpliaDescId(id); }}
         >
           {selectedDenuncia.estado === 'ingresada' && (
             <>
@@ -423,6 +476,36 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
         ticket={modalReabrirTicket}
         open={modalReabrirTicket !== null}
         onOpenChange={(v) => { if (!v) setModalReabrirTicket(null); }}
+      />
+      <ModalNuevaSolicitud
+        ticket={modalNuevaSolTicket}
+        open={modalNuevaSolTicket !== null}
+        onOpenChange={(v) => { if (!v) setModalNuevaSolTicket(null); }}
+      />
+      <ModalResponderSolicitud
+        solicitudId={modalRespondeSolId}
+        open={modalRespondeSolId !== null}
+        onOpenChange={(v) => { if (!v) setModalRespondeSolId(null); }}
+      />
+      <ModalAmpliarSolicitud
+        solicitudId={modalAmpliaSolId}
+        open={modalAmpliaSolId !== null}
+        onOpenChange={(v) => { if (!v) setModalAmpliaSolId(null); }}
+      />
+      <ModalNotificarDescargo
+        descargoId={modalNotificarDescId}
+        open={modalNotificarDescId !== null}
+        onOpenChange={(v) => { if (!v) setModalNotificarDescId(null); }}
+      />
+      <ModalResponderDescargo
+        descargoId={modalRespDescId}
+        open={modalRespDescId !== null}
+        onOpenChange={(v) => { if (!v) setModalRespDescId(null); }}
+      />
+      <ModalAmpliarDescargo
+        descargoId={modalAmpliaDescId}
+        open={modalAmpliaDescId !== null}
+        onOpenChange={(v) => { if (!v) setModalAmpliaDescId(null); }}
       />
     </AppLayout>
   );

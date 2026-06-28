@@ -12,6 +12,13 @@ import DenunciaCard from '@/Components/Denuncias/DenunciaCard';
 import DenunciaSheet from '@/Components/Denuncias/DenunciaSheet';
 import TabsDenuncias from '@/Components/Denuncias/TabsDenuncias';
 import ListaVacia from '@/Components/Denuncias/ListaVacia';
+import SaltarFaseButton from '@/Components/Denuncias/SaltarFaseButton';
+import ModalNuevaSolicitud from '@/Components/Denuncias/ModalNuevaSolicitud';
+import ModalResponderSolicitud from '@/Components/Denuncias/ModalResponderSolicitud';
+import ModalAmpliarSolicitud from '@/Components/Denuncias/ModalAmpliarSolicitud';
+import ModalNotificarDescargo from '@/Components/Denuncias/ModalNotificarDescargo';
+import ModalResponderDescargo from '@/Components/Denuncias/ModalResponderDescargo';
+import ModalAmpliarDescargo from '@/Components/Denuncias/ModalAmpliarDescargo';
 
 interface PlazoInfo {
   dias_restantes: number;
@@ -34,6 +41,38 @@ interface Prueba {
   archivo_nombre?: string;
 }
 
+interface BitacoraEntry {
+  fecha: string;
+  accion: string;
+  detalle: string;
+  usuario: string;
+}
+
+interface Solicitud {
+  id: number;
+  ticket: string;
+  unidad_destino: string;
+  detalle: string;
+  fecha_envio: string;
+  fecha_vencimiento: string;
+  estado: string;
+  archivos?: Array<{ nombre: string; tamano?: string; fecha_subida?: string }>;
+}
+
+interface Descargo {
+  id: number;
+  ticket: string;
+  denunciado_idx: number;
+  nombres_denunciado: string;
+  dependencia_denunciado?: string;
+  fecha_notificacion?: string | null;
+  medio?: string | null;
+  fecha_vencimiento?: string | null;
+  estado: string;
+  resumen_descargo?: string | null;
+  documentos?: Array<{ nombre: string; tamano?: string; fecha_subida?: string }>;
+}
+
 interface Denuncia {
   ticket: string;
   tipo: string;
@@ -49,6 +88,7 @@ interface Denuncia {
   tecnico?: string | null;
   fecha_asignada?: string | null;
   plazo: PlazoInfo | null;
+  bitacora?: BitacoraEntry[];
 }
 
 interface Grouped {
@@ -59,6 +99,9 @@ interface PageProps {
   grouped: Grouped;
   tecnicoActual: string;
   tecnicos: Record<string, { id: string; nombre: string; iniciales: string; color: string }>;
+  solicitudesByTicket?: Record<string, Solicitud[]>;
+  descargosByTicket?: Record<string, Descargo[]>;
+  canAct?: boolean;
 }
 
 const estadoLabels: Record<string, { label: string; icon: any }> = {
@@ -70,11 +113,18 @@ const estadoLabels: Record<string, { label: string; icon: any }> = {
 
 const estadoOrden = ['asignada', 'investigacion', 'informe', 'cerrada'];
 
-export default function MisCasos({ grouped, tecnicoActual, tecnicos }: PageProps) {
+export default function MisCasos({ grouped, tecnicoActual, tecnicos, solicitudesByTicket = {}, descargosByTicket = {}, canAct = true }: PageProps) {
   const [selectedDenuncia, setSelectedDenuncia] = useState<Denuncia | null>(null);
   const [archivadasOpen, setArchivadasOpen] = useState(false);
   const [processingTicket, setProcessingTicket] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState('plazo');
+  // Sprint 4 modals
+  const [modalNuevaSolTicket, setModalNuevaSolTicket] = useState<string | null>(null);
+  const [modalRespondeSolId, setModalRespondeSolId] = useState<number | null>(null);
+  const [modalAmpliaSolId, setModalAmpliaSolId] = useState<number | null>(null);
+  const [modalNotificarDescId, setModalNotificarDescId] = useState<number | null>(null);
+  const [modalRespDescId, setModalRespDescId] = useState<number | null>(null);
+  const [modalAmpliaDescId, setModalAmpliaDescId] = useState<number | null>(null);
 
   const handleTecnicoChange = (value: string) => {
     router.get(route('denuncias.mis-casos'), { tecnico: value }, { preserveState: true, preserveScroll: true });
@@ -136,15 +186,26 @@ export default function MisCasos({ grouped, tecnicoActual, tecnicos }: PageProps
         </button>
       );
     }
-    if (['investigacion', 'informe'].includes(denuncia.estado)) {
+    if (denuncia.estado === 'investigacion') {
+      return null; // Se maneja en el footer del Sheet
+    }
+    if (denuncia.estado === 'informe') {
       return (
         <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-muted text-muted-foreground text-xs font-medium">
           <CircleArrowRight className="w-3.5 h-3.5" />
-          Continuar (Sprint 4)
+          Continuar al cierre (Sprint 5)
         </span>
       );
     }
     return null;
+  };
+
+  const countPendientes = (denuncia: Denuncia) => {
+    const sols = solicitudesByTicket[denuncia.ticket] || [];
+    const descs = descargosByTicket[denuncia.ticket] || [];
+    const solsPend = sols.filter(s => s.estado === 'pendiente').length;
+    const descsPend = descs.filter(d => ['pendiente_notif', 'notificado'].includes(d.estado)).length;
+    return { solicitudes: solsPend, descargos: descsPend };
   };
 
   return (
@@ -260,6 +321,15 @@ export default function MisCasos({ grouped, tecnicoActual, tecnicos }: PageProps
           tecnicos={tecnicos}
           open={selectedDenuncia !== null}
           onOpenChange={(v) => { if (!v) setSelectedDenuncia(null); }}
+          solicitudes={solicitudesByTicket[selectedDenuncia.ticket] || []}
+          descargos={descargosByTicket[selectedDenuncia.ticket] || []}
+          canAct={canAct}
+          onNuevaSolicitud={(t) => { setSelectedDenuncia(null); setModalNuevaSolTicket(t); }}
+          onResponderSolicitud={(id) => { setSelectedDenuncia(null); setModalRespondeSolId(id); }}
+          onAmpliarSolicitud={(id) => { setSelectedDenuncia(null); setModalAmpliaSolId(id); }}
+          onNotificarDescargo={(id) => { setSelectedDenuncia(null); setModalNotificarDescId(id); }}
+          onResponderDescargo={(id) => { setSelectedDenuncia(null); setModalRespDescId(id); }}
+          onAmpliarDescargo={(id) => { setSelectedDenuncia(null); setModalAmpliaDescId(id); }}
         >
           {selectedDenuncia.estado === 'asignada' && (
             <button
@@ -272,8 +342,47 @@ export default function MisCasos({ grouped, tecnicoActual, tecnicos }: PageProps
               {processingTicket === selectedDenuncia.ticket ? 'Iniciando...' : 'Iniciar investigación'}
             </button>
           )}
+          {selectedDenuncia.estado === 'investigacion' && (
+            <SaltarFaseButton
+              ticket={selectedDenuncia.ticket}
+              solicitudesPendientes={countPendientes(selectedDenuncia).solicitudes}
+              descargosPendientes={countPendientes(selectedDenuncia).descargos}
+            />
+          )}
         </DenunciaSheet>
       )}
+
+      {/* Sprint 4 modales */}
+      <ModalNuevaSolicitud
+        ticket={modalNuevaSolTicket}
+        open={modalNuevaSolTicket !== null}
+        onOpenChange={(v) => { if (!v) setModalNuevaSolTicket(null); }}
+      />
+      <ModalResponderSolicitud
+        solicitudId={modalRespondeSolId}
+        open={modalRespondeSolId !== null}
+        onOpenChange={(v) => { if (!v) setModalRespondeSolId(null); }}
+      />
+      <ModalAmpliarSolicitud
+        solicitudId={modalAmpliaSolId}
+        open={modalAmpliaSolId !== null}
+        onOpenChange={(v) => { if (!v) setModalAmpliaSolId(null); }}
+      />
+      <ModalNotificarDescargo
+        descargoId={modalNotificarDescId}
+        open={modalNotificarDescId !== null}
+        onOpenChange={(v) => { if (!v) setModalNotificarDescId(null); }}
+      />
+      <ModalResponderDescargo
+        descargoId={modalRespDescId}
+        open={modalRespDescId !== null}
+        onOpenChange={(v) => { if (!v) setModalRespDescId(null); }}
+      />
+      <ModalAmpliarDescargo
+        descargoId={modalAmpliaDescId}
+        open={modalAmpliaDescId !== null}
+        onOpenChange={(v) => { if (!v) setModalAmpliaDescId(null); }}
+      />
     </AppLayout>
   );
 }

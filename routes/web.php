@@ -5,6 +5,8 @@ use App\Http\Controllers\MisCasosController;
 use App\Http\Controllers\MiResumenController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DenunciaController;
+use App\Http\Controllers\SolicitudController;
+use App\Http\Controllers\DescargoController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -71,8 +73,22 @@ Route::prefix('denuncias')->name('denuncias.')->group(function () {
     Route::post('/{ticket}/traspasar', [DenunciaController::class, 'traspasar'])->name('traspasar');
     Route::post('/{ticket}/reabrir', [DenunciaController::class, 'reabrir'])->name('reabrir');
 
+    // Sprint 4 — Saltar fase
+    Route::post('/{ticket}/saltar-fase', [DenunciaController::class, 'saltarFase'])->name('saltar-fase');
+
     // Carga de técnicos (Sprint 3)
     Route::get('/carga-tecnicos', [DenunciaController::class, 'cargaTecnicos'])->name('carga-tecnicos');
+
+    // Sprint 4 — Solicitudes
+    Route::post('/{ticket}/solicitudes', [SolicitudController::class, 'store'])->name('solicitudes.store');
+    Route::post('/solicitudes/{id}/responder', [SolicitudController::class, 'responder'])->name('solicitudes.responder');
+    Route::post('/solicitudes/{id}/ampliar', [SolicitudController::class, 'ampliar'])->name('solicitudes.ampliar');
+
+    // Sprint 4 — Descargos
+    Route::post('/{ticket}/descargos', [DescargoController::class, 'store'])->name('descargos.store');
+    Route::post('/descargos/{id}/notificar', [DescargoController::class, 'notificar'])->name('descargos.notificar');
+    Route::post('/descargos/{id}/responder', [DescargoController::class, 'responder'])->name('descargos.responder');
+    Route::post('/descargos/{id}/ampliar', [DescargoController::class, 'ampliar'])->name('descargos.ampliar');
 
     // Mis Casos + Mi Resumen (Sprint 2)
     Route::get('/mis-casos', [MisCasosController::class, 'index'])->name('mis-casos');

@@ -197,4 +197,34 @@ class DenunciaController extends Controller
     {
         return response()->json(DenunciaData::getCargaTecnicos());
     }
+
+    // ──────────────────────────────────────────────
+    //  SPRINT 4 — Saltar Fase
+    // ──────────────────────────────────────────────
+
+    public function saltarFase(string $ticket, Request $request)
+    {
+        $validated = $request->validate([
+            'justificacion' => 'required|string|min:20|max:2000',
+        ]);
+
+        $denuncia = DenunciaData::find($ticket);
+        if (!$denuncia || $denuncia['estado'] !== 'investigacion') {
+            return redirect()->back()->with('error', 'No se puede saltar la fase de esta denuncia.');
+        }
+
+        $solicitudes = DenunciaData::getSolicitudes($ticket);
+        $descargos = DenunciaData::getDescargos($ticket);
+        $pendientes = collect($solicitudes)->filter(fn($s) => $s['estado'] === 'pendiente')->count()
+            + collect($descargos)->filter(fn($d) => in_array($d['estado'], ['pendiente_notif', 'notificado']))->count();
+
+        DenunciaData::saltarFase($ticket, $validated['justificacion']);
+
+        $msg = "Denuncia {$ticket} pasó a Informe Final.";
+        if ($pendientes > 0) {
+            $msg .= " Quedan {$pendientes} item(s) pendiente(s) de solicitudes/descargos.";
+        }
+
+        return redirect()->back()->with('success', $msg);
+    }
 }

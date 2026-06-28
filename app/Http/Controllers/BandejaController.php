@@ -25,6 +25,20 @@ class BandejaController extends Controller
             DenunciaData::getByEstado('cerrada'),
         )));
 
+        // Sprint 4 — Solicitudes y Descargos agrupados por ticket
+        $allTickets = array_unique(array_merge(
+            array_column(DenunciaData::getAll(), 'ticket')
+        ));
+
+        $solicitudesByTicket = [];
+        $descargosByTicket = [];
+        foreach ($allTickets as $t) {
+            $sols = DenunciaData::getSolicitudes($t);
+            $descs = DenunciaData::getDescargos($t);
+            if (!empty($sols)) $solicitudesByTicket[$t] = $sols;
+            if (!empty($descs)) $descargosByTicket[$t] = $descs;
+        }
+
         return Inertia::render('Denuncias/Bandeja', [
             'denuncias' => array_values(array_map($mapPlazo, DenunciaData::getByEstado('ingresada'))),
             'porAsignar' => array_values(array_map($mapPlazo, DenunciaData::getByEstado('admitida'))),
@@ -33,6 +47,9 @@ class BandejaController extends Controller
             'contadores' => DenunciaData::getContadores(),
             'tecnicos' => DenunciaData::TECNICOS_MOCK,
             'cargaTecnicos' => DenunciaData::getCargaTecnicos(),
+            'solicitudesByTicket' => $solicitudesByTicket,
+            'descargosByTicket' => $descargosByTicket,
+            'canAct' => false,
         ]);
     }
 }

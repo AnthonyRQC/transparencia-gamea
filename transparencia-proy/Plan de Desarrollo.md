@@ -35,7 +35,8 @@
 - ✅ AppLayout personalizado (Header + Sidebar + Footer)
 - ✅ Modo oscuro vía CSS variables + localStorage
 - ✅ Routing básico: Welcome, Dashboard (vacío), DesignSystem, Auth
-- ✅ Archivos de planificación en `transparencia-proy/` (4 documentos de especificación)
+- ✅ Archivos de planificación en `transparencia-proy/` (8 documentos de especificación)
+- ✅ Sprint 4: Investigación con Solicitudes/Descargos autónomos, Sheet con Tabs, SaltarFaseButton
 
 ---
 
@@ -301,23 +302,90 @@ npx shadcn@2.3.0 add tooltip progress scroll-area
 
 ---
 
-### Sprint 4 — Investigación (Solicitudes + Descargos)
+### Sprint 4 — Investigación (Solicitudes + Descargos + Saltar Fase) ✅ COMPLETADO (Junio 2026)
 
-**Objetivo:** Pestañas de trabajo dentro del Sheet de detalle.
+**Objetivo:** Refactor del Sheet a 3 tabs (Información/Solicitudes/Descargos). Gestión independiente de solicitudes a unidades externas y descargos de denunciados. Saltar fase con justificación.
+
+#### Componentes creados
 
 | Componente | Descripción |
 |------------|-------------|
-| `TabSolicitudes.tsx` | Lista de solicitudes a unidades externas (To-Do) |
-| `ModalNuevaSolicitud.tsx` | Unidad destino + detalle + plazo |
-| `ModalResponderSolicitud.tsx` | Respuesta recibida + archivos |
-| `ModalAmpliarSolicitud.tsx` | Prórroga: días + justificación + archivo |
-| `TabDescargos.tsx` | Lista de denunciados con control individual |
-| `ModalNotificarDescargo.tsx` | Fecha aviso + medio + respaldo |
-| `ModalResponderDescargo.tsx` | Resumen descargo + documentos |
-| `ModalAmpliarDescargo.tsx` | Prórroga: días + justificación |
-| `SaltarFaseButton.tsx` | Botón "Saltar" con textarea justificación obligatoria |
+| `Components/Denuncias/TabSolicitudes.tsx` | Contenedor con lista única de solicitudes a unidades externas, ordenada por fecha_vencimiento asc |
+| `Components/Denuncias/SolicitudCard.tsx` | Card con badge estado + unidad destino + PlazoProgress + botones contextuales |
+| `Components/Denuncias/ModalNuevaSolicitud.tsx` | Select unidad (UnidadData) + textarea detalle + plazo legal 10 días informativo |
+| `Components/Denuncias/ModalResponderSolicitud.tsx` | Textarea respuesta + mock upload archivos con ArchivoAdjunto |
+| `Components/Denuncias/ModalAmpliarSolicitud.tsx` | Input días (max 5) + textarea justificación (mín 20) + mock archivo |
+| `Components/Denuncias/TabDescargos.tsx` | Contenedor con lista única de denunciados, ordenada por fecha_vencimiento asc |
+| `Components/Denuncias/DescargoCard.tsx` | Card con avatar/iniciales denunciado + badge estado + PlazoProgress + botones |
+| `Components/Denuncias/ModalNotificarDescargo.tsx` | DatePicker fecha notificación + select medio (Personal/Cédula/Email/Otro) + mock respaldo |
+| `Components/Denuncias/ModalResponderDescargo.tsx` | Textarea resumen descargo + mock upload documentos |
+| `Components/Denuncias/ModalAmpliarDescargo.tsx` | Input días (max 5) + textarea justificación (mín 20) |
+| `Components/Denuncias/SaltarFaseButton.tsx` | Botón "Pasar a Informe Final" + modal justificación (mín 20) + warning items pendientes |
+| `Components/Denuncias/PlazoProgress.tsx` | Progress bar shadcn con colores verde/amarillo/rojo + texto contextual |
+| `Components/Denuncias/ArchivoAdjunto.tsx` | Visual ícono + nombre + tamaño simulado + botón "Ver" |
 
-**Backend:** `app/Data/SolicitudData.php`, `app/Data/DescargoData.php`
+#### Componentes modificados
+
+| Componente | Cambio |
+|------------|--------|
+| `DenunciaSheet.tsx` | **Refactor mayor**: Tabs shadcn (Información default, Solicitudes, Descargos). Tab Información = contenido actual completo. Tabs visibles solo si estado ∈ {asignada, investigacion, informe, cerrada}. Modo read-only en Bandeja. Badge de count en tabs. |
+
+#### Backend creado
+
+| Archivo | Descripción |
+|---------|-------------|
+| `app/Data/UnidadData.php` | Catálogo de 12 unidades GAMEA + Ministerio de Justicia |
+| `app/Data/SolicitudData.php` | Sesión `solicitudes_mock`. CRUD: add, responder, ampliar, getByTicket, getById. Estructura con archivos[] y ampliaciones[]. |
+| `app/Data/DescargoData.php` | Sesión `descargos_mock`. CRUD: add, notificar, responder, ampliar, getByTicket, getById. Estructura con medio, respaldo_archivo, documentos[], ampliaciones[]. |
+| `app/Http/Controllers/SolicitudController.php` | store, responder, ampliar con validaciones |
+| `app/Http/Controllers/DescargoController.php` | store, notificar, responder, ampliar con validaciones |
+
+#### Backend modificado
+
+| Archivo | Cambio |
+|---------|--------|
+| `app/Data/DenunciaData.php` | Nuevos métodos: getSolicitudes(ticket), getDescargos(ticket), saltarFase(ticket, justificacion). Bitácora ampliada con acciones: solicitud_creada, solicitud_respondida, solicitud_ampliada, descargo_notificado, descargo_respondido, descargo_ampliado, saltar_fase. Seed actualizado con 3 solicitudes + 2 descargos demo. |
+| `app/Http/Controllers/DenunciaController.php` | Nuevo método: saltarFase (justificación min 20, max 2000). Estado cambia de investigacion a informe. |
+| `app/Http/Controllers/BandejaController.php` | Envía `solicitudesByTicket` y `descargosByTicket` (read-only, canAct=false) |
+| `app/Http/Controllers/MisCasosController.php` | Envía `solicitudesByTicket` y `descargosByTicket` (con acciones, canAct=true) |
+
+#### Rutas nuevas
+
+```
+POST /denuncias/{ticket}/solicitudes          → SolicitudController@store
+POST /solicitudes/{id}/responder              → SolicitudController@responder
+POST /solicitudes/{id}/ampliar                → SolicitudController@ampliar
+POST /denuncias/{ticket}/descargos            → DescargoController@store
+POST /descargos/{id}/notificar                → DescargoController@notificar
+POST /descargos/{id}/responder                → DescargoController@responder
+POST /descargos/{id}/ampliar                  → DescargoController@ampliar
+POST /denuncias/{ticket}/saltar-fase          → DenunciaController@saltarFase
+```
+
+#### Decisiones Sprint 4
+
+| # | Decisión | Alternativa descartada | Motivo |
+|---|----------|------------------------|--------|
+| 1 | Sheet con Tabs (Información/Solicitudes/Descargos) | Mantener scroll único | 3 areas de trabajo, cada una con scroll propio |
+| 2 | Solicitudes y Descargos independientes (una entrada por item) | Agrupar por denunciado | Cada trámite es independiente (plazos distintos, respuestas distintas) |
+| 3 | Lista única con orden por fecha_vencimiento asc + PlazoProgress | Sub-tabs internos | Menos clics, progreso visual directo |
+| 4 | Plazos en días naturales (Sprint 4) | Días hábiles | Sprint 8 ajustará con calendario feriados |
+| 5 | Bandeja = read-only en Solicitudes/Descargos | Ocultar tabs en Bandeja | Jefe debe ver progreso; usa MisCasos + "Ver como:" para actuar |
+| 6 | MisCasos = con acciones (canAct=true) | Sin acciones | El técnico asignado es quien gestiona |
+| 7 | SaltarFase siempre pide justificación (mín 20 chars) | Solo si hay items pendientes | La ley exige justificación excepcional |
+| 8 | Plazo legal solicitud = 10 días naturales | 15 o 30 | Art. 25 §I y III de Ley 974 |
+| 9 | Plazo legal descargo = 10 días + 5 prórroga | 15 días fijo | Art. 25 §IV de Ley 974 |
+| 10 | "Notificar a todos" en Descargos = atajo que abre modal único | Bucle automático | Cada denunciado puede tener medio distinto |
+| 11 | Archivos: ícono + nombre + tamaño simulado + botón "Ver" | Solo texto | Mejor experiencia visual |
+| 12 | Seed demo incluido en DenunciaData | Sin seed | Testing inmediato |
+
+#### Nota a futuro — Dropdown "Ver como:" y auditoría
+
+Cuando se implemente la BD real, las acciones realizadas en MisCasos con el dropdown "Ver como:" activo deben registrar el `usuario_id` real del actor (Jefe o Técnico), NO del técnico simulado por el dropdown.
+
+Esto requiere modificar SolicitudData, DescargoData y los Controllers para aceptar y propagar el `usuario_id` desde la sesión autenticada de Laravel, no desde el parámetro `?tecnico=` de la URL.
+
+En Fase 0 (mock, sin sesión real de usuarios individuales) esta diferenciación no es posible porque no hay autenticación granular. Todos los usuarios autenticados comparten la misma sesión. La bitácora de mock usa 'sistema' como usuario genérico.
 
 ---
 
@@ -386,15 +454,18 @@ npx shadcn@2.3.0 add tooltip progress scroll-area
 app/Data/
   DenunciaData.php          ← Colección de denuncias mock
   UsuarioData.php           ← Técnicos, jefe y recepcionista mock
-  SolicitudData.php         ← Solicitudes de información mock
-  DescargoData.php          ← Descargos de denunciados mock
+  SolicitudData.php         ← Solicitudes de información mock (Sprint 4)
+  DescargoData.php          ← Descargos de denunciados mock (Sprint 4)
+  UnidadData.php            ← Catálogo de unidades externas (Sprint 4)
   FeriadoData.php           ← Feriados mock
 
 app/Helpers/
   DiasHabiles.php           ← Algoritmo de cálculo de días hábiles
 
 app/Http/Controllers/
-  DenunciaController.php    ← CRUD + flujo de denuncias
+  DenunciaController.php    ← CRUD + flujo de denuncias + saltarFase (Sprint 4)
+  SolicitudController.php   ← CRUD Solicitudes (Sprint 4)
+  DescargoController.php    ← CRUD Descargos (Sprint 4)
   SeguimientoController.php ← Búsqueda pública por ticket
   ReporteController.php     ← Datos agregados para dashboard
   FeriadoController.php     ← CRUD feriados (mock)
@@ -404,8 +475,8 @@ app/Http/Controllers/
 
 ```
 resources/js/Pages/
-  Denuncias/Bandeja.tsx             ← 4 tabs (Jefe)
-  Denuncias/MisCasos.tsx            ← 4 tabs (Técnico)
+  Denuncias/Bandeja.tsx             ← 5 tabs (Jefe) + props solicitudes/descargos
+  Denuncias/MisCasos.tsx            ← 4 tabs (Técnico) + SaltarFaseButton
   Denuncias/MiResumen.tsx           ← 4 ContadorCards (Técnico)
   Denuncias/RegistroDenuncia.tsx
   Denuncias/DetalleDenuncia.tsx
@@ -416,7 +487,7 @@ resources/js/Pages/
 resources/js/Components/
   Denuncias/
     DenunciaCard.tsx                ← Card clickeable con punto de plazo
-    DenunciaSheet.tsx               ← Sheet lateral con detalle completo
+    DenunciaSheet.tsx               ← Sheet con Tabs (Info/Solicitudes/Descargos)
     PlazoBadge.tsx                  ← Verde/Amarillo/Rojo
     TipoDenunciaBadge.tsx           ← Badge por tipo
     SubestadoBadge.tsx              ← Badge "Archivada"
@@ -441,6 +512,21 @@ resources/js/Components/
     ModalExito.tsx                  ← Confirmación con ticket
     FormularioAcompaniamiento.tsx
     FormularioIntervencion.tsx
+
+    Sprint 4 — Nuevos:
+    TabSolicitudes.tsx              ← Lista de solicitudes a unidades externas
+    SolicitudCard.tsx               ← Card individual de solicitud
+    TabDescargos.tsx                ← Lista de descargos de denunciados
+    DescargoCard.tsx                ← Card individual de descargo
+    PlazoProgress.tsx               ← Progress bar visual de plazo
+    ArchivoAdjunto.tsx              ← Visual de archivo (ícono+nombre+tamaño)
+    ModalNuevaSolicitud.tsx         ← Crear solicitud a unidad externa
+    ModalResponderSolicitud.tsx     ← Responder solicitud recibida
+    ModalAmpliarSolicitud.tsx       ← Ampliar plazo de solicitud
+    ModalNotificarDescargo.tsx      ← Notificar descargo a denunciado
+    ModalResponderDescargo.tsx      ← Recibir descargo del denunciado
+    ModalAmpliarDescargo.tsx        ← Ampliar plazo de descargo
+    SaltarFaseButton.tsx            ← Botón "Pasar a Informe Final"
 
   Publico/
     BuscadorTicket.tsx
@@ -470,7 +556,7 @@ routes/web.php                           → todas las rutas del sistema
 | 1 | `switch`, `radio-group`, `checkbox`, `calendar`, `popover`, `textarea`, `select`, `input`, `label`, `separator`, `sonner` |
 | 2 | `badge`, `card`, `avatar`, `tabs`, `dialog`, `sheet` |
 | 3 | `tooltip`, `progress`, `scroll-area` |
-| 4 | — (reuso de tabs y sheet) |
+| 4 | — (reuso de tabs, sonner, dialog, sheet, select, textarea, input, label, badge, card, avatar, progress, calendar, popover, button, separator) |
 | 5 | — |
 | 7 | `table` |
 

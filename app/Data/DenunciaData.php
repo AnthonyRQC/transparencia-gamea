@@ -3,6 +3,8 @@
 namespace App\Data;
 
 use Carbon\Carbon;
+use App\Data\SolicitudData;
+use App\Data\DescargoData;
 
 class DenunciaData
 {
@@ -239,6 +241,47 @@ class DenunciaData
         return $d['bitacora'] ?? [];
     }
 
+    // ──────────────────────────────────────────────
+    //  SPRINT 4 — Solicitudes, Descargos, Saltar Fase
+    // ──────────────────────────────────────────────
+
+    public static function getSolicitudes(string $ticket): array
+    {
+        return SolicitudData::getByTicket($ticket);
+    }
+
+    public static function getDescargos(string $ticket): array
+    {
+        return DescargoData::getByTicket($ticket);
+    }
+
+    public static function saltarFase(string $ticket, string $justificacion, string $usuarioId = 'sistema'): bool
+    {
+        $denuncias = self::getAll();
+        foreach ($denuncias as $i => $d) {
+            if (($d['ticket'] ?? '') === $ticket && ($d['estado'] ?? '') === 'investigacion') {
+                $denuncias[$i]['estado'] = 'informe';
+                self::addBitacoraEntry($denuncias, $i, 'saltar_fase', "Fase de investigación saltada. Justificación: {$justificacion}", $usuarioId);
+                session()->put(self::SESSION_KEY, $denuncias);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static function registrarAccion(string $ticket, string $accion, string $detalle, string $usuario = 'sistema'): bool
+    {
+        $denuncias = self::getAll();
+        foreach ($denuncias as $i => $d) {
+            if (($d['ticket'] ?? '') === $ticket) {
+                self::addBitacoraEntry($denuncias, $i, $accion, $detalle, $usuario);
+                session()->put(self::SESSION_KEY, $denuncias);
+                return true;
+            }
+        }
+        return false;
+    }
+
     private static function addBitacoraEntry(array &$denuncias, int $index, string $accion, string $detalle, string $usuarioId): void
     {
         $entry = [
@@ -362,6 +405,10 @@ class DenunciaData
 
         session()->put(self::SESSION_KEY, $denuncias);
         session()->put(self::COUNTER_KEY, count($denuncias));
+
+        // Seed solicitudes and descargos demo (Sprint 4)
+        SolicitudData::seedDemoData();
+        DescargoData::seedDemoData();
     }
 
     private static function buildSeedItems(): array

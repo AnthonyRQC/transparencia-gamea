@@ -1,0 +1,142 @@
+import { useState, useEffect } from 'react';
+import { router } from '@inertiajs/react';
+import { route } from 'ziggy-js';
+import { toast } from 'sonner';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/Components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
+import { Label } from '@/Components/ui/label';
+import { Button } from '@/Components/ui/button';
+import { Bell, Paperclip } from 'lucide-react';
+
+const MEDIOS: Record<string, string> = {
+  personal: 'Notificación Personal',
+  cedula: 'Cédula de Notificación',
+  email: 'Correo Electrónico',
+  otro: 'Otro Medio',
+};
+
+interface ModalNotificarDescargoProps {
+  descargoId: number | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export default function ModalNotificarDescargo({ descargoId, open, onOpenChange }: ModalNotificarDescargoProps) {
+  const [fechaNotificacion, setFechaNotificacion] = useState(new Date().toISOString().split('T')[0]);
+  const [medio, setMedio] = useState('');
+  const [respaldoArchivo, setRespaldoArchivo] = useState<{ nombre: string; tamano: string } | null>(null);
+  const [processing, setProcessing] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setFechaNotificacion(new Date().toISOString().split('T')[0]);
+      setMedio('');
+      setRespaldoArchivo(null);
+    }
+  }, [open]);
+
+  const canSubmit = fechaNotificacion && medio;
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const tamano = file.size > 1024 * 1024
+      ? `${(file.size / (1024 * 1024)).toFixed(1)} MB`
+      : `${Math.round(file.size / 1024)} KB`;
+    setRespaldoArchivo({ nombre: file.name, tamano });
+    e.target.value = '';
+  };
+
+  const handleSubmit = () => {
+    if (!canSubmit || !descargoId) return;
+    setProcessing(true);
+    router.post(
+      route('denuncias.descargos.notificar', { id: descargoId }),
+      {
+        fecha_notificacion: fechaNotificacion,
+        medio,
+        respaldo: respaldoArchivo ? { nombre: respaldoArchivo.nombre, tamano: respaldoArchivo.tamano } : null,
+      },
+      {
+        preserveScroll: true,
+        onSuccess: () => {
+          toast.success('Notificación registrada correctamente');
+          onOpenChange(false);
+        },
+        onError: (errors) => {
+          const keys = Object.keys(errors);
+          toast.error(keys.length > 0 ? errors[keys[0]] : 'Error al registrar notificación');
+        },
+        onFinish: () => setProcessing(false),
+      }
+    );
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={(v) => { if (!processing) onOpenChange(v); }}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Notificar descargo</DialogTitle>
+          <DialogDescription>
+            Registre la notificación al denunciado para que presente su descargo.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4 py-2">
+          <div className="space-y-2">
+            <Label htmlFor="fecha-notificacion" className="after:content-['*'] after:text-destructive after:ml-0.5">
+              Fecha de notificación
+            </Label>
+            <input
+              id="fecha-notificacion"
+              type="date"
+              value={fechaNotificacion}
+              onChange={(e) => setFechaNotificacion(e.target.value)}
+              max={new Date().toISOString().split('T')[0]}
+              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="medio-notificacion" className="after:content-['*'] after:text-destructive after:ml-0.5">
+              Medio de notificación
+            </Label>
+            <Select value={medio} onValueChange={setMedio}>
+              <SelectTrigger id="medio-notificacion">
+                <SelectValue placeholder="Seleccionar medio..." />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(MEDIOS).map(([key, label]) => (
+                  <SelectItem key={key} value={key}>{label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Respaldo de notificación (opcional)</Label>
+            <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-xs font-semibold hover:bg-muted cursor-pointer transition-colors">
+              <Paperclip className="w-3.5 h-3.5" />
+              Adjuntar archivo
+              <input type="file" className="hidden" onChange={handleFileChange} />
+            </label>
+            {respaldoArchivo && (
+              <p className="text-xs text-muted-foreground mt-1">
+                {respaldoArchivo.nombre} ({respaldoArchivo.tamano})
+              </p>
+            )}
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" disabled={processing} onClick={() => onOpenChange(false)}>Cancelar</Button>
+          <Button disabled={processing || !canSubmit} onClick={handleSubmit}>
+            {processing ? 'Guardando...' : (
+              <><Bell className="w-4 h-4 mr-1.5" />Registrar notificación</>
+            )}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}

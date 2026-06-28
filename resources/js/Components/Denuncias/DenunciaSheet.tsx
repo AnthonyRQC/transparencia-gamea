@@ -1,9 +1,12 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/Components/ui/sheet';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/Components/ui/tabs';
 import { Separator } from '@/Components/ui/separator';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/Components/ui/tooltip';
 import PlazoBadge from './PlazoBadge';
 import TipoDenunciaBadge from './TipoDenunciaBadge';
-import { CheckCircle2, History, UserPlus, ArrowRightLeft, RotateCcw, XCircle, X as XIcon } from 'lucide-react';
+import TabSolicitudes from './TabSolicitudes';
+import TabDescargos from './TabDescargos';
+import { CheckCircle2, History, UserPlus, ArrowRightLeft, RotateCcw, XCircle, X as XIcon, FileSearch, UserX } from 'lucide-react';
 
 interface PlazoInfo {
   dias_restantes: number;
@@ -59,6 +62,31 @@ interface DenunciaDetail {
   bitacora?: BitacoraEntry[];
 }
 
+interface Solicitud {
+  id: number;
+  ticket: string;
+  unidad_destino: string;
+  detalle: string;
+  fecha_envio: string;
+  fecha_vencimiento: string;
+  estado: string;
+  archivos?: Array<{ nombre: string; tamano?: string; fecha_subida?: string }>;
+}
+
+interface Descargo {
+  id: number;
+  ticket: string;
+  denunciado_idx: number;
+  nombres_denunciado: string;
+  dependencia_denunciado?: string;
+  fecha_notificacion?: string | null;
+  medio?: string | null;
+  fecha_vencimiento?: string | null;
+  estado: string;
+  resumen_descargo?: string | null;
+  documentos?: Array<{ nombre: string; tamano?: string; fecha_subida?: string }>;
+}
+
 interface DenunciaSheetProps {
   denuncia: DenunciaDetail | null;
   plazo: PlazoInfo | null;
@@ -66,6 +94,17 @@ interface DenunciaSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   children?: React.ReactNode;
+
+  // Sprint 4 props
+  solicitudes?: Solicitud[];
+  descargos?: Descargo[];
+  canAct?: boolean;
+  onNuevaSolicitud?: (ticket: string) => void;
+  onResponderSolicitud?: (id: number) => void;
+  onAmpliarSolicitud?: (id: number) => void;
+  onNotificarDescargo?: (id: number) => void;
+  onResponderDescargo?: (id: number) => void;
+  onAmpliarDescargo?: (id: number) => void;
 }
 
 const escenarioLabel: Record<string, string> = {
@@ -87,6 +126,7 @@ const accionIcon: Record<string, React.ReactNode> = {
   traspaso: <ArrowRightLeft className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />,
   investigacion: <History className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />,
   reapertura: <RotateCcw className="w-3.5 h-3.5 text-primary" />,
+  saltar_fase: <ArrowRightLeft className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />,
 };
 
 function formatDate(d?: string): string {
@@ -96,7 +136,14 @@ function formatDate(d?: string): string {
   });
 }
 
-export default function DenunciaSheet({ denuncia, plazo, tecnicos, open, onOpenChange, children }: DenunciaSheetProps) {
+const estadosConTabs = ['asignada', 'investigacion', 'informe', 'cerrada'];
+
+export default function DenunciaSheet({
+  denuncia, plazo, tecnicos, open, onOpenChange, children,
+  solicitudes = [], descargos = [], canAct = false,
+  onNuevaSolicitud, onResponderSolicitud, onAmpliarSolicitud,
+  onNotificarDescargo, onResponderDescargo, onAmpliarDescargo,
+}: DenunciaSheetProps) {
   if (!denuncia) return null;
 
   const fecha = formatDate(denuncia.created_at);
@@ -104,6 +151,7 @@ export default function DenunciaSheet({ denuncia, plazo, tecnicos, open, onOpenC
   const tecnicoAnteriorInfo = denuncia.tecnico_anterior && tecnicos ? tecnicos[denuncia.tecnico_anterior] : null;
   const hechos = denuncia.hechos || '';
   const bitacora = denuncia.bitacora?.slice().reverse() || [];
+  const showTabs = estadosConTabs.includes(denuncia.estado);
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -117,232 +165,58 @@ export default function DenunciaSheet({ denuncia, plazo, tecnicos, open, onOpenC
           <p className="text-sm text-muted-foreground">Ingresada: {fecha}</p>
         </SheetHeader>
 
-        <div className="flex-1 overflow-y-auto py-4 space-y-5">
-          {/* Denunciante */}
-          <section>
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Denunciante</h4>
-            {denuncia.escenario === 'anonimo' ? (
-              <p className="text-sm font-medium">Anónimo</p>
-            ) : (
-              <div className="space-y-1 text-sm">
-                <div className="flex items-center gap-2">
-                  <p className="font-medium">{denuncia.denunciante?.nombres || '—'}</p>
-                  {denuncia.escenario && denuncia.escenario !== 'revelada' && (
-                    <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 border border-amber-300 dark:bg-amber-900/30 dark:text-amber-300">
-                      {escenarioLabel[denuncia.escenario]}
-                    </span>
-                  )}
-                </div>
-                {denuncia.denunciante?.ci && <p className="text-muted-foreground">CI: {denuncia.denunciante.ci}</p>}
-                {denuncia.denunciante?.email && <p className="text-muted-foreground">Email: {denuncia.denunciante.email}</p>}
-                {denuncia.denunciante?.telefono && <p className="text-muted-foreground">Tel: {denuncia.denunciante.telefono}</p>}
-              </div>
-            )}
-          </section>
-          <Separator />
+        {showTabs ? (
+          <Tabs defaultValue="info" className="flex-1 flex flex-col min-h-0">
+            <TabsList className="shrink-0 justify-start gap-0 bg-transparent border-b border-border rounded-none h-auto p-0">
+              <TabsTrigger value="info" className="text-xs data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-3 py-2">
+                Información
+              </TabsTrigger>
+              <TabsTrigger value="solicitudes" className="text-xs data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-3 py-2">
+                Solicitudes {solicitudes.length > 0 && `(${solicitudes.length})`}
+              </TabsTrigger>
+              <TabsTrigger value="descargos" className="text-xs data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-3 py-2">
+                Descargos {descargos.length > 0 && `(${descargos.length})`}
+              </TabsTrigger>
+            </TabsList>
 
-          {/* Denunciados */}
-          <section>
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
-              Denunciado(s) {denuncia.denunciados ? `(${denuncia.denunciados.length})` : ''}
-            </h4>
-            {denuncia.denunciados?.map((d, i) => (
-              <div key={i} className="text-sm space-y-0.5 mb-3 last:mb-0">
-                {d.conoce_identidad ? (
-                  <>
-                    <p className="font-medium">{d.nombres || '—'}</p>
-                    <p className="text-muted-foreground">{d.dependencia || '—'}</p>
-                  </>
-                ) : (
-                  <p className="text-muted-foreground italic">No se conoce la identidad</p>
-                )}
-                {!d.conoce_identidad && d.descripcion && (
-                  <p className="text-sm text-muted-foreground mt-0.5">{d.descripcion}</p>
-                )}
-              </div>
-            )) || <p className="text-sm text-muted-foreground italic">Sin denunciados registrados</p>}
-          </section>
-          <Separator />
+            <TabsContent value="info" className="flex-1 overflow-y-auto py-4 space-y-5 mt-0 data-[state=inactive]:hidden">
+              <SheetInfoContent denuncia={denuncia} hechos={hechos} tecnicoInfo={tecnicoInfo} tecnicoAnteriorInfo={tecnicoAnteriorInfo} bitacora={bitacora} formatDate={formatDate} />
+            </TabsContent>
 
-          {/* Detalles del Incidente */}
-          <section>
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Detalles del Incidente</h4>
-            <div className="text-sm space-y-1">
-              {denuncia.detalles?.categoria && <p><span className="text-muted-foreground">Categoría:</span> {denuncia.detalles.categoria}</p>}
-              {denuncia.detalles?.fecha && <p><span className="text-muted-foreground">Fecha:</span> {denuncia.detalles.fecha}</p>}
-              {denuncia.detalles?.hora && <p><span className="text-muted-foreground">Hora:</span> {denuncia.detalles.hora}</p>}
-              {denuncia.detalles?.lugar && <p><span className="text-muted-foreground">Lugar:</span> {denuncia.detalles.lugar}</p>}
-            </div>
-          </section>
-          <Separator />
+            <TabsContent value="solicitudes" className="flex-1 overflow-y-auto py-4 mt-0 data-[state=inactive]:hidden">
+              {!canAct && (
+                <p className="text-xs text-muted-foreground mb-3 italic">Modo lectura — use MisCasos con 'Ver como:' para actuar.</p>
+              )}
+              <TabSolicitudes
+                solicitudes={solicitudes.filter(s => s.estado !== 'respondida')}
+                canAct={canAct}
+                ticket={denuncia.ticket}
+                onNuevaSolicitud={onNuevaSolicitud}
+                onResponder={onResponderSolicitud}
+                onAmpliar={onAmpliarSolicitud}
+              />
+            </TabsContent>
 
-          {/* Relación de Hechos */}
-          {hechos && (
-            <>
-              <section>
-                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Relación de Hechos</h4>
-                <p className="text-sm whitespace-pre-wrap leading-relaxed">{hechos}</p>
-              </section>
-              <Separator />
-            </>
-          )}
+            <TabsContent value="descargos" className="flex-1 overflow-y-auto py-4 mt-0 data-[state=inactive]:hidden">
+              {!canAct && (
+                <p className="text-xs text-muted-foreground mb-3 italic">Modo lectura — use MisCasos con 'Ver como:' para actuar.</p>
+              )}
+              <TabDescargos
+                descargos={descargos}
+                canAct={canAct}
+                ticket={denuncia.ticket}
+                onNotificar={onNotificarDescargo}
+                onResponder={onResponderDescargo}
+                onAmpliar={onAmpliarDescargo}
+              />
+            </TabsContent>
+          </Tabs>
+        ) : (
+          <div className="flex-1 overflow-y-auto py-4 space-y-5">
+            <SheetInfoContent denuncia={denuncia} hechos={hechos} tecnicoInfo={tecnicoInfo} tecnicoAnteriorInfo={tecnicoAnteriorInfo} bitacora={bitacora} formatDate={formatDate} />
+          </div>
+        )}
 
-          {/* Pruebas */}
-          {denuncia.pruebas && denuncia.pruebas.length > 0 && (
-            <section>
-              <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
-                Pruebas / Testigos ({denuncia.pruebas.length})
-              </h4>
-              <div className="space-y-2">
-                {denuncia.pruebas.map((p, i) => (
-                  <div key={i} className="bg-muted/50 rounded-lg px-3 py-2 text-sm">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-foreground/10 text-foreground/70">
-                        {tipoPruebaLabel[p.tipo] || p.tipo}
-                      </span>
-                    </div>
-                    <p className="text-muted-foreground">{p.descripcion}</p>
-                    {p.tipo === 'testigo' && (
-                      <p className="text-xs mt-1">
-                        <span className="text-muted-foreground">Contacto:</span> {p.testigo_nombre} — {p.testigo_telefono}
-                      </p>
-                    )}
-                    {p.archivo_nombre && (
-                      <p className="text-xs mt-1">
-                        <span className="text-muted-foreground">Archivo:</span> {p.archivo_nombre}
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
-
-          {/* Admisión (Sprint 3) */}
-          {denuncia.estado !== 'ingresada' && denuncia.fecha_admitida && (
-            <>
-              <Separator />
-              <section>
-                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
-                  Admisión
-                </h4>
-                <div className="text-sm space-y-1">
-                  <p><span className="text-muted-foreground">Fecha:</span> {formatDate(denuncia.fecha_admitida)}</p>
-                  {denuncia.justificacion_admision && (
-                    <p><span className="text-muted-foreground">Justificación:</span> {denuncia.justificacion_admision}</p>
-                  )}
-                </div>
-              </section>
-            </>
-          )}
-
-          {/* Rechazo (Sprint 3) */}
-          {denuncia.estado === 'rechazada' && denuncia.justificacion_rechazo && (
-            <>
-              <Separator />
-              <section>
-                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1.5">
-                  <XIcon className="w-3.5 h-3.5 text-destructive" />
-                  Rechazo
-                </h4>
-                <div className="text-sm space-y-1">
-                  {denuncia.fecha_rechazada && <p><span className="text-muted-foreground">Fecha:</span> {formatDate(denuncia.fecha_rechazada)}</p>}
-                  <p><span className="text-muted-foreground">Justificación:</span></p>
-                  <p className="text-sm bg-muted/50 rounded-lg px-3 py-2">{denuncia.justificacion_rechazo}</p>
-                </div>
-              </section>
-            </>
-          )}
-
-          {/* Técnico Asignado (Sprint 3 - mejorado) */}
-          {tecnicoInfo && (
-            <>
-              <Separator />
-              <section>
-                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1.5">
-                  <UserPlus className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-                  Técnico Asignado
-                </h4>
-                <div className="flex items-center gap-2 text-sm">
-                  <TooltipProvider delayDuration={300}>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span className={`w-7 h-7 rounded-full ${tecnicoInfo.color} text-white text-[10px] font-bold flex items-center justify-center cursor-help`}>
-                          {tecnicoInfo.iniciales}
-                        </span>
-                      </TooltipTrigger>
-                      <TooltipContent side="top">
-                        Ver carga de trabajo
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                  <div>
-                    <p className="font-medium">{tecnicoInfo.nombre}</p>
-                    {denuncia.fecha_asignada && (
-                      <p className="text-[11px] text-muted-foreground">Asignado: {formatDate(denuncia.fecha_asignada)}</p>
-                    )}
-                  </div>
-                </div>
-                {tecnicoAnteriorInfo && denuncia.fecha_traspaso && (
-                  <div className="mt-2 text-xs text-muted-foreground flex items-center gap-1">
-                    <ArrowRightLeft className="w-3 h-3" />
-                    Traspasado desde {tecnicoAnteriorInfo.nombre} el {formatDate(denuncia.fecha_traspaso)}
-                  </div>
-                )}
-              </section>
-            </>
-          )}
-
-          {/* Reapertura (Sprint 3) */}
-          {denuncia.fecha_reapertura && (
-            <>
-              <Separator />
-              <section>
-                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1.5">
-                  <RotateCcw className="w-3.5 h-3.5 text-primary" />
-                  Reapertura
-                </h4>
-                <div className="text-sm space-y-1">
-                  <p><span className="text-muted-foreground">Fecha:</span> {formatDate(denuncia.fecha_reapertura)}</p>
-                  {denuncia.justificacion_reapertura && (
-                    <p><span className="text-muted-foreground">Justificación:</span> {denuncia.justificacion_reapertura}</p>
-                  )}
-                </div>
-              </section>
-            </>
-          )}
-
-          {/* Bitácora (Sprint 3) */}
-          {bitacora.length > 0 && (
-            <>
-              <Separator />
-              <section>
-                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1.5">
-                  <History className="w-3.5 h-3.5 text-muted-foreground" />
-                  Historial del caso ({bitacora.length})
-                </h4>
-                <div className="space-y-2">
-                  {bitacora.map((entry, i) => (
-                    <div key={i} className="flex gap-2 text-sm">
-                      <div className="mt-0.5 shrink-0">
-                        {accionIcon[entry.accion] || <History className="w-3.5 h-3.5 text-muted-foreground" />}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-xs text-muted-foreground">
-                          {formatDate(entry.fecha)} {entry.usuario !== 'sistema' ? `— ${entry.usuario}` : ''}
-                        </p>
-                        <p className="text-sm">{entry.detalle}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </section>
-            </>
-          )}
-        </div>
-
-        {/* Footer actions */}
         {children && (
           <div className="shrink-0 pt-4 border-t border-border flex items-center gap-2 flex-wrap">
             {children}
@@ -350,5 +224,229 @@ export default function DenunciaSheet({ denuncia, plazo, tecnicos, open, onOpenC
         )}
       </SheetContent>
     </Sheet>
+  );
+}
+
+function SheetInfoContent({ denuncia, hechos, tecnicoInfo, tecnicoAnteriorInfo, bitacora, formatDate }: {
+  denuncia: DenunciaDetail;
+  hechos: string;
+  tecnicoInfo: { color: string; iniciales: string; nombre: string } | null;
+  tecnicoAnteriorInfo: { color: string; iniciales: string; nombre: string } | null;
+  bitacora: BitacoraEntry[];
+  formatDate: (d?: string) => string;
+}) {
+  return (
+    <>
+      <section>
+        <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Denunciante</h4>
+        {denuncia.escenario === 'anonimo' ? (
+          <p className="text-sm font-medium">Anónimo</p>
+        ) : (
+          <div className="space-y-1 text-sm">
+            <div className="flex items-center gap-2">
+              <p className="font-medium">{denuncia.denunciante?.nombres || '—'}</p>
+              {denuncia.escenario && denuncia.escenario !== 'revelada' && (
+                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 border border-amber-300 dark:bg-amber-900/30 dark:text-amber-300">
+                  {escenarioLabel[denuncia.escenario]}
+                </span>
+              )}
+            </div>
+            {denuncia.denunciante?.ci && <p className="text-muted-foreground">CI: {denuncia.denunciante.ci}</p>}
+            {denuncia.denunciante?.email && <p className="text-muted-foreground">Email: {denuncia.denunciante.email}</p>}
+            {denuncia.denunciante?.telefono && <p className="text-muted-foreground">Tel: {denuncia.denunciante.telefono}</p>}
+          </div>
+        )}
+      </section>
+      <Separator />
+
+      <section>
+        <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+          Denunciado(s) {denuncia.denunciados ? `(${denuncia.denunciados.length})` : ''}
+        </h4>
+        {denuncia.denunciados?.map((d, i) => (
+          <div key={i} className="text-sm space-y-0.5 mb-3 last:mb-0">
+            {d.conoce_identidad ? (
+              <>
+                <p className="font-medium">{d.nombres || '—'}</p>
+                <p className="text-muted-foreground">{d.dependencia || '—'}</p>
+              </>
+            ) : (
+              <p className="text-muted-foreground italic">No se conoce la identidad</p>
+            )}
+            {!d.conoce_identidad && d.descripcion && (
+              <p className="text-sm text-muted-foreground mt-0.5">{d.descripcion}</p>
+            )}
+          </div>
+        )) || <p className="text-sm text-muted-foreground italic">Sin denunciados registrados</p>}
+      </section>
+      <Separator />
+
+      <section>
+        <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Detalles del Incidente</h4>
+        <div className="text-sm space-y-1">
+          {denuncia.detalles?.categoria && <p><span className="text-muted-foreground">Categoría:</span> {denuncia.detalles.categoria}</p>}
+          {denuncia.detalles?.fecha && <p><span className="text-muted-foreground">Fecha:</span> {denuncia.detalles.fecha}</p>}
+          {denuncia.detalles?.hora && <p><span className="text-muted-foreground">Hora:</span> {denuncia.detalles.hora}</p>}
+          {denuncia.detalles?.lugar && <p><span className="text-muted-foreground">Lugar:</span> {denuncia.detalles.lugar}</p>}
+        </div>
+      </section>
+      <Separator />
+
+      {hechos && (
+        <>
+          <section>
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Relación de Hechos</h4>
+            <p className="text-sm whitespace-pre-wrap leading-relaxed">{hechos}</p>
+          </section>
+          <Separator />
+        </>
+      )}
+
+      {denuncia.pruebas && denuncia.pruebas.length > 0 && (
+        <section>
+          <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+            Pruebas / Testigos ({denuncia.pruebas.length})
+          </h4>
+          <div className="space-y-2">
+            {denuncia.pruebas.map((p, i) => (
+              <div key={i} className="bg-muted/50 rounded-lg px-3 py-2 text-sm">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-foreground/10 text-foreground/70">
+                    {tipoPruebaLabel[p.tipo] || p.tipo}
+                  </span>
+                </div>
+                <p className="text-muted-foreground">{p.descripcion}</p>
+                {p.tipo === 'testigo' && (
+                  <p className="text-xs mt-1">
+                    <span className="text-muted-foreground">Contacto:</span> {p.testigo_nombre} — {p.testigo_telefono}
+                  </p>
+                )}
+                {p.archivo_nombre && (
+                  <p className="text-xs mt-1">
+                    <span className="text-muted-foreground">Archivo:</span> {p.archivo_nombre}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {denuncia.estado !== 'ingresada' && denuncia.fecha_admitida && (
+        <>
+          <Separator />
+          <section>
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
+              Admisión
+            </h4>
+            <div className="text-sm space-y-1">
+              <p><span className="text-muted-foreground">Fecha:</span> {formatDate(denuncia.fecha_admitida)}</p>
+              {denuncia.justificacion_admision && (
+                <p><span className="text-muted-foreground">Justificación:</span> {denuncia.justificacion_admision}</p>
+              )}
+            </div>
+          </section>
+        </>
+      )}
+
+      {denuncia.estado === 'rechazada' && denuncia.justificacion_rechazo && (
+        <>
+          <Separator />
+          <section>
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1.5">
+              <XIcon className="w-3.5 h-3.5 text-destructive" />
+              Rechazo
+            </h4>
+            <div className="text-sm space-y-1">
+              {denuncia.fecha_rechazada && <p><span className="text-muted-foreground">Fecha:</span> {formatDate(denuncia.fecha_rechazada)}</p>}
+              <p><span className="text-muted-foreground">Justificación:</span></p>
+              <p className="text-sm bg-muted/50 rounded-lg px-3 py-2">{denuncia.justificacion_rechazo}</p>
+            </div>
+          </section>
+        </>
+      )}
+
+      {tecnicoInfo && (
+        <>
+          <Separator />
+          <section>
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1.5">
+              <UserPlus className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+              Técnico Asignado
+            </h4>
+            <div className="flex items-center gap-2 text-sm">
+              <TooltipProvider delayDuration={300}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className={`w-7 h-7 rounded-full ${tecnicoInfo.color} text-white text-[10px] font-bold flex items-center justify-center cursor-help`}>
+                      {tecnicoInfo.iniciales}
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">Ver carga de trabajo</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              <div>
+                <p className="font-medium">{tecnicoInfo.nombre}</p>
+                {denuncia.fecha_asignada && (
+                  <p className="text-[11px] text-muted-foreground">Asignado: {formatDate(denuncia.fecha_asignada)}</p>
+                )}
+              </div>
+            </div>
+            {tecnicoAnteriorInfo && denuncia.fecha_traspaso && (
+              <div className="mt-2 text-xs text-muted-foreground flex items-center gap-1">
+                <ArrowRightLeft className="w-3 h-3" />
+                Traspasado desde {tecnicoAnteriorInfo.nombre} el {formatDate(denuncia.fecha_traspaso)}
+              </div>
+            )}
+          </section>
+        </>
+      )}
+
+      {denuncia.fecha_reapertura && (
+        <>
+          <Separator />
+          <section>
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1.5">
+              <RotateCcw className="w-3.5 h-3.5 text-primary" />
+              Reapertura
+            </h4>
+            <div className="text-sm space-y-1">
+              <p><span className="text-muted-foreground">Fecha:</span> {formatDate(denuncia.fecha_reapertura)}</p>
+              {denuncia.justificacion_reapertura && (
+                <p><span className="text-muted-foreground">Justificación:</span> {denuncia.justificacion_reapertura}</p>
+              )}
+            </div>
+          </section>
+        </>
+      )}
+
+      {bitacora.length > 0 && (
+        <>
+          <Separator />
+          <section>
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1.5">
+              <History className="w-3.5 h-3.5 text-muted-foreground" />
+              Historial del caso ({bitacora.length})
+            </h4>
+            <div className="space-y-2">
+              {bitacora.map((entry, i) => (
+                <div key={i} className="flex gap-2 text-sm">
+                  <div className="mt-0.5 shrink-0">
+                    {accionIcon[entry.accion] || <History className="w-3.5 h-3.5 text-muted-foreground" />}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs text-muted-foreground">
+                      {formatDate(entry.fecha)} {entry.usuario !== 'sistema' ? `— ${entry.usuario}` : ''}
+                    </p>
+                    <p className="text-sm">{entry.detalle}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        </>
+      )}
+    </>
   );
 }
