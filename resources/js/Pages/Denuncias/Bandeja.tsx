@@ -44,6 +44,7 @@ interface Denuncia {
   hechos?: string;
   pruebas?: Prueba[];
   created_at: string;
+  justificacion_rechazo?: string | null;
   estado: string;
   subestado?: string | null;
   tecnico?: string | null;
@@ -62,6 +63,8 @@ interface Contador {
 
 interface PageProps {
   denuncias: Denuncia[];
+  porAsignar: Denuncia[];
+  rechazadas: Denuncia[];
   contadores: Contador;
   tecnicos: Record<string, { id: string; nombre: string; iniciales: string; color: string }>;
 }
@@ -75,13 +78,15 @@ const contadorConfig = [
   { key: 'cerrada', label: 'Cerradas', icon: Archive, color: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300' },
 ];
 
-export default function Bandeja({ denuncias, contadores, tecnicos }: PageProps) {
+export default function Bandeja({ denuncias, porAsignar, rechazadas, contadores, tecnicos }: PageProps) {
   const [selectedDenuncia, setSelectedDenuncia] = useState<Denuncia | null>(null);
   const [modalAdmisionTicket, setModalAdmisionTicket] = useState<string | null>(null);
   const [modalRechazoTicket, setModalRechazoTicket] = useState<string | null>(null);
 
   const tabs = [
     { value: 'por-admitir', label: 'Por admitir', count: contadores.ingresada },
+    { value: 'por-asignar', label: 'Por asignar', count: contadores.admitida },
+    { value: 'rechazadas', label: 'Rechazadas', count: contadores.rechazada },
     { value: 'vision-general', label: 'Visión general' },
   ];
 
@@ -98,9 +103,9 @@ export default function Bandeja({ denuncias, contadores, tecnicos }: PageProps) 
       </p>
 
       <TabsDenuncias tabs={tabs} defaultValue="por-admitir">
-        {(value) =>
-          value === 'por-admitir' ? (
-            denuncias.length === 0 ? (
+        {(value) => {
+          if (value === 'por-admitir') {
+            return denuncias.length === 0 ? (
               <ListaVacia
                 icon={Inbox}
                 titulo="No hay denuncias por admitir"
@@ -136,8 +141,65 @@ export default function Bandeja({ denuncias, contadores, tecnicos }: PageProps) 
                   </DenunciaCard>
                 ))}
               </div>
-            )
-          ) : (
+            );
+          }
+
+          if (value === 'por-asignar') {
+            return porAsignar.length === 0 ? (
+              <ListaVacia
+                icon={ClipboardList}
+                titulo="No hay denuncias por asignar"
+                descripcion="Todas las denuncias admitidas ya tienen un técnico asignado."
+              />
+            ) : (
+              <div className="space-y-3">
+                {porAsignar.map((d) => (
+                  <DenunciaCard
+                    key={d.ticket}
+                    denuncia={d}
+                    plazo={d.plazo}
+                    onClick={() => setSelectedDenuncia(d)}
+                  >
+                    <div className="pt-1">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted text-muted-foreground text-xs font-semibold">
+                        Asignar técnico (Sprint 3)
+                      </span>
+                    </div>
+                  </DenunciaCard>
+                ))}
+              </div>
+            );
+          }
+
+          if (value === 'rechazadas') {
+            return rechazadas.length === 0 ? (
+              <ListaVacia
+                icon={X}
+                titulo="No hay denuncias rechazadas"
+                descripcion="Ninguna denuncia ha sido rechazada."
+              />
+            ) : (
+              <div className="space-y-3">
+                {rechazadas.map((d) => (
+                  <DenunciaCard
+                    key={d.ticket}
+                    denuncia={d}
+                    plazo={d.plazo}
+                    onClick={() => setSelectedDenuncia(d)}
+                  >
+                    {d.justificacion_rechazo && (
+                      <div className="pt-1">
+                        <p className="text-xs text-destructive italic line-clamp-2">{d.justificacion_rechazo}</p>
+                      </div>
+                    )}
+                  </DenunciaCard>
+                ))}
+              </div>
+            );
+          }
+
+          // vision-general
+          return (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
               {contadorConfig.map((c) => (
                 <ContadorCard
@@ -149,8 +211,8 @@ export default function Bandeja({ denuncias, contadores, tecnicos }: PageProps) 
                 />
               ))}
             </div>
-          )
-        }
+          );
+        }}
       </TabsDenuncias>
 
       {selectedDenuncia && (
@@ -161,22 +223,31 @@ export default function Bandeja({ denuncias, contadores, tecnicos }: PageProps) 
           open={selectedDenuncia !== null}
           onOpenChange={(v) => { if (!v) setSelectedDenuncia(null); }}
         >
-          <button
-            type="button"
-            onClick={() => { const t = selectedDenuncia.ticket; setSelectedDenuncia(null); setModalAdmisionTicket(t); }}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors"
-          >
-            <CheckCircle2 className="w-4 h-4" />
-            Admitir
-          </button>
-          <button
-            type="button"
-            onClick={() => { const t = selectedDenuncia.ticket; setSelectedDenuncia(null); setModalRechazoTicket(t); }}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-destructive/10 text-destructive text-sm font-semibold hover:bg-destructive/20 transition-colors"
-          >
-            <X className="w-4 h-4" />
-            Rechazar
-          </button>
+          {selectedDenuncia.estado === 'ingresada' && (
+            <>
+              <button
+                type="button"
+                onClick={() => { const t = selectedDenuncia.ticket; setSelectedDenuncia(null); setModalAdmisionTicket(t); }}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors"
+              >
+                <CheckCircle2 className="w-4 h-4" />
+                Admitir
+              </button>
+              <button
+                type="button"
+                onClick={() => { const t = selectedDenuncia.ticket; setSelectedDenuncia(null); setModalRechazoTicket(t); }}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-destructive/10 text-destructive text-sm font-semibold hover:bg-destructive/20 transition-colors"
+              >
+                <X className="w-4 h-4" />
+                Rechazar
+              </button>
+            </>
+          )}
+          {selectedDenuncia.estado === 'admitida' && (
+            <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-muted text-muted-foreground text-sm font-semibold">
+              Asignar técnico (Sprint 3)
+            </span>
+          )}
         </DenunciaSheet>
       )}
 

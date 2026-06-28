@@ -1,6 +1,7 @@
 import { cn } from '@/lib/utils';
 import PlazoBadge from './PlazoBadge';
 import TipoDenunciaBadge from './TipoDenunciaBadge';
+import SubestadoBadge from './SubestadoBadge';
 
 interface PlazoInfo {
   dias_restantes: number;
@@ -41,10 +42,19 @@ export default function DenunciaCard({ denuncia, plazo, onClick, className, chil
     year: 'numeric',
   });
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (onClick && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault();
+      onClick();
+    }
+  };
+
   return (
-    <button
-      type="button"
+    <div
+      role="button"
+      tabIndex={onClick ? 0 : undefined}
       onClick={onClick}
+      onKeyDown={onClick ? handleKeyDown : undefined}
       className={cn(
         'w-full flex items-start gap-3 bg-card border border-border rounded-xl px-4 py-3 shadow-xs hover:shadow-md hover:border-primary/30 transition-all duration-200 text-left group',
         onClick ? 'cursor-pointer' : 'cursor-default',
@@ -56,11 +66,7 @@ export default function DenunciaCard({ denuncia, plazo, onClick, className, chil
         <div className="flex items-center gap-2 flex-wrap">
           <span className="font-mono text-sm font-bold text-foreground">{denuncia.ticket}</span>
           <TipoDenunciaBadge tipo={denuncia.tipo} />
-          {denuncia.subestado && (
-            <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-300 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700">
-              Archivada
-            </span>
-          )}
+          <SubestadoBadge subestado={denuncia.subestado ?? null} />
         </div>
         <p className="text-sm text-muted-foreground truncate">
           {denuncianteNombre}
@@ -71,6 +77,6 @@ export default function DenunciaCard({ denuncia, plazo, onClick, className, chil
         <PlazoBadge plazo={plazo} />
         <span className="text-[11px] text-muted-foreground">{fecha}</span>
       </div>
-    </button>
+    </div>
   );
 }

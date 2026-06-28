@@ -186,19 +186,58 @@ npx shadcn@2.3.0 add switch radio-group checkbox calendar popover textarea selec
 
 ---
 
-### Sprint 2 — Kanban
+### Sprint 2 — Bandeja de Admisión + Mis Casos + Mi Resumen ✅ COMPLETADO
 
-**Objetivo:** Tablero visual con todas las denuncias organizadas por fase.
+**Objetivo:** Reemplazar Kanban por modelo de pestañas por fase. Jefe admite/rechaza, Técnico ve y avanza sus casos.
+
+#### Páginas creadas
 
 | Archivo | Descripción |
 |---------|-------------|
-| `Pages/Denuncias/Kanban.tsx` | Página que recibe props y renderiza KanbanBoard |
-| `KanbanBoard.tsx` | Layout de 5 columnas: Ingresadas → Admitidas → Investigación → Informe → Cerradas |
-| `KanbanColumn.tsx` | Columna con lista de tarjetas |
-| `DenunciaCard.tsx` | ID/ticket, tipo (badge), denunciante, fecha, técnico, PlazoBadge |
-| `PlazoBadge.tsx` | Verde (>5d) / Amarillo (≤5d) / Rojo (vencido) |
+| `Pages/Denuncias/Bandeja.tsx` | 4 tabs: Por admitir, Por asignar, Rechazadas, Visión general (6 ContadorCards) |
+| `Pages/Denuncias/MisCasos.tsx` | 4 tabs: Bandeja de entrada, Investigación, Informe Final, Cierre + Dropdown "Ver como:" |
+| `Pages/Denuncias/MiResumen.tsx` | 4 ContadorCards: Activos, Vencidos, Por vencer, Cerrados + Dropdown "Ver como:" |
 
-**shadcn a instalar:** `badge`, `card`, `avatar`, `separator`
+#### Componentes creados
+
+| Archivo | Descripción |
+|---------|-------------|
+| `PlazoBadge.tsx` | Verde (>5d) / Amarillo (≤5d) / Rojo (vencido) |
+| `TipoDenunciaBadge.tsx` | Badge por tipo con color distinto |
+| `SubestadoBadge.tsx` | Badge "Archivada" |
+| `ContadorCard.tsx` | Card con label + número + icono |
+| `TabsDenuncias.tsx` | Wrapper de shadcn Tabs con estilos institucionales |
+| `ListaVacia.tsx` | Empty state bonito con icono |
+| `DenunciaCard.tsx` | Card base con punto de color por plazo, click → Sheet |
+| `DenunciaSheet.tsx` | Sheet lateral con detalle completo de la denuncia |
+| `ModalAdmision.tsx` | Dialog con justificación opcional |
+| `ModalRechazo.tsx` | Dialog con justificación obligatoria (mín 10 caracteres) |
+
+#### Controladores creados
+
+| Archivo | Descripción |
+|---------|-------------|
+| `app/Http/Controllers/BandejaController.php` | `index()` → denuncias ingresadas, porAsignar (admitidas), rechazadas, contadores |
+| `app/Http/Controllers/MisCasosController.php` | `index(tecnico)` → denuncias agrupadas por estado |
+| `app/Http/Controllers/MiResumenController.php` | `index(tecnico)` → contadores personales del técnico |
+
+#### Backend modificado
+
+| Archivo | Cambio |
+|---------|--------|
+| `app/Data/DenunciaData.php` | Añadidos: TECNICOS_MOCK, métodos (getByEstado, getByTecnico, find, admitir, rechazar, iniciarInvestigacion, seedDemoData, getContadores, getContadoresTecnico, getPlazoInfo). Seed de 12 denuncias demo. |
+| `app/Http/Controllers/DenunciaController.php` | Añadidos: admitir(), rechazar(), iniciarInvestigacion() |
+| `routes/web.php` | Nuevas rutas: /denuncias (GET Bandeja), /{ticket}/admitir, /{ticket}/rechazar, /{ticket}/iniciar, /mis-casos, /mi-resumen |
+
+#### Layout modificado
+
+| Archivo | Cambio |
+|---------|--------|
+| `Components/Layout/Sidebar.tsx` | Eliminar "Tablero Kanban". Añadir "Bandeja de Admisión", "Mis Casos [Técnico]", "Mi Resumen [Técnico]" |
+| `Pages/Dashboard.tsx` | Actualizar link de Kanban → Bandeja de Admisión |
+| `Pages/Denuncias/Kanban.tsx` | ELIMINADO (era placeholder) |
+
+**shadcn instalados:** `badge`, `card`, `avatar`, `tabs`, `dialog`, `sheet`
 
 ---
 
@@ -327,7 +366,9 @@ app/Http/Controllers/
 
 ```
 resources/js/Pages/
-  Denuncias/Kanban.tsx
+  Denuncias/Bandeja.tsx             ← 4 tabs (Jefe)
+  Denuncias/MisCasos.tsx            ← 4 tabs (Técnico)
+  Denuncias/MiResumen.tsx           ← 4 ContadorCards (Técnico)
   Denuncias/RegistroDenuncia.tsx
   Denuncias/DetalleDenuncia.tsx
   Seguimiento/Buscar.tsx
@@ -336,38 +377,28 @@ resources/js/Pages/
 
 resources/js/Components/
   Denuncias/
-    FormularioComplejo.tsx         ← Formulario de Corrupción/Negación
+    DenunciaCard.tsx                ← Card clickeable con punto de plazo
+    DenunciaSheet.tsx               ← Sheet lateral con detalle completo
+    PlazoBadge.tsx                  ← Verde/Amarillo/Rojo
+    TipoDenunciaBadge.tsx           ← Badge por tipo
+    SubestadoBadge.tsx              ← Badge "Archivada"
+    ContadorCard.tsx                ← Card con número + icono
+    TabsDenuncias.tsx               ← Wrapper shadcn Tabs
+    ListaVacia.tsx                  ← Empty state
+    ModalAdmision.tsx               ← Admisión con justificación opcional
+    ModalRechazo.tsx                ← Rechazo con justificación obligatoria
+    FormularioComplejo.tsx          ← Formulario de Corrupción/Negación
     SeccionEncabezado.tsx
     SeccionConfidencialidad.tsx
     SeccionDenunciante.tsx
-    BloqueDenunciado.tsx           ← Repetible: switch identidad conocido/no
-    SeccionDetalles.tsx            ← Categoría, fecha, hora, lugar
+    BloqueDenunciado.tsx            ← Repetible: switch identidad conocido/no
+    SeccionDetalles.tsx             ← Categoría, fecha, hora, lugar
     SeccionRelacionHechos.tsx
-    BloquePrueba.tsx               ← Repetible: archivo/física/testigo
+    BloquePrueba.tsx                ← Repetible: archivo/física/testigo
     PieFormulario.tsx
-    ModalExito.tsx                 ← Confirmación con ticket
+    ModalExito.tsx                  ← Confirmación con ticket
     FormularioAcompaniamiento.tsx
     FormularioIntervencion.tsx
-    KanbanBoard.tsx
-    KanbanColumn.tsx
-    DenunciaCard.tsx
-    PlazoBadge.tsx
-    AdmisionRechazoModal.tsx
-    AsignacionModal.tsx
-    TraspasoModal.tsx
-    ReabrirModal.tsx
-    TabSolicitudes.tsx
-    ModalNuevaSolicitud.tsx
-    ModalResponderSolicitud.tsx
-    ModalAmpliarSolicitud.tsx
-    TabDescargos.tsx
-    ModalNotificarDescargo.tsx
-    ModalResponderDescargo.tsx
-    ModalAmpliarDescargo.tsx
-    SaltarFaseButton.tsx
-    TabInformeCierre.tsx
-    FormInformeFinal.tsx
-    FormCierre.tsx
 
   Publico/
     BuscadorTicket.tsx
@@ -381,10 +412,11 @@ resources/js/Components/
 ### Modificados
 
 ```
-resources/js/Layouts/Sidebar.tsx       → menú del sistema + logo GAMEA
-resources/js/Layouts/Header.tsx        → nombre de institución completo
-resources/js/Pages/Dashboard.tsx       → KPIs reales (refactor)
-routes/web.php                         → todas las rutas del sistema
+resources/js/Layouts/Sidebar.tsx         → menú del sistema + logo GAMEA
+resources/js/Layouts/Header.tsx          → nombre de institución completo
+resources/js/Pages/Dashboard.tsx         → KPIs reales (refactor)
+resources/js/Pages/Denuncias/Kanban.tsx  → ELIMINADO (reemplazado por Bandeja)
+routes/web.php                           → todas las rutas del sistema
 ```
 
 ---
@@ -394,9 +426,10 @@ routes/web.php                         → todas las rutas del sistema
 | Sprint | Componentes |
 |--------|-------------|
 | 1 | `switch`, `radio-group`, `checkbox`, `calendar`, `popover`, `textarea`, `select`, `input`, `label`, `separator`, `sonner` |
-| 2 | `badge`, `card`, `avatar`, `separator` |
-| 3 | `dialog`, `sheet`, `dropdown-menu`, `progress`, `scroll-area` |
-| 4 | `tabs` |
+| 2 | `badge`, `card`, `avatar`, `tabs`, `dialog`, `sheet` |
+| 3 | `dropdown-menu`, `progress`, `scroll-area` |
+| 4 | — (reuso de tabs y sheet) |
+| 5 | — |
 | 7 | `table` |
 
 ---

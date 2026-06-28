@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Head, router } from '@inertiajs/react';
 import { toast } from 'sonner';
+import { route } from 'ziggy-js';
 import {
   ClipboardList, Search, FileText, Archive, ChevronDown, ChevronRight,
   Inbox, Eye, Play, CircleArrowRight
@@ -73,7 +74,7 @@ export default function MisCasos({ grouped, tecnicoActual, tecnicos }: PageProps
   const [processingTicket, setProcessingTicket] = useState<string | null>(null);
 
   const handleTecnicoChange = (value: string) => {
-    router.get('/denuncias/mis-casos', { tecnico: value }, { preserveState: true, preserveScroll: true });
+    router.get(route('denuncias.mis-casos'), { tecnico: value }, { preserveState: true, preserveScroll: true });
   };
 
   const handleIniciar = (ticket: string) => {

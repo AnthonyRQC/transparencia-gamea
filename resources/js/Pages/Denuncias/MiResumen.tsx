@@ -1,4 +1,5 @@
 import { Head, router } from '@inertiajs/react';
+import { route } from 'ziggy-js';
 import {
   BarChart3, Activity, AlertTriangle, Clock, Archive
 } from 'lucide-react';
@@ -21,7 +22,7 @@ interface PageProps {
 
 export default function MiResumen({ contadores, tecnicoActual, tecnicos }: PageProps) {
   const handleTecnicoChange = (value: string) => {
-    router.get('/denuncias/mi-resumen', { tecnico: value }, { preserveState: true, preserveScroll: true });
+    router.get(route('denuncias.mi-resumen'), { tecnico: value }, { preserveState: true, preserveScroll: true });
   };
 
   const cards = [

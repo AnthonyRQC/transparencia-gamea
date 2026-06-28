@@ -1,8 +1,9 @@
-# Sprint 2 — Bandeja de Admisión + Mis Casos + Mi Resumen
+# Sprint 2 — Bandeja de Admisión + Mis Casos + Mi Resumen ✅ COMPLETADO
 
 > **Plan detallado** — Basado en las decisiones tomadas con el cliente.
 > Sprint 2 mantiene la Fase 0 (sin BD, mock en sesión).
 > Sprint 2 reemplaza el concepto de "Kanban" por un modelo de pestañas por fase.
+> **Completado:** Junio 2026 — M2.1 Foundation, M2.2 Bandeja de Admisión, M2.3 DenunciaSheet + Mis Casos + Mi Resumen, M2.4 Por asignar + Rechazadas tabs
 
 ---
 
@@ -54,13 +55,16 @@ Cerrada ──► Sub-estado: Archivada (Accordion opcional)
 ## 1. Objetivos del Sprint
 
 - ✅ Jefe de Unidad puede **ver** denuncias ingresadas, **admitir** (justificación opcional) y **rechazar** (justificación obligatoria)
+- ✅ Jefe puede ver denuncias **Por asignar** (admitidas sin técnico) y **Rechazadas** en pestañas separadas
 - ✅ Técnico puede **ver** sus casos organizados en 4 tabs (Bandeja de entrada, Investigación, Informe Final, Cierre)
 - ✅ Técnico puede **Iniciar investigación** desde su Bandeja de entrada (cambia estado a `investigacion`)
 - ✅ Mi Resumen muestra 4 contadores personales (Activos, Vencidos, Por vencer, Cerrados)
 - ✅ Sheet lateral con detalle completo de la denuncia al hacer click en cualquier card
+- ✅ Acciones contextuales en Sheet según tipo de denuncia (ingresada → Admitir/Rechazar, admitida → placeholder asignar)
 - ✅ Seed automático de 12 denuncias demo distribuidas en todas las fases
 - ✅ PlazoBadge funcional (verde/amarillo/rojo) con días calendario
 - ✅ Dropdown "Ver como:" en Mis Casos / Mi Resumen para cambiar de técnico mock
+- ✅ Bandeja con **4 tabs** (Por admitir, Por asignar, Rechazadas, Visión general)
 
 ---
 
@@ -68,12 +72,14 @@ Cerrada ──► Sub-estado: Archivada (Accordion opcional)
 
 ### 2.1 Bandeja de Admisión (Jefe) — `/denuncias`
 
-**2 tabs**:
+**4 tabs**:
 
 | Tab | Contenido | Acción |
 |---|---|---|
 | **Por admitir** | Lista de denuncias con `estado = 'ingresada'`. Ordenadas por plazo ascendente. | Click → Sheet con detalle + botones [Admitir] [Rechazar] |
-| **Visión general** | 6 ContadorCards: Ingresadas, Admitidas, Asignadas, Investigación, Informe, Cerradas | Click → redirige a tab Por admitir (o a futuro a la vista filtrada) |
+| **Por asignar** | Lista de denuncias con `estado = 'admitida'` (sin técnico). | Click → Sheet + placeholder "Asignar técnico (Sprint 3)" |
+| **Rechazadas** | Lista de denuncias con `estado = 'rechazada'`. | Card muestra justificación de rechazo truncada. Click → Sheet read-only. |
+| **Visión general** | 6 ContadorCards: Ingresadas, Admitidas, Asignadas, Investigación, Informe, Cerradas | Dashboard de contadores sin acciones. |
 
 **Cards**: estilo Todoist con punto de color según plazo + ticket + tipo + denunciante + PlazoBadge.
 
@@ -277,7 +283,7 @@ npx shadcn@2.3.0 add badge card avatar tabs dialog sheet
 
 ## 6. Milestones
 
-### M2.1 — Foundation (Backend + Componentes Base)
+### M2.1 — Foundation (Backend + Componentes Base) ✅ COMPLETADO
 
 **Objetivo**: Base de datos mock completa + componentes UI listos para las páginas. Verificable por artisan tinker.
 
@@ -294,7 +300,7 @@ npx shadcn@2.3.0 add badge card avatar tabs dialog sheet
 | 9 | Crear ListaVacia.tsx | `resources/js/Components/Denuncias/ListaVacia.tsx` |
 | 10 | Crear DenunciaCard.tsx (versión base, clickeable) | `resources/js/Components/Denuncias/DenunciaCard.tsx` |
 
-### M2.2 — Bandeja de Admisión (Modales + Página + Navegación)
+### M2.2 — Bandeja de Admisión (Modales + Página + Navegación) ✅ COMPLETADO
 
 **Objetivo**: La Bandeja del Jefe es funcional. Se pueden admitir y rechazar denuncias.
 
@@ -312,7 +318,7 @@ npx shadcn@2.3.0 add badge card avatar tabs dialog sheet
 | 20 | Actualizar Sidebar.tsx | `resources/js/Components/Layout/Sidebar.tsx` |
 | 21 | Actualizar Dashboard.tsx | `resources/js/Pages/Dashboard.tsx` |
 
-### M2.3 — DenunciaSheet + Mis Casos + Mi Resumen
+### M2.3 — DenunciaSheet + Mis Casos + Mi Resumen ✅ COMPLETADO
 
 **Objetivo**: Sheet de detalle funcional + Técnico puede ver y avanzar sus casos.
 
@@ -331,7 +337,19 @@ npx shadcn@2.3.0 add badge card avatar tabs dialog sheet
 | 32 | Añadir DenunciaController@iniciarInvestigacion | `app/Http/Controllers/DenunciaController.php` |
 | 33 | Actualizar Sidebar.tsx (añadir Mis Casos y Mi Resumen) | `resources/js/Components/Layout/Sidebar.tsx` |
 
+### M2.4 — Por asignar + Rechazadas en Bandeja ✅ COMPLETADO
+
+**Objetivo:** Extender Bandeja con 2 tabs adicionales para ver admitidas (por asignar) y rechazadas.
+
+| # | Tarea | Archivo |
+|---|---|---|
+| 34 | Añadir `porAsignar` y `rechazadas` como props en BandejaController | `app/Http/Controllers/BandejaController.php` |
+| 35 | Añadir tabs "Por asignar" y "Rechazadas" en Bandeja.tsx con sus respectivos renderizados | `resources/js/Pages/Denuncias/Bandeja.tsx` |
+| 36 | Acciones contextuales en Sheet según estado de la denuncia | `resources/js/Pages/Denuncias/Bandeja.tsx` |
+
 ---
+
+
 
 ## 7. Decisiones del Sprint
 
@@ -378,6 +396,8 @@ npx shadcn@2.3.0 add badge card avatar tabs dialog sheet
 ---
 
 ## 9. Actualizaciones a Otros Documentos (Post-Sprint)
+
+✅ Actualizaciones completadas. Ver estado actual en cada documento.
 
 Al cerrar Sprint 2, editar:
 

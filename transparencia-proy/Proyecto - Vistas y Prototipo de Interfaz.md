@@ -17,17 +17,17 @@ Para garantizar una experiencia premium, fluida e instantánea, el sistema se di
 
 ## 2. Matriz de Acceso a Vistas por Rol
 
-| Vista / Pantalla                             | Recepcionista |  Técnico  | Jefe de Unidad | Administrador | Ciudadano |
-| -------------------------------------------- | :-----------: | :-------: | :------------: | :-----------: | :-------: |
-| **Buscador Público (Seguimiento)**           |               |           |                |               | 🟢 Acceso |
-| **Registro de Nueva Denuncia**               |   🟢 Acceso   |           |                |               |           |
-| **Listado de Denuncias Recientes**           |   🟢 Acceso   |           |                |               |           |
-| **Tablero Kanban General (Todos los casos)** |               |           |   🟢 Acceso    |               |           |
-| **Tablero Kanban Personal (Mis casos)**      |               | 🟢 Acceso |                |               |           |
-| **Panel Detallado del Caso (Investigación)** |               | 🟢 Acceso | 🟢 *(Lectura)* |               |           |
-| **Dashboard y Reportes Gráficos**            |               |           |   🟢 Acceso    |               |           |
-| **Calendario de Feriados (Administración)**  |               |           |   🟢 Acceso    |   🟢 Acceso   |           |
-| **Gestión de Usuarios y Roles**              |               |           |                |   🟢 Acceso   |           |
+| Vista / Pantalla                                   | Recepcionista |  Técnico  | Jefe de Unidad | Administrador | Ciudadano |
+| -------------------------------------------------- | :-----------: | :-------: | :------------: | :-----------: | :-------: |
+| **Buscador Público (Seguimiento)**                 |               |           |                |               | 🟢 Acceso |
+| **Registro de Nueva Denuncia**                     |   🟢 Acceso   |           |                |               |           |
+| **Bandeja de Admisión** (4 tabs)                   |               |           |   🟢 Acceso    |               |           |
+| **Mis Casos** (Técnico, 4 tabs)                    |               | 🟢 Acceso |                |               |           |
+| **Mi Resumen** (Técnico, contadores)               |               | 🟢 Acceso |                |               |           |
+| **Panel Detallado del Caso (Sheet lateral)**       |               | 🟢 Acceso | 🟢 *(Lectura)* |               |           |
+| **Dashboard y Reportes Gráficos**                  |               |           |   🟢 Acceso    |               |           |
+| **Calendario de Feriados (Administración)**        |               |           |   🟢 Acceso    |   🟢 Acceso   |           |
+| **Gestión de Usuarios y Roles**                    |               |           |                |   🟢 Acceso   |           |
 
 ---
 
@@ -105,28 +105,37 @@ El centro de control de la UTLCC.
     *   **Gráfico de Torta (Pie Chart)**: Distribución del tipo de denuncias recibidas en el periodo seleccionado (Corrupción vs. Negación de Información).
     *   **Gráfico de Líneas**: Tendencia de denuncias ingresadas por mes en el año en curso.
 
-#### 2. Tablero Kanban General
-*   Tablero de 5 columnas: `[Ingresadas]` ➔ `[Admitidas / Por Asignar]` ➔ `[En Investigación]` ➔ `[Informe Final]` ➔ `[Cerradas]`
-*   Las tarjetas (*cards*) muestran: ID, tipo de denuncia, fecha de ingreso, técnico asignado, y una barra de progreso de tiempo con el borde izquierdo coloreado según su estado de plazo (Verde/Amarillo/Rojo).
-*   **Acciones desde el Tablero (Modales Interactivos)**:
-    *   **Hacer Clic en tarjeta en columna "Ingresadas"** ➔ Abre **Modal de Admisión / Rechazo**:
-        *   Muestra el detalle del caso.
-        *   Botones: `[Admitir Caso]` / `[Rechazar Caso]`.
-        *   Si se selecciona *Rechazar*, se despliega obligatoriamente un Textarea para la justificación del rechazo y la base legal aplicable.
-    *   **Hacer Clic en columna "Admitidas"** ➔ Abre **Modal de Asignación**:
-        *   Muestra un listado de los técnicos disponibles, detallando el número de casos que tienen actualmente asignados (ej. *"Ana Torres — 2 casos activos"*).
-        *   Botón "Confirmar Asignación".
-    *   **Botón de Traspaso (en la tarjeta)** ➔ Abre **Modal de Traspaso**:
-        *   Dropdown para seleccionar al nuevo técnico encargado.
-        *   Textarea para justificar el traspaso del expediente.
+#### 2. Bandeja de Admisión (Reemplaza Kanban General)
+*   **Modelo de pestañas (tabs) en lugar de Kanban drag&drop** por ser mobile-friendly y reflejar los "gates" legales.
+*   4 tabs principales:
+    *   **Por admitir** — Denuncias `ingresada`. Listado ordenado por plazo ascendente. Cada card → Sheet lateral con botones [Admitir] [Rechazar].
+    *   **Por asignar** — Denuncias `admitida` sin técnico. Botón placeholder "Asignar técnico (Sprint 3)".
+    *   **Rechazadas** — Denuncias `rechazada` con justificación visible en la card.
+    *   **Visión general** — 6 ContadorCards: Ingresadas, Admitidas, Asignadas, Investigación, Informe, Cerradas.
+*   **Acciones desde las cards**:
+    *   Click en card de **"Por admitir"** → Sheet con detalle completo + [Admitir] (justif. opcional) + [Rechazar] (justif. obligatoria)
+    *   Click en card de **"Por asignar"** → Sheet con placeholder "Asignar técnico (Sprint 3)"
+    *   Click en card de **"Rechazadas"** → Sheet read-only con justificación de rechazo
+    *   **Modales**: `ModalAdmision.tsx` (justificación opcional, textarea) y `ModalRechazo.tsx` (justificación obligatoria, textarea con mínimo 10 caracteres, base legal referenciada)
 
 ---
 
-### D. Panel del Técnico (Mi Kanban e Investigación)
+### D. Panel del Técnico (Mis Casos + Mi Resumen)
 
 Vista enfocada para evitar distracciones.
 
-*   **Tablero Kanban Personal**: Muestra únicamente sus casos en curso organizados en las fases de `[Investigación]`, `[Informe Final]` y `[Cerrados]`.
+*   **Mis Casos (4 tabs por fase)**:
+    *   **Bandeja de entrada** — Denuncias `asignada`. Botón [Iniciar investigación] cambia estado a `investigacion`.
+    *   **Investigación** — Denuncias `investigacion`. Placeholder "Continuar (Sprint 4)".
+    *   **Informe Final** — Denuncias `informe`. Placeholder "Continuar (Sprint 4)".
+    *   **Cierre** — Denuncias `cerrada`. Sub-sección: Cerradas (cards normales) + Archivadas (Accordion colapsable con subestado `archivada`).
+*   **Dropdown "Ver como:"** en el header — Permite cambiar de técnico mock (tec-1, tec-2, tec-3) para demostración sin autenticación.
+*   **Mi Resumen (4 ContadorCards)**:
+    *   **Activos** — Casos en `investigacion` + `informe` del técnico.
+    *   **Vencidos** — Activos con plazo ≤ 0 días.
+    *   **Por vencer** — Activos con plazo entre 1 y 5 días.
+    *   **Cerrados** — Casos en `cerrada`.
+    *   Mismo dropdown "Ver como:".
 *   **Vista Detalle del Expediente (Split-Screen)**:
     Al hacer clic en una tarjeta, en lugar de navegar, se abre un panel lateral expandible (*Slide-over / Sheet*) que divide la pantalla en dos columnas:
 

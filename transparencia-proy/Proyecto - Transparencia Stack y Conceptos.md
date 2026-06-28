@@ -9,14 +9,14 @@
 ## 1. Contexto del Sistema
 
 **¿Qué hace este sistema?**
-Es un sistema tipo **Kanban avanzado** para la gestión integral de denuncias ciudadanas en una Unidad de Transparencia y Lucha Contra la Corrupción (UTLCC), bajo la **Ley 974** de Bolivia.
+Es un sistema de **gestión de denuncias por pestañas (tabs)** para la Unidad de Transparencia y Lucha Contra la Corrupción (UTLCC), bajo la **Ley 974** de Bolivia. El modelo de pestañas reemplazó al Kanban drag&drop original por ser más mobile-friendly, mantenible y reflejar mejor los "gates" legales de admisión (justificación de rechazo obligatoria por Art. 23).
 
 **Tipos de denuncia:**
 - `CORRUPCION` — Plazo máximo: 45 días hábiles (ampliable a 90 días)
 - `NEGACION_DE_INFORMACION` — Plazo máximo: 20 días hábiles (ampliable a 30 días)
 - `OTROS` — Acompañamiento / Medida Correctiva (plazos variables)
 
-**Flujo de una denuncia (fases/estados del Kanban):**
+**Flujo de una denuncia (fases/estados):**
 ```
 [RECEPCION] → [ADMISION/RECHAZO (5 días)] → [SOLICITUD_INFORMACION] 
     → [DESCARGO_DENUNCIADO (10 días)] → [INFORME_FINAL] → [CERRADO]
@@ -172,14 +172,14 @@ FASE 1 (Base del proyecto)
   📖 Aprender: Inertia.js (usePage, useForm, Link, router)
   📖 Aprender: Lectura del rol de usuario desde PageProps
 
-FASE 2 (El Kanban básico)
-  📖 Aprender: Zustand para estado global del tablero
-  📖 Aprender: @dnd-kit para drag & drop de tarjetas
-  📖 Aprender: Optimistic Updates con Inertia
+FASE 2 (Listados por pestañas - Tabs)
+  ✅ Ya tienes: TabsDenuncias, ListaVacia, ContadorCard
+  📖 Aprender: Filtros con query params + router.get()
+  📖 Aprender: Dropdown "Ver como" cambio de técnico mock
 
 FASE 3 (Plazos y alertas)
   📖 Aprender: date-fns para cálculo de días hábiles
-  📖 Aprender: Componentes de badge/chip de estado con color dinámico
+  📖 Aprender: PlazoBadge con color dinámico (verde/amarillo/rojo)
 
 FASE 4 (Notificaciones en tiempo real)
   📖 Aprender: Laravel Reverb + Echo + WebSockets
