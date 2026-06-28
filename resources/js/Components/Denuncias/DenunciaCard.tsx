@@ -2,6 +2,7 @@ import { cn } from '@/lib/utils';
 import PlazoBadge from './PlazoBadge';
 import TipoDenunciaBadge from './TipoDenunciaBadge';
 import SubestadoBadge from './SubestadoBadge';
+import ClasificacionBadge from './ClasificacionBadge';
 import { User, Clock } from 'lucide-react';
 import { ArrowRightLeft } from 'lucide-react';
 
@@ -34,6 +35,10 @@ interface DenunciaData {
   fecha_rechazada?: string | null;
   fecha_reapertura?: string | null;
   plazo_reapertura?: string | null;
+  // Sprint 5
+  informe_clasificacion?: string | null;
+  cierre_sitpreco?: string | null;
+  cierre_cerrado_at?: string | null;
 }
 
 interface DenunciaCardProps {
@@ -93,8 +98,8 @@ function getContextualText(denuncia: DenunciaData): string {
       return `Rechazada ${fmt(denuncia.fecha_rechazada || denuncia.created_at)}`;
     case 'cerrada':
       return denuncia.subestado === 'archivada'
-        ? `Archivada ${fmt(denuncia.created_at)}`
-        : `Cerrada ${fmt(denuncia.created_at)}`;
+        ? `Archivada ${fmt(denuncia.cierre_cerrado_at || denuncia.created_at)}`
+        : `Cerrada ${fmt(denuncia.cierre_cerrado_at || denuncia.created_at)}`;
     default:
       return '';
   }
@@ -180,6 +185,22 @@ export default function DenunciaCard({ denuncia, plazo, tecnicos, onClick, class
           <Clock className="w-3 h-3 shrink-0" />
           <span>{reabiertaText || contextualText}</span>
         </p>
+        {/* Fila 3.5: Clasificación + SITPRECO (cerradas) */}
+        {denuncia.estado === 'cerrada' && (
+          <div className="flex items-center gap-2 flex-wrap">
+            <ClasificacionBadge clasificacion={denuncia.informe_clasificacion} />
+            {denuncia.cierre_sitpreco && (
+              <span className="text-[10px] font-mono font-medium px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                {denuncia.cierre_sitpreco}
+              </span>
+            )}
+            {denuncia.cierre_cerrado_at && (
+              <span className="text-[11px] text-muted-foreground">
+                {new Date(denuncia.cierre_cerrado_at).toLocaleDateString('es-BO', { day: '2-digit', month: 'short', year: 'numeric' })}
+              </span>
+            )}
+          </div>
+        )}
         {/* Fila 4: Acciones contextuales */}
         {children && <div className="pt-1">{children}</div>}
       </div>

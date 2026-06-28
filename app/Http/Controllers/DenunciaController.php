@@ -227,4 +227,121 @@ class DenunciaController extends Controller
 
         return redirect()->back()->with('success', $msg);
     }
+
+    // ──────────────────────────────────────────────
+    //  SPRINT 5 — Informe Final y Cierre
+    // ──────────────────────────────────────────────
+
+    public function guardarInforme(string $ticket, Request $request)
+    {
+        $validated = $request->validate([
+            'clasificacion' => 'required|in:penal,civil,administrativo,sin_indicios,medida_correctiva,archivado',
+            'fojas' => 'required|integer|min:1|max:9999',
+            'justificacion' => 'required|string|min:20|max:5000',
+            'archivos' => 'nullable|array',
+            'concluido_por' => 'required|string|min:2|max:100',
+        ]);
+
+        $denuncia = DenunciaData::find($ticket);
+        if (!$denuncia || !in_array($denuncia['estado'] ?? '', ['informe', 'cerrada'])) {
+            return redirect()->back()->with('error', 'No se puede redactar el informe en esta denuncia.');
+        }
+
+        DenunciaData::guardarInforme($ticket, $validated);
+
+        return redirect()->back()->with('success', "Informe Final redactado para {$ticket}.");
+    }
+
+    public function editarInforme(string $ticket, Request $request)
+    {
+        $validated = $request->validate([
+            'clasificacion' => 'required|in:penal,civil,administrativo,sin_indicios,medida_correctiva,archivado',
+            'fojas' => 'required|integer|min:1|max:9999',
+            'justificacion' => 'required|string|min:20|max:5000',
+            'archivos' => 'nullable|array',
+            'concluido_por' => 'required|string|min:2|max:100',
+        ]);
+
+        $denuncia = DenunciaData::find($ticket);
+        if (!$denuncia || !in_array($denuncia['estado'] ?? '', ['informe', 'cerrada'])) {
+            return redirect()->back()->with('error', 'No se puede editar el informe de esta denuncia.');
+        }
+
+        DenunciaData::editarInforme($ticket, $validated);
+
+        return redirect()->back()->with('success', "Informe Final actualizado para {$ticket}.");
+    }
+
+    public function eliminarInforme(string $ticket)
+    {
+        $denuncia = DenunciaData::find($ticket);
+        if (!$denuncia || !in_array($denuncia['estado'] ?? '', ['informe', 'cerrada'])) {
+            return redirect()->back()->with('error', 'No se puede eliminar el informe de esta denuncia.');
+        }
+
+        DenunciaData::eliminarInforme($ticket);
+
+        return redirect()->back()->with('success', "Informe Final eliminado de {$ticket}.");
+    }
+
+    public function guardarCierre(string $ticket, Request $request)
+    {
+        $validated = $request->validate([
+            'sitpreco' => 'nullable|string|min:3|max:50',
+            'notificado_denunciante' => 'required|boolean',
+            'notificacion_medio' => 'required_if:notificado_denunciante,true|nullable|in:whatsapp,email,presencial,otro',
+            'notificacion_fecha' => 'required_if:notificado_denunciante,true|nullable|date|before_or_equal:today',
+            'notificacion_descripcion' => 'required_if:notificado_denunciante,true|nullable|string|min:10|max:2000',
+            'no_notificado_motivo' => 'required_if:notificado_denunciante,false|nullable|string|max:500',
+            'concluido_por' => 'required|string|min:2|max:100',
+            'descripcion' => 'required|string|min:20|max:5000',
+            'archivos' => 'nullable|array',
+        ]);
+
+        $denuncia = DenunciaData::find($ticket);
+        if (!$denuncia || $denuncia['estado'] !== 'informe') {
+            return redirect()->back()->with('error', 'No se puede cerrar esta denuncia.');
+        }
+
+        DenunciaData::guardarCierre($ticket, $validated);
+
+        $cod = $validated['sitpreco'] ?? '—';
+        return redirect()->back()->with('success', "Denuncia {$ticket} cerrada. SITPRECO: {$cod}");
+    }
+
+    public function editarCierre(string $ticket, Request $request)
+    {
+        $validated = $request->validate([
+            'sitpreco' => 'nullable|string|min:3|max:50',
+            'notificado_denunciante' => 'required|boolean',
+            'notificacion_medio' => 'required_if:notificado_denunciante,true|nullable|in:whatsapp,email,presencial,otro',
+            'notificacion_fecha' => 'required_if:notificado_denunciante,true|nullable|date|before_or_equal:today',
+            'notificacion_descripcion' => 'required_if:notificado_denunciante,true|nullable|string|min:10|max:2000',
+            'no_notificado_motivo' => 'required_if:notificado_denunciante,false|nullable|string|max:500',
+            'concluido_por' => 'required|string|min:2|max:100',
+            'descripcion' => 'required|string|min:20|max:5000',
+            'archivos' => 'nullable|array',
+        ]);
+
+        $denuncia = DenunciaData::find($ticket);
+        if (!$denuncia || $denuncia['estado'] !== 'cerrada') {
+            return redirect()->back()->with('error', 'No se puede editar el cierre de esta denuncia.');
+        }
+
+        DenunciaData::editarCierre($ticket, $validated);
+
+        return redirect()->back()->with('success', "Cierre actualizado para {$ticket}.");
+    }
+
+    public function eliminarCierre(string $ticket)
+    {
+        $denuncia = DenunciaData::find($ticket);
+        if (!$denuncia || $denuncia['estado'] !== 'cerrada') {
+            return redirect()->back()->with('error', 'No se puede eliminar el cierre de esta denuncia.');
+        }
+
+        DenunciaData::eliminarCierre($ticket);
+
+        return redirect()->back()->with('success', "Cierre eliminado. Denuncia {$ticket} vuelve a Informe Final.");
+    }
 }

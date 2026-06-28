@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import { route } from 'ziggy-js';
 import {
   ClipboardList, Search, FileText, Archive, ChevronDown, ChevronRight,
-  Inbox, Eye, Play, CircleArrowRight, ArrowUpDown
+  Inbox, Eye, Play, CircleArrowRight, ArrowUpDown, ScrollText
 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
 import AppLayout from '@/Components/Layout/AppLayout';
@@ -213,8 +213,8 @@ export default function MisCasos({ grouped, tecnicoActual, tecnicos, solicitudes
     if (denuncia.estado === 'informe') {
       return (
         <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-muted text-muted-foreground text-xs font-medium">
-          <CircleArrowRight className="w-3.5 h-3.5" />
-          Continuar al cierre (Sprint 5)
+          <ScrollText className="w-3.5 h-3.5" />
+          Informe pendiente
         </span>
       );
     }
@@ -342,6 +342,7 @@ export default function MisCasos({ grouped, tecnicoActual, tecnicos, solicitudes
           tecnicos={tecnicos}
           open={selectedDenuncia !== null}
           onOpenChange={(v) => { if (!v) setSelectedDenuncia(null); }}
+          tecnicoNombre={tecnicos[tecnicoActual]?.nombre || tecnicoActual}
           solicitudes={solicitudesByTicket[selectedDenuncia.ticket] || []}
           descargos={descargosByTicket[selectedDenuncia.ticket] || []}
           canAct={canAct}

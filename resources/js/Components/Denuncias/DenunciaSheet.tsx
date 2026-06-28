@@ -6,7 +6,8 @@ import PlazoBadge from './PlazoBadge';
 import TipoDenunciaBadge from './TipoDenunciaBadge';
 import TabSolicitudes from './TabSolicitudes';
 import TabDescargos from './TabDescargos';
-import { CheckCircle2, History, UserPlus, ArrowRightLeft, RotateCcw, XCircle, X as XIcon, FileSearch, UserX } from 'lucide-react';
+import TabInformeCierre from './TabInformeCierre';
+import { CheckCircle2, History, UserPlus, ArrowRightLeft, RotateCcw, XCircle, X as XIcon, FileSearch, UserX, FileText, ScrollText } from 'lucide-react';
 
 interface PlazoInfo {
   dias_restantes: number;
@@ -36,6 +37,12 @@ interface BitacoraEntry {
   usuario: string;
 }
 
+interface ArchivoSimulado {
+  nombre: string;
+  tamano?: string;
+  fecha_subida?: string;
+}
+
 interface DenunciaDetail {
   ticket: string;
   tipo: string;
@@ -60,6 +67,29 @@ interface DenunciaDetail {
   fecha_reapertura?: string | null;
   justificacion_reapertura?: string | null;
   bitacora?: BitacoraEntry[];
+  // Sprint 5 — Informe Final y Cierre
+  informe_clasificacion?: string | null;
+  informe_fojas?: number | null;
+  informe_justificacion?: string | null;
+  informe_archivos?: ArchivoSimulado[];
+  informe_redactado_at?: string | null;
+  informe_concluido_por?: string | null;
+  informe_ediciones?: Array<{ fecha: string; cambios: string[]; usuario: string }>;
+  informe_eliminado?: boolean;
+  informe_fecha_eliminacion?: string | null;
+  cierre_sitpreco?: string | null;
+  cierre_notificado_denunciante?: boolean | null;
+  cierre_notificacion_medio?: string | null;
+  cierre_notificacion_fecha?: string | null;
+  cierre_notificacion_descripcion?: string | null;
+  cierre_no_notificado_motivo?: string | null;
+  cierre_concluido_por?: string | null;
+  cierre_descripcion?: string | null;
+  cierre_archivos?: ArchivoSimulado[];
+  cierre_cerrado_at?: string | null;
+  cierre_ediciones?: Array<{ fecha: string; cambios: string[]; usuario: string }>;
+  cierre_eliminado?: boolean;
+  cierre_fecha_eliminacion?: string | null;
 }
 
 interface Solicitud {
@@ -94,6 +124,7 @@ interface DenunciaSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   children?: React.ReactNode;
+  tecnicoNombre?: string;
 
   // Sprint 4 props
   solicitudes?: Solicitud[];
@@ -145,7 +176,7 @@ function formatDate(d?: string): string {
 const estadosConTabs = ['asignada', 'investigacion', 'informe', 'cerrada'];
 
 export default function DenunciaSheet({
-  denuncia, plazo, tecnicos, open, onOpenChange, children,
+  denuncia, plazo, tecnicos, open, onOpenChange, children, tecnicoNombre,
   solicitudes = [], descargos = [], canAct = false,
   onNuevaSolicitud, onResponderSolicitud, onAmpliarSolicitud, onCancelarSolicitud,
   onEditarSolicitud, onEliminarSolicitud,
@@ -185,6 +216,12 @@ export default function DenunciaSheet({
               <TabsTrigger value="descargos" className="text-xs data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-3 py-2">
                 Descargos {descargos.length > 0 && `(${descargos.length})`}
               </TabsTrigger>
+              {(denuncia.estado === 'informe' || denuncia.estado === 'cerrada') && (
+                <TabsTrigger value="informe_cierre" className="text-xs data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-3 py-2">
+                  <ScrollText className="w-3.5 h-3.5 mr-1" />
+                  Informe y Cierre
+                </TabsTrigger>
+              )}
             </TabsList>
 
             <TabsContent value="info" className="flex-1 overflow-y-auto py-4 space-y-5 mt-0 data-[state=inactive]:hidden">
@@ -225,6 +262,19 @@ export default function DenunciaSheet({
                 onEliminar={onEliminarDescargo}
               />
             </TabsContent>
+
+            {(denuncia.estado === 'informe' || denuncia.estado === 'cerrada') && (
+              <TabsContent value="informe_cierre" className="flex-1 overflow-y-auto py-4 mt-0 data-[state=inactive]:hidden">
+                {!canAct && (
+                  <p className="text-xs text-muted-foreground mb-3 italic">Modo lectura — use MisCasos con 'Ver como:' para actuar.</p>
+                )}
+                <TabInformeCierre
+                  denuncia={denuncia}
+                  tecnicoNombre={tecnicoNombre || '—'}
+                  canAct={canAct}
+                />
+              </TabsContent>
+            )}
           </Tabs>
         ) : (
           <div className="flex-1 overflow-y-auto py-4 space-y-5">

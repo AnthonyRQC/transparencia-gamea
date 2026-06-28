@@ -76,6 +76,14 @@ Route::prefix('denuncias')->name('denuncias.')->group(function () {
     // Sprint 4 — Saltar fase
     Route::post('/{ticket}/saltar-fase', [DenunciaController::class, 'saltarFase'])->name('saltar-fase');
 
+    // Sprint 5 — Informe Final y Cierre
+    Route::post('/{ticket}/informe', [DenunciaController::class, 'guardarInforme'])->name('informe.guardar');
+    Route::post('/{ticket}/informe/editar', [DenunciaController::class, 'editarInforme'])->name('informe.editar');
+    Route::post('/{ticket}/informe/eliminar', [DenunciaController::class, 'eliminarInforme'])->name('informe.eliminar');
+    Route::post('/{ticket}/cierre', [DenunciaController::class, 'guardarCierre'])->name('cierre.guardar');
+    Route::post('/{ticket}/cierre/editar', [DenunciaController::class, 'editarCierre'])->name('cierre.editar');
+    Route::post('/{ticket}/cierre/eliminar', [DenunciaController::class, 'eliminarCierre'])->name('cierre.eliminar');
+
     // Carga de técnicos (Sprint 3)
     Route::get('/carga-tecnicos', [DenunciaController::class, 'cargaTecnicos'])->name('carga-tecnicos');
 

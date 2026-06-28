@@ -69,6 +69,30 @@ class DenunciaData
         $data['plazo_reapertura'] = null;
         $data['bitacora'] = [];
 
+        // Sprint 5 — Informe Final y Cierre
+        $data['informe_clasificacion'] = null;
+        $data['informe_fojas'] = null;
+        $data['informe_justificacion'] = null;
+        $data['informe_archivos'] = [];
+        $data['informe_redactado_at'] = null;
+        $data['informe_concluido_por'] = null;
+        $data['informe_ediciones'] = [];
+        $data['informe_eliminado'] = false;
+        $data['informe_fecha_eliminacion'] = null;
+        $data['cierre_sitpreco'] = null;
+        $data['cierre_notificado_denunciante'] = null;
+        $data['cierre_notificacion_medio'] = null;
+        $data['cierre_notificacion_fecha'] = null;
+        $data['cierre_notificacion_descripcion'] = null;
+        $data['cierre_no_notificado_motivo'] = null;
+        $data['cierre_concluido_por'] = null;
+        $data['cierre_descripcion'] = null;
+        $data['cierre_archivos'] = [];
+        $data['cierre_cerrado_at'] = null;
+        $data['cierre_ediciones'] = [];
+        $data['cierre_eliminado'] = false;
+        $data['cierre_fecha_eliminacion'] = null;
+
         $denuncias = self::getAll();
         $denuncias[] = $data;
         session()->put(self::SESSION_KEY, $denuncias);
@@ -275,6 +299,170 @@ class DenunciaData
         foreach ($denuncias as $i => $d) {
             if (($d['ticket'] ?? '') === $ticket) {
                 self::addBitacoraEntry($denuncias, $i, $accion, $detalle, $usuario);
+                session()->put(self::SESSION_KEY, $denuncias);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // ──────────────────────────────────────────────
+    //  SPRINT 5 — Informe Final y Cierre
+    // ──────────────────────────────────────────────
+
+    public static function guardarInforme(string $ticket, array $data, string $usuarioId = 'sistema'): bool
+    {
+        $denuncias = self::getAll();
+        foreach ($denuncias as $i => $d) {
+            if (($d['ticket'] ?? '') === $ticket && in_array($d['estado'] ?? '', ['informe', 'cerrada'])) {
+                $denuncias[$i]['informe_clasificacion'] = $data['clasificacion'];
+                $denuncias[$i]['informe_fojas'] = $data['fojas'];
+                $denuncias[$i]['informe_justificacion'] = $data['justificacion'] ?? null;
+                $denuncias[$i]['informe_archivos'] = $data['archivos'] ?? [];
+                $denuncias[$i]['informe_redactado_at'] = now()->toDateTimeString();
+                $denuncias[$i]['informe_concluido_por'] = $data['concluido_por'];
+                $denuncias[$i]['informe_eliminado'] = false;
+                $denuncias[$i]['informe_fecha_eliminacion'] = null;
+                self::addBitacoraEntry($denuncias, $i, 'informe_redactado', "Informe Final redactado. Clasificación: {$data['clasificacion']}. Fojas: {$data['fojas']}", $usuarioId);
+                session()->put(self::SESSION_KEY, $denuncias);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static function editarInforme(string $ticket, array $data, string $usuarioId = 'sistema'): bool
+    {
+        $denuncias = self::getAll();
+        foreach ($denuncias as $i => $d) {
+            if (($d['ticket'] ?? '') === $ticket && in_array($d['estado'] ?? '', ['informe', 'cerrada'])) {
+                $cambios = [];
+                $map = [
+                    'clasificacion' => 'informe_clasificacion',
+                    'fojas' => 'informe_fojas',
+                    'justificacion' => 'informe_justificacion',
+                    'archivos' => 'informe_archivos',
+                    'concluido_por' => 'informe_concluido_por',
+                ];
+                foreach ($map as $campo => $key) {
+                    if (array_key_exists($campo, $data)) {
+                        $anterior = $denuncias[$i][$key] ?? null;
+                        $nuevo = $data[$campo];
+                        if ($anterior !== $nuevo && $campo !== 'archivos') {
+                            $cambios[] = "{$campo}: '{$anterior}' → '{$nuevo}'";
+                        }
+                        $denuncias[$i][$key] = $nuevo;
+                    }
+                }
+                $denuncias[$i]['informe_redactado_at'] = now()->toDateTimeString();
+                $denuncias[$i]['informe_eliminado'] = false;
+                $denuncias[$i]['informe_fecha_eliminacion'] = null;
+                $denuncias[$i]['informe_ediciones'][] = [
+                    'fecha' => now()->toDateTimeString(),
+                    'cambios' => $cambios,
+                    'usuario' => $usuarioId,
+                ];
+                self::addBitacoraEntry($denuncias, $i, 'informe_editado', "Informe Final editado. Cambios: " . implode('; ', $cambios), $usuarioId);
+                session()->put(self::SESSION_KEY, $denuncias);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static function eliminarInforme(string $ticket, string $usuarioId = 'sistema'): bool
+    {
+        $denuncias = self::getAll();
+        foreach ($denuncias as $i => $d) {
+            if (($d['ticket'] ?? '') === $ticket && in_array($d['estado'] ?? '', ['informe', 'cerrada'])) {
+                $denuncias[$i]['informe_eliminado'] = true;
+                $denuncias[$i]['informe_fecha_eliminacion'] = now()->toDateTimeString();
+                self::addBitacoraEntry($denuncias, $i, 'informe_eliminado', "Informe Final eliminado (soft delete)", $usuarioId);
+                session()->put(self::SESSION_KEY, $denuncias);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static function guardarCierre(string $ticket, array $data, string $usuarioId = 'sistema'): bool
+    {
+        $denuncias = self::getAll();
+        foreach ($denuncias as $i => $d) {
+            if (($d['ticket'] ?? '') === $ticket && ($d['estado'] ?? '') === 'informe') {
+                $denuncias[$i]['cierre_sitpreco'] = $data['sitpreco'] ?? null;
+                $denuncias[$i]['cierre_notificado_denunciante'] = $data['notificado_denunciante'] ?? false;
+                $denuncias[$i]['cierre_notificacion_medio'] = $data['notificacion_medio'] ?? null;
+                $denuncias[$i]['cierre_notificacion_fecha'] = $data['notificacion_fecha'] ?? null;
+                $denuncias[$i]['cierre_notificacion_descripcion'] = $data['notificacion_descripcion'] ?? null;
+                $denuncias[$i]['cierre_no_notificado_motivo'] = $data['no_notificado_motivo'] ?? null;
+                $denuncias[$i]['cierre_concluido_por'] = $data['concluido_por'];
+                $denuncias[$i]['cierre_descripcion'] = $data['descripcion'];
+                $denuncias[$i]['cierre_archivos'] = $data['archivos'] ?? [];
+                $denuncias[$i]['cierre_cerrado_at'] = now()->toDateTimeString();
+                $denuncias[$i]['cierre_eliminado'] = false;
+                $denuncias[$i]['cierre_fecha_eliminacion'] = null;
+                $denuncias[$i]['estado'] = 'cerrada';
+                $sitpreco = $data['sitpreco'] ?? '—';
+                self::addBitacoraEntry($denuncias, $i, 'cierre_registrado', "Cierre registrado. SITPRECO: {$sitpreco}. Estado: cerrada", $usuarioId);
+                session()->put(self::SESSION_KEY, $denuncias);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static function editarCierre(string $ticket, array $data, string $usuarioId = 'sistema'): bool
+    {
+        $denuncias = self::getAll();
+        foreach ($denuncias as $i => $d) {
+            if (($d['ticket'] ?? '') === $ticket && ($d['estado'] ?? '') === 'cerrada') {
+                $cambios = [];
+                $map = [
+                    'sitpreco' => 'cierre_sitpreco',
+                    'notificado_denunciante' => 'cierre_notificado_denunciante',
+                    'notificacion_medio' => 'cierre_notificacion_medio',
+                    'notificacion_fecha' => 'cierre_notificacion_fecha',
+                    'notificacion_descripcion' => 'cierre_notificacion_descripcion',
+                    'no_notificado_motivo' => 'cierre_no_notificado_motivo',
+                    'concluido_por' => 'cierre_concluido_por',
+                    'descripcion' => 'cierre_descripcion',
+                    'archivos' => 'cierre_archivos',
+                ];
+                foreach ($map as $campo => $key) {
+                    if (array_key_exists($campo, $data)) {
+                        $anterior = $denuncias[$i][$key] ?? null;
+                        $nuevo = $data[$campo];
+                        if ($anterior !== $nuevo && $campo !== 'archivos') {
+                            $cambios[] = "{$campo}: '" . (is_string($anterior) ? $anterior : json_encode($anterior)) . "' → '" . (is_string($nuevo) ? $nuevo : json_encode($nuevo)) . "'";
+                        }
+                        $denuncias[$i][$key] = $nuevo;
+                    }
+                }
+                $denuncias[$i]['cierre_eliminado'] = false;
+                $denuncias[$i]['cierre_fecha_eliminacion'] = null;
+                $denuncias[$i]['cierre_ediciones'][] = [
+                    'fecha' => now()->toDateTimeString(),
+                    'cambios' => $cambios,
+                    'usuario' => $usuarioId,
+                ];
+                self::addBitacoraEntry($denuncias, $i, 'cierre_editado', "Cierre editado. Cambios: " . implode('; ', $cambios), $usuarioId);
+                session()->put(self::SESSION_KEY, $denuncias);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static function eliminarCierre(string $ticket, string $usuarioId = 'sistema'): bool
+    {
+        $denuncias = self::getAll();
+        foreach ($denuncias as $i => $d) {
+            if (($d['ticket'] ?? '') === $ticket && ($d['estado'] ?? '') === 'cerrada') {
+                $denuncias[$i]['cierre_eliminado'] = true;
+                $denuncias[$i]['cierre_fecha_eliminacion'] = now()->toDateTimeString();
+                $denuncias[$i]['estado'] = 'informe';
+                self::addBitacoraEntry($denuncias, $i, 'cierre_eliminado', "Cierre eliminado (soft delete). Estado vuelve a informe", $usuarioId);
                 session()->put(self::SESSION_KEY, $denuncias);
                 return true;
             }
@@ -596,7 +784,24 @@ class DenunciaData
                     ['fecha' => (clone $now)->subDays(58)->toDateTimeString(), 'accion' => 'admitida', 'detalle' => 'Admitida sin justificación', 'usuario' => 'sistema'],
                     ['fecha' => (clone $now)->subDays(57)->toDateTimeString(), 'accion' => 'asignada', 'detalle' => 'Asignada a Carlos Quispe', 'usuario' => 'sistema'],
                     ['fecha' => (clone $now)->subDays(55)->toDateTimeString(), 'accion' => 'investigacion', 'detalle' => 'Investigación iniciada', 'usuario' => 'sistema'],
+                    ['fecha' => (clone $now)->subDays(50)->toDateTimeString(), 'accion' => 'informe_redactado', 'detalle' => 'Informe Final redactado. Clasificación: penal. Fojas: 45', 'usuario' => 'sistema'],
+                    ['fecha' => (clone $now)->subDays(45)->toDateTimeString(), 'accion' => 'cierre_registrado', 'detalle' => 'Cierre registrado. SITPRECO: SIT-UML-CC1-2026-0501. Estado: cerrada', 'usuario' => 'sistema'],
                 ],
+                'informe_clasificacion' => 'penal',
+                'informe_fojas' => 45,
+                'informe_justificacion' => 'Se encontraron elementos suficientes que acreditan responsabilidad penal del denunciado. Se remite al Ministerio Público.',
+                'informe_archivos' => [['nombre' => 'informe_final_0011.pdf', 'tamano' => '2.4 MB', 'fecha_subida' => (clone $now)->subDays(50)->toDateTimeString()]],
+                'informe_redactado_at' => (clone $now)->subDays(50)->toDateTimeString(),
+                'informe_concluido_por' => 'Carlos Quispe',
+                'cierre_sitpreco' => 'SIT-UML-CC1-2026-0501',
+                'cierre_notificado_denunciante' => true,
+                'cierre_notificacion_medio' => 'email',
+                'cierre_notificacion_fecha' => (clone $now)->subDays(45)->toDateTimeString(),
+                'cierre_notificacion_descripcion' => 'Notificado al denunciante por correo electrónico con copia del acta de cierre.',
+                'cierre_concluido_por' => 'Carlos Quispe',
+                'cierre_descripcion' => 'Caso cerrado con remisión al Ministerio Público. Se adjunta documentación completa del expediente.',
+                'cierre_archivos' => [['nombre' => 'acta_cierre_0011.pdf', 'tamano' => '1.1 MB', 'fecha_subida' => (clone $now)->subDays(45)->toDateTimeString()]],
+                'cierre_cerrado_at' => (clone $now)->subDays(45)->toDateTimeString(),
                 'denunciante' => ['nombres' => 'Carmen Illanes', 'ci' => '1122334', 'email' => 'cillanes@yahoo.es', 'telefono' => '71122334'],
                 'denunciados' => [['conoce_identidad' => true, 'nombres' => 'Félix Mendoza', 'dependencia' => 'Departamento de Obras Públicas', 'descripcion' => '']],
                 'detalles' => ['categoria' => 'peculado', 'fecha' => '2026-01-10', 'hora' => '', 'lugar' => 'Obras Públicas GAMEA'],
@@ -618,7 +823,22 @@ class DenunciaData
                     ['fecha' => (clone $now)->subDays(88)->toDateTimeString(), 'accion' => 'admitida', 'detalle' => 'Admitida sin justificación', 'usuario' => 'sistema'],
                     ['fecha' => (clone $now)->subDays(87)->toDateTimeString(), 'accion' => 'asignada', 'detalle' => 'Asignada a Ana Torres', 'usuario' => 'sistema'],
                     ['fecha' => (clone $now)->subDays(85)->toDateTimeString(), 'accion' => 'investigacion', 'detalle' => 'Investigación iniciada', 'usuario' => 'sistema'],
+                    ['fecha' => (clone $now)->subDays(80)->toDateTimeString(), 'accion' => 'informe_redactado', 'detalle' => 'Informe Final redactado. Clasificación: archivado. Fojas: 12', 'usuario' => 'sistema'],
+                    ['fecha' => (clone $now)->subDays(75)->toDateTimeString(), 'accion' => 'cierre_registrado', 'detalle' => 'Cierre registrado. SITPRECO: SIT-UML-CC1-2026-0302. Estado: cerrada', 'usuario' => 'sistema'],
                 ],
+                'informe_clasificacion' => 'archivado',
+                'informe_fojas' => 12,
+                'informe_justificacion' => 'No se encontraron elementos suficientes para determinar responsabilidad. Se archivan los antecedentes según Art. 27 de la Ley 974.',
+                'informe_archivos' => [['nombre' => 'informe_final_0012.pdf', 'tamano' => '1.8 MB', 'fecha_subida' => (clone $now)->subDays(80)->toDateTimeString()]],
+                'informe_redactado_at' => (clone $now)->subDays(80)->toDateTimeString(),
+                'informe_concluido_por' => 'Ana Torres',
+                'cierre_sitpreco' => 'SIT-UML-CC1-2026-0302',
+                'cierre_notificado_denunciante' => false,
+                'cierre_no_notificado_motivo' => 'Denunciante anónimo sin datos de contacto.',
+                'cierre_concluido_por' => 'Ana Torres',
+                'cierre_descripcion' => 'Caso archivado por falta de indicios. Se conservan antecedentes para futuras remisiones.',
+                'cierre_archivos' => [['nombre' => 'acta_archivo_0012.pdf', 'tamano' => '0.9 MB', 'fecha_subida' => (clone $now)->subDays(75)->toDateTimeString()]],
+                'cierre_cerrado_at' => (clone $now)->subDays(75)->toDateTimeString(),
                 'escenario' => 'reservada',
                 'denunciante' => ['nombres' => 'Hugo Ticona', 'ci' => '9988776', 'email' => 'hticona@mail.com', 'telefono' => '79887766'],
                 'denunciados' => [['conoce_identidad' => true, 'nombres' => 'Ramiro Castillo', 'dependencia' => 'Dirección de Tránsito', 'descripcion' => '']],
@@ -657,6 +877,28 @@ class DenunciaData
             'justificacion_reapertura' => null,
             'plazo_reapertura' => null,
             'bitacora' => [],
+            'informe_clasificacion' => null,
+            'informe_fojas' => null,
+            'informe_justificacion' => null,
+            'informe_archivos' => [],
+            'informe_redactado_at' => null,
+            'informe_concluido_por' => null,
+            'informe_ediciones' => [],
+            'informe_eliminado' => false,
+            'informe_fecha_eliminacion' => null,
+            'cierre_sitpreco' => null,
+            'cierre_notificado_denunciante' => null,
+            'cierre_notificacion_medio' => null,
+            'cierre_notificacion_fecha' => null,
+            'cierre_notificacion_descripcion' => null,
+            'cierre_no_notificado_motivo' => null,
+            'cierre_concluido_por' => null,
+            'cierre_descripcion' => null,
+            'cierre_archivos' => [],
+            'cierre_cerrado_at' => null,
+            'cierre_ediciones' => [],
+            'cierre_eliminado' => false,
+            'cierre_fecha_eliminacion' => null,
         ];
     }
 }

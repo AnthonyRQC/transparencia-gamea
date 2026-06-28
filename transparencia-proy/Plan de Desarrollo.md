@@ -421,15 +421,46 @@ En Fase 0 (mock, sin sesión real de usuarios individuales) esta diferenciación
 
 ---
 
-### Sprint 5 — Informe Final + Cierre
+### Sprint 5 — Informe Final + Cierre ✅ COMPLETADO (Junio 2026)
 
-**Objetivo:** Concluir el flujo de la denuncia.
+**Objetivo:** Concluir el flujo de la denuncia con Informe Final + Cierre formal. Formularios embebidos (no modales) en 4to tab del DenunciaSheet. Backend con 6 endpoints. Soft delete y ediciones con historial.
+
+#### Componentes creados
 
 | Componente | Descripción |
 |------------|-------------|
-| `TabInformeCierre.tsx` | Pestaña unificada con dos sub-secciones |
-| `FormInformeFinal.tsx` | Clasificación (select: Penal/Civil/Administrativo/Sin Indicios/Medida Correctiva/Archivado), fojas, upload |
-| `FormCierre.tsx` | SITPRECO, concluido por, descripción, notificación cierre |
+| `Components/Denuncias/ClasificacionBadge.tsx` | Badge reutilizable con 6 colores (Penal/Civil/Administrativo/Sin Indicios/Medida Correctiva/Archivado) |
+| `Components/Denuncias/FormInformeFinal.tsx` | Formulario embebido con Select clasificación, Input fojas, Textarea justificación, Input concluido_por. Modo dual: preview + Editar/Eliminar si ya existe, formulario vacío si no. Historial de cambios colapsable. |
+| `Components/Denuncias/FormCierre.tsx` | Formulario embebido con Input SITPRECO opcional, Checkbox "¿Se notificó al denunciante?" + condicionales (medio/fecha/descripción o motivo opcional), concluido_por, descripción, archivos mock. Warning si no hay informe previo. |
+| `Components/Denuncias/TabInformeCierre.tsx` | Orquesta 2 sub-tabs shadcn (Informe Final / Cierre) + modal confirmar eliminación para informe/cierre |
+| `Components/Denuncias/InformeDetailModal.tsx` | Modal read-only: header con clasificación, fojas, fechas, justificación, archivos, cierre expandible con SITPRECO/notificación/descripción/archivos |
+
+#### Componentes modificados
+
+| Componente | Cambio |
+|------------|--------|
+| `DenunciaSheet.tsx` | +4to tab "Informe y Cierre" (visible si estado ∈ {informe, cerrada}). +props `tecnicoNombre`. +imports y renders `TabInformeCierre`. |
+| `DenunciaCard.tsx` | +badge `ClasificacionBadge` para denuncias cerradas + SITPRECO font-mono + fecha `cierre_cerrado_at` formateada |
+| `MisCasos.tsx` | +prop `tecnicoNombre` en DenunciaSheet. Estado `informe` cambia de placeholder a "Informe pendiente" con icono ScrollText |
+| `Bandeja.tsx` | +prop `tecnicoNombre` en DenunciaSheet |
+
+#### Backend creado/modificado
+
+| Archivo | Cambio |
+|---------|--------|
+| `app/Data/DenunciaData.php` | +24 campos nuevos (informe_*, cierre_*), +6 métodos (guardarInforme, editarInforme, eliminarInforme, guardarCierre, editarCierre, eliminarCierre), seed actualizado con 2 cerradas (informe+cierre+SITPRECO) |
+| `app/Http/Controllers/DenunciaController.php` | +6 métodos: guardarInforme, editarInforme, eliminarInforme, guardarCierre, editarCierre, eliminarCierre con validaciones |
+
+#### Rutas nuevas (6)
+
+```
+POST /denuncias/{ticket}/informe              → DenunciaController@guardarInforme
+POST /denuncias/{ticket}/informe/editar       → DenunciaController@editarInforme
+POST /denuncias/{ticket}/informe/eliminar     → DenunciaController@eliminarInforme
+POST /denuncias/{ticket}/cierre               → DenunciaController@guardarCierre
+POST /denuncias/{ticket}/cierre/editar        → DenunciaController@editarCierre
+POST /denuncias/{ticket}/cierre/eliminar      → DenunciaController@eliminarCierre
+```
 
 ---
 
@@ -565,6 +596,13 @@ resources/js/Components/
     DescargoDetailModal.tsx         ← Modal detalle descargo + historial colapsable
     ModalConfirmarEliminar.tsx      ← Confirmación genérica soft-delete
 
+    Sprint 5 — Nuevos:
+    ClasificacionBadge.tsx          ← Badge clasificación (6 colores)
+    FormInformeFinal.tsx            ← Formulario embebido Informe Final (modo dual)
+    FormCierre.tsx                  ← Formulario embebido Cierre (notificación condicional)
+    TabInformeCierre.tsx            ← Orquesta 2 sub-tabs Informe + Cierre
+    InformeDetailModal.tsx          ← Modal detalle informe + cierre read-only
+
   Publico/
     BuscadorTicket.tsx
     ResultadoSeguimiento.tsx
@@ -594,6 +632,15 @@ resources/js/Components/Denuncias/TabDescargos.tsx           → +detailDescargo
 resources/js/Components/Denuncias/DenunciaSheet.tsx          → +4 props (editar/eliminar), +break-words hechos
 resources/js/Pages/Denuncias/Bandeja.tsx                     → +modales editar/eliminar, router.post, toast
 resources/js/Pages/Denuncias/MisCasos.tsx                    → +modales editar/eliminar, router.post, toast
+
+--- Sprint 5 — Informe Final + Cierre:
+resources/js/Components/Denuncias/DenunciaSheet.tsx          → +4to tab "Informe y Cierre", +prop tecnicoNombre
+resources/js/Components/Denuncias/DenunciaCard.tsx           → +badge ClasificacionBadge, +SITPRECO, +fecha cierre
+resources/js/Pages/Denuncias/MisCasos.tsx                   → +prop tecnicoNombre, +ScrollText "Informe pendiente"
+resources/js/Pages/Denuncias/Bandeja.tsx                    → +prop tecnicoNombre
+app/Data/DenunciaData.php                                   → +24 campos informe_*/cierre_*, +6 métodos, +seed
+app/Http/Controllers/DenunciaController.php                 → +6 métodos (guardar/editar/eliminar para informe y cierre)
+routes/web.php                                              → +6 rutas
 ```
 
 ---

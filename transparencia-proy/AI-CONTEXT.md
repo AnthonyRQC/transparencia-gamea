@@ -16,6 +16,7 @@ Tailwind v3 · shadcn/ui (New York) · Laragon (Windows local)
 **Sprint 2** (Bandeja de Admisión + Mis Casos + Mi Resumen) — Cerrado ✅ (Tabs en lugar de Kanban, Sheet lateral para detalle, modales Admisión/Rechazo con justificación, 4 tabs en Mis Casos, 4 ContadorCards en Mi Resumen, 12 seed items con técnicos, Dropdown "Ver como:" de técnico)
 **Sprint 3** (Asignación de Técnico + Traspaso + Reapertura + Mejoras Detalle) — Cerrado ✅
 **Sprint 4** (Investigación: Solicitudes + Descargos + Saltar Fase + Mejoras) — Cerrado ✅ (Sheet refactorizado con 3 tabs: Información, Solicitudes, Descargos. TabSolicitudes con SolicitudCard + PlazoProgress + 3 modales (Nueva, Responder, Ampliar). TabDescargos con DescargoCard + 3 modales (Notificar, Responder, Ampliar). SaltarFaseButton con justificación obligatoria + warning items pendientes. Datos mock en SolicitudData, DescargoData, UnidadData. Bandeja read-only en tabs de trabajo, MisCasos con acciones completas + dropdown "Ver como:" permite al Jefe actuar. Seed de 3 solicitudes + 2 descargos demo. **Mejoras agregadas:** ModalCancelarSolicitud, ModalNuevoDescargo, SolicitudDetailModal + DescargoDetailModal con historial de cambios colapsable, ModalConfirmarEliminar reusable. CRUD completo (editar/eliminar) en todos los estados con soft delete. ModalNuevaSolicitud y ModalNuevoDescargo unificados con modo dual create/edit. ArchivoAdjunto con botón papelera (onEliminar). Campos ediciones[], eliminado, fecha_eliminacion en SolicitudData/DescargoData. Editar/Eliminar sin restricción de estado. Fix overflow horizontal con break-words.)
+**Sprint 5** (Informe Final + Cierre) — Cerrado ✅ (TabInformeCierre como 4to tab en DenunciaSheet con 2 sub-tabs: Informe Final y Cierre. FormInformeFinal con clasificación (Penal/Civil/Administrativo/Sin Indicios/Medida Correctiva/Archivado), fojas, justificación, archivos mock, concluido_por autocompletado. FormCierre con SITPRECO opcional, checkbox notificación al denunciante con medio/fecha/descripción condicional, motivo opcional si no se notificó. 6 endpoints backend: guardar/editar/eliminar para informe y cierre. Informe y Cierre editables en cualquier estado. Soft delete y ediciones con historial. InformeDetailModal read-only. Cards cerradas enriquecidas con badge clasificación, SITPRECO y fecha cierre.)
 
 ## Documentación Esencial (LEER SIEMPRE)
 > Este archivo + los 2 siguientes son el snapshot del estado del proyecto.
@@ -33,6 +34,7 @@ Tailwind v3 · shadcn/ui (New York) · Laragon (Windows local)
 - `transparencia-proy/Sprint 2 - Bandeja de Admisión y Mis Casos.md` — Detalle Sprint 2
 - `transparencia-proy/Sprint 3 - Asignación, Traspaso y Reapertura.md` — Detalle Sprint 3
 - `transparencia-proy/Sprint 4 - Investigación (Solicitudes + Descargos).md` — Detalle Sprint 4
+- `transparencia-proy/Sprint 5 - Informe Final y Cierre.md` — Detalle Sprint 5
 - `transparencia-proy/Proyecto - Resumen General del Sistema.md` — Overview funcional completo
 - `transparencia-proy/Proyecto - Prototipo y Estrategia de Diseño.md` — Decisiones de diseño
 - `transparencia-proy/Proyecto - Transparencia Stack y Conceptos.md` — Conceptos del stack
@@ -56,7 +58,7 @@ Tailwind v3 · shadcn/ui (New York) · Laragon (Windows local)
 - `app/Http/Controllers/BandejaController.php` — Bandeja de Admisión (Jefe, envia solicitudes/descargos read-only)
 - `app/Http/Controllers/MisCasosController.php` — Mis Casos (Técnico, filtrado por técnico + solicitudes/descargos con acciones)
 - `resources/js/Components/Layout/AppLayout.tsx` — Layout root
-- `resources/js/Components/Denuncias/` — Componentes de denuncias (Card, Sheet, Badges, Modales, AsignacionModal, TraspasoModal, ReabrirModal, TecnicoCargaCard, TabSolicitudes, TabDescargos, SolicitudCard, DescargoCard, PlazoProgress, ArchivoAdjunto, SaltarFaseButton, modales solicitud/descargo, SolicitudDetailModal, DescargoDetailModal, ModalCancelarSolicitud, ModalNuevoDescargo, ModalConfirmarEliminar)
+- `resources/js/Components/Denuncias/` — Componentes de denuncias (Card, Sheet, Badges, Modales, AsignacionModal, TraspasoModal, ReabrirModal, TecnicoCargaCard, TabSolicitudes, TabDescargos, SolicitudCard, DescargoCard, PlazoProgress, ArchivoAdjunto, SaltarFaseButton, modales solicitud/descargo, SolicitudDetailModal, DescargoDetailModal, ModalCancelarSolicitud, ModalNuevoDescargo, ModalConfirmarEliminar, ClasificacionBadge, FormInformeFinal, FormCierre, TabInformeCierre, InformeDetailModal)
 - `resources/js/Pages/Denuncias/RegistroDenuncia.tsx` — Formulario de registro
 - `resources/js/Pages/Denuncias/Bandeja.tsx` — Bandeja del Jefe (5 tabs: Por admitir, Por asignar, En curso, Historial, Visión general)
 - `resources/js/Pages/Denuncias/MisCasos.tsx` — Mis Casos del Técnico (4 tabs)
@@ -69,7 +71,9 @@ Tailwind v3 · shadcn/ui (New York) · Laragon (Windows local)
 - `php artisan migrate:fresh --seed` — Reset DB
 
 ## Próximo Sprint
-**Sprint 5 — Informe Final + Cierre**
-- TabInformeCierre con dos sub-secciones (Informe Final + Cierre)
-- FormInformeFinal con clasificación (Penal/Civil/Administrativo/Sin Indicios/Medida Correctiva/Archivado)
-- FormCierre con SITPRECO, notificación de cierre
+**Sprint 6 — Seguimiento Público**
+- Página pública sin autenticación para consultar ticket
+- BuscadorTicket con input + lupa
+- ResultadoSeguimiento con timeline visual (fase actual, fechas estimadas, datos no sensibles)
+- SeguimientoController.php con búsqueda en mock data
+- Ruta: GET /seguimiento (sin middleware auth)
