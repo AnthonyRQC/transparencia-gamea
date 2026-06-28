@@ -1,9 +1,12 @@
 import { Badge } from '@/Components/ui/badge';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/Components/ui/tooltip';
+import { CalendarClock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface PlazoInfo {
   dias_restantes: number;
   color: 'green' | 'yellow' | 'red';
+  fecha_vencimiento?: string;
 }
 
 interface PlazoBadgeProps {
@@ -22,10 +25,16 @@ const labels: Record<string, string> = {
   red: 'Vencido',
 };
 
+function formatDate(dateStr?: string): string {
+  if (!dateStr) return '';
+  const d = new Date(dateStr + 'T12:00:00');
+  return d.toLocaleDateString('es-BO', { day: '2-digit', month: 'long', year: 'numeric' });
+}
+
 export default function PlazoBadge({ plazo }: PlazoBadgeProps) {
   if (!plazo) return null;
 
-  return (
+  const badgeContent = (
     <Badge
       variant="outline"
       className={cn(
@@ -36,7 +45,26 @@ export default function PlazoBadge({ plazo }: PlazoBadgeProps) {
       <span className="w-1.5 h-1.5 rounded-full mr-1.5 inline-block shrink-0 bg-current" />
       {plazo.dias_restantes > 0
         ? `${plazo.dias_restantes}d ${labels[plazo.color]}`
-        : `${labels[plazo.color]} (${Math.abs(plazo.dias_restantes)}d)`}
+        : plazo.dias_restantes === 0
+          ? 'Vence hoy'
+          : `Vencida hace ${Math.abs(plazo.dias_restantes)}d`}
     </Badge>
+  );
+
+  if (!plazo.fecha_vencimiento) return badgeContent;
+
+  return (
+    <TooltipProvider delayDuration={300}>
+      <Tooltip>
+        <TooltipTrigger asChild>{badgeContent}</TooltipTrigger>
+        <TooltipContent side="top" className="text-xs flex items-center gap-1.5">
+          <CalendarClock className="w-3.5 h-3.5 text-muted-foreground" />
+          Vence el <strong>{formatDate(plazo.fecha_vencimiento)}</strong>
+          {plazo.dias_restantes >= 0 && (
+            <> — Quedan <strong>{plazo.dias_restantes} día{plazo.dias_restantes !== 1 ? 's' : ''}</strong></>
+          )}
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 }

@@ -14,6 +14,7 @@ Tailwind v3 · shadcn/ui (New York) · Laragon (Windows local)
 **Sprint 0** (Sidebar/Header institucional) — Cerrado ✅
 **Sprint 1** (Registro de Denuncia, formulario complejo) — Cerrado ✅ (Barra de progreso fija bajo header, modal de éxito vinculado mediante Inertia flash y panel temporal de autocompletado ficticio)
 **Sprint 2** (Bandeja de Admisión + Mis Casos + Mi Resumen) — Cerrado ✅ (Tabs en lugar de Kanban, Sheet lateral para detalle, modales Admisión/Rechazo con justificación, 4 tabs en Mis Casos, 4 ContadorCards en Mi Resumen, 12 seed items con técnicos, Dropdown "Ver como:" de técnico)
+**Sprint 3** (Asignación de Técnico + Traspaso + Reapertura + Mejoras Detalle) — Cerrado ✅ (AsignacionModal con carga de trabajo visible, TraspasoModal con justificación obligatoria, ReabrirModal con nueva fecha límite manual, bitácora en Sheet, tooltip en PlazoBadge, secciones Admisión/Rechazo/Asignación en Sheet, avatar de técnico en cards, badge Reasignado en traspasos recientes)
 
 ## Documentación Esencial (LEER EN ORDEN)
 1. `transparencia-proy/Plan de Desarrollo.md` — Hoja de ruta
@@ -38,12 +39,13 @@ Tailwind v3 · shadcn/ui (New York) · Laragon (Windows local)
 - `app/Http/Controllers/MisCasosController.php` — Mis Casos (Técnico, filtrado por técnico)
 - `app/Http/Controllers/MiResumenController.php` — Mi Resumen (Técnico, contadores)
 - `resources/js/Components/Layout/AppLayout.tsx` — Layout root
-- `resources/js/Components/Denuncias/` — Componentes de denuncias (Card, Sheet, Badges, Modales)
+- `resources/js/Components/Denuncias/` — Componentes de denuncias (Card, Sheet, Badges, Modales, AsignacionModal, TraspasoModal, ReabrirModal, TecnicoCargaCard)
 - `resources/js/Pages/Denuncias/RegistroDenuncia.tsx` — Formulario de registro
 - `resources/js/Pages/Denuncias/Bandeja.tsx` — Bandeja del Jefe (4 tabs)
 - `resources/js/Pages/Denuncias/MisCasos.tsx` — Mis Casos del Técnico (4 tabs)
 - `resources/js/Pages/Denuncias/MiResumen.tsx` — Resumen del Técnico (4 cards)
-- `resources/js/Components/ui/` — shadcn components
+- `resources/js/Components/ui/` — shadcn components (tooltip added Sprint 3)
+- `resources/js/Components/ui/tooltip.tsx` — Tooltip shadcn para PlazoBadge
 
 ## Comandos
 - `npm run dev` / `npm run build` — Vite
@@ -51,9 +53,14 @@ Tailwind v3 · shadcn/ui (New York) · Laragon (Windows local)
 - `php artisan migrate:fresh --seed` — Reset DB
 
 ## Próximo Sprint
-**Sprint 3 — Asignación de Técnico + Detalle de Caso**
-- Modal de Asignación de técnico con carga de trabajo visible
-- Traspaso de caso entre técnicos
-- Reapertura de denuncias cerradas/rechazadas
-- Tooltip en PlazoBadge con fecha exacta de vencimiento
-- Visualización de Admisión (fecha, justificación) en Sheet
+**Sprint 4 — Investigación (Solicitudes + Descargos)**
+- Pestañas de trabajo dentro del Sheet de detalle (Solicitudes, Descargos)
+- TabSolicitudes con lista de solicitudes a unidades externas
+- ModalNuevaSolicitud (unidad destino + detalle + plazo)
+- ModalResponderSolicitud (respuesta recibida + archivos)
+- ModalAmpliarSolicitud (prórroga: días + justificación + archivo)
+- TabDescargos con lista de denunciados con control individual
+- ModalNotificarDescargo (fecha aviso + medio + respaldo)
+- ModalResponderDescargo (resumen descargo + documentos)
+- ModalAmpliarDescargo (prórroga: días + justificación)
+- SaltarFaseButton con justificación obligatoria

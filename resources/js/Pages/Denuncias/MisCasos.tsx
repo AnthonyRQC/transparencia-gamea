@@ -16,6 +16,7 @@ import ListaVacia from '@/Components/Denuncias/ListaVacia';
 interface PlazoInfo {
   dias_restantes: number;
   color: 'green' | 'yellow' | 'red';
+  fecha_vencimiento?: string;
 }
 
 interface Denunciado {
@@ -179,6 +180,7 @@ export default function MisCasos({ grouped, tecnicoActual, tecnicos }: PageProps
                   key={d.ticket}
                   denuncia={d}
                   plazo={d.plazo}
+                  tecnicos={tecnicos}
                   onClick={() => setSelectedDenuncia(d)}
                 >
                   {renderActions(d) && (
@@ -208,6 +210,7 @@ export default function MisCasos({ grouped, tecnicoActual, tecnicos }: PageProps
                           key={d.ticket}
                           denuncia={d}
                           plazo={null}
+                          tecnicos={tecnicos}
                           onClick={() => setSelectedDenuncia(d)}
                         />
                       ))}

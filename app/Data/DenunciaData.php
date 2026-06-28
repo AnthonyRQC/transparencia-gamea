@@ -58,6 +58,14 @@ class DenunciaData
         $data['fecha_asignada'] = null;
         $data['justificacion_admision'] = null;
         $data['justificacion_rechazo'] = null;
+        $data['fecha_rechazada'] = null;
+        $data['justificacion_traspaso'] = null;
+        $data['fecha_traspaso'] = null;
+        $data['tecnico_anterior'] = null;
+        $data['fecha_reapertura'] = null;
+        $data['justificacion_reapertura'] = null;
+        $data['plazo_reapertura'] = null;
+        $data['bitacora'] = [];
 
         $denuncias = self::getAll();
         $denuncias[] = $data;
@@ -83,6 +91,7 @@ class DenunciaData
                 $denuncias[$i]['estado'] = 'admitida';
                 $denuncias[$i]['fecha_admitida'] = now()->toDateTimeString();
                 $denuncias[$i]['justificacion_admision'] = $justificacion;
+                self::addBitacoraEntry($denuncias, $i, 'admitida', $justificacion ? "Admitida con justificación: {$justificacion}" : 'Admitida sin justificación', 'sistema');
                 session()->put(self::SESSION_KEY, $denuncias);
                 return true;
             }
@@ -96,7 +105,9 @@ class DenunciaData
         foreach ($denuncias as $i => $d) {
             if (($d['ticket'] ?? '') === $ticket) {
                 $denuncias[$i]['estado'] = 'rechazada';
+                $denuncias[$i]['fecha_rechazada'] = now()->toDateTimeString();
                 $denuncias[$i]['justificacion_rechazo'] = $justificacion;
+                self::addBitacoraEntry($denuncias, $i, 'rechazada', "Rechazada: {$justificacion}", 'sistema');
                 session()->put(self::SESSION_KEY, $denuncias);
                 return true;
             }
@@ -110,11 +121,133 @@ class DenunciaData
         foreach ($denuncias as $i => $d) {
             if (($d['ticket'] ?? '') === $ticket && ($d['estado'] ?? '') === 'asignada') {
                 $denuncias[$i]['estado'] = 'investigacion';
+                self::addBitacoraEntry($denuncias, $i, 'investigacion', 'Investigación iniciada', 'sistema');
                 session()->put(self::SESSION_KEY, $denuncias);
                 return true;
             }
         }
         return false;
+    }
+
+    // ──────────────────────────────────────────────
+    //  SPRINT 3 — NUEVAS ACCIONES
+    // ──────────────────────────────────────────────
+
+    public static function asignarTecnico(string $ticket, string $tecnicoId, string $usuarioId = 'sistema'): bool
+    {
+        $denuncias = self::getAll();
+        foreach ($denuncias as $i => $d) {
+            if (($d['ticket'] ?? '') === $ticket && ($d['estado'] ?? '') === 'admitida') {
+                $denuncias[$i]['estado'] = 'asignada';
+                $denuncias[$i]['tecnico'] = $tecnicoId;
+                $denuncias[$i]['fecha_asignada'] = now()->toDateTimeString();
+                $nombreTecnico = self::TECNICOS_MOCK[$tecnicoId]['nombre'] ?? $tecnicoId;
+                self::addBitacoraEntry($denuncias, $i, 'asignada', "Asignada a {$nombreTecnico}", $usuarioId);
+                session()->put(self::SESSION_KEY, $denuncias);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static function traspasar(string $ticket, string $nuevoTecnicoId, string $justificacion, string $usuarioId = 'sistema'): bool
+    {
+        $denuncias = self::getAll();
+        foreach ($denuncias as $i => $d) {
+            if (($d['ticket'] ?? '') === $ticket && in_array($d['estado'] ?? '', ['asignada', 'investigacion', 'informe'])) {
+                $denuncias[$i]['tecnico_anterior'] = $d['tecnico'] ?? null;
+                $denuncias[$i]['tecnico'] = $nuevoTecnicoId;
+                $denuncias[$i]['fecha_traspaso'] = now()->toDateTimeString();
+                $denuncias[$i]['justificacion_traspaso'] = $justificacion;
+                $viejo = self::TECNICOS_MOCK[$d['tecnico'] ?? '']['nombre'] ?? $d['tecnico'] ?? '—';
+                $nuevo = self::TECNICOS_MOCK[$nuevoTecnicoId]['nombre'] ?? $nuevoTecnicoId;
+                self::addBitacoraEntry($denuncias, $i, 'traspaso', "Traspasado de {$viejo} → {$nuevo}. Justificación: {$justificacion}", $usuarioId);
+                session()->put(self::SESSION_KEY, $denuncias);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static function reabrir(string $ticket, string $justificacion, string $nuevaFechaLimite, string $usuarioId = 'sistema'): bool
+    {
+        $denuncias = self::getAll();
+        foreach ($denuncias as $i => $d) {
+            if (($d['ticket'] ?? '') === $ticket && in_array($d['estado'] ?? '', ['rechazada', 'cerrada'])) {
+                $denuncias[$i]['estado'] = 'ingresada';
+                $denuncias[$i]['subestado'] = null;
+                $denuncias[$i]['tecnico_anterior'] = $d['tecnico'] ?? null;
+                $denuncias[$i]['tecnico'] = null;
+                $denuncias[$i]['justificacion_admision'] = null;
+                $denuncias[$i]['justificacion_rechazo'] = null;
+                $denuncias[$i]['fecha_admitida'] = null;
+                $denuncias[$i]['fecha_asignada'] = null;
+                $denuncias[$i]['fecha_rechazada'] = null;
+                $denuncias[$i]['justificacion_traspaso'] = null;
+                $denuncias[$i]['fecha_traspaso'] = null;
+                $denuncias[$i]['fecha_reapertura'] = now()->toDateTimeString();
+                $denuncias[$i]['justificacion_reapertura'] = $justificacion;
+                $denuncias[$i]['plazo_reapertura'] = $nuevaFechaLimite;
+                self::addBitacoraEntry($denuncias, $i, 'reapertura', "Reabierta. Nuevo plazo: {$nuevaFechaLimite}. Justificación: {$justificacion}", $usuarioId);
+                session()->put(self::SESSION_KEY, $denuncias);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static function getCargaTecnicos(): array
+    {
+        $denuncias = self::getAll();
+        $carga = [];
+
+        foreach (self::TECNICOS_MOCK as $id => $info) {
+            $activos = 0;
+            $porVencer = 0;
+            $vencidos = 0;
+
+            foreach ($denuncias as $d) {
+                if (($d['tecnico'] ?? '') !== $id) continue;
+                $e = $d['estado'] ?? '';
+                if (!in_array($e, ['asignada', 'investigacion', 'informe'])) continue;
+
+                $activos++;
+                $plazoInfo = self::getPlazoInfo($d);
+                if ($plazoInfo) {
+                    if ($plazoInfo['color'] === 'red') $vencidos++;
+                    if ($plazoInfo['color'] === 'yellow') $porVencer++;
+                }
+            }
+
+            $carga[] = [
+                'id' => $id,
+                'nombre' => $info['nombre'],
+                'iniciales' => $info['iniciales'],
+                'color' => $info['color'],
+                'activos' => $activos,
+                'por_vencer' => $porVencer,
+                'vencidos' => $vencidos,
+            ];
+        }
+
+        return $carga;
+    }
+
+    public static function getBitacora(string $ticket): array
+    {
+        $d = self::find($ticket);
+        return $d['bitacora'] ?? [];
+    }
+
+    private static function addBitacoraEntry(array &$denuncias, int $index, string $accion, string $detalle, string $usuarioId): void
+    {
+        $entry = [
+            'fecha' => now()->toDateTimeString(),
+            'accion' => $accion,
+            'detalle' => $detalle,
+            'usuario' => $usuarioId,
+        ];
+        $denuncias[$index]['bitacora'][] = $entry;
     }
 
     // ──────────────────────────────────────────────
@@ -166,13 +299,26 @@ class DenunciaData
         if (empty($denuncia['created_at'])) return null;
 
         $plazoTotal = self::getPlazoDias($denuncia['tipo']);
-        $created = Carbon::parse($denuncia['created_at']);
-        $diasTranscurridos = (int) $created->diffInDays(now(), false);
-        $diasRestantes = $plazoTotal - $diasTranscurridos;
 
-        if ($diasRestantes > 5)  return ['dias_restantes' => $diasRestantes, 'color' => 'green'];
-        if ($diasRestantes >= 1) return ['dias_restantes' => $diasRestantes, 'color' => 'yellow'];
-        return ['dias_restantes' => $diasRestantes, 'color' => 'red'];
+        // Si fue reabierta y tiene nuevo plazo manual, calcular desde fecha_reapertura hasta plazo_reapertura
+        if (!empty($denuncia['plazo_reapertura'])) {
+            $fechaLimite = Carbon::parse($denuncia['plazo_reapertura']);
+            $diasRestantes = (int) now()->diffInDays($fechaLimite, false);
+        } else {
+            $created = Carbon::parse($denuncia['created_at']);
+            $diasTranscurridos = (int) $created->diffInDays(now(), false);
+            $diasRestantes = $plazoTotal - $diasTranscurridos;
+        }
+
+        $fechaVencimiento = !empty($denuncia['plazo_reapertura'])
+            ? Carbon::parse($denuncia['plazo_reapertura'])->format('Y-m-d')
+            : Carbon::parse($denuncia['created_at'])->addDays($plazoTotal)->format('Y-m-d');
+
+        $result = ['dias_restantes' => $diasRestantes, 'color' => 'green', 'fecha_vencimiento' => $fechaVencimiento];
+
+        if ($diasRestantes > 5)  return $result;
+        if ($diasRestantes >= 1) { $result['color'] = 'yellow'; return $result; }
+        $result['color'] = 'red'; return $result;
     }
 
     public static function getPlazoDias(string $tipo): int
@@ -259,6 +405,9 @@ class DenunciaData
                 'tipo' => 'corrupcion', 'estado' => 'admitida',
                 'created_at' => (clone $now)->subDays(20)->toDateTimeString(),
                 'fecha_admitida' => (clone $now)->subDays(18)->toDateTimeString(),
+                'bitacora' => [
+                    ['fecha' => (clone $now)->subDays(18)->toDateTimeString(), 'accion' => 'admitida', 'detalle' => 'Admitida sin justificación', 'usuario' => 'sistema'],
+                ],
                 'denunciante' => ['nombres' => 'Carlos Siles', 'ci' => '3456789', 'email' => 'csiles@correo.com', 'telefono' => '72345678'],
                 'denunciados' => [
                     ['conoce_identidad' => true, 'nombres' => 'Ana Condori', 'dependencia' => 'Unidad de Adjudicaciones', 'descripcion' => ''],
@@ -275,7 +424,11 @@ class DenunciaData
                 'ticket' => 'DEN-2026-0005',
                 'tipo' => 'negacion', 'estado' => 'rechazada',
                 'created_at' => (clone $now)->subDays(10)->toDateTimeString(),
+                'fecha_rechazada' => (clone $now)->subDays(10)->toDateTimeString(),
                 'justificacion_rechazo' => 'La denuncia no especifica el periodo en que ocurrieron los hechos ni proporciona datos suficientes del presunto responsable. Se invita al denunciante a subsanar las omisiones y presentar una nueva denuncia según Art. 22 §III de la Ley 974.',
+                'bitacora' => [
+                    ['fecha' => (clone $now)->subDays(10)->toDateTimeString(), 'accion' => 'rechazada', 'detalle' => 'Rechazada: La denuncia no especifica el periodo en que ocurrieron los hechos ni proporciona datos suficientes del presunto responsable.', 'usuario' => 'sistema'],
+                ],
                 'denunciante' => ['nombres' => 'Martha Loza', 'ci' => '5678901', 'email' => 'mloza@yahoo.com', 'telefono' => '75678901'],
                 'denunciados' => [['conoce_identidad' => false, 'nombres' => '', 'dependencia' => '', 'descripcion' => 'Funcionario de la Unidad de Catastro, sexo masculino, contextura delgada']],
                 'detalles' => ['categoria' => 'otro', 'fecha' => '2026-05-01', 'hora' => '', 'lugar' => 'Unidad de Catastro'],
@@ -289,6 +442,10 @@ class DenunciaData
                 'created_at' => (clone $now)->subDays(5)->toDateTimeString(),
                 'fecha_admitida' => (clone $now)->subDays(4)->toDateTimeString(),
                 'fecha_asignada' => (clone $now)->subDays(3)->toDateTimeString(),
+                'bitacora' => [
+                    ['fecha' => (clone $now)->subDays(4)->toDateTimeString(), 'accion' => 'admitida', 'detalle' => 'Admitida sin justificación', 'usuario' => 'sistema'],
+                    ['fecha' => (clone $now)->subDays(3)->toDateTimeString(), 'accion' => 'asignada', 'detalle' => 'Asignada a Carlos Quispe', 'usuario' => 'sistema'],
+                ],
                 'denunciante' => ['nombres' => 'Lucía Flores', 'ci' => '2345678', 'email' => 'lucia.flores@mail.com', 'telefono' => '71239876'],
                 'denunciados' => [['conoce_identidad' => true, 'nombres' => 'Jorge Miranda', 'dependencia' => 'Dirección de Ingresos', 'descripcion' => '']],
                 'detalles' => ['categoria' => 'trafico', 'fecha' => '2026-04-20', 'hora' => '11:00', 'lugar' => 'Dirección de Ingresos, segundo piso'],
@@ -305,6 +462,10 @@ class DenunciaData
                 'created_at' => (clone $now)->subDays(16)->toDateTimeString(),
                 'fecha_admitida' => (clone $now)->subDays(14)->toDateTimeString(),
                 'fecha_asignada' => (clone $now)->subDays(13)->toDateTimeString(),
+                'bitacora' => [
+                    ['fecha' => (clone $now)->subDays(14)->toDateTimeString(), 'accion' => 'admitida', 'detalle' => 'Admitida sin justificación', 'usuario' => 'sistema'],
+                    ['fecha' => (clone $now)->subDays(13)->toDateTimeString(), 'accion' => 'asignada', 'detalle' => 'Asignada a Ana Torres', 'usuario' => 'sistema'],
+                ],
                 'denunciante' => ['nombres' => 'Alberto Ríos', 'ci' => '8901234', 'email' => 'arios@hotmail.com', 'telefono' => '79012345'],
                 'denunciados' => [['conoce_identidad' => true, 'nombres' => 'Sonia Fernández', 'dependencia' => 'Oficina de Información y Quejas', 'descripcion' => '']],
                 'detalles' => ['categoria' => 'omision', 'fecha' => '2026-04-01', 'hora' => '09:30', 'lugar' => 'Oficina de Información'],
@@ -318,6 +479,11 @@ class DenunciaData
                 'created_at' => (clone $now)->subDays(40)->toDateTimeString(),
                 'fecha_admitida' => (clone $now)->subDays(38)->toDateTimeString(),
                 'fecha_asignada' => (clone $now)->subDays(37)->toDateTimeString(),
+                'bitacora' => [
+                    ['fecha' => (clone $now)->subDays(38)->toDateTimeString(), 'accion' => 'admitida', 'detalle' => 'Admitida sin justificación', 'usuario' => 'sistema'],
+                    ['fecha' => (clone $now)->subDays(37)->toDateTimeString(), 'accion' => 'asignada', 'detalle' => 'Asignada a Carlos Quispe', 'usuario' => 'sistema'],
+                    ['fecha' => (clone $now)->subDays(35)->toDateTimeString(), 'accion' => 'investigacion', 'detalle' => 'Investigación iniciada', 'usuario' => 'sistema'],
+                ],
                 'denunciante' => ['nombres' => 'Gabriela Huanca', 'ci' => '4567890', 'email' => 'ghuanca@gmail.com', 'telefono' => '74567890'],
                 'denunciados' => [['conoce_identidad' => true, 'nombres' => 'Marcelo Álvarez', 'dependencia' => 'Unidad de Contrataciones', 'descripcion' => '']],
                 'detalles' => ['categoria' => 'malversacion', 'fecha' => '2026-02-10', 'hora' => '', 'lugar' => 'Unidad de Contrataciones'],
@@ -334,6 +500,11 @@ class DenunciaData
                 'created_at' => (clone $now)->subDays(22)->toDateTimeString(),
                 'fecha_admitida' => (clone $now)->subDays(20)->toDateTimeString(),
                 'fecha_asignada' => (clone $now)->subDays(19)->toDateTimeString(),
+                'bitacora' => [
+                    ['fecha' => (clone $now)->subDays(20)->toDateTimeString(), 'accion' => 'admitida', 'detalle' => 'Admitida sin justificación', 'usuario' => 'sistema'],
+                    ['fecha' => (clone $now)->subDays(19)->toDateTimeString(), 'accion' => 'asignada', 'detalle' => 'Asignada a Ana Torres', 'usuario' => 'sistema'],
+                    ['fecha' => (clone $now)->subDays(17)->toDateTimeString(), 'accion' => 'investigacion', 'detalle' => 'Investigación iniciada', 'usuario' => 'sistema'],
+                ],
                 'denunciante' => ['nombres' => 'Daniel Condo', 'ci' => '6789012', 'email' => 'dcondo@outlook.com', 'telefono' => '76789012'],
                 'denunciados' => [
                     ['conoce_identidad' => true, 'nombres' => 'Silvia López', 'dependencia' => 'Secretaría General', 'descripcion' => ''],
@@ -352,6 +523,11 @@ class DenunciaData
                 'created_at' => (clone $now)->subDays(33)->toDateTimeString(),
                 'fecha_admitida' => (clone $now)->subDays(31)->toDateTimeString(),
                 'fecha_asignada' => (clone $now)->subDays(30)->toDateTimeString(),
+                'bitacora' => [
+                    ['fecha' => (clone $now)->subDays(31)->toDateTimeString(), 'accion' => 'admitida', 'detalle' => 'Admitida sin justificación', 'usuario' => 'sistema'],
+                    ['fecha' => (clone $now)->subDays(30)->toDateTimeString(), 'accion' => 'asignada', 'detalle' => 'Asignada a Carlos Quispe', 'usuario' => 'sistema'],
+                    ['fecha' => (clone $now)->subDays(28)->toDateTimeString(), 'accion' => 'investigacion', 'detalle' => 'Investigación iniciada', 'usuario' => 'sistema'],
+                ],
                 'denunciante' => ['nombres' => 'Elena Vargas', 'ci' => '9012345', 'email' => 'evargas@correo.net', 'telefono' => '78012345'],
                 'denunciados' => [['conoce_identidad' => true, 'nombres' => 'Guillermo Méndez', 'dependencia' => 'Dirección de Recursos Humanos', 'descripcion' => '']],
                 'detalles' => ['categoria' => 'concusion', 'fecha' => '2026-02-20', 'hora' => '16:30', 'lugar' => 'Oficina de Recursos Humanos'],
@@ -369,6 +545,11 @@ class DenunciaData
                 'created_at' => (clone $now)->subDays(60)->toDateTimeString(),
                 'fecha_admitida' => (clone $now)->subDays(58)->toDateTimeString(),
                 'fecha_asignada' => (clone $now)->subDays(57)->toDateTimeString(),
+                'bitacora' => [
+                    ['fecha' => (clone $now)->subDays(58)->toDateTimeString(), 'accion' => 'admitida', 'detalle' => 'Admitida sin justificación', 'usuario' => 'sistema'],
+                    ['fecha' => (clone $now)->subDays(57)->toDateTimeString(), 'accion' => 'asignada', 'detalle' => 'Asignada a Carlos Quispe', 'usuario' => 'sistema'],
+                    ['fecha' => (clone $now)->subDays(55)->toDateTimeString(), 'accion' => 'investigacion', 'detalle' => 'Investigación iniciada', 'usuario' => 'sistema'],
+                ],
                 'denunciante' => ['nombres' => 'Carmen Illanes', 'ci' => '1122334', 'email' => 'cillanes@yahoo.es', 'telefono' => '71122334'],
                 'denunciados' => [['conoce_identidad' => true, 'nombres' => 'Félix Mendoza', 'dependencia' => 'Departamento de Obras Públicas', 'descripcion' => '']],
                 'detalles' => ['categoria' => 'peculado', 'fecha' => '2026-01-10', 'hora' => '', 'lugar' => 'Obras Públicas GAMEA'],
@@ -386,6 +567,11 @@ class DenunciaData
                 'created_at' => (clone $now)->subDays(90)->toDateTimeString(),
                 'fecha_admitida' => (clone $now)->subDays(88)->toDateTimeString(),
                 'fecha_asignada' => (clone $now)->subDays(87)->toDateTimeString(),
+                'bitacora' => [
+                    ['fecha' => (clone $now)->subDays(88)->toDateTimeString(), 'accion' => 'admitida', 'detalle' => 'Admitida sin justificación', 'usuario' => 'sistema'],
+                    ['fecha' => (clone $now)->subDays(87)->toDateTimeString(), 'accion' => 'asignada', 'detalle' => 'Asignada a Ana Torres', 'usuario' => 'sistema'],
+                    ['fecha' => (clone $now)->subDays(85)->toDateTimeString(), 'accion' => 'investigacion', 'detalle' => 'Investigación iniciada', 'usuario' => 'sistema'],
+                ],
                 'escenario' => 'reservada',
                 'denunciante' => ['nombres' => 'Hugo Ticona', 'ci' => '9988776', 'email' => 'hticona@mail.com', 'telefono' => '79887766'],
                 'denunciados' => [['conoce_identidad' => true, 'nombres' => 'Ramiro Castillo', 'dependencia' => 'Dirección de Tránsito', 'descripcion' => '']],
@@ -416,6 +602,14 @@ class DenunciaData
             'fecha_asignada' => null,
             'justificacion_admision' => null,
             'justificacion_rechazo' => null,
+            'fecha_rechazada' => null,
+            'justificacion_traspaso' => null,
+            'fecha_traspaso' => null,
+            'tecnico_anterior' => null,
+            'fecha_reapertura' => null,
+            'justificacion_reapertura' => null,
+            'plazo_reapertura' => null,
+            'bitacora' => [],
         ];
     }
 }

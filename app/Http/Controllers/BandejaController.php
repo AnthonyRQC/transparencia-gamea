@@ -21,6 +21,7 @@ class BandejaController extends Controller
             'rechazadas' => array_values(array_map($mapPlazo, DenunciaData::getByEstado('rechazada'))),
             'contadores' => DenunciaData::getContadores(),
             'tecnicos' => DenunciaData::TECNICOS_MOCK,
+            'cargaTecnicos' => DenunciaData::getCargaTecnicos(),
         ]);
     }
 }

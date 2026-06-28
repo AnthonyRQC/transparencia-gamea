@@ -241,25 +241,63 @@ npx shadcn@2.3.0 add switch radio-group checkbox calendar popover textarea selec
 
 ---
 
-### Sprint 3 — Detalle de Caso + Admisión/Asignación
+### Sprint 3 — Asignación de Técnico + Traspaso + Reapertura + Mejoras Detalle ✅ COMPLETADO
 
-**Objetivo:** Al hacer clic en una tarjeta del Kanban se abre el detalle completo con acciones del Jefe.
+**Objetivo:** Asignación de técnico con carga de trabajo, traspaso entre técnicos, reapertura de denuncias cerradas/rechazadas, y mejoras visuales en detalle.
 
-| Componente | Acción |
-|------------|--------|
-| `AdmisionRechazoModal.tsx` | Modal con detalle + botones Admitir/Rechazar + textarea justificación |
-| `AsignacionModal.tsx` | Lista de técnicos mock con carga de trabajo + botón confirmar |
-| `TraspasoModal.tsx` | Dropdown con técnicos + textarea justificación |
-| `ReabrirModal.tsx` | Reabrir denuncias cerradas o rechazadas |
+#### Componentes creados
 
-**Backend:**
+| Archivo | Descripción |
+|---------|-------------|
+| `Components/Denuncias/AsignacionModal.tsx` | Modal con lista de técnicos mock y carga de trabajo visible (activos, por vencer, vencidos) |
+| `Components/Denuncias/TecnicoCargaCard.tsx` | Card clickeable por técnico con indicadores de carga |
+| `Components/Denuncias/TraspasoModal.tsx` | Modal con select de técnico destino + justificación obligatoria (mín 10 chars) |
+| `Components/Denuncias/ReabrirModal.tsx` | Modal con datepicker de nueva fecha límite + justificación (mín 20 chars) |
+
+#### Componentes modificados
+
+| Archivo | Cambio |
+|---------|--------|
+| `DenunciaSheet.tsx` | Nuevas secciones: Admisión (fecha+justificación), Rechazo (fecha+justificación), Técnico Asignado (avatar+fecha+historial traspaso), Reapertura (fecha+justificación), Bitácora (timeline últimas acciones) |
+| `DenunciaCard.tsx` | Avatar del técnico asignado en esquina superior derecha con tooltip, badge "Reasignado" en traspasos recientes (< 7 días) |
+| `PlazoBadge.tsx` | Tooltip con fecha exacta de vencimiento, textos "Vence hoy" y "Vencida hace Xd" |
+
+#### Backend creado/modificado
+
+| Archivo | Cambio |
+|---------|--------|
+| `app/Data/DenunciaData.php` | Nuevos campos: `justificacion_traspaso`, `fecha_traspaso`, `tecnico_anterior`, `fecha_reapertura`, `justificacion_reapertura`, `plazo_reapertura`, `fecha_rechazada`, `bitacora[]`. Nuevos métodos: `asignarTecnico()`, `traspasar()`, `reabrir()`, `getCargaTecnicos()`, `getBitacora()`. Todas las acciones registran bitácora automáticamente. |
+| `app/Http/Controllers/DenunciaController.php` | Nuevos métodos: `asignar()`, `traspasar()`, `reabrir()`, `cargaTecnicos()` |
+| `BandejaController.php` | Envía `cargaTecnicos` como prop para AsignacionModal |
+
+#### Rutas nuevas
 ```
-DenunciaController@admitir    → mock: cambia estado
-DenunciaController@rechazar   → mock: cambia estado + justificación
-DenunciaController@asignar    → mock: asigna técnico
-DenunciaController@traspasar  → mock: cambia técnico
-DenunciaController@reabrir    → mock: reactiva denuncia
+POST /denuncias/{ticket}/asignar    → asignar()
+POST /denuncias/{ticket}/traspasar  → traspasar()
+POST /denuncias/{ticket}/reabrir    → reabrir()
+GET  /denuncias/carga-tecnicos      → cargaTecnicos()
 ```
+
+#### shadcn instalados
+```bash
+npx shadcn@2.3.0 add tooltip progress scroll-area
+```
+
+#### Páginas modificadas
+| Archivo | Cambio |
+|---------|--------|
+| `Pages/Denuncias/Bandeja.tsx` | Tab "Por asignar" funcional: botón [Asignar técnico] abre AsignacionModal. Sheet con acciones contextuales (traspaso en asignada/investigacion/informe, reapertura en rechazada/cerrada). Nuevos estados modales. |
+| `Pages/Denuncias/MisCasos.tsx` | Pasa `tecnicos` a DenunciaCard (avatar). Badge Reasignado en cards traspasadas. |
+
+#### Decisiones del Sprint
+| Decisión | Opción elegida |
+|----------|---------------|
+| Reapertura → estado destino | `ingresada` (pasa por admisión de nuevo) |
+| Plazo al reabrir | Jefe define fecha manual (DatePicker) |
+| Traspaso: historial | Técnico B ve toda la bitácora |
+| Bitácora visible en | Sección al pie del Sheet (últimas acciones) |
+| Carga de técnicos | Prop inline desde BandejaController |
+| Badge "Reasignado" | Visible 7 días desde el traspaso |
 
 ---
 
@@ -387,6 +425,10 @@ resources/js/Components/
     ListaVacia.tsx                  ← Empty state
     ModalAdmision.tsx               ← Admisión con justificación opcional
     ModalRechazo.tsx                ← Rechazo con justificación obligatoria
+    AsignacionModal.tsx             ← Asignación con carga de trabajo (Sprint 3)
+    TecnicoCargaCard.tsx            ← Card de técnico con indicadores (Sprint 3)
+    TraspasoModal.tsx               ← Traspaso con justificación (Sprint 3)
+    ReabrirModal.tsx                ← Reapertura con fecha manual (Sprint 3)
     FormularioComplejo.tsx          ← Formulario de Corrupción/Negación
     SeccionEncabezado.tsx
     SeccionConfidencialidad.tsx
@@ -427,7 +469,7 @@ routes/web.php                           → todas las rutas del sistema
 |--------|-------------|
 | 1 | `switch`, `radio-group`, `checkbox`, `calendar`, `popover`, `textarea`, `select`, `input`, `label`, `separator`, `sonner` |
 | 2 | `badge`, `card`, `avatar`, `tabs`, `dialog`, `sheet` |
-| 3 | `dropdown-menu`, `progress`, `scroll-area` |
+| 3 | `tooltip`, `progress`, `scroll-area` |
 | 4 | — (reuso de tabs y sheet) |
 | 5 | — |
 | 7 | `table` |

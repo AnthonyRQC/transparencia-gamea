@@ -66,11 +66,19 @@ Route::prefix('denuncias')->name('denuncias.')->group(function () {
     Route::post('/{ticket}/rechazar', [DenunciaController::class, 'rechazar'])->name('rechazar');
     Route::post('/{ticket}/iniciar', [DenunciaController::class, 'iniciarInvestigacion'])->name('iniciar');
 
+    // Sprint 3 — Asignación, Traspaso, Reapertura
+    Route::post('/{ticket}/asignar', [DenunciaController::class, 'asignar'])->name('asignar');
+    Route::post('/{ticket}/traspasar', [DenunciaController::class, 'traspasar'])->name('traspasar');
+    Route::post('/{ticket}/reabrir', [DenunciaController::class, 'reabrir'])->name('reabrir');
+
+    // Carga de técnicos (Sprint 3)
+    Route::get('/carga-tecnicos', [DenunciaController::class, 'cargaTecnicos'])->name('carga-tecnicos');
+
     // Mis Casos + Mi Resumen (Sprint 2)
     Route::get('/mis-casos', [MisCasosController::class, 'index'])->name('mis-casos');
     Route::get('/mi-resumen', [MiResumenController::class, 'index'])->name('mi-resumen');
 
-    // Detalle de denuncia (Sprint 3) — último por catch-all /{id}
+    // Detalle de denuncia (placeholder — el detalle real se implementa con Sheet)
     Route::get('/{id}', function ($id) {
         return Inertia::render('Denuncias/DetalleDenuncia', ['id' => $id]);
     })->name('detalle');

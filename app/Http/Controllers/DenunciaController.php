@@ -133,4 +133,68 @@ class DenunciaController extends Controller
 
         return redirect()->back()->with('success', "Investigación iniciada para {$ticket}.");
     }
+
+    // ──────────────────────────────────────────────
+    //  SPRINT 3 — NUEVAS ACCIONES
+    // ──────────────────────────────────────────────
+
+    public function asignar(string $ticket, Request $request)
+    {
+        $validated = $request->validate([
+            'tecnico_id' => 'required|string|in:tec-1,tec-2,tec-3',
+        ]);
+
+        $denuncia = DenunciaData::find($ticket);
+        if (!$denuncia || $denuncia['estado'] !== 'admitida') {
+            return redirect()->back()->with('error', 'No se puede asignar esta denuncia.');
+        }
+
+        DenunciaData::asignarTecnico($ticket, $validated['tecnico_id']);
+
+        return redirect()->back()->with('success', "Denuncia {$ticket} asignada correctamente.");
+    }
+
+    public function traspasar(string $ticket, Request $request)
+    {
+        $validated = $request->validate([
+            'tecnico_id' => 'required|string|in:tec-1,tec-2,tec-3',
+            'justificacion' => 'required|string|min:10|max:2000',
+        ]);
+
+        $denuncia = DenunciaData::find($ticket);
+
+        if (!$denuncia || !in_array($denuncia['estado'] ?? '', ['asignada', 'investigacion', 'informe'])) {
+            return redirect()->back()->with('error', 'No se puede traspasar esta denuncia.');
+        }
+
+        if (($denuncia['tecnico'] ?? '') === $validated['tecnico_id']) {
+            return redirect()->back()->with('error', 'No se puede traspasar al mismo técnico.');
+        }
+
+        DenunciaData::traspasar($ticket, $validated['tecnico_id'], $validated['justificacion']);
+
+        return redirect()->back()->with('success', "Denuncia {$ticket} traspasada correctamente.");
+    }
+
+    public function reabrir(string $ticket, Request $request)
+    {
+        $validated = $request->validate([
+            'justificacion' => 'required|string|min:20|max:2000',
+            'nueva_fecha_limite' => 'required|date|after_or_equal:today',
+        ]);
+
+        $denuncia = DenunciaData::find($ticket);
+        if (!$denuncia || !in_array($denuncia['estado'] ?? '', ['rechazada', 'cerrada'])) {
+            return redirect()->back()->with('error', 'No se puede reabrir esta denuncia.');
+        }
+
+        DenunciaData::reabrir($ticket, $validated['justificacion'], $validated['nueva_fecha_limite']);
+
+        return redirect()->back()->with('success', "Denuncia {$ticket} reabierta correctamente. Volvió a la bandeja 'Por admitir'.");
+    }
+
+    public function cargaTecnicos()
+    {
+        return response()->json(DenunciaData::getCargaTecnicos());
+    }
 }
