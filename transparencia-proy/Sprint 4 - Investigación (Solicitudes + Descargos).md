@@ -35,6 +35,14 @@
 - ✅ **PlazoProgress** visual en cada card (verde >5d / amarillo 1-5d / rojo ≤0)
 - ✅ **Bandeja = read-only** en Solicitudes/Descargos (jefe ve progreso, no actúa)
 - ✅ **MisCasos = con acciones** (técnico actúa; dropdown "Ver como:" permite al jefe simular)
+- ✅ **Cancelar solicitud** con motivo obligatorio (estado `cancelada`, badge gris)
+- ✅ **SolicitudDetailModal + DescargoDetailModal** (modal detalle con toda la info + historial de cambios colapsable)
+- ✅ **Editar/Eliminar** en todos los estados (pendiente, respondida, cancelada, ampliada, vencida, notificado, etc.)
+- ✅ **Modal unificado** (ModalNuevaSolicitud modo dual create/edit; ModalNuevoDescargo modo dual create/edit)
+- ✅ **Soft delete** (marca `eliminado: true`, oculta de listas, conserva datos para auditoría)
+- ✅ **Historial interno** (`ediciones[]` con campo + valor anterior + nuevo + fecha, ordenado más reciente → antiguo)
+- ✅ **ArchivoAdjunto con botón papelera** (eliminar archivo local antes de enviar)
+- ✅ **Fix overflow horizontal** (break-words en textos largos sin espacios)
 
 ---
 
@@ -168,45 +176,61 @@
 | `app/Http/Controllers/DenunciaController.php` | +método saltarFase() con validación justificación min:20 |
 | `app/Http/Controllers/BandejaController.php` | +props: solicitudesByTicket, descargosByTicket |
 | `app/Http/Controllers/MisCasosController.php` | +props: solicitudesByTicket, descargosByTicket |
-| `routes/web.php` | +8 rutas nuevas |
+| `app/Data/SolicitudData.php` | +campos `ediciones[]`, `eliminado`, `fecha_eliminacion`. +métodos `editar()` y `eliminar()` (sin restricción de estado, solo bloquea si ya eliminado). `getByTicket()` filtra eliminados. |
+| `app/Data/DescargoData.php` | +campos `ediciones[]`, `eliminado`, `fecha_eliminacion`. +métodos `editar()` y `eliminar()` (sin restricción de estado). `getByTicket()` filtra eliminados. |
+| `app/Http/Controllers/SolicitudController.php` | +métodos `editar()` y `eliminar()` con validaciones (no permite editar/eliminar si ya eliminado) |
+| `app/Http/Controllers/DescargoController.php` | +métodos `editar()` y `eliminar()` con validaciones |
+| `routes/web.php` | +8 rutas originales + 4 nuevas (solicitudes/descargos editar/eliminar) |
 
-### 3.3 Frontend — Crear
+### 3.3 Frontend — Crear (ampliación)
 
 | Archivo | Descripción |
 |---|---|
-| `Components/Denuncias/PlazoProgress.tsx` | Progress bar reutilizable con color+texto contextual |
-| `Components/Denuncias/ArchivoAdjunto.tsx` | Visual ícono+nombre+tamaño+botón Ver |
-| `Components/Denuncias/SolicitudCard.tsx` | Card con unidad destino + badge estado + PlazoProgress + acciones |
-| `Components/Denuncias/DescargoCard.tsx` | Card con avatar/iniciales + badge estado + PlazoProgress + acciones |
-| `Components/Denuncias/TabSolicitudes.tsx` | Lista única ordenada por vencimiento, botón "Nueva solicitud", empty state |
-| `Components/Denuncias/TabDescargos.tsx` | Lista única ordenada por vencimiento, botón "Notificar a todos", empty state |
-| `Components/Denuncias/ModalNuevaSolicitud.tsx` | Select unidad + textarea detalle |
-| `Components/Denuncias/ModalResponderSolicitud.tsx` | Textarea respuesta + mock upload archivos |
-| `Components/Denuncias/ModalAmpliarSolicitud.tsx` | Input días + textarea justificación + mock archivo |
-| `Components/Denuncias/ModalNotificarDescargo.tsx` | DatePicker + select medio + mock respaldo |
-| `Components/Denuncias/ModalResponderDescargo.tsx` | Textarea resumen + mock upload documentos |
-| `Components/Denuncias/ModalAmpliarDescargo.tsx` | Input días + textarea justificación |
-| `Components/Denuncias/SaltarFaseButton.tsx` | Botón + modal con justificación + warning pendientes |
+| `Components/Denuncias/SolicitudDetailModal.tsx` | Dialog con detalle completo: header, fechas, PlazoProgress, detalle, respuesta, motivo cancelación, archivos, ampliaciones, acciones contextuales, historial de cambios colapsable (toggle chevron) |
+| `Components/Denuncias/DescargoDetailModal.tsx` | Dialog análogo para descargos: notificación, medio, respaldo, resumen descargo, documentos, ampliaciones, acciones, historial colapsable |
+| `Components/Denuncias/ModalCancelarSolicitud.tsx` | Dialog para cancelar solicitud pendiente/ampliada con textarea motivo (mín 10 caracteres) |
+| `Components/Denuncias/ModalNuevoDescargo.tsx` | Dialog para crear descargo manual con select de denunciados existentes o switch "persona externa" (campos nombre+dependencia) |
+| `Components/Denuncias/ModalConfirmarEliminar.tsx` | Reutilizable: confirmación genérica de soft-delete con icono alert-triangle + texto informativo |
 
-### 3.4 Frontend — Modificar
+### 3.4 Frontend — Modificar (ampliación)
 
 | Archivo | Cambio |
 |---|---|
-| `DenunciaSheet.tsx` | **Refactor mayor**: Tabs shadcn (Información/Solicitudes/Descargos). Tab Información = secciones actuales. Tabs Solicitudes/Descargos con badged count y visibilidad condicional. Modo Bandeja (canAct=false) vs MisCasos (canAct=true). |
-| `Bandeja.tsx` | +modal states (nuevaSolicitud, responderSolicitud, ampliarSolicitud, notificarDescargo, responderDescargo, ampliarDescargo, saltarFase). Pasar props solicitudesByTicket + descargosByTicket. Modales renderizados pero acciones ocultas. |
-| `MisCasos.tsx` | Reemplazar placeholder "Continuar (Sprint 4)" por SaltarFaseButton. Modal states + handlers. Dropdown "Ver como:" integrado. |
+| `ArchivoAdjunto.tsx` | +prop `onEliminar?: () => void` con botón Trash2 rojo para remover archivo antes de enviar |
+| `SolicitudCard.tsx` | +onClick para abrir SolicitudDetailModal. Botones Editar/Eliminar disponibles en TODOS los estados. |
+| `DescargoCard.tsx` | +onClick para abrir DescargoDetailModal. Botones Editar/Eliminar disponibles en TODOS los estados. |
+| `ModalNuevaSolicitud.tsx` | **Refactor mayor**: modo dual con prop `solicitudToEdit?` → pre-rellena campos, switch libre automático si unidad no está en catálogo. Título/botón cambian según modo. |
+| `ModalNuevoDescargo.tsx` | **Refactor mayor**: modo dual con prop `descargoToEdit?` → pre-rellena campos, auto-detecta si externo o denunciado existente. |
+| `DenunciaSheet.tsx` | +4 props (onEditarSolicitud, onEliminarSolicitud, onEditarDescargo, onEliminarDescargo). +break-words en hechos (fix overflow). |
+| `TabSolicitudes.tsx` | +estado `detailSolicitudId`, renderiza SolicitudDetailModal, pasa callbacks de editar/eliminar |
+| `TabDescargos.tsx` | +estado `detailDescargoId`, renderiza DescargoDetailModal, pasa callbacks |
+| `Bandeja.tsx` | +estados modales de editar/eliminar, router.post para delete, toast success/error |
+| `MisCasos.tsx` | Ídem Bandeja: +estados modales, router.post, toast |
+| `SolicitudDetailModal.tsx` | +break-words en detalle, respuesta, motivo cancelación (fix overflow) |
+| `DescargoDetailModal.tsx` | +break-words en resumen descargo (fix overflow) |
 
-### 3.5 Rutas nuevas (Sprint 4)
+### 3.5 Archivos eliminados
+
+| Archivo | Motivo |
+|---|---|
+| ~~`Components/Denuncias/ModalEditarSolicitud.tsx`~~ | Sustituido por ModalNuevaSolicitud (modo dual con prop `solicitudToEdit`) |
+| ~~`Components/Denuncias/ModalEditarDescargo.tsx`~~ | Sustituido por ModalNuevoDescargo (modo dual con prop `descargoToEdit`) |
+
+### 3.6 Rutas nuevas (Sprint 4 — total)
 
 ```php
 POST /denuncias/{ticket}/solicitudes              → SolicitudController@store          (crear solicitud)
 POST /solicitudes/{id}/responder                  → SolicitudController@responder      (responder solicitud)
 POST /solicitudes/{id}/ampliar                    → SolicitudController@ampliar        (ampliar solicitud)
+POST /solicitudes/{id}/editar                     → SolicitudController@editar         (editar solicitud)
+POST /solicitudes/{id}/eliminar                   → SolicitudController@eliminar       (eliminar solicitud)
 
 POST /denuncias/{ticket}/descargos                → DescargoController@store           (crear descargo)
 POST /descargos/{id}/notificar                    → DescargoController@notificar       (notificar descargo)
 POST /descargos/{id}/responder                    → DescargoController@responder       (responder descargo)
 POST /descargos/{id}/ampliar                      → DescargoController@ampliar         (ampliar descargo)
+POST /descargos/{id}/editar                       → DescargoController@editar          (editar descargo)
+POST /descargos/{id}/eliminar                     → DescargoController@eliminar        (eliminar descargo)
 
 POST /denuncias/{ticket}/saltar-fase              → DenunciaController@saltarFase      (saltar a informe)
 ```
@@ -294,6 +318,31 @@ POST /denuncias/{ticket}/saltar-fase              → DenunciaController@saltarF
 | 38 | Actualizar Plan de Desarrollo.md | Documentación |
 | 39 | Crear este documento | Documentación |
 
+### M4.9 — Detail Modals + CRUD + Modal Unificado + Cancelar ✅
+
+| # | Tarea | Archivo |
+|---|---|---|
+| 40 | Crear ModalCancelarSolicitud (motivo obligatorio min 10) | `Components/Denuncias/ModalCancelarSolicitud.tsx` |
+| 41 | Crear ModalNuevoDescargo (select denunciados + switch externo) | `Components/Denuncias/ModalNuevoDescargo.tsx` |
+| 42 | Crear SolicitudDetailModal (detalle completo + historial colapsable) | `Components/Denuncias/SolicitudDetailModal.tsx` |
+| 43 | Crear DescargoDetailModal (detalle completo + historial colapsable) | `Components/Denuncias/DescargoDetailModal.tsx` |
+| 44 | Crear ModalConfirmarEliminar (reusable soft-delete) | `Components/Denuncias/ModalConfirmarEliminar.tsx` |
+| 45 | Backend: +campos ediciones[], eliminado, fecha_eliminacion en SolicitudData/DescargoData | `app/Data/SolicitudData.php`, `app/Data/DescargoData.php` |
+| 46 | Backend: editar() y eliminar() en SolicitudData y DescargoData (sin restricción estado) | `app/Data/SolicitudData.php`, `app/Data/DescargoData.php` |
+| 47 | Backend: SolicitudController.editar() y eliminar() | `app/Http/Controllers/SolicitudController.php` |
+| 48 | Backend: DescargoController.editar() y eliminar() | `app/Http/Controllers/DescargoController.php` |
+| 49 | Frontend: ArchivoAdjunto +prop onEliminar (botón Trash2) | `Components/Denuncias/ArchivoAdjunto.tsx` |
+| 50 | Frontend: Refactor ModalNuevaSolicitud → modo dual (create/edit) | `Components/Denuncias/ModalNuevaSolicitud.tsx` |
+| 51 | Frontend: Refactor ModalNuevoDescargo → modo dual (create/edit) | `Components/Denuncias/ModalNuevoDescargo.tsx` |
+| 52 | Frontend: Editar/Eliminar en cards + detail modals (todos los estados) | SolicitudCard, DescargoCard, DetailModals |
+| 53 | Frontend: TabSolicitudes + TabDescargos con detail state y callbacks | `TabSolicitudes.tsx`, `TabDescargos.tsx` |
+| 54 | Frontend: DenunciaSheet +4 props (editar/eliminar) + break-words en hechos | `DenunciaSheet.tsx` |
+| 55 | Frontend: Bandeja + MisCasos — modales edit/delete + router.post | `Bandeja.tsx`, `MisCasos.tsx` |
+| 56 | Frontend: break-words en detail modals (detalle, respuesta, motivo cancelación, resumen) | SolicitudDetailModal, DescargoDetailModal |
+| 57 | Eliminar ModalEditarSolicitud (absorbido por ModalNuevaSolicitud) | Archivo removido |
+| 58 | Eliminar ModalEditarDescargo (absorbido por ModalNuevoDescargo) | Archivo removido |
+| 59 | Build: compilación exitosa (3892 módulos, 0 errores) | — |
+
 ---
 
 ## 5. Decisiones del Sprint
@@ -312,6 +361,15 @@ POST /denuncias/{ticket}/saltar-fase              → DenunciaController@saltarF
 | 10 | **Plazo descargo = 10 días + 5 prórroga** | 15 fijo | Art. 25 §IV de Ley 974 |
 | 11 | **Archivos visuales (ícono + nombre + tamaño + Ver)** | Solo texto | Mejor experiencia de usuario, feedback visual inmediato |
 | 12 | **Seed demo incluido** | Sin seed | El técnico necesita ver datos realistas para testear |
+| 13 | **Modal unificado create/edit** en ModalNuevaSolicitud | 2 modales separados (Nueva + Editar) | DRY, mismo formulario pre-rellenado, menos código a mantener |
+| 14 | **SolicitudDetailModal muestra toda la info** con acciones | SPA-like con "Volver" a la lista | No pierde contexto, consistente con otros modales del sistema |
+| 15 | **Soft delete (eliminado: true)** | Hard delete | Preserva datos para auditoría futura con BD real |
+| 16 | **Editar/Eliminar en TODOS los estados** | Solo pendiente | Permite corregir errores humanos en cualquier etapa del flujo |
+| 17 | **ediciones[] con campo + anterior + nuevo + fecha** | Solo flag "editado" | Trazabilidad completa para auditoría |
+| 18 | **ArchivoAdjunto con onEliminar opcional** | Componente separado para eliminar | Reusabilidad, mismo look en todos los formularios |
+| 19 | **Botón papelera Trash2** | Checkbox "quitar archivo" | UX clara, ícono universalmente reconocido |
+| 20 | **break-words (word-wrap: break-word)** | break-all | Solo rompe cuando es necesario, no en medio de palabras normales |
+| 21 | **Botones Editar/Eliminar en cards y detail modals** | Solo en cards | Consistencia, dos formas de acceder al CRUD |
 
 ---
 
@@ -361,9 +419,9 @@ Esto requiere:
 
 | Documento | Cambio |
 |---|---|
-| `AI-CONTEXT.md` | Sprint 4 → **EN EJECUCIÓN 🔄**. Sección "Arquitectura Clave" ampliada. "Próximo Sprint" → Sprint 5. |
-| `Plan de Desarrollo.md` | Sprint 4 detallado con componentes, backend, decisiones. Nota a futuro sobre dropdown + auditoría. |
-| Este documento | Creado con detalle completo del Sprint 4. |
+| `AI-CONTEXT.md` | Sprint 4 actualizado con M4.9 (detail modals, CRUD, modal unificado). Arquitectura Clave ampliada con nuevos componentes y archivos. |
+| `Plan de Desarrollo.md` | Sprint 4 ampliado con M4.9: nuevos componentes, archivos eliminados, decisiones #13-21, rutas +4. |
+| Este documento | Addendum M4.9 agregado con detalle completo de las mejoras. |
 
 ---
 
@@ -379,3 +437,8 @@ Esto requiere:
 | **canAct** | Flag booleano. `false` en Bandeja (read-only), `true` en MisCasos (con acciones). El Sheet lo recibe como prop y oculta/muestra botones según corresponda. |
 | **Modal state** | `useState` con ticket/id en Bandeja/MisCasos. `useEffect` resetea campos al abrir (patrón Sprint 3). |
 | **Seed** | 3 solicitudes (1 pendiente, 1 respondida, 1 vencida) + 2 descargos (1 notificado, 1 respondido). Asociados a DEN-2026-0008 (investigacion) y DEN-2026-0010 (informe). |
+| **ediciones[]** | Array dentro de Solicitud/Descargo. Cada `editar()` agrega entrada con `{campo, valor_anterior, valor_nuevo, fecha}`. Ordenado más reciente → más antiguo. NO registra en bitácora de la denuncia. |
+| **eliminado** | Campo booleano `eliminado`. `getByTicket()` filtra con `empty($eliminado)`. `editar()` y `eliminar()` bloquean si ya está eliminado. |
+| **Modal dual** | `ModalNuevaSolicitud` y `ModalNuevoDescargo` aceptan props opcionales `solicitudToEdit` / `descargoToEdit`. Si existen → modo edición (pre-rellena campos, cambia título y endpoint). Si no → modo creación. |
+| **Soft delete UI** | `ModalConfirmarEliminar` es genérico: recibe `tipo` (solicitud/descargo), `identificador` y callback `onConfirmar`. Muestra icono alert-triangle + texto "Se marcará como eliminado..." |
+| **Overflow fix** | Tailwind `break-words` en textos largos sin espacios. Aplicado en detail modals (detalle, respuesta, motivo, resumen) y DenunciaSheet (hechos). |

@@ -302,9 +302,9 @@ npx shadcn@2.3.0 add tooltip progress scroll-area
 
 ---
 
-### Sprint 4 — Investigación (Solicitudes + Descargos + Saltar Fase) ✅ COMPLETADO (Junio 2026)
+### Sprint 4 — Investigación (Solicitudes + Descargos + Saltar Fase + Mejoras) ✅ COMPLETADO (Junio 2026)
 
-**Objetivo:** Refactor del Sheet a 3 tabs (Información/Solicitudes/Descargos). Gestión independiente de solicitudes a unidades externas y descargos de denunciados. Saltar fase con justificación.
+**Objetivo:** Refactor del Sheet a 3 tabs (Información/Solicitudes/Descargos). Gestión independiente de solicitudes a unidades externas y descargos de denunciados. Saltar fase con justificación. + **Mejoras**: Cancelar solicitud, Nuevo descargo manual, Detail modals con historial, CRUD editar/eliminar en todos los estados, Modal unificado create/edit, Soft delete.
 
 #### Componentes creados
 
@@ -312,33 +312,52 @@ npx shadcn@2.3.0 add tooltip progress scroll-area
 |------------|-------------|
 | `Components/Denuncias/TabSolicitudes.tsx` | Contenedor con lista única de solicitudes a unidades externas, ordenada por fecha_vencimiento asc |
 | `Components/Denuncias/SolicitudCard.tsx` | Card con badge estado + unidad destino + PlazoProgress + botones contextuales |
-| `Components/Denuncias/ModalNuevaSolicitud.tsx` | Select unidad (UnidadData) + textarea detalle + plazo legal 10 días informativo |
+| `Components/Denuncias/ModalNuevaSolicitud.tsx` | Select unidad (UnidadData) + textarea detalle + plazo legal 10 días informativo. **Modo dual**: prop `solicitudToEdit?` → edición. |
 | `Components/Denuncias/ModalResponderSolicitud.tsx` | Textarea respuesta + mock upload archivos con ArchivoAdjunto |
 | `Components/Denuncias/ModalAmpliarSolicitud.tsx` | Input días (max 5) + textarea justificación (mín 20) + mock archivo |
+| `Components/Denuncias/ModalCancelarSolicitud.tsx` | Dialog cancelar solicitud pendiente/ampliada con motivo obligatorio (mín 10) |
 | `Components/Denuncias/TabDescargos.tsx` | Contenedor con lista única de denunciados, ordenada por fecha_vencimiento asc |
 | `Components/Denuncias/DescargoCard.tsx` | Card con avatar/iniciales denunciado + badge estado + PlazoProgress + botones |
 | `Components/Denuncias/ModalNotificarDescargo.tsx` | DatePicker fecha notificación + select medio (Personal/Cédula/Email/Otro) + mock respaldo |
 | `Components/Denuncias/ModalResponderDescargo.tsx` | Textarea resumen descargo + mock upload documentos |
 | `Components/Denuncias/ModalAmpliarDescargo.tsx` | Input días (max 5) + textarea justificación (mín 20) |
+| `Components/Denuncias/ModalNuevoDescargo.tsx` | Dialog crear descargo manual con select denunciados + switch "persona externa". **Modo dual**: prop `descargoToEdit?` → edición. |
 | `Components/Denuncias/SaltarFaseButton.tsx` | Botón "Pasar a Informe Final" + modal justificación (mín 20) + warning items pendientes |
 | `Components/Denuncias/PlazoProgress.tsx` | Progress bar shadcn con colores verde/amarillo/rojo + texto contextual |
-| `Components/Denuncias/ArchivoAdjunto.tsx` | Visual ícono + nombre + tamaño simulado + botón "Ver" |
+| `Components/Denuncias/ArchivoAdjunto.tsx` | Visual ícono + nombre + tamaño simulado + botón "Ver". +prop `onEliminar?` con botón Trash2. |
+| `Components/Denuncias/SolicitudDetailModal.tsx` | Dialog detalle completo: header, fechas, PlazoProgress, detalle, respuesta, motivo cancelación, archivos, ampliaciones, acciones, historial de cambios colapsable |
+| `Components/Denuncias/DescargoDetailModal.tsx` | Dialog detalle descargo: notificación, medio, respaldo, resumen, documentos, ampliaciones, acciones, historial colapsable |
+| `Components/Denuncias/ModalConfirmarEliminar.tsx` | Reusable: confirmación genérica soft-delete con alert-triangle + texto informativo |
+
+#### Componentes eliminados
+
+| Componente | Motivo |
+|------------|--------|
+| ~~`Components/Denuncias/ModalEditarSolicitud.tsx`~~ | Sustituido por ModalNuevaSolicitud (modo dual con prop `solicitudToEdit`) |
+| ~~`Components/Denuncias/ModalEditarDescargo.tsx`~~ | Sustituido por ModalNuevoDescargo (modo dual con prop `descargoToEdit`) |
 
 #### Componentes modificados
 
 | Componente | Cambio |
 |------------|--------|
-| `DenunciaSheet.tsx` | **Refactor mayor**: Tabs shadcn (Información default, Solicitudes, Descargos). Tab Información = contenido actual completo. Tabs visibles solo si estado ∈ {asignada, investigacion, informe, cerrada}. Modo read-only en Bandeja. Badge de count en tabs. |
+| `DenunciaSheet.tsx` | **Refactor mayor**: Tabs shadcn (Información default, Solicitudes, Descargos). Tab Información = contenido actual completo. Tabs visibles solo si estado ∈ {asignada, investigacion, informe, cerrada}. Modo read-only en Bandeja. Badge de count en tabs. +4 props editar/eliminar. +break-words en hechos. |
+| `SolicitudCard.tsx` | +onClick abre SolicitudDetailModal. Editar/Eliminar en TODOS los estados. |
+| `DescargoCard.tsx` | +onClick abre DescargoDetailModal. Editar/Eliminar en TODOS los estados. |
+| `ArchivoAdjunto.tsx` | +prop `onEliminar?: () => void` con botón Trash2 rojo |
+| `TabSolicitudes.tsx` | +estado `detailSolicitudId`, renderiza SolicitudDetailModal, pasa callbacks editar/eliminar |
+| `TabDescargos.tsx` | +estado `detailDescargoId`, renderiza DescargoDetailModal, pasa callbacks |
+| `Bandeja.tsx` | +estados modales editar/eliminar, router.post para delete, toast |
+| `MisCasos.tsx` | +estados modales editar/eliminar, router.post para delete, toast |
 
 #### Backend creado
 
 | Archivo | Descripción |
 |---------|-------------|
 | `app/Data/UnidadData.php` | Catálogo de 12 unidades GAMEA + Ministerio de Justicia |
-| `app/Data/SolicitudData.php` | Sesión `solicitudes_mock`. CRUD: add, responder, ampliar, getByTicket, getById. Estructura con archivos[] y ampliaciones[]. |
-| `app/Data/DescargoData.php` | Sesión `descargos_mock`. CRUD: add, notificar, responder, ampliar, getByTicket, getById. Estructura con medio, respaldo_archivo, documentos[], ampliaciones[]. |
-| `app/Http/Controllers/SolicitudController.php` | store, responder, ampliar con validaciones |
-| `app/Http/Controllers/DescargoController.php` | store, notificar, responder, ampliar con validaciones |
+| `app/Data/SolicitudData.php` | Sesión `solicitudes_mock`. CRUD: add, responder, ampliar, getByTicket, getById, editar, eliminar. Campos: ediciones[], eliminado, fecha_eliminacion. |
+| `app/Data/DescargoData.php` | Sesión `descargos_mock`. CRUD: add, notificar, responder, ampliar, getByTicket, getById, editar, eliminar. Campos: ediciones[], eliminado, fecha_eliminacion. |
+| `app/Http/Controllers/SolicitudController.php` | store, responder, ampliar, editar, eliminar con validaciones |
+| `app/Http/Controllers/DescargoController.php` | store, notificar, responder, ampliar, editar, eliminar con validaciones |
 
 #### Backend modificado
 
@@ -355,10 +374,14 @@ npx shadcn@2.3.0 add tooltip progress scroll-area
 POST /denuncias/{ticket}/solicitudes          → SolicitudController@store
 POST /solicitudes/{id}/responder              → SolicitudController@responder
 POST /solicitudes/{id}/ampliar                → SolicitudController@ampliar
+POST /solicitudes/{id}/editar                 → SolicitudController@editar
+POST /solicitudes/{id}/eliminar               → SolicitudController@eliminar
 POST /denuncias/{ticket}/descargos            → DescargoController@store
 POST /descargos/{id}/notificar                → DescargoController@notificar
 POST /descargos/{id}/responder                → DescargoController@responder
 POST /descargos/{id}/ampliar                  → DescargoController@ampliar
+POST /descargos/{id}/editar                   → DescargoController@editar
+POST /descargos/{id}/eliminar                 → DescargoController@eliminar
 POST /denuncias/{ticket}/saltar-fase          → DenunciaController@saltarFase
 ```
 
@@ -378,6 +401,15 @@ POST /denuncias/{ticket}/saltar-fase          → DenunciaController@saltarFase
 | 10 | "Notificar a todos" en Descargos = atajo que abre modal único | Bucle automático | Cada denunciado puede tener medio distinto |
 | 11 | Archivos: ícono + nombre + tamaño simulado + botón "Ver" | Solo texto | Mejor experiencia visual |
 | 12 | Seed demo incluido en DenunciaData | Sin seed | Testing inmediato |
+| 13 | Modal unificado create/edit en ModalNuevaSolicitud | 2 modales separados | DRY, mismo formulario pre-rellenado |
+| 14 | SolicitudDetailModal muestra toda la info con acciones | SPA-like con "Volver" | No pierde contexto, consistente con otros modales |
+| 15 | Soft delete (eliminado: true) | Hard delete | Preserva datos para auditoría futura con BD real |
+| 16 | Editar/Eliminar en TODOS los estados | Solo pendiente | Permite corregir errores humanos en cualquier etapa |
+| 17 | ediciones[] con campo + anterior + nuevo + fecha | Solo flag "editado" | Trazabilidad completa para auditoría |
+| 18 | ArchivoAdjunto con onEliminar opcional | Componente separado | Reusabilidad, mismo look en todos los formularios |
+| 19 | Botón papelera Trash2 (no checkbox) | Checkbox "quitar archivo" | UX clara, ícono universalmente reconocido |
+| 20 | break-words (Tailwind, word-wrap: break-word) | break-all | Solo rompe cuando necesario, no en medio de palabras |
+| 21 | Botones Editar/Eliminar en cards y detail modals | Solo en cards | Consistencia, dos formas de acceder al CRUD |
 
 #### Nota a futuro — Dropdown "Ver como:" y auditoría
 
@@ -464,8 +496,8 @@ app/Helpers/
 
 app/Http/Controllers/
   DenunciaController.php    ← CRUD + flujo de denuncias + saltarFase (Sprint 4)
-  SolicitudController.php   ← CRUD Solicitudes (Sprint 4)
-  DescargoController.php    ← CRUD Descargos (Sprint 4)
+  SolicitudController.php   ← CRUD Solicitudes (Sprint 4) + editar/eliminar (Mejoras)
+  DescargoController.php    ← CRUD Descargos (Sprint 4) + editar/eliminar (Mejoras)
   SeguimientoController.php ← Búsqueda pública por ticket
   ReporteController.php     ← Datos agregados para dashboard
   FeriadoController.php     ← CRUD feriados (mock)
@@ -515,18 +547,23 @@ resources/js/Components/
 
     Sprint 4 — Nuevos:
     TabSolicitudes.tsx              ← Lista de solicitudes a unidades externas
-    SolicitudCard.tsx               ← Card individual de solicitud
+    SolicitudCard.tsx               ← Card individual de solicitud (clickeable → detail modal)
     TabDescargos.tsx                ← Lista de descargos de denunciados
-    DescargoCard.tsx                ← Card individual de descargo
+    DescargoCard.tsx                ← Card individual de descargo (clickeable → detail modal)
     PlazoProgress.tsx               ← Progress bar visual de plazo
-    ArchivoAdjunto.tsx              ← Visual de archivo (ícono+nombre+tamaño)
-    ModalNuevaSolicitud.tsx         ← Crear solicitud a unidad externa
+    ArchivoAdjunto.tsx              ← Visual de archivo (ícono+nombre+tamaño+botón papelera)
+    ModalNuevaSolicitud.tsx         ← Crear/Editar solicitud a unidad externa (modo dual)
     ModalResponderSolicitud.tsx     ← Responder solicitud recibida
     ModalAmpliarSolicitud.tsx       ← Ampliar plazo de solicitud
+    ModalCancelarSolicitud.tsx      ← Cancelar solicitud con motivo obligatorio
     ModalNotificarDescargo.tsx      ← Notificar descargo a denunciado
     ModalResponderDescargo.tsx      ← Recibir descargo del denunciado
     ModalAmpliarDescargo.tsx        ← Ampliar plazo de descargo
+    ModalNuevoDescargo.tsx          ← Crear/Editar descargo manual (modo dual)
     SaltarFaseButton.tsx            ← Botón "Pasar a Informe Final"
+    SolicitudDetailModal.tsx        ← Modal detalle solicitud + historial colapsable
+    DescargoDetailModal.tsx         ← Modal detalle descargo + historial colapsable
+    ModalConfirmarEliminar.tsx      ← Confirmación genérica soft-delete
 
   Publico/
     BuscadorTicket.tsx
@@ -540,11 +577,23 @@ resources/js/Components/
 ### Modificados
 
 ```
-resources/js/Layouts/Sidebar.tsx         → menú del sistema + logo GAMEA
-resources/js/Layouts/Header.tsx          → nombre de institución completo
-resources/js/Pages/Dashboard.tsx         → KPIs reales (refactor)
-resources/js/Pages/Denuncias/Kanban.tsx  → ELIMINADO (reemplazado por Bandeja)
-routes/web.php                           → todas las rutas del sistema
+resources/js/Layouts/Sidebar.tsx                    → menú del sistema + logo GAMEA
+resources/js/Layouts/Header.tsx                     → nombre de institución completo
+resources/js/Pages/Dashboard.tsx                    → KPIs reales (refactor)
+resources/js/Pages/Denuncias/Kanban.tsx             → ELIMINADO (reemplazado por Bandeja)
+routes/web.php                                      → todas las rutas del sistema
+
+--- Sprint 4 — Mejoras:
+resources/js/Components/Denuncias/ModalEditarSolicitud.tsx  → ELIMINADO (absorbido por ModalNuevaSolicitud)
+resources/js/Components/Denuncias/ModalEditarDescargo.tsx   → ELIMINADO (absorbido por ModalNuevoDescargo)
+resources/js/Components/Denuncias/SolicitudCard.tsx          → +onClick detail modal, Editar/Eliminar todos estados
+resources/js/Components/Denuncias/DescargoCard.tsx           → +onClick detail modal, Editar/Eliminar todos estados
+resources/js/Components/Denuncias/ArchivoAdjunto.tsx         → +prop onEliminar (botón Trash2)
+resources/js/Components/Denuncias/TabSolicitudes.tsx         → +detailSolicitudId, +callbacks editar/eliminar
+resources/js/Components/Denuncias/TabDescargos.tsx           → +detailDescargoId, +callbacks editar/eliminar
+resources/js/Components/Denuncias/DenunciaSheet.tsx          → +4 props (editar/eliminar), +break-words hechos
+resources/js/Pages/Denuncias/Bandeja.tsx                     → +modales editar/eliminar, router.post, toast
+resources/js/Pages/Denuncias/MisCasos.tsx                    → +modales editar/eliminar, router.post, toast
 ```
 
 ---
