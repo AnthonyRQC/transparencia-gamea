@@ -7,6 +7,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DenunciaController;
 use App\Http\Controllers\SolicitudController;
 use App\Http\Controllers\DescargoController;
+use App\Http\Controllers\SeguimientoController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -33,9 +34,9 @@ Route::get('/', function () {
 })->name('home');
 
 // Seguimiento público (Sprint 6)
-Route::get('/seguimiento', function () {
-    return Inertia::render('Seguimiento/Buscar');
-})->name('seguimiento.buscar');
+Route::get('/seguimiento', [SeguimientoController::class, 'buscar'])
+    ->middleware('throttle:30,1')
+    ->name('seguimiento.buscar');
 
 // ============================================================
 // DESIGN SYSTEM (interno, sin auth para poder revisar tema)

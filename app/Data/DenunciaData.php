@@ -60,6 +60,7 @@ class DenunciaData
         $data['fecha_asignada'] = null;
         $data['justificacion_admision'] = null;
         $data['justificacion_rechazo'] = null;
+        $data['resumen_rechazo'] = null;
         $data['fecha_rechazada'] = null;
         $data['justificacion_traspaso'] = null;
         $data['fecha_traspaso'] = null;
@@ -68,6 +69,7 @@ class DenunciaData
         $data['justificacion_reapertura'] = null;
         $data['plazo_reapertura'] = null;
         $data['bitacora'] = [];
+        $data['token_consulta'] = self::generateToken();
 
         // Sprint 5 — Informe Final y Cierre
         $data['informe_clasificacion'] = null;
@@ -109,6 +111,21 @@ class DenunciaData
         return sprintf('DEN-%d-%04d', $year, $counter);
     }
 
+    public static function generateToken(): string
+    {
+        return str_pad((string) random_int(1000, 9999), 4, '0', STR_PAD_LEFT);
+    }
+
+    public static function findByTicketAndToken(string $ticket, string $token): ?array
+    {
+        foreach (self::getAll() as $d) {
+            if (($d['ticket'] ?? '') === $ticket && ($d['token_consulta'] ?? '') === $token) {
+                return $d;
+            }
+        }
+        return null;
+    }
+
     public static function admitir(string $ticket, ?string $justificacion): bool
     {
         $denuncias = self::getAll();
@@ -125,7 +142,7 @@ class DenunciaData
         return false;
     }
 
-    public static function rechazar(string $ticket, string $justificacion): bool
+    public static function rechazar(string $ticket, string $justificacion, ?string $resumenRechazo = null): bool
     {
         $denuncias = self::getAll();
         foreach ($denuncias as $i => $d) {
@@ -133,6 +150,7 @@ class DenunciaData
                 $denuncias[$i]['estado'] = 'rechazada';
                 $denuncias[$i]['fecha_rechazada'] = now()->toDateTimeString();
                 $denuncias[$i]['justificacion_rechazo'] = $justificacion;
+                $denuncias[$i]['resumen_rechazo'] = $resumenRechazo;
                 self::addBitacoraEntry($denuncias, $i, 'rechazada', "Rechazada: {$justificacion}", 'sistema');
                 session()->put(self::SESSION_KEY, $denuncias);
                 return true;
@@ -606,6 +624,7 @@ class DenunciaData
         return [
             [
                 'ticket' => 'DEN-2026-0001',
+                'token_consulta' => '1001',
                 'tipo' => 'corrupcion', 'estado' => 'ingresada',
                 'created_at' => (clone $now)->subDays(7)->toDateTimeString(),
                 'denunciante' => ['nombres' => 'Juan Pérez', 'ci' => '1234567', 'email' => 'juan@example.com', 'telefono' => '70123456'],
@@ -616,6 +635,7 @@ class DenunciaData
             ],
             [
                 'ticket' => 'DEN-2026-0002',
+                'token_consulta' => '1002',
                 'tipo' => 'negacion', 'estado' => 'ingresada',
                 'created_at' => (clone $now)->subDays(17)->toDateTimeString(),
                 'denunciante' => ['nombres' => 'Rosa Choque', 'ci' => '7654321', 'email' => 'rosa@mail.com', 'telefono' => '68765432'],
@@ -626,6 +646,7 @@ class DenunciaData
             ],
             [
                 'ticket' => 'DEN-2026-0003',
+                'token_consulta' => '1003',
                 'tipo' => 'corrupcion', 'estado' => 'ingresada',
                 'created_at' => (clone $now)->subDays(15)->toDateTimeString(),
                 'escenario' => 'anonimo',
@@ -637,6 +658,7 @@ class DenunciaData
             ],
             [
                 'ticket' => 'DEN-2026-0004',
+                'token_consulta' => '1004',
                 'tipo' => 'corrupcion', 'estado' => 'admitida',
                 'created_at' => (clone $now)->subDays(20)->toDateTimeString(),
                 'fecha_admitida' => (clone $now)->subDays(18)->toDateTimeString(),
@@ -657,10 +679,12 @@ class DenunciaData
             ],
             [
                 'ticket' => 'DEN-2026-0005',
+                'token_consulta' => '1005',
                 'tipo' => 'negacion', 'estado' => 'rechazada',
                 'created_at' => (clone $now)->subDays(10)->toDateTimeString(),
                 'fecha_rechazada' => (clone $now)->subDays(10)->toDateTimeString(),
                 'justificacion_rechazo' => 'La denuncia no especifica el periodo en que ocurrieron los hechos ni proporciona datos suficientes del presunto responsable. Se invita al denunciante a subsanar las omisiones y presentar una nueva denuncia según Art. 22 §III de la Ley 974.',
+                'resumen_rechazo' => 'La denuncia no proporciona suficientes datos del presunto responsable ni del periodo de los hechos.',
                 'bitacora' => [
                     ['fecha' => (clone $now)->subDays(10)->toDateTimeString(), 'accion' => 'rechazada', 'detalle' => 'Rechazada: La denuncia no especifica el periodo en que ocurrieron los hechos ni proporciona datos suficientes del presunto responsable.', 'usuario' => 'sistema'],
                 ],
@@ -672,6 +696,7 @@ class DenunciaData
             ],
             [
                 'ticket' => 'DEN-2026-0006',
+                'token_consulta' => '1006',
                 'tipo' => 'corrupcion', 'estado' => 'asignada',
                 'tecnico' => 'tec-1',
                 'created_at' => (clone $now)->subDays(5)->toDateTimeString(),
@@ -692,6 +717,7 @@ class DenunciaData
             ],
             [
                 'ticket' => 'DEN-2026-0007',
+                'token_consulta' => '1007',
                 'tipo' => 'negacion', 'estado' => 'asignada',
                 'tecnico' => 'tec-2',
                 'created_at' => (clone $now)->subDays(16)->toDateTimeString(),
@@ -709,6 +735,7 @@ class DenunciaData
             ],
             [
                 'ticket' => 'DEN-2026-0008',
+                'token_consulta' => '1008',
                 'tipo' => 'corrupcion', 'estado' => 'investigacion',
                 'tecnico' => 'tec-1',
                 'created_at' => (clone $now)->subDays(40)->toDateTimeString(),
@@ -730,6 +757,7 @@ class DenunciaData
             ],
             [
                 'ticket' => 'DEN-2026-0009',
+                'token_consulta' => '1009',
                 'tipo' => 'negacion', 'estado' => 'investigacion',
                 'tecnico' => 'tec-2',
                 'created_at' => (clone $now)->subDays(22)->toDateTimeString(),
@@ -753,6 +781,7 @@ class DenunciaData
             ],
             [
                 'ticket' => 'DEN-2026-0010',
+                'token_consulta' => '1010',
                 'tipo' => 'corrupcion', 'estado' => 'informe',
                 'tecnico' => 'tec-1',
                 'created_at' => (clone $now)->subDays(33)->toDateTimeString(),
@@ -774,6 +803,7 @@ class DenunciaData
             ],
             [
                 'ticket' => 'DEN-2026-0011',
+                'token_consulta' => '1011',
                 'tipo' => 'corrupcion', 'estado' => 'cerrada',
                 'subestado' => null,
                 'tecnico' => 'tec-1',
@@ -813,6 +843,7 @@ class DenunciaData
             ],
             [
                 'ticket' => 'DEN-2026-0012',
+                'token_consulta' => '1012',
                 'tipo' => 'corrupcion', 'estado' => 'cerrada',
                 'subestado' => 'archivada',
                 'tecnico' => 'tec-2',
@@ -877,6 +908,8 @@ class DenunciaData
             'justificacion_reapertura' => null,
             'plazo_reapertura' => null,
             'bitacora' => [],
+            'token_consulta' => '',
+            'resumen_rechazo' => null,
             'informe_clasificacion' => null,
             'informe_fojas' => null,
             'informe_justificacion' => null,

@@ -3,10 +3,11 @@ import { cn } from '@/lib/utils';
 
 interface ModalExitoProps {
     ticket: string;
+    token?: string;
     onClose: () => void;
 }
 
-export default function ModalExito({ ticket, onClose }: ModalExitoProps) {
+export default function ModalExito({ ticket, token, onClose }: ModalExitoProps) {
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" role="dialog" aria-modal="true" aria-labelledby="modal-exito-title" onClick={onClose}>
             <div
@@ -23,17 +24,32 @@ export default function ModalExito({ ticket, onClose }: ModalExitoProps) {
                             Su denuncia ha sido recibida exitosamente.
                         </p>
                     </div>
-                    <div className="bg-muted/50 rounded-xl px-5 py-4 border border-border/60">
-                        <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide mb-1">
-                            N° de Denuncia
-                        </p>
-                        <p className="text-2xl font-bold text-primary tracking-wider font-mono">
-                            {ticket}
-                        </p>
+                    <div className="bg-muted/50 rounded-xl px-5 py-4 border border-border/60 space-y-3">
+                        <div>
+                            <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide mb-1">
+                                N° de Denuncia
+                            </p>
+                            <p className="text-2xl font-bold text-primary tracking-wider font-mono">
+                                {ticket}
+                            </p>
+                        </div>
+                        {token && (
+                            <>
+                                <div className="border-t border-border/40" />
+                                <div>
+                                    <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide mb-1">
+                                        Código de Seguridad
+                                    </p>
+                                    <p className="text-lg font-extrabold text-secondary-foreground tracking-widest font-mono">
+                                        {token}
+                                    </p>
+                                </div>
+                            </>
+                        )}
                     </div>
                     <p className="text-[11px] text-muted-foreground leading-relaxed">
-                        Guarde este número para dar seguimiento a su denuncia.
-                        Puede consultar el estado ingresando el código en la página de seguimiento.
+                        Guarde este número y código para dar seguimiento a su denuncia.
+                        Puede consultar el estado ingresando ambos en la página de seguimiento.
                     </p>
                 </div>
                 <div className="flex justify-center px-8 pb-6">

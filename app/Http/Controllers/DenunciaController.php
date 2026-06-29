@@ -83,10 +83,13 @@ class DenunciaController extends Controller
         $validated = $request->validate($rules);
 
         $ticket = DenunciaData::add($validated);
+        $denuncia = DenunciaData::find($ticket);
+        $token = $denuncia['token_consulta'] ?? '';
 
         return redirect()->back()->with([
             'success' => true,
             'ticket' => $ticket,
+            'token' => $token,
         ]);
     }
 
@@ -110,6 +113,7 @@ class DenunciaController extends Controller
     {
         $validated = $request->validate([
             'justificacion' => 'required|string|min:10|max:2000',
+            'resumen_rechazo' => 'nullable|string|max:200',
         ]);
 
         $denuncia = DenunciaData::find($ticket);
@@ -117,7 +121,7 @@ class DenunciaController extends Controller
             return redirect()->back()->with('error', 'No se puede rechazar esta denuncia.');
         }
 
-        DenunciaData::rechazar($ticket, $validated['justificacion']);
+        DenunciaData::rechazar($ticket, $validated['justificacion'], $validated['resumen_rechazo'] ?? null);
 
         return redirect()->back()->with('success', "Denuncia {$ticket} rechazada.");
     }

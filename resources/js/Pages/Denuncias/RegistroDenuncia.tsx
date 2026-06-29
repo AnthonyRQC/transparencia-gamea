@@ -89,11 +89,12 @@ const staticErrors: Record<string, string> = {};
 const staticCategorias: Record<string, string> = {};
 
 export default function RegistroDenuncia() {
-    const { categorias = staticCategorias, errors: serverErrors = staticErrors, success, ticket: successTicket } = usePage().props as unknown as {
+    const { categorias = staticCategorias, errors: serverErrors = staticErrors, success, ticket: successTicket, token: successToken } = usePage().props as unknown as {
         categorias: Record<string, string>;
         errors: Record<string, string>;
         success?: boolean;
         ticket?: string;
+        token?: string;
     };
 
     const [form, setForm] = useState<FormState>(initialForm);
@@ -101,16 +102,18 @@ export default function RegistroDenuncia() {
     const [submitting, setSubmitting] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
     const [ticket, setTicket] = useState('');
+    const [token, setToken] = useState('');
     const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
     useEffect(() => {
         if (success && successTicket) {
             setTicket(successTicket);
+            if (successToken) setToken(successToken);
             setShowSuccess(true);
             setForm(initialForm);
             toast.success(`Denuncia N° ${successTicket} registrada exitosamente`);
         }
-    }, [success, successTicket]);
+    }, [success, successTicket, successToken]);
 
     // Funciones temporales para llenar el formulario con datos ficticios
     const fillCorrupcion = () => {
@@ -397,7 +400,7 @@ export default function RegistroDenuncia() {
         return (
             <AppLayout>
                 <Head title="Registrar Denuncia — Transparencia UTLCC" />
-                <ModalExito ticket={ticket} onClose={() => setShowSuccess(false)} />
+                <ModalExito ticket={ticket} token={token} onClose={() => setShowSuccess(false)} />
                 <div className="flex flex-col items-center justify-center py-20 text-center">
                     <p className="text-muted-foreground">Denuncia registrada. Puede registrar otra desde el menú lateral.</p>
                 </div>
