@@ -37,6 +37,8 @@
 - ✅ Routing básico: Welcome, Dashboard (vacío), DesignSystem, Auth
 - ✅ Archivos de planificación en `transparencia-proy/` (8 documentos de especificación)
 - ✅ Sprint 4: Investigación con Solicitudes/Descargos autónomos, Sheet con Tabs, SaltarFaseButton
+- ✅ Sprint 5: Informe Final + Cierre (6 endpoints, soft delete, historial ediciones)
+- ✅ Sprint 6: Seguimiento Público (búsqueda por ticket+token, input plano, stepper visual, resumen_rechazo en ModalRechazo, modal éxito token, tokens determinísticos seed)
 
 ---
 
@@ -464,18 +466,109 @@ POST /denuncias/{ticket}/cierre/eliminar      → DenunciaController@eliminarCie
 
 ---
 
-### Sprint 6 — Seguimiento Público
+### Sprint 6 — Seguimiento Público ✅ COMPLETADO (Junio 2026)
 
-**Objetivo:** Página pública sin autenticación para consultar ticket.
+**Objetivo:** Página pública sin autenticación para consultar ticket con token de seguridad de 4 dígitos.
+
+#### Componentes creados (6)
+
+| Componente | Descripción |
+|------------|-------------|
+| `Components/Publico/BuscadorTicket.tsx` | Input plano con regex directo `^DEN-\d{4}-\d{4}-\d{4}$` + auto-uppercase. Submit con `router.get()` vía Inertia. Spinner de carga. `maxLength={19}`, `autoComplete="off"` |
+| `Components/Publico/StepperProgreso.tsx` | 4 pasos visuales (Recepción → Evaluación → Investigación → Resolución) con colores y rama roja para rechazada |
+| `Components/Publico/ResultadoSeguimiento.tsx` | Card completa: header con badge estado + ticket + tipo, fechas (ingreso/vencimiento/cierre), clasificación (si cerrada), stepper, mensaje de avance, sello legal UTLCC |
+| `Components/Publico/EstadoVacio.tsx` | Empty state inicial: icono Search + "Ingresa tu número de ticket y código de seguridad" |
+| `Components/Publico/EstadoNoEncontrado.tsx` | Error state: icono AlertCircle + "No se encontró ninguna denuncia con ese ticket y código" + botón "Volver a buscar" |
+| `Components/Publico/EsqueletoBusqueda.tsx` | Skeleton animado (animate-pulse) para mostrar mientras se procesa la búsqueda |
+
+#### Componentes modificados (5)
+
+| Componente | Cambio |
+|------------|--------|
+| `Pages/Seguimiento/Buscar.tsx` | **Refactor completo**: 4 estados (inicial/procesando/encontrado/no-encontrado/formato-inválido) con Inertia `usePage().props`. Integra todos los componentes públicos. Manejo de error de formato inline. |
+| `Pages/Welcome.tsx` | Removido buscador mock con MOCK_TICKETS, stepper y resultados. Agregado CTA "Consultar estado de denuncia" → `/seguimiento` en el hero. FAQ y soporte se mantienen. |
+| `Components/Denuncias/ModalRechazo.tsx` | +textarea "Resumen breve para el denunciante (opcional, máx 200 chars)" con Separator visual. El texto se envía como `resumen_rechazo` al backend y es visible en la vista pública. |
+| `Components/Denuncias/ModalExito.tsx` | +prop `token?: string`. Si existe, muestra el PIN de 4 dígitos debajo del ticket con separador visual. |
+| `Pages/Denuncias/RegistroDenuncia.tsx` | +prop `token` desde flash Inertia, setToken state, pasa token a ModalExito. |
+
+#### Backend creado
 
 | Archivo | Descripción |
 |---------|-------------|
-| `Pages/Seguimiento/Buscar.tsx` | Página minimalista con input + botón |
-| `BuscadorTicket.tsx` | Input grande + lupa |
-| `ResultadoSeguimiento.tsx` | Timeline visual con datos no sensibles (fase actual, fechas estimadas) |
-| `SeguimientoController.php` | Busca ticket en mock data |
+| `app/Http/Controllers/SeguimientoController.php` | Método `buscar(Request)`: valida regex `^DEN-\d{4}-\d{4}-\d{4}$`, busca con `findByTicketAndToken()`, mapea con whitelist explícita de campos públicos, retorna Inertia. Throttle 30 requests/min por IP. |
 
-**Ruta:** `GET /seguimiento` (sin middleware auth)
+#### Backend modificado
+
+| Archivo | Cambio |
+|---------|--------|
+| `app/Data/DenunciaData.php` | +campo `token_consulta` (4 dígitos, generado en `add()` con `generateToken()`). +campo `resumen_rechazo` (string nullable, máx 200). +método `findByTicketAndToken(ticket, token)`. +método `generateToken()`. Seed: 12 tokens determinísticos (1001-1012). Seed DEN-2026-0005 +resumen_rechazo. `rechazar()` acepta 3er parámetro opcional `?string $resumenRechazo`. `makeDenuncia()` +defaults `token_consulta` y `resumen_rechazo` |
+| `app/Http/Controllers/DenunciaController.php` | `rechazar()`: +validación `resumen_rechazo` (nullable, max 200), pasado a `DenunciaData::rechazar()`. `store()`: +token en flash response (para ModalExito). |
+| `routes/web.php` | `GET /seguimiento` → `SeguimientoController@buscar` con `->middleware('throttle:30,1')`. +import `SeguimientoController` |
+
+#### Rutas nuevas
+
+```
+GET /seguimiento?ticket=DEN-AAAA-NNNN-PPPP  → SeguimientoController@buscar (throttle:30,1)
+```
+
+#### Decisiones Sprint 6
+
+| # | Decisión | Alternativa descartada | Motivo |
+|---|----------|------------------------|--------|
+| 1 | Token 4 dígitos numérico + ticket como llave compuesta | Token UUID largo / sin token | Par (ticket, token) = único. 10.000 combinaciones mitigado con rate limit |
+| 2 | Token generado al registrar la denuncia (en `add()`) | Al admitir/rechazar | El ciudadano puede consultar desde el día 1 |
+| 3 | Campo `token_consulta` en mock data | Generar en cada consulta | Persistencia para todo el ciclo de vida |
+| 4 | Input único combinado (sin auto-formato) | Auto-formato con guiones | Bug de formateo detectado post-implementación. Input plano con regex directo + toUpperCase() es más robusto |
+| 5 | `only: ['encontrado', 'denuncia', 'error']` en router.get() | Full page reload | Preserva estado del input, solo hidrata las props que cambian |
+| 6 | Whitelist explícita de campos públicos en SeguimientoController | Enviar toda la denuncia | Seguridad: nunca exponer denunciante/denunciados/hechos/técnicos/bitácora |
+| 7 | Stepper 4 pasos + rama rechazada | 5 pasos o timeline único | Refleja los "gates" legales: Recepción, Evaluación, Investigación, Resolución |
+| 8 | Mensaje de avance semi-dinámico desde backend | Texto fijo o detallado | Combina estado + conteo de solicitudes/descargos sin exponer datos sensibles |
+| 9 | No mostrar conteo de solicitudes/descargos en mensaje | Mostrar "Se emitieron N solicitudes" | Privacidad: no revelar cuántas dependencias externas están involucradas |
+| 10 | Clasificación visible en cerradas + nota "pase por oficina" | Todo el FormCierre | Transparencia sin exponer documentación interna |
+| 11 | Resumen_rechazo opcional en ModalRechazo | Obligatorio | El Jefe puede dejarlo vacío; si vacío, texto genérico por defecto |
+| 12 | ModalRechazo con dos textareas separadas (justificación + resumen) | Un textarea + switch público/interno | Separación clara de audiencias (interno vs ciudadano) |
+| 13 | Solo fecha estimada de cierre (sin días restantes) | Con contador de días | El ciudadano ve la fecha sin generar ansiedad si está por vencer |
+| 14 | Welcome mínima: CTA a /seguimiento | Landing con stats o sin cambios | Mantiene hero + FAQ; remueve search mock que duplicaba funcionalidad |
+
+#### Tokens seed determinísticos
+
+```
+DEN-2026-0001-1001 (ingresada)
+DEN-2026-0002-1002 (ingresada)
+DEN-2026-0003-1003 (ingresada)
+DEN-2026-0004-1004 (admitida)
+DEN-2026-0005-1005 (rechazada — con resumen_rechazo)
+DEN-2026-0006-1006 (asignada)
+DEN-2026-0007-1007 (asignada)
+DEN-2026-0008-1008 (investigacion — con solicitudes)
+DEN-2026-0009-1009 (investigacion — con descargos)
+DEN-2026-0010-1010 (informe)
+DEN-2026-0011-1011 (cerrada)
+DEN-2026-0012-1012 (cerrada/archivada)
+```
+
+#### Mensajes de avance por estado
+
+| Estado | Mensaje |
+|--------|---------|
+| `ingresada` | Su denuncia fue recibida y se encuentra en evaluación inicial. La UTLCC tiene un plazo máximo de 5 días hábiles para admitirla o rechazarla. |
+| `admitida` | Su denuncia ha sido admitida y está siendo preparada para asignarse a un equipo técnico. |
+| `asignada` | Su denuncia ha sido asignada a un equipo técnico. La investigación se iniciará en los próximos días. |
+| `investigacion` (sin items) | Su denuncia está siendo investigada por la UTLCC. |
+| `investigacion` (con solicitudes) | Su denuncia está siendo investigada. Se realizaron solicitudes de información a unidades externas. |
+| `investigacion` (con descargos) | Su denuncia está siendo investigada. Se notificó a las personas denunciadas para que presenten sus descargos. |
+| `informe` | La investigación ha concluido. Se está redactando el Informe Final que será remitido a la Máxima Autoridad Institucional. |
+| `cerrada` | Su denuncia ha sido cerrada ({clasificación}). Para más información, acérquese a la oficina de la UTLCC. |
+| `rechazada` (con resumen) | Su denuncia no fue admitida. {resumen_rechazo} |
+| `rechazada` (sin resumen) | Su denuncia no fue admitida por no cumplir los requisitos establecidos en la Ley N° 974. |
+
+#### Bug fix post-implementación
+
+El `BuscadorTicket.tsx` original tenía un auto-formato con `formatTicketInput()` que usaba `if (result === '')` para aceptar solo la primera letra del prefijo `DEN`. Al tipear "DE" se perdía la "E". Al pegar `DEN-2026-0004-1004` el resultado era `D2026-0004-1004` (sin "EN"), lo que no matcheaba el regex `^DEN-...`. Se reemplazó por input plano controlado con `toUpperCase()` + validación regex directa.
+
+#### TODO — Preguntar al cliente
+
+> ⚠️ **TODO — Preguntar al cliente:** ¿La funcionalidad de "archivar casos" debe ser un subestado de `cerrada` (actual: `subestado: 'archivada'`) o un estado/proceso separado con flujo propio? Por el momento se mantiene como subestado sin afectar UX de la vista pública. Agendar consulta con cliente.
 
 ---
 
@@ -603,9 +696,13 @@ resources/js/Components/
     TabInformeCierre.tsx            ← Orquesta 2 sub-tabs Informe + Cierre
     InformeDetailModal.tsx          ← Modal detalle informe + cierre read-only
 
-  Publico/
-    BuscadorTicket.tsx
-    ResultadoSeguimiento.tsx
+  Publico/                                     ← Sprint 6 — Nuevos:
+    BuscadorTicket.tsx                          ← Input plano con validación regex
+    StepperProgreso.tsx                         ← 4 pasos visuales + rama rechazo
+    ResultadoSeguimiento.tsx                    ← Card completa con stepper + datos
+    EstadoVacio.tsx                             ← Empty state inicial
+    EstadoNoEncontrado.tsx                      ← Estado ticket no encontrado
+    EsqueletoBusqueda.tsx                       ← Skeleton de carga
 
   Reportes/
     KPICards.tsx
@@ -641,6 +738,23 @@ resources/js/Pages/Denuncias/Bandeja.tsx                    → +prop tecnicoNom
 app/Data/DenunciaData.php                                   → +24 campos informe_*/cierre_*, +6 métodos, +seed
 app/Http/Controllers/DenunciaController.php                 → +6 métodos (guardar/editar/eliminar para informe y cierre)
 routes/web.php                                              → +6 rutas
+
+--- Sprint 6 — Seguimiento Público:
+resources/js/Components/Publico/BuscadorTicket.tsx           → NUEVO (input plano con regex directo)
+resources/js/Components/Publico/StepperProgreso.tsx          → NUEVO (stepper 4 pasos)
+resources/js/Components/Publico/ResultadoSeguimiento.tsx     → NUEVO (card resultado)
+resources/js/Components/Publico/EstadoVacio.tsx              → NUEVO (empty state)
+resources/js/Components/Publico/EstadoNoEncontrado.tsx       → NUEVO (not found state)
+resources/js/Components/Publico/EsqueletoBusqueda.tsx        → NUEVO (loading skeleton)
+resources/js/Pages/Seguimiento/Buscar.tsx                    → REFACTOR (4 estados Inertia)
+resources/js/Pages/Welcome.tsx                               → REFACTOR (removido search mock, +CTA)
+resources/js/Components/Denuncias/ModalRechazo.tsx           → +textarea resumen_rechazo
+resources/js/Components/Denuncias/ModalExito.tsx             → +prop token (muestra PIN)
+resources/js/Pages/Denuncias/RegistroDenuncia.tsx            → +token a ModalExito
+app/Data/DenunciaData.php                                    → +token_consulta, +resumen_rechazo, +findByTicketAndToken
+app/Http/Controllers/DenunciaController.php                  → rechazar() +resumen_rechazo, store() +token flash
+app/Http/Controllers/SeguimientoController.php               → NUEVO (búsqueda con whitelist)
+routes/web.php                                               → GET /seguimiento con throttle:30,1
 ```
 
 ---
@@ -654,6 +768,7 @@ routes/web.php                                              → +6 rutas
 | 3 | `tooltip`, `progress`, `scroll-area` |
 | 4 | — (reuso de tabs, sonner, dialog, sheet, select, textarea, input, label, badge, card, avatar, progress, calendar, popover, button, separator) |
 | 5 | — |
+| 6 | — (reuso de input, card, badge, button, separator, sonner, dialog) |
 | 7 | `table` |
 
 ---
