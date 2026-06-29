@@ -220,38 +220,40 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
         Gestión de denuncias. Click en una card para ver detalle y acciones.
       </p>
 
-      <div className="flex items-center gap-2 mb-4">
-        <div className="relative flex-1 max-w-xs">
+      <div className="flex flex-col sm:flex-row gap-2 mb-4">
+        <div className="relative w-full sm:flex-1 sm:max-w-xs">
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             placeholder="Buscar por ticket..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-8 h-9 text-sm"
+            className="pl-8 h-9 text-sm w-full"
           />
         </div>
-        <Select value={filterTipo} onValueChange={setFilterTipo}>
-          <SelectTrigger className="w-36 h-9 text-sm">
-            <SelectValue placeholder="Tipo" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos</SelectItem>
-            <SelectItem value="corrupcion">Corrupción</SelectItem>
-            <SelectItem value="negacion">Negación</SelectItem>
-            <SelectItem value="acompaniamiento">Acompañamiento</SelectItem>
-            <SelectItem value="intervencion">Intervención</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select value={sortBy} onValueChange={setSortBy}>
-          <SelectTrigger className="w-36 h-9 text-sm">
-            <SelectValue placeholder="Ordenar" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="plazo">Plazo</SelectItem>
-            <SelectItem value="fecha">Fecha</SelectItem>
-            <SelectItem value="tecnico">Técnico</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <Select value={filterTipo} onValueChange={setFilterTipo}>
+            <SelectTrigger className="w-full sm:w-36 h-9 text-sm">
+              <SelectValue placeholder="Tipo" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos</SelectItem>
+              <SelectItem value="corrupcion">Corrupción</SelectItem>
+              <SelectItem value="negacion">Negación</SelectItem>
+              <SelectItem value="acompaniamiento">Acompañamiento</SelectItem>
+              <SelectItem value="intervencion">Intervención</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={sortBy} onValueChange={setSortBy}>
+            <SelectTrigger className="w-full sm:w-36 h-9 text-sm">
+              <SelectValue placeholder="Ordenar" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="plazo">Plazo</SelectItem>
+              <SelectItem value="fecha">Fecha</SelectItem>
+              <SelectItem value="tecnico">Técnico</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       <TabsDenuncias tabs={tabs} defaultValue="por-admitir">

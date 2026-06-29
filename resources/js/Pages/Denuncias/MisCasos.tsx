@@ -233,35 +233,39 @@ export default function MisCasos({ grouped, tecnicoActual, tecnicos, solicitudes
     <AppLayout>
       <Head title="Mis Casos — Transparencia UTLCC" />
 
-      <div className="flex items-center justify-between mb-1">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-3 sm:gap-0">
         <div className="flex items-center gap-2">
           <ClipboardList className="w-7 h-7 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight">Mis Casos</h1>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground font-medium">Ver como:</span>
-          <Select value={tecnicoActual} onValueChange={handleTecnicoChange}>
-            <SelectTrigger className="w-44 h-8 text-sm">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {Object.entries(tecnicos).map(([id, t]) => (
-                <SelectItem key={id} value={id}>{t.nombre}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <span className="text-xs text-muted-foreground font-medium">Ordenar:</span>
-          <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger className="w-28 h-8 text-sm">
-              <ArrowUpDown className="w-3 h-3" />
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="plazo">Plazo</SelectItem>
-              <SelectItem value="fecha">Fecha</SelectItem>
-              <SelectItem value="tecnico">Técnico</SelectItem>
-            </SelectContent>
-          </Select>
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <div className="flex items-center gap-2 flex-1 sm:flex-none">
+            <span className="text-xs text-muted-foreground font-medium hidden sm:inline">Ver como:</span>
+            <Select value={tecnicoActual} onValueChange={handleTecnicoChange}>
+              <SelectTrigger className="w-full sm:w-44 h-8 text-sm">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(tecnicos).map(([id, t]) => (
+                  <SelectItem key={id} value={id}>{t.nombre}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-center gap-2 flex-1 sm:flex-none">
+            <span className="text-xs text-muted-foreground font-medium hidden sm:inline">Ordenar:</span>
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="w-full sm:w-28 h-8 text-sm">
+                <ArrowUpDown className="w-3 h-3" />
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="plazo">Plazo</SelectItem>
+                <SelectItem value="fecha">Fecha</SelectItem>
+                <SelectItem value="tecnico">Técnico</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
       <p className="text-muted-foreground mb-6">
