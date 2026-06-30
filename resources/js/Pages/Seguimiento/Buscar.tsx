@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
-import { Head, usePage, router } from '@inertiajs/react';
-import { Search, ShieldCheck, Lock, Eye, ArrowRight, Sparkles, AlertTriangle } from 'lucide-react';
+import { Head, usePage, router, Link } from '@inertiajs/react';
+import { Search, ShieldCheck, Lock, Eye, ArrowRight, Sparkles, AlertTriangle, ArrowLeft } from 'lucide-react';
+import InstitutionalLogo from '@/Components/Layout/InstitutionalLogo';
 import BuscadorTicket from '@/Components/Publico/BuscadorTicket';
 import ResultadoSeguimiento from '@/Components/Publico/ResultadoSeguimiento';
 import EstadoVacio from '@/Components/Publico/EstadoVacio';
@@ -59,28 +60,28 @@ export default function Buscar() {
       <Head title="Seguimiento de Denuncia — GAMEA UTLCC" />
 
       <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/10 font-sans">
-        <header className="border-b border-border/40 bg-card/70 backdrop-blur sticky top-0 z-30">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary text-primary-foreground font-bold flex items-center justify-center shadow-md shadow-primary/20">
-                T
+        <header className="border-b border-border bg-slate-950 text-slate-50 sticky top-0 z-50 px-3 py-3 sm:px-6 sm:py-4 flex items-center justify-between">
+          <Link href={route('home')} className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1 group">
+              <InstitutionalLogo size="sm" />
+              <div className="min-w-0">
+                  <h1 className="text-sm xs:text-base sm:text-lg font-bold tracking-tight text-slate-50 leading-tight truncate group-hover:text-slate-200 transition-colors">
+                      <span className="sm:hidden">GAMEA</span>
+                      <span className="hidden sm:inline">Gobierno Autónomo Municipal de El Alto</span>
+                  </h1>
+                  <p className="hidden xs:block text-[10px] sm:text-xs text-slate-400 font-medium leading-none mt-0.5 truncate">
+                      Unidad de Transparencia y Lucha Contra la Corrupción · UTLCC
+                  </p>
               </div>
-              <div>
-                <p className="text-sm font-bold text-foreground leading-tight">
-                  Unidad de Transparencia
-                </p>
-                <p className="text-[10px] text-muted-foreground leading-none mt-0.5">
-                  GAMEA · Ley N° 974
-                </p>
-              </div>
-            </div>
-            <a
-              href={route('login')}
-              className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"
-            >
-              Acceso Funcionarios
-              <ArrowRight className="w-3 h-3" />
-            </a>
+          </Link>
+          <div className="flex items-center shrink-0">
+              <Link
+                href={route('home')}
+                className="px-4 py-1.5 rounded-full bg-slate-800 text-slate-200 border border-slate-700 text-xs sm:text-sm font-bold shadow-md hover:bg-slate-700 transition-all duration-200 flex items-center gap-1.5"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Volver al Inicio</span>
+                <span className="sm:hidden">Volver</span>
+              </Link>
           </div>
         </header>
 

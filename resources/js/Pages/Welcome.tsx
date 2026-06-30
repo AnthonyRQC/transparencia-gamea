@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Head, Link } from '@inertiajs/react';
+import InstitutionalLogo from '@/Components/Layout/InstitutionalLogo';
 import {
     Search,
     FileText,
@@ -25,11 +26,12 @@ interface WelcomeProps {
     auth: {
         user?: any;
     };
+    jacha_url?: string;
     canLogin: boolean;
     canRegister: boolean;
 }
 
-export default function Welcome({ auth, canLogin, canRegister }: WelcomeProps) {
+export default function Welcome({ auth, jacha_url, canLogin, canRegister }: WelcomeProps) {
     const [isDarkMode, setIsDarkMode] = useState(() => {
         if (typeof window !== 'undefined') {
             return localStorage.getItem('dark_mode') === 'true';
@@ -83,33 +85,44 @@ export default function Welcome({ auth, canLogin, canRegister }: WelcomeProps) {
             <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-primary/5 blur-[120px] pointer-events-none -z-10" />
             <div className="absolute bottom-[20%] left-[-10%] w-[40%] h-[40%] rounded-full bg-secondary/5 blur-[100px] pointer-events-none -z-10" />
 
-            <header className="border-b border-border bg-card/40 backdrop-blur sticky top-0 z-50 px-4 py-3 sm:px-8 sm:py-4 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-primary-foreground font-bold text-lg shadow-md shadow-primary/20 hover:scale-105 hover:rotate-3 transition-all cursor-pointer">
-                        T
+            <header className="border-b border-border bg-slate-950 text-slate-50 sticky top-0 z-50 px-3 py-3 sm:px-6 sm:py-4 flex items-center justify-between">
+                <Link href={route('home')} className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1 group">
+                    <InstitutionalLogo size="sm" />
+                    <div className="min-w-0">
+                        <h1 className="text-sm xs:text-base sm:text-lg font-bold tracking-tight text-slate-50 leading-tight truncate group-hover:text-slate-200 transition-colors">
+                            <span className="sm:hidden">GAMEA</span>
+                            <span className="hidden sm:inline">Gobierno Autónomo Municipal de El Alto</span>
+                        </h1>
+                        <p className="hidden xs:block text-[10px] sm:text-xs text-slate-400 font-medium leading-none mt-0.5 truncate">
+                            Unidad de Transparencia y Lucha Contra la Corrupción · UTLCC
+                        </p>
                     </div>
-                    <div>
-                        <div className="flex items-center gap-1.5">
-                            <h1 className="text-base sm:text-lg font-black tracking-tight text-foreground leading-none">GOBIERNO AUTÓNOMO MUNICIPAL DE EL ALTO</h1>
-                        </div>
-                        <span className="hidden xs:inline-block text-[9px] text-muted-foreground font-semibold uppercase tracking-wider mt-0.5">Unidad de Transparencia y Lucha Contra la Corrupción</span>
-                    </div>
-                </div>
+                </Link>
 
-                <div className="flex items-center gap-2 sm:gap-4">
+                <div className="flex items-center gap-2 sm:gap-4 shrink-0">
                     <button
                         onClick={handleToggleDarkMode}
-                        className="p-2 rounded-lg bg-muted text-foreground border hover:bg-accent/15 transition-all duration-200 flex items-center justify-center cursor-pointer"
+                        className="p-2 sm:px-3 sm:py-2 rounded-lg bg-slate-800 text-slate-200 font-semibold text-xs sm:text-sm shadow hover:scale-105 active:scale-95 transition-all duration-200 flex items-center gap-2 cursor-pointer border border-slate-700"
                         aria-label="Alternar modo oscuro"
                     >
-                        {isDarkMode ? <Sun className="w-4 h-4 text-secondary" /> : <Moon className="w-4 h-4 text-primary" />}
+                        {isDarkMode ? (
+                            <>
+                                <Sun className="w-4 h-4 text-secondary" />
+                                <span className="hidden md:inline">Claro</span>
+                            </>
+                        ) : (
+                            <>
+                                <Moon className="w-4 h-4 text-primary" />
+                                <span className="hidden md:inline">Oscuro</span>
+                            </>
+                        )}
                     </button>
 
                     <Link
                         href={route('design-system')}
-                        className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold hover:bg-muted transition-colors"
+                        className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-700 text-slate-300 text-xs font-semibold hover:bg-slate-800 transition-colors"
                     >
-                        <Palette className="w-3.5 h-3.5 text-primary" />
+                        <Palette className="w-3.5 h-3.5" />
                         Guía de Estilos
                     </Link>
 
@@ -119,7 +132,7 @@ export default function Welcome({ auth, canLogin, canRegister }: WelcomeProps) {
                             className="px-4 py-1.5 rounded-full bg-primary text-primary-foreground text-xs sm:text-sm font-bold shadow-md hover:scale-105 transition-all duration-200 flex items-center gap-1.5"
                         >
                             <LayoutDashboard className="w-3.5 h-3.5" />
-                            Panel de Control
+                            Panel
                         </Link>
                     ) : (
                         <Link
@@ -127,7 +140,7 @@ export default function Welcome({ auth, canLogin, canRegister }: WelcomeProps) {
                             className="px-4 py-1.5 rounded-full bg-primary text-primary-foreground text-xs sm:text-sm font-bold shadow-md hover:scale-105 transition-all duration-200 flex items-center gap-1.5"
                         >
                             <Lock className="w-3.5 h-3.5" />
-                            Iniciar sesión
+                            Acceder
                         </Link>
                     )}
                 </div>
@@ -135,11 +148,11 @@ export default function Welcome({ auth, canLogin, canRegister }: WelcomeProps) {
 
             <main className="flex-1 max-w-6xl mx-auto w-full px-4 py-8 sm:py-16 space-y-16">
 
-                <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-                    <div className="lg:col-span-7 space-y-6 text-left">
+                <section className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+                    <div className="space-y-6 text-left order-2 lg:order-1">
                         <div className="space-y-2">
-                            <span className="text-xs sm:text-sm font-extrabold tracking-widest text-secondary uppercase block">
-                                TRANSPARENCIA CON TRAZABILIDAD
+                            <span className="text-xs sm:text-sm font-extrabold tracking-widest text-primary dark:text-secondary uppercase block">
+                                GESTIÓN INSTITUCIONAL TRANSPARENTE
                             </span>
                             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] text-foreground">
                                 Consulta el estado actual de tu denuncia
@@ -147,7 +160,7 @@ export default function Welcome({ auth, canLogin, canRegister }: WelcomeProps) {
                         </div>
 
                         <p className="text-muted-foreground text-sm sm:text-base md:text-lg leading-relaxed max-w-xl">
-                            Verifica en qué etapa se encuentra tu denuncia y conoce su estado de forma segura, anónima y transparente.
+                            Verifica en qué etapa se encuentra tu denuncia y conoce su estado de forma rápida, segura y transparente, garantizando siempre el debido proceso.
                         </p>
 
                         <div className="flex flex-wrap gap-3 pt-2">
@@ -159,51 +172,44 @@ export default function Welcome({ auth, canLogin, canRegister }: WelcomeProps) {
                                 Consultar estado de denuncia
                                 <ArrowRight className="w-4 h-4" />
                             </Link>
-                            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-xs text-primary font-semibold tracking-wide uppercase">
-                                <ShieldCheck className="w-4 h-4 text-primary shrink-0" />
-                                Transparencia y lucha contra la corrupción
-                            </span>
+                        </div>
+                        
+                        <div className="flex items-center gap-3 pt-4 border-t border-border mt-6">
+                            <div className="flex -space-x-2">
+                                <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center border-2 border-background"><ShieldCheck className="w-4 h-4 text-primary" /></div>
+                                <div className="w-8 h-8 rounded-full bg-secondary/20 flex items-center justify-center border-2 border-background"><Lock className="w-4 h-4 text-secondary-foreground" /></div>
+                                <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center border-2 border-background"><Eye className="w-4 h-4 text-emerald-600" /></div>
+                            </div>
+                            <span className="text-xs font-semibold text-muted-foreground">Proceso Seguro, Transparente y Auditado</span>
                         </div>
                     </div>
 
-                    <div className="lg:col-span-5 hidden md:flex items-center justify-center relative min-h-[350px] select-none">
-                        <div className="absolute w-[300px] h-[300px] rounded-full border border-primary/10 dark:border-primary/5 animate-orbital-rotate" />
-                        <div className="absolute w-[220px] h-[220px] rounded-full border border-dashed border-primary/20 dark:border-primary/10" />
-                        <div className="absolute w-[140px] h-[140px] rounded-full border border-primary/20 dark:border-primary/15" />
-
-                        <div className="absolute w-20 h-20 rounded-full bg-primary/10 dark:bg-primary/20 border-2 border-primary flex items-center justify-center glow-effect z-10 transition-transform duration-300 hover:scale-110">
-                            <div className="relative">
-                                <FileText className="w-8 h-8 text-primary" />
-                                <Search className="w-4 h-4 text-secondary absolute -bottom-1 -right-1 stroke-[3px]" />
+                    <div className="order-1 lg:order-2 w-full flex justify-center lg:justify-end relative">
+                        {/* Decorative elements behind image */}
+                        <div className="absolute top-[-5%] right-[-5%] w-3/4 h-3/4 bg-primary/10 dark:bg-primary/5 rounded-3xl blur-2xl -z-10"></div>
+                        <div className="absolute bottom-[-5%] left-[-5%] w-1/2 h-1/2 bg-secondary/15 dark:bg-secondary/10 rounded-3xl blur-xl -z-10"></div>
+                        
+                        <div className="relative w-full max-w-md lg:max-w-none aspect-[4/3] rounded-[2rem] overflow-hidden shadow-2xl border border-border/50 group">
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent z-10 pointer-events-none"></div>
+                            <img 
+                                src={jacha_url || '/jacha.jpg'} 
+                                alt="Edificio Jacha Uta - Gobierno Autónomo Municipal de El Alto" 
+                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                            />
+                            <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-6 z-20 flex items-end justify-between pointer-events-none">
+                                <div>
+                                    <h3 className="text-white font-bold text-lg sm:text-xl leading-none mb-1 shadow-black/50 drop-shadow-md">Casa Municipal Jacha Uta</h3>
+                                    <p className="text-white/80 text-xs sm:text-sm font-medium shadow-black/50 drop-shadow-md">Sede Ejecutiva del GAMEA</p>
+                                </div>
+                                <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur flex items-center justify-center border border-white/30">
+                                    <InstitutionalLogo size="sm" className="brightness-0 invert" />
+                                </div>
                             </div>
-                        </div>
-
-                        <div className="absolute top-[12%] left-[-5%] bg-card/90 dark:bg-slate-900/95 border border-primary/25 rounded-xl px-3 py-1.5 flex items-center gap-2 shadow-lg text-xs font-bold text-foreground animate-orbital-float-1">
-                            <div className="w-5 h-5 rounded bg-primary/15 flex items-center justify-center">
-                                <Lock className="w-3.5 h-3.5 text-primary" />
-                            </div>
-                            Consulta segura
-                        </div>
-
-                        <div className="absolute top-[45%] right-[-10%] bg-card/90 dark:bg-slate-900/95 border border-primary/25 rounded-xl px-3 py-1.5 flex items-center gap-2 shadow-lg text-xs font-bold text-foreground animate-orbital-float-2">
-                            <div className="w-5 h-5 rounded bg-secondary/20 flex items-center justify-center">
-                                <Clock className="w-3.5 h-3.5 text-secondary-foreground" />
-                            </div>
-                            Estado actual
-                        </div>
-
-                        <div className="absolute bottom-[10%] left-[10%] bg-card/90 dark:bg-slate-900/95 border border-primary/25 rounded-xl px-3 py-1.5 flex items-center gap-2 shadow-lg text-xs font-bold text-foreground animate-orbital-float-3">
-                            <div className="w-5 h-5 rounded bg-primary/15 flex items-center justify-center">
-                                <Eye className="w-3.5 h-3.5 text-primary" />
-                            </div>
-                            Seguimiento visible
                         </div>
                     </div>
                 </section>
 
-                <hr className="border-border" />
-
-                <section className="space-y-6">
+                <section className="space-y-6 pt-2">
                     <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-center">Información y Preguntas Frecuentes</h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div className="bg-card border rounded-2xl p-5 space-y-3 hover:shadow-md transition-shadow relative overflow-hidden">

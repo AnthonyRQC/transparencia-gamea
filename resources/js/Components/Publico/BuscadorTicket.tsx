@@ -18,7 +18,10 @@ export default function BuscadorTicket({ processing, onProcessingChange }: Busca
   }, []);
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setValue(e.target.value.toUpperCase());
+    let val = e.target.value.toUpperCase();
+    // Limpiar espacios invisibles, espacios finales que añaden los celulares, y guiones largos/inteligentes
+    val = val.trim().replace(/\s+/g, '').replace(/[–—]/g, '-');
+    setValue(val);
   }, []);
 
   const canSubmit = TICKET_REGEX.test(value);

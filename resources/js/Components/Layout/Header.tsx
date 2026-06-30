@@ -68,7 +68,7 @@ export default function Header({
                 </button>
 
                 {/* Logo + Title */}
-                <Link href={route('dashboard')} className="flex items-center gap-2 sm:gap-3 min-w-0 group">
+                <Link href={route('home')} className="flex items-center gap-2 sm:gap-3 min-w-0 group">
                     <InstitutionalLogo size="sm" className="hidden sm:block" />
                     <div className="min-w-0">
                         <h1 className="text-sm xs:text-base sm:text-lg font-bold tracking-tight text-sidebar-foreground leading-tight truncate group-hover:text-sidebar-accent transition-colors">
