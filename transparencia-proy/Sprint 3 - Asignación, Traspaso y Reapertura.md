@@ -3,6 +3,8 @@
 > **Plan detallado** — Basado en las decisiones tomadas con el cliente.
 > Sprint 3 mantiene la Fase 0 (sin BD, mock en sesión).
 > **Completado:** Junio 2026 — M3.1 Foundation, M3.2 Asignación, M3.3 Traspaso, M3.4 Reapertura, M3.5 Mejoras Sheet/PlazoBadge, M3.6 Polish, M3.5b Refinamiento Visual
+>
+> **Decisión validada con cliente (Junio 2026):** El Técnico B tiene **acceso completo** a todas las anotaciones, bitácora y observaciones del Técnico A tras un traspaso. **Nada es privado.** Los traspasos se muestran en la sección correspondiente con sus acciones. Esta decisión (Pregunta #9 / C4) confirma la implementación actual de Sprint 3.
 
 ---
 

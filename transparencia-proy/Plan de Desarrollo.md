@@ -65,7 +65,7 @@ Los datos mock viven en `app/Data/` como clases con métodos estáticos que devu
 
 Durante la Fase 0 **no hay diferenciación por roles en el código**. Todos los usuarios autenticados ven todas las pantallas. El cliente validará verbalmente qué funcionalidad corresponde a cada rol:
 
-- **Recepcionista:** Registrar denuncias
+- **Registrador:** Registrar denuncias
 - **Jefe de Unidad:** Kanban general, admisión/rechazo, asignación, reportes, feriados
 - **Técnico:** Kanban personal, detalle de caso, solicitudes, descargos, informe, cierre
 - **Administrador:** El Jefe de Unidad cumple este rol (gestión de feriados)
@@ -572,33 +572,309 @@ El `BuscadorTicket.tsx` original tenía un auto-formato con `formatTicketInput()
 
 ---
 
-### Sprint 7 — Dashboard + Reportes
+### Sprint 7 — Evaluación Técnica Previa (NUEVO — Junio 2026)
 
-**Objetivo:** KPIs y gráficos.
+**Objetivo:** Permitir al Jefe de Unidad delegar la evaluación de una denuncia a un técnico antes de admitirla o rechazarla. El técnico evalúa y devuelve la denuncia con su evaluación resumida.
+
+**Origen:** Respuesta del cliente #1 (SITPRECO + nuevo flujo de evaluación).
 
 | Archivo | Descripción |
 |---------|-------------|
-| `Pages/Dashboard.tsx` | Refactor completo con KPIs + gráficos |
-| `KPICards.tsx` | 3 cards: Denuncias activas, Pendientes admisión, % Cumplimiento |
-| `GraficosDashboard.tsx` | 3 gráficos con Recharts (barras, torta, líneas) |
-| `Pages/Reportes/Index.tsx` | Tabla con filtros |
-| `ReporteController.php` | Mock aggregated data |
+| `app/Data/EvaluacionData.php` (nuevo) | Mock data de evaluaciones técnicas previas |
+| `app/Http/Controllers/EvaluacionController.php` (nuevo) | delegar + devolver evaluación |
+| `app/Data/DenunciaData.php` (modificado) | +sub-estado `evaluacion_tecnica`, +campos `evaluacion_tecnica_texto/tecnico_id/fecha` |
+| `app/Http/Controllers/DenunciaController.php` (modificado) | +delegarEvaluacion(), +devolverEvaluacion() |
+| `resources/js/Components/Denuncias/ModalDelegarEvaluacion.tsx` (nuevo) | Jefe elige técnico disponible para evaluar |
+| `resources/js/Components/Denuncias/ModalDevolverEvaluacion.tsx` (nuevo) | Técnico ingresa evaluación resumida + devuelve al Jefe |
+| `resources/js/Components/Denuncias/ModalAdmision.tsx` (modificado) | SITPRECO obligatorio al admitir |
+| `resources/js/Components/Denuncias/ModalRechazo.tsx` (modificado) | SITPRECO opcional al rechazar (sin hint) |
+| `resources/js/Components/Denuncias/FormCierre.tsx` (modificado) | SITPRECO read-only (viene heredado de admisión) |
+| `resources/js/Components/Denuncias/TabEvaluacionPrevia.tsx` (nuevo) | Tab en DetalleDenuncia para ver historial de evaluación |
+| `resources/js/Pages/Denuncias/Evaluaciones.tsx` (nuevo) | Bandeja de evaluaciones delegadas para el técnico |
+| `resources/js/Pages/Denuncias/Bandeja.tsx` (modificado) | +botón "Delegar evaluación" en tab Por admitir |
+| `resources/js/Pages/Denuncias/MisCasos.tsx` (modificado) | +tab "Evaluaciones delegadas" |
 
-**Dependencia:** `npm install recharts`
+**Decisiones clave:**
+- El Jefe **puede elegir** si delega o evalúa él mismo
+- Cualquier técnico disponible puede ser delegado
+- Los 5 días de admisión (Art. 23) **se cuentan desde la recepción** (no se pausan)
+- El técnico que evalúa puede ser reasignado o no al caso final (decisión del Jefe)
+- SITPRECO obligatorio al admitir, opcional al rechazar
+
+Ver detalle: `Sprint 7 - Evaluación Técnica Previa.md`
 
 ---
 
-### Sprint 8 — Calendario Feriados + Plazos
+### Sprint 8 — Ampliaciones Múltiples
 
-**Objetivo:** Administrar feriados y visualizar cálculo de plazos legales.
+**Objetivo:** Permitir al Jefe de Unidad aprobar múltiples ampliaciones parciales del plazo total (no solo una prórroga por el máximo legal).
+
+**Origen:** Respuesta del cliente #11 (C6 resuelta).
 
 | Archivo | Descripción |
 |---------|-------------|
-| `Pages/Admin/Feriados.tsx` | Cuadrícula de calendario anual, click para marcar/desmarcar feriados |
-| `app/Data/FeriadoData.php` | Feriados mock |
-| `app/Helpers/DiasHabiles.php` | Algoritmo de cálculo de días hábiles (Carbon + feriados) |
-| `FeriadoController.php` | Mock CRUD feriados |
-| Actualizar `PlazoBadge.tsx` | Integrar helper de días hábiles |
+| `resources/js/Components/Denuncias/ModalAmpliacionPlazo.tsx` (refactor) | Permitir N ampliaciones en lugar de una sola |
+| `app/Data/DenunciaData.php` (modificado) | +array `ampliaciones[]` con `{fecha, dias_concedidos, justificacion, aprobado_por}` |
+| `app/Http/Controllers/DenunciaController.php` (modificado) | +aprobarAmpliacion() permite múltiples |
+| `resources/js/Components/Denuncias/PlazoBadge.tsx` (modificado) | Mostrar plazo total acumulado con todas las ampliaciones |
+
+---
+
+### Sprint 9 — Notificaciones Push + Historial
+
+**Objetivo:** Sistema de notificaciones push vía campana superior en el navbar, con historial tipo notificaciones de Facebook.
+
+**Origen:** Respuesta del cliente #22.
+
+| Archivo | Descripción |
+|---------|-------------|
+| `app/Data/NotificacionData.php` (nuevo) | Mock de notificaciones |
+| `app/Http/Controllers/NotificacionController.php` (nuevo) | index, marcarLeida, marcarTodasLeidas |
+| `resources/js/Components/Layout/CampanaNotificaciones.tsx` (nuevo) | Campana en Header con badge de no leídas |
+| `resources/js/Components/Layout/PanelNotificaciones.tsx` (nuevo) | Panel con historial scrolleable |
+| `resources/js/Components/Layout/ItemNotificacion.tsx` (nuevo) | Item individual con timestamp, mensaje, acción |
+
+**Alertas implementadas:**
+- Delegaciones de evaluación
+- Traspasos de casos
+- Denuncias respondidas
+- Plazos por terminar (informes)
+- Plazos total (20/25 días) por vencer
+- Solicitudes de información próximas a vencer
+- Descargos de denunciados próximos a vencer
+
+**Interacción:**
+- Click en notificación navega al caso relacionado
+- Marcar individual / marcar todas leídas
+- Historial persistente (mock)
+- Badge con contador de no leídas
+
+---
+
+### Sprint 10 — Panel Administración Catálogos + Subcategorías
+
+**Objetivo:** Panel administrativo único para CRUD de todos los catálogos del sistema (clasificaciones, categorías, subcategorías, tipos, estados, medios notificación, etc.).
+
+**Origen:** Respuesta del cliente #18.
+
+| Archivo | Descripción |
+|---------|-------------|
+| `resources/js/Pages/Admin/Catalogos.tsx` (nuevo) | Vista con tabs por tipo de catálogo |
+| `app/Data/CatalogoData.php` (nuevo) | Catálogos dinámicos (clasificaciones, categorías, subcategorías, etc.) |
+| `app/Http/Controllers/CatalogoController.php` (nuevo) | CRUD genérico por tipo de catálogo |
+| `resources/js/Components/Admin/TablaCatalogo.tsx` (nuevo) | Tabla editable con acciones (crear, editar, eliminar) |
+| `resources/js/Components/Admin/ModalEditarItem.tsx` (nuevo) | Modal de edición de un item del catálogo |
+
+**Catálogos a administrar:**
+- Clasificaciones finales: Penal, Civil, Administrativo, Sin Indicios, Medida Correctiva, Archivado
+- Categorías de denuncia (por tipo)
+- Subcategorías de denuncia (por tipo)
+- Tipos de denuncia: Corrupción, Negación de Información
+- Estados: ingresada, evaluación técnica, admitida, rechazada, asignada, investigación, informe, cerrada
+- Medios de notificación: whatsapp, email, presencial, otro
+- Tipos de prueba: archivo, prueba física, testigo
+- Dependencias/unidades externas
+
+**Subcategorías:**
+- Cada tipo de denuncia (corrupción / negación) tiene sus propias subcategorías
+- Definidas en este panel
+- Seleccionables en formulario de registro (Sprint 1)
+- Consideración: el gráfico de subcategorías puede tener muchas opciones, manejar con cuidado
+
+---
+
+### Sprint 11 — Dashboard + KPIs + Reportes PDF/Excel
+
+**Objetivo:** Dashboard con KPIs, gráficos y página de reportes con tabla + filtros + exportación PDF/Excel.
+
+**Origen:** Respuestas del cliente #15, #16, #17, #21.
+
+| Archivo | Descripción |
+|---------|-------------|
+| `resources/js/Pages/Dashboard.tsx` (refactor) | Dashboard completo con KPIs + gráficos |
+| `resources/js/Components/Dashboard/KPICards.tsx` (nuevo) | 3+ cards: Denuncias activas, Pendientes admisión, % Cumplimiento, +próximas a vencer, +vencidas |
+| `resources/js/Components/Dashboard/GraficosDashboard.tsx` (nuevo) | 3+ gráficos con Recharts |
+| `resources/js/Pages/Reportes/Index.tsx` (nuevo) | Tabla con filtros (fechas libres, tipo, estado, clasificación) |
+| `resources/js/Components/Reportes/TablaReporte.tsx` (nuevo) | Tabla con shadcn table |
+| `resources/js/Components/Reportes/FiltrosReporte.tsx` (nuevo) | Rango de fechas libre + filtros cruzados |
+| `app/Http/Controllers/ReporteController.php` (nuevo) | Datos agregados desde mocks |
+| `app/Exports/ReporteExcel.php` (nuevo) | Exportación Excel con maatwebsite/excel |
+| `resources/views/reportes/pdf.blade.php` (nuevo) | Vista PDF con barryvdh/laravel-dompdf |
+| `resources/js/Components/Reportes/BotonExportar.tsx` (nuevo) | Dropdown con opciones PDF / Excel |
+
+**KPIs propuestos:**
+1. Denuncias activas
+2. Pendientes admisión
+3. % Cumplimiento de plazos
+4. Casos próximos a vencer (≤5 días)
+5. Casos ya vencidos con mora
+
+**Filtros:**
+- Rango de fechas **libre** (selector doble)
+- Tipo de denuncia
+- Estado
+- Clasificación
+- Filtros cruzados múltiples
+
+**Exportación:**
+- **PDF** y **Excel** además de vista en pantalla
+- Solo para el Jefe de Unidad (interno)
+
+**Dependencia:** `npm install recharts`, `composer require maatwebsite/excel barryvdh/laravel-dompdf`
+
+**shadcn a instalar:** `table`, `dropdown-menu` (ya existe), `date-picker` (o alternativa), `select` (ya existe)
+
+---
+
+### Sprint 12 — Tablero Público Cerrados
+
+**Objetivo:** Sección en la página Welcome pública mostrando casos cerrados recientes (anonimizados) para aumentar transparencia.
+
+**Origen:** Respuesta del cliente #27.
+
+| Archivo | Descripción |
+|---------|-------------|
+| `resources/js/Pages/Welcome.tsx` (modificado) | +sección "Casos cerrados recientemente" |
+| `resources/js/Components/Publico/TableroCasosCerrados.tsx` (nuevo) | Cards con casos cerrados anonimizados |
+| `app/Http/Controllers/HomeController.php` (nuevo o extendido) | +casosCerradosRecientes() para la vista pública |
+| `app/Http/Controllers/SeguimientoController.php` (modificado) | +método para casos cerrados públicos |
+
+**Datos mostrados (anonimizados):**
+- Ticket (parcial, ej. DEN-2026-XXXX)
+- Tipo de denuncia
+- Clasificación final
+- Fecha de cierre
+- Sin denunciante ni denunciados
+
+**Complejidad:** Baja. Solo vista + endpoint.
+
+---
+
+### Sprint 13 — Tiempos entre Fases
+
+**Objetivo:** Métricas de duración promedio entre fases del proceso (recepción → admisión, admisión → asignación, etc.).
+
+**Origen:** Respuesta del cliente #19.
+
+| Archivo | Descripción |
+|---------|-------------|
+| `resources/js/Components/Dashboard/TiemposEntreFases.tsx` (nuevo) | Tabla/vista con tiempos promedio |
+| `app/Http/Controllers/ReporteController.php` (modificado) | +método tiemposEntreFases() |
+
+**Complejidad:** Baja si los timestamps están en mock data.
+
+---
+
+### Sprint 14 — Base de datos real (MySQL)
+
+**Objetivo:** Migrar de mocks a base de datos MySQL real con migraciones, modelos Eloquent y seeders.
+
+**Origen:** Respuestas #24, #29.
+
+| Actividad | Descripción |
+|-----------|-------------|
+| Diseñar esquema de BD | Tablas: denuncias, denunciantes, denunciados, solicitudes, descargos, evaluaciones, informes, cierres, bitácora, usuarios, feriados, notificaciones, catálogos |
+| Crear migraciones | Todas las tablas con sus relaciones |
+| Crear modelos Eloquent | Con relaciones, fillable, casts |
+| Crear seeders | Migrar seeds mock a seeders reales |
+| Refactorizar controllers | Reemplazar acceso a `*Data.php` por queries a Eloquent |
+| Configurar conexión | `.env` con MySQL de Laragon |
+
+**Dependencias:** Requiere Sprint 15 (Roles) posterior.
+
+---
+
+### Sprint 15 — Roles y Permisos (Registrador / Jefe / Técnico)
+
+**Objetivo:** Implementar sistema de roles y permisos usando Laravel middleware y policies.
+
+**Origen:** Respuesta del cliente #23.
+
+| Actividad | Descripción |
+|-----------|-------------|
+| Definir los 3 roles | Registrador, Jefe de Unidad, Técnicos |
+| Crear middleware | `RoleMiddleware` para verificar rol en rutas |
+| Crear policies | Policies por modelo (DenunciaPolicy, SolicitudPolicy, etc.) |
+| Implementar guards | Proteger rutas según rol |
+| Refactorizar bandejas | Bandeja solo para Jefe, MisCasos solo para Técnico, etc. |
+
+**Dependencias:** Requiere Sprint 14 (BD).
+
+---
+
+### Sprint 16 — Auditoría Backend Detallada
+
+**Objetivo:** Auditoría automática de todos los cambios usando `owen-it/laravel-auditing`.
+
+**Origen:** Respuesta del cliente #26.
+
+| Actividad | Descripción |
+|-----------|-------------|
+| Instalar `owen-it/laravel-auditing` | Composer |
+| Aplicar trait `Auditable` | A modelos: Denuncia, Solicitud, Descargo, Evaluacion, Informe, Cierre |
+| Configurar | Qué campos auditar, qué usuario registra, IP |
+| Crear vista de auditoría | Para consultar log por caso o por usuario |
+
+**Dependencias:** Requiere Sprint 14 (BD).
+
+---
+
+### Sprint 17 — Lógica de Mora Explícita
+
+**Objetivo:** Implementar lógica explícita de mora para fechas vencidas (texto "+Xd de retraso", badge "Vencido" en cards).
+
+**Origen:** Respuesta del cliente #7.
+
+| Actividad | Descripción |
+|-----------|-------------|
+| Agregar campo `mora_dias` | A solicitud, descargo, informe, cierre |
+| Calcular mora al guardar | Si la fecha actual > fecha límite, calcular días |
+| Mostrar texto "+Xd" en cards | Reemplazar o complementar `PlazoBadge.tsx` |
+| Filtro de "casos morosos" | En Bandeja y MisCasos |
+
+**Dependencias:** Sprint 14 (BD) si se persiste, opcional si solo se calcula on-the-fly.
+
+---
+
+### Sprint 18 — Calendario Feriados + Días Hábiles
+
+**Objetivo:** Administración de feriados y cálculo dinámico de plazos en días hábiles (o calendario, según decisión del cliente).
+
+**Origen:** Pregunta pendiente #6 (C1) + decisión de mantener como último sprint.
+
+| Archivo | Descripción |
+|---------|-------------|
+| `resources/js/Pages/Admin/Feriados.tsx` (nuevo) | Cuadrícula de calendario anual, click para marcar/desmarcar feriados |
+| `app/Data/FeriadoData.php` (nuevo) | Catálogo de feriados (nacional + departamental La Paz) |
+| `app/Helpers/DiasHabiles.php` (nuevo) | Algoritmo de cálculo de días hábiles (Carbon + feriados) |
+| `app/Http/Controllers/FeriadoController.php` (nuevo) | CRUD feriados |
+| `resources/js/Components/Denuncias/PlazoBadge.tsx` (modificado) | Integrar helper de días hábiles |
+
+**Decisión pendiente con cliente:** ¿días hábiles o calendario? (Pregunta #6)
+
+**Nota:** Este sprint es uno de los últimos a reestructurar. Se hará cuando se implemente Sprint 14 (BD).
+
+---
+
+### Sprint 19 — Cierre Fase 1 / Ajustes Finales
+
+**Objetivo:** Testing integral, limpieza técnica, documentación de usuario y deploy a producción. **No incluye funcionalidad nueva.**
+
+**Actividades:**
+- **Testing end-to-end** de todos los flujos del sistema
+- **Optimización de performance** (queries, render, bundle)
+- **Limpieza de código** (remover mocks/debug, renombrar, documentar funciones complejas)
+- **Refactor de deuda técnica** detectada durante desarrollo
+- **Auditoría de seguridad** (sanitización, CSRF, rate limits, exposición de datos)
+- **Documentación final:**
+  - Manual de usuario para UTLCC
+  - Manual técnico
+  - README de instalación
+- **Capacitación:** sesión al Jefe y técnicos
+- **Deploy a producción:** servidor, DNS, SSL, backups
+- **Criterio "done" final:** checklist de requisitos de Fase 1
+
+**Nota para IAs:** Esta sección es solo roadmap. **No leerla** a menos que se esté trabajando explícitamente en el Sprint 19.
 
 ---
 
@@ -609,7 +885,7 @@ El `BuscadorTicket.tsx` original tenía un auto-formato con `formatTicketInput()
 ```
 app/Data/
   DenunciaData.php          ← Colección de denuncias mock
-  UsuarioData.php           ← Técnicos, jefe y recepcionista mock
+  UsuarioData.php           ← Técnicos, jefe y registrador mock
   SolicitudData.php         ← Solicitudes de información mock (Sprint 4)
   DescargoData.php          ← Descargos de denunciados mock (Sprint 4)
   UnidadData.php            ← Catálogo de unidades externas (Sprint 4)

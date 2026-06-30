@@ -67,7 +67,7 @@ Estas son situaciones **espontáneas y triviales** que se resuelven socializando
 
 | Rol | Responsabilidades | Acciones en el sistema |
 |-----|-------------------|----------------------|
-| **Recepcionista** | Recibe al denunciante presencialmente, registra la denuncia con datos y pruebas | Crear nueva denuncia, adjuntar documentos, generar comprobante de ticket |
+| **Registrador** | Recibe al denunciante presencialmente, registra la denuncia con datos y pruebas | Crear nueva denuncia, adjuntar documentos, generar comprobante de ticket |
 | **Jefe de Unidad** | Supervisa TODAS las denuncias, **admite o rechaza**, asigna técnicos, aprueba ampliaciones de plazo, gestiona traspasos y reaperturas, ve la carga de trabajo | Ver tablero completo, admitir/rechazar con justificación, asignar técnico, aprobar ampliaciones, traspasar casos entre técnicos, reabrir casos rechazados/cerrados y reasignarlos |
 | **Técnico** | Procesa las denuncias que le asignan (puede tener **múltiples simultáneamente**). Gestiona solicitudes de información, descargos, y redacta informe final | Ver SUS denuncias en tablero Kanban, solicitar información, registrar descargos, redactar informe final, cerrar caso |
 | **Denunciante** *(usuario externo)* | Persona que presentó la denuncia | Consultar estado de su denuncia con el número de ticket (página pública) |
@@ -80,17 +80,17 @@ Estas son situaciones **espontáneas y triviales** que se resuelven socializando
 
 ## 4. User Stories
 
-### Recepcionista
+### Registrador
 
-> **Como** recepcionista de la Unidad de Transparencia,
+> **Como** registrador de la Unidad de Transparencia,
 > **quiero** registrar una nueva denuncia indicando uno o múltiples denunciados, los datos del denunciante (si no es anónima), el tipo de denuncia, la relación de hechos y archivos de prueba,
 > **para que** la denuncia quede en el sistema con un número de ticket único y soporte el control posterior de descargos individuales por denunciado.
 
-> **Como** recepcionista,
+> **Como** registrador,
 > **quiero** poder registrar denuncias anónimas (sin datos del denunciante pero con relación de hechos y periodo),
 > **para que** se cumpla lo establecido en el Art. 22 §IV de la Ley 974.
 
-> **Como** recepcionista,
+> **Como** registrador,
 > **quiero** generar un comprobante con el número de ticket para entregarlo al denunciante,
 > **para que** pueda dar seguimiento a su caso.
 
@@ -150,7 +150,7 @@ Estas son situaciones **espontáneas y triviales** que se resuelven socializando
 > **quiero** cerrar un caso registrando la conclusión con el código SITPRECO, los detalles de cierre y registrando manualmente la notificación del cierre enviada al denunciante (medio, fecha y archivos de respaldo),
 > **para que** la denuncia quede formalmente finalizada en el sistema con constancia de comunicación.
 
-> **Como** técnico o recepcionista,
+> **Como** técnico o registrador,
 > **quiero** vincular una denuncia con otra existente mencionando su ID o código de denuncia,
 > **para que** queden referenciados los antecedentes relacionados.
 
@@ -239,8 +239,8 @@ Estas son situaciones **espontáneas y triviales** que se resuelven socializando
 ### Descripción de cada fase
 
 #### 1. RECEPCIÓN
-- **Quién**: Recepcionista
-- **Qué sucede**: El denunciante se presenta presencialmente en la UTLCC. El recepcionista registra la denuncia en el sistema con:
+- **Quién**: Registrador
+- **Qué sucede**: El denunciante se presenta presencialmente en la UTLCC. El registrador registra la denuncia en el sistema con:
   - Datos del denunciante (o marca como anónima)
   - Datos de él o los denunciados (soporta **múltiples denunciados** por caso)
   - Tipo de denuncia (Corrupción / Negación de Información)
@@ -375,7 +375,7 @@ Los plazos son el corazón del sistema. La ley es estricta y el sistema debe gar
 ### Funcionalidades Secundarias
 - [ ] Notificaciones en tiempo real internas (asignación, alerta de plazos para técnicos y jefe)
 - [ ] Adjuntar y descargar archivos de prueba
-- [ ] Roles y control de acceso (Recepcionista, Jefe de Unidad, Técnico)
+- [ ] Roles y control de acceso (Registrador, Jefe de Unidad, Técnico)
 
 ---
 
@@ -402,7 +402,7 @@ Los plazos son el corazón del sistema. La ley es estricta y el sistema debe gar
 
 Se pueden **saltar** fases (ej. no solicitar información si ya tiene suficiente evidencia), pero el sistema pide una justificación escrita y opcionalmente archivos de respaldo.
 
-### ~~P2: Acompañamiento e Intervención~~ ✅ RESUELTA
+**NUEVO — Evaluación Técnica Previa (Sprint 7):** Adicionalmente, el Jefe de Unidad puede delegar la evaluación de la denuncia a un técnico antes de admitirla o rechazarla. El técnico evalúa y devuelve la denuncia con su evaluación resumida. El plazo de 5 días (Art. 23) se cuenta desde la recepción, sin pausa durante la evaluación.
 **Respuesta**: Son situaciones **espontáneas y triviales** que no siguen el flujo formal de la ley. Se resuelven socializando (presencialmente). Si se registran, es un formulario simple con descripción y archivos opcionales. No se ligan a usuarios, no tienen plazos formales. Podrían incluso no registrarse en el sistema.
 
 ### ~~P3: ¿Quién admite/rechaza la denuncia?~~ ✅ RESUELTA
@@ -418,12 +418,14 @@ Se pueden **saltar** fases (ej. no solicitar información si ya tiene suficiente
 
 ### ~~P6: ¿Las denuncias rechazadas se guardan en el sistema?~~ ✅ RESUELTA
 **Respuesta**: Sí, las denuncias rechazadas se guardan en el sistema para control histórico y trazabilidad. 
-- **Reapertura de denuncias**: Si una denuncia es rechazada o cerrada, esta puede ser reabierta únicamente por el Jefe de Unidad, quien además tiene la facultad de reasignarla a otro técnico (funciona de forma similar a una edición/reasignación del caso).
-- **Traspaso de casos**: El Jefe de Unidad puede realizar el traspaso de casos entre técnicos en cualquier momento (por ejemplo, en caso de vacaciones, licencias o ausencias imprevistas del técnico asignado originalmente) para asegurar la continuidad y el avance del caso.
+- **Reapertura de denuncias**: Si una denuncia es rechazada o cerrada, esta puede ser reabierta únicamente por el Jefe de Unidad, quien además tiene la facultad de reasignarla a otro técnico (funciona de forma similar a una edición/reasignación del caso). **No hay límite** de reaperturas (decisión #28) — se manejan manualmente.
+- **Traspaso de casos**: El Jefe de Unidad puede realizar el traspaso de casos entre técnicos en cualquier momento (por ejemplo, en caso de vacaciones, licencias o ausencias imprevistas del técnico asignado originalmente) para asegurar la continuidad y el avance del caso. El técnico receptor tiene **acceso completo** a todo el historial (decisión #9 — traspaso no oculta nada).
 - **Denuncias enlazadas/vinculadas**: Si una nueva denuncia se encuentra vinculada a otra ya existente, no se realiza una integración de registros compleja; únicamente se menciona el ID o código de la denuncia relacionada en el registro de la nueva denuncia como referencia cruzada.
 
 ### ~~P7: SITPRECO — ¿Qué es exactamente?~~ ✅ RESUELTA
-**Respuesta**: SITPRECO (Sistema de Información de Transparencia, Prevención y Lucha contra la Corrupción) es el sistema nacional oficial de Bolivia donde se registran formalmente las denuncias de este tipo. El sistema local desarrollado funcionará en paralelo con SITPRECO. No se requiere una integración técnica vía APIs o servicios web complejos; lo que interesa para el sistema local es registrar el código de control oficial devuelto por el SITPRECO al registrar la denuncia en el portal nacional, almacenándolo en el formulario de cierre/seguimiento como dato textual de referencia cruzada.
+**Respuesta**: SITPRECO (Sistema de Información de Transparencia, Prevención y Lucha contra la Corrupción) es el sistema nacional oficial de Bolivia donde se registran formalmente las denuncias de este tipo. El sistema local desarrollado funcionará en paralelo con SITPRECO. No se requiere una integración técnica vía APIs o servicios web complejos; lo que interesa para el sistema local es registrar el código de control oficial devuelto por el SITPRECO al registrar la denuncia en el portal nacional.
+
+**Decisión #1 (Junio 2026):** El número SITPRECO se obtiene cuando la denuncia se **acepta o rechaza**. Es **obligatorio al admitir** y **opcional al rechazar**. Se almacena en el sistema al momento de la admisión (no al cierre), y se hereda al Informe Final.
 
 ---
 
@@ -456,26 +458,22 @@ Se pueden **saltar** fases (ej. no solicitar información si ya tiene suficiente
 ### ❓ C1: Interpretación del plazo de admisión/rechazo (5 días)
 El Art. 23 menciona "cinco (5) días para admitirla o rechazarla". ¿La unidad interpreta este plazo en **días hábiles** (lunes a viernes) o **días calendario**? *(Nota: La Ley de Procedimiento Administrativo de Bolivia suele establecer que todos los plazos administrativos se entienden en días hábiles salvo disposición contraria, pero es vital confirmarlo con su asesor legal).*
 
-### ❓ C2: Comportamiento del sistema ante el vencimiento de plazos
-Cuando un plazo de fase (ej. los 10 días hábiles de descargo o solicitud de información) o el plazo total (45 días hábiles) expira/vence:
-- ¿El sistema debe **bloquear** la posibilidad de registrar información tardía (ej. impedir subir el descargo extemporáneo)?
-- ¿O el sistema debe **permitir el registro** pero marcar visiblemente el retraso en rojo (indicando cuántos días de mora hubo) para fines de auditoría? *(Sugerencia técnica: Permitir el registro marcando la mora, ya que la evidencia real debe quedar grabada aunque llegue tarde).*
+**Estado:** ⏸️ Pendiente. Se resolverá cuando se implemente el Sprint 18 (Calendario Feriados + Plazos).
 
-### ❓ C3: Nivel de detalle en el seguimiento público del ciudadano
-Para resguardar el secreto de sumario y confidencialidad: al mostrar el avance de solicitudes a unidades externas, ¿es correcto mostrar *"Solicitando información a la Unidad de [Nombre Unidad]"* o se prefiere un mensaje genérico como *"Solicitando información a unidad interna"* sin especificar cuál?
+### ~~C2: Comportamiento del sistema ante el vencimiento de plazos~~ ✅ RESUELTA
+**Decisión:** El sistema **permite el registro posterior** (no bloquea), pero marca **visiblemente el retraso** con texto "+Xd de retraso" o badge "Vencido" en la card. La evidencia real queda grabada aunque llegue tarde.
 
-### ❓ C4: Traspaso de casos e historial de comentarios
-Cuando el Jefe de Unidad traspasa un caso del Técnico A al Técnico B:
-- ¿El Técnico B tiene acceso completo al historial de observaciones, bitácora y anotaciones internas escritas por el Técnico A en ese caso?
-- ¿O las anotaciones internas de investigación del Técnico A se mantienen privadas y se inicia una nueva bitácora limpia para el Técnico B, manteniendo solo los documentos oficiales del expediente?
+### ~~C3: Nivel de detalle en el seguimiento público del ciudadano~~ ✅ RESUELTA
+**Decisión:** Mensajes **genéricos** en la vista pública (ya implementado en Sprint 6). No se muestra el nombre de la unidad externa específica. Se usan frases como *"Se realizaron solicitudes de información a unidades externas"* en lugar de especificar cuál.
 
-### ❓ C5: Reserva de Identidad y niveles de visibilidad (NUEVA)
-El Art. 24 y Art. 29 regulan la reserva de identidad del denunciante. En el sistema local: ¿quién tiene permitido ver el nombre y datos reales del denunciante que solicitó reserva?
-- ¿El técnico asignado al caso debe poder verlos para realizar la investigación?
-- ¿O los datos reales solo deben ser visibles para el Jefe de Unidad, mostrándose un texto de *"IDENTIDAD RESERVADA"* para el técnico asignado?
+### ~~C4: Traspaso de casos e historial de comentarios~~ ✅ RESUELTA
+**Decisión:** El Técnico B tiene **acceso completo** a todas las anotaciones, bitácora y observaciones escritas por el Técnico A. **Nada es privado.** Los traspasos se muestran en la sección correspondiente con sus acciones, tal como se hace actualmente.
 
-### ❓ C6: Modo de aprobación de ampliaciones generales (NUEVA)
-El plazo total de la denuncia (45 días para corrupción, 20 para negación de información) se puede prorrogar justificadamente por un periodo igual o menor. ¿El sistema debe permitir que el Jefe de Unidad apruebe **múltiples ampliaciones parciales** (ej. tres ampliaciones sucesivas de 15 días hasta completar los 45)? ¿O se registra legalmente como una **única prórroga directa** por el máximo plazo permitido?
+### ~~C5: Reserva de Identidad y niveles de visibilidad (NUEVA)~~ ✅ RESUELTA
+**Decisión:** Si la identidad es reservada, sigue siendo **visible para todos** los que tengan acceso al caso (Jefe y técnicos asignados). El control se logra con la asignación: los técnicos solo ven los casos que les fueron asignados, lo que ya cubre la privacidad requerida.
+
+### ~~C6: Modo de aprobación de ampliaciones generales (NUEVA)~~ ✅ RESUELTA
+**Decisión:** El Jefe de Unidad puede aprobar **múltiples ampliaciones parciales** (no solo una prórroga directa por el máximo legal). Cada ampliación se registra con su fecha de aprobación, justificación y días concedidos. Se implementará en Sprint 8.
 
 ### ❓ C7: Destino del expediente al remitirse al Ministerio (NUEVA)
 Cuando un caso cumple las condiciones de remisión obligatoria al Ministerio de Justicia (daño económico >= Bs 7.000.000 o involucra a la MAE) y se remite dentro de los 2 días hábiles: ¿el caso en nuestro sistema local se marca como **"Cerrado por Remisión al Ministerio"** (dando por terminado el proceso local)? ¿O permanece abierto en un estado especial de monitoreo?
@@ -484,6 +482,8 @@ Cuando un caso cumple las condiciones de remisión obligatoria al Ministerio de 
 Si el Jefe de Unidad decide reabrir una denuncia que ya estaba archivada o rechazada: ¿cómo debe comportarse el cálculo de plazos de la Ley 974?
 - ¿El temporizador se **reanuda** desde el día en que se archivó/rechazó?
 - ¿O se se debe poder establecer una **nueva fecha límite manual** aprobada por el Jefe de Unidad para este segundo análisis?
+
+**Estado:** ⏸️ Pendiente de consulta con cliente. Reapertura sin límite (#28) ya resuelta.
 
 ---
 
@@ -537,4 +537,27 @@ Para cumplir con los plazos en días hábiles de la Ley 974 (omitir sábados, do
 ### 🛠️ T4: Indicador de Carga de Trabajo y Cuellos de Botella
 Para el reporte de carga y cumplimiento por técnico:
 - **Estrategia**: Realizar una consulta relacional simple de Eloquent que cuente los expedientes asignados agrupados por su fase y estado (verde, amarillo, rojo).
-- **Gráficos**: En el frontend (React), se recomienda usar una librería ligera como **Recharts** o **Chart.js** para renderizar barras o gráficos circulares de carga y cuellos de botella para el Jefe de Unidad de forma limpia y responsiva.
+- **Gráficos**: En elfrontend (React), se recomienda usar una librería ligera como **Recharts** o **Chart.js** para renderizar barras o gráficos circulares de carga y cuellos de botella para el Jefe de Unidad de forma limpia y responsiva.
+
+---
+
+## 13. Cambios derivados de la sesión con cliente (Junio 2026)
+
+> Resumen ejecutivo de decisiones tomadas tras reunión con cliente. El detalle completo está en `Preguntas para el cliente.md`.
+
+### Cambios de alcance
+- **Rol "Recepcionista" → "Registrador"** (en toda la documentación).
+- **Nuevo flujo de Evaluación Técnica Previa (Sprint 7):** el Jefe puede delegar la evaluación de una denuncia a un técnico antes de admitirla o rechazarla. El plazo de 5 días no se pausa.
+- **SITPRECO obligatorio al admitir, opcional al rechazar.** Se obtiene en admisión, no al cierre.
+- **Múltiples ampliaciones permitidas** (no solo una prórroga por el máximo).
+- **Reaperturas sin límite** (manejo manual).
+
+### Decisiones legales/normativas
+- **Permitir registro fuera de plazo** con marca visible de mora (no bloquear).
+- **Mensajes genéricos en seguimiento público** (no mostrar nombres de unidades externas).
+- **Traspaso: técnico B ve todo el historial del técnico A** (nada privado).
+- **Reserva de identidad:** visible para todos con acceso al caso (control se logra con asignación).
+
+### Roadmap reestructurado
+- Sprints 7-19 planificados. Ver `Plan de Desarrollo.md` y `Sprints Pendientes - Contexto.md`.
+- **Pendientes con el cliente:** C1 (días hábiles/calendario), C7 (Ministerio), C8 (plazos al reabrir), formato SITPRECO, archivar casos.

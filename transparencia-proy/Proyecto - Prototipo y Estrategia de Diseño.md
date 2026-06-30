@@ -44,7 +44,7 @@ Utilizaremos **arrays y colecciones mock definidos en los controladores de Larav
 
 // src/data/usuarios.json
 [
-  { "id": 1, "nombre": "María López", "rol": "recepcionista", "avatar": "ML" },
+  { "id": 1, "nombre": "María López", "rol": "registrador", "avatar": "ML" },
   { "id": 2, "nombre": "Carlos Quispe", "rol": "asignador",     "avatar": "CQ" },
   { "id": 3, "nombre": "Ana Torres",   "rol": "tecnico",        "avatar": "AT" }
 ]
@@ -138,7 +138,7 @@ Cada pantalla tendrá su versión A (Neobrutalism) y versión B (Profesional) pa
 | **Dashboard / Inicio**           | Resumen: contadores, alertas de plazos, denuncias urgentes                 |
 | **Kanban de Denuncias**          | Columnas por estado del proceso (Recepción → Admisión → Informe → Cerrado) |
 | **Detalle de Denuncia**          | Modal o Sheet con toda la info de la denuncia, fases, documentos           |
-| **Formulario de Nueva Denuncia** | Para la recepcionista: datos del denunciante + tipo + pruebas              |
+| **Formulario de Nueva Denuncia** | Para el registrador: datos del denunciante + tipo + pruebas              |
 | **Panel de Asignación**          | Vista del asignador: denuncias sin técnico + selector de asignación        |
 | **Seguimiento Público**          | Página pública donde el denunciante busca su ticket y ve el estado         |
 | **Reportes**                     | Gráficas y tablas: denuncias por mes, por tipo, tasas de aceptación        |

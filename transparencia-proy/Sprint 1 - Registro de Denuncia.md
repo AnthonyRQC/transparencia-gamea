@@ -435,6 +435,8 @@ Usar shadcn `<Separator />` con `className="my-6"`.
 
 ## 15. Categorías por Defecto (Select + "Otro")
 
+> **Nota (Junio 2026):** Las categorías y subcategorías listadas a continuación son los valores por defecto en mock. En el **Sprint 10 (Panel Administración Catálogos + Subcategorías)** estos valores serán editables desde un panel administrativo único, junto con todos los demás catálogos del sistema (clasificaciones finales, tipos, estados, medios de notificación, etc.). Cada tipo de denuncia (corrupción / negación de información) tendrá sus propias subcategorías como filtro adicional.
+
 | Opción |
 |---|
 | Cohecho (Soborno) |

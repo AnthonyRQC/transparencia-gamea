@@ -3,6 +3,8 @@
 **Período:** Junio 2026 — Semana 4-5 (después de Sprint 4)
 **Estado:** ✅ COMPLETADO (build 3896 módulos, 4.35s, 0 errores)
 
+> **Actualización (Junio 2026):** Tras reunión con cliente, se resolvió el flujo de SITPRECO (ahora se asigna al **admitir**, no al cerrar) y notificación de cierre (opcional). Estas decisiones se implementarán formalmente en el **Sprint 7 (Evaluación Técnica Previa)**: `ModalAdmision` requerirá SITPRECO obligatorio, `ModalRechazo` lo dejará opcional, y `FormCierre` mostrará el SITPRECO como read-only heredado de admisión. Ver `Sprint 7 - Evaluación Técnica Previa.md` para detalle.
+
 ---
 
 ## 1. Objetivos
@@ -26,13 +28,13 @@
 | 13 | `concluido_por` autocompletado con el nombre del técnico actual | ✅ |
 | 14 | 15 decisiones técnicas documentadas en este archivo | ✅ |
 
-### Pendientes / Preguntas al cliente
+### Decisiones validadas con cliente (Junio 2026)
 
-| # | Pregunta | Estado |
-|---|----------|--------|
-| 1 | **SITPRECO**: ¿En qué punto del flujo se asigna/define el código? Por ahora es opcional. ¿Se requiere validación de formato específico? | ❓ Esperando respuesta |
-| 2 | **Notificación de cierre**: confirmar flujo con checkbox "¿Se notificó?" + motivo opcional cuando no. | ❓ Esperando respuesta |
-| 3 | **Estructura del código SITPRECO**: longitud/formato esperado. | ❓ Esperando respuesta |
+| # | Decisión | Implementación futura |
+|---|----------|------------------------|
+| 1 | **SITPRECO se obtiene al admitir o rechazar la denuncia**, no al cierre. **Obligatorio al admitir**, **opcional al rechazar**. | Sprint 7 — `ModalAdmision` requerirá SITPRECO. `FormCierre` mostrará SITPRECO read-only heredado. |
+| 2 | **Notificación de cierre es opcional** (casos anónimos no requieren notificación). El flujo actual con checkbox + motivo opcional es correcto. | Sin cambios necesarios. Sprint 7 confirma el comportamiento. |
+| 3 | **Estructura SITPRECO:** texto libre sin hint de formato. Cuando el cliente confirme formato definitivo, se actualizará el input. | Sprint 7 — `ModalAdmision`/`ModalRechazo` con input texto libre. |
 
 ---
 
@@ -262,4 +264,4 @@ La seed demo ahora incluye datos reales de informe y cierre para:
 - El patrón `ediciones[]` con campo+anterior+nuevo+fecha+usuario se mantiene del Sprint 4.
 - Componente `ArchivoAdjunto` se reutiliza sin cambios.
 - Los archivos mock no se envían al backend (solo se mantienen en estado local del frontend). Cuando haya BD real, se implementará subida real.
-- SITPRECO queda como opcional hasta que el cliente confirme estructura/formato. Ver sección "Preguntas al cliente".
+- SITPRECO actualmente se muestra en `FormCierre` como opcional. **Tras Sprint 7**, el SITPRECO se capturará en admisión (obligatorio al admitir, opcional al rechazar) y `FormCierre` lo mostrará como read-only heredado. Ver `Sprint 7 - Evaluación Técnica Previa.md`.

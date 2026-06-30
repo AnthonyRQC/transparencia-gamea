@@ -25,7 +25,7 @@ Es un sistema de **gestión de denuncias por pestañas (tabs)** para la Unidad d
 **Roles de usuario (3):**
 | Rol | Responsabilidad |
 |-----|-----------------|
-| **Recepcionista** | Registra la denuncia inicial con datos y pruebas |
+| **Registrador** | Registra la denuncia inicial con datos y pruebas |
 | **Asignador / Jefe** | Asigna denuncias a técnicos, aprueba ampliaciones de plazo |
 | **Técnico** | Realiza el seguimiento, registra la fase del proceso |
 
@@ -157,7 +157,7 @@ El concepto más importante de todo el stack. Sin entender Inertia, no entender�
 #### I. Subida de Archivos
 | Concepto | ¿Qué es y por qué lo necesitas? |
 |----------|----------------------------------|
-| **Input `type="file"` con `useForm` de Inertia** | Para que el Recepcionista adjunte las pruebas de la denuncia (documentos, imágenes). Inertia maneja la subida multipart automáticamente. |
+| **Input `type="file"` con `useForm` de Inertia** | Para que el Registrador adjunte las pruebas de la denuncia (documentos, imágenes). Inertia maneja la subida multipart automáticamente. |
 | **Previsualización de archivos adjuntos** | Mostrar los archivos subidos (PDFs, imágenes) como lista descargable en la tarjeta de la denuncia. |
 
 ---

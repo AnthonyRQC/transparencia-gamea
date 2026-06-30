@@ -23,7 +23,7 @@
 ### Flujo de fases (revisado)
 
 ```
-Recepcionista (Sprint 1)
+Registrador (Sprint 1)
        │
        ▼
 Ingresada ──► Jefe de Unidad: Admisión/Rechazo (Bandeja de Admisión)
@@ -439,8 +439,7 @@ Al cerrar Sprint 2, editar:
 - **Art. 30 Ley 974**: el plazo total puede prorrogarse excepcionalmente de manera justificada por un periodo igual.
 - El técnico solicita mediante nota formal (upload PDF) + justificación.
 - El Jefe de Unidad aprueba o rechaza.
-- **Pregunta abierta (C6)**: ¿múltiples ampliaciones parciales (ej. 3×15d) o una única prórroga directa por el máximo legal (45d)? → Resolver con el cliente antes de implementar.
-- **Asignación sugerida**: informar al sprint correspondiente cuando se defina.
+- **✅ Resuelto (Junio 2026):** El Jefe de Unidad puede aprobar **múltiples ampliaciones parciales** (no solo una prórroga directa por el máximo legal). Se implementará en el **Sprint 8 (Ampliaciones Múltiples)**.
 
 ### 10.5 Barra de Progreso por Caso
 

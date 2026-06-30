@@ -12,24 +12,46 @@ Tailwind v3 · shadcn/ui (New York) · Laragon (Windows local)
 ## Estado Actual
 **Fase 0 (Maqueta Frontend)** — Cerrada ✅
 **Sprint 0** (Sidebar/Header institucional) — Cerrado ✅
-**Sprint 1** (Registro de Denuncia, formulario complejo) — Cerrado ✅ (Barra de progreso fija bajo header, modal de éxito vinculado mediante Inertia flash y panel temporal de autocompletado ficticio)
-**Sprint 2** (Bandeja de Admisión + Mis Casos + Mi Resumen) — Cerrado ✅ (Tabs en lugar de Kanban, Sheet lateral para detalle, modales Admisión/Rechazo con justificación, 4 tabs en Mis Casos, 4 ContadorCards en Mi Resumen, 12 seed items con técnicos, Dropdown "Ver como:" de técnico)
+**Sprint 1** (Registro de Denuncia, formulario complejo) — Cerrado ✅
+**Sprint 2** (Bandeja de Admisión + Mis Casos + Mi Resumen) — Cerrado ✅
 **Sprint 3** (Asignación de Técnico + Traspaso + Reapertura + Mejoras Detalle) — Cerrado ✅
-**Sprint 4** (Investigación: Solicitudes + Descargos + Saltar Fase + Mejoras) — Cerrado ✅ (Sheet refactorizado con 3 tabs: Información, Solicitudes, Descargos. TabSolicitudes con SolicitudCard + PlazoProgress + 3 modales (Nueva, Responder, Ampliar). TabDescargos con DescargoCard + 3 modales (Notificar, Responder, Ampliar). SaltarFaseButton con justificación obligatoria + warning items pendientes. Datos mock en SolicitudData, DescargoData, UnidadData. Bandeja read-only en tabs de trabajo, MisCasos con acciones completas + dropdown "Ver como:" permite al Jefe actuar. Seed de 3 solicitudes + 2 descargos demo. **Mejoras agregadas:** ModalCancelarSolicitud, ModalNuevoDescargo, SolicitudDetailModal + DescargoDetailModal con historial de cambios colapsable, ModalConfirmarEliminar reusable. CRUD completo (editar/eliminar) en todos los estados con soft delete. ModalNuevaSolicitud y ModalNuevoDescargo unificados con modo dual create/edit. ArchivoAdjunto con botón papelera (onEliminar). Campos ediciones[], eliminado, fecha_eliminacion en SolicitudData/DescargoData. Editar/Eliminar sin restricción de estado. Fix overflow horizontal con break-words.)
-**Sprint 5** (Informe Final + Cierre) — Cerrado ✅ (TabInformeCierre como 4to tab en DenunciaSheet con 2 sub-tabs: Informe Final y Cierre. FormInformeFinal con clasificación (Penal/Civil/Administrativo/Sin Indicios/Medida Correctiva/Archivado), fojas, justificación, archivos mock, concluido_por autocompletado. FormCierre con SITPRECO opcional, checkbox notificación al denunciante con medio/fecha/descripción condicional, motivo opcional si no se notificó. 6 endpoints backend: guardar/editar/eliminar para informe y cierre. Informe y Cierre editables en cualquier estado. Soft delete y ediciones con historial. InformeDetailModal read-only. Cards cerradas enriquecidas con badge clasificación, SITPRECO y fecha cierre.)
-**Sprint 6** (Seguimiento Público) — Cerrado ✅ (Junio 2026) (BuscadorTicket input plano con regex DEN-AAAA-NNNN-PPPP + auto-uppercase. 6 componentes en Components/Publico/: BuscadorTicket, StepperProgreso, ResultadoSeguimiento, EstadoVacio, EstadoNoEncontrado, EsqueletoBusqueda. SeguimientoController con whitelist sanitization + throttle 30/min. ModalRechazo +textarea resumen_rechazo opcional máx 200 chars. ModalExito muestra token. Welcome refactor: removido search mock + CTA a /seguimiento. Tokens seed deterministicos 1001-1012. **Bug fix post-implementación:** formato de input removido, regex directo con toUpperCase().)
+**Sprint 4** (Investigación: Solicitudes + Descargos + Saltar Fase + Mejoras) — Cerrado ✅
+**Sprint 5** (Informe Final + Cierre) — Cerrado ✅
+**Sprint 6** (Seguimiento Público) — Cerrado ✅ (Junio 2026)
+
+Ver `Sprints Pendientes - Contexto.md` para sprints 7-19.
+
+## Roles (post sesión con cliente, Junio 2026)
+- **Registrador** (antes "Recepcionista")
+- **Jefe de Unidad**
+- **Técnicos**
+
+(Implementación formal de roles será en Sprint 15, una vez la BD esté operativa).
+
+## Convenciones de lectura para IAs
+
+> **REGLA CRÍTICA:** Antes de leer cualquier archivo, determina en qué sprint estás trabajando.
+
+1. **Siempre al iniciar:** Lee este `AI-CONTEXT.md` completo (~100 líneas).
+2. **Para ver roadmap completo:** Lee `Plan de Desarrollo.md` (alto nivel).
+3. **Para trabajar en un sprint específico:**
+   - **Sprint cerrado (0-6):** Lee `Sprint X - [Nombre].md` solo si es necesario detalle histórico.
+   - **Sprint pendiente (7-19):** Lee SOLO la sección correspondiente en `Sprints Pendientes - Contexto.md`. **No leas otras secciones** (lazy load).
+4. **Para entender el sistema completo:** Lee `Proyecto - Resumen General del Sistema.md` solo si es necesario.
+5. **NO LEER por defecto:**
+   - `Proyecto - Prototipo y Estrategia de Diseño.md`
+   - `Proyecto - Transparencia Stack y Conceptos.md`
+   - `Proyecto - Vistas y Prototipo de Interfaz.md`
+   - Documentos de sprints cerrados si no estás trabajando en ellos
 
 ## Documentación Esencial (LEER SIEMPRE)
-> Este archivo + los 2 siguientes son el snapshot del estado del proyecto.
-> Leerlos SIEMPRE al iniciar una conversación o antes de trabajar.
 1. `transparencia-proy/AI-CONTEXT.md` (este archivo) — Snapshot del estado actual
 2. `transparencia-proy/Plan de Desarrollo.md` — Hoja de ruta, sprints, decisiones
-3. `transparencia-proy/RESUMEN LEY 974.md` — Marco legal
+3. `transparencia-proy/Sprints Pendientes - Contexto.md` — Contexto de sprints 7-19 (lazy load)
+4. `transparencia-proy/RESUMEN LEY 974.md` — Marco legal
 
 ## Documentación de Referencia (LEER SOLO SI NECESARIO)
 > ⚠️ NO leer por defecto. Contienen detalles extensos que saturan la memoria de contexto.
-> Solo consultar si el usuario pide trabajar en un sprint específico o necesitas
-> contexto histórico detallado de un componente/flujo concreto.
 
 - `transparencia-proy/Sprint 1 - Registro de Denuncia.md` — Detalle Sprint 1
 - `transparencia-proy/Sprint 2 - Bandeja de Admisión y Mis Casos.md` — Detalle Sprint 2
@@ -37,30 +59,54 @@ Tailwind v3 · shadcn/ui (New York) · Laragon (Windows local)
 - `transparencia-proy/Sprint 4 - Investigación (Solicitudes + Descargos).md` — Detalle Sprint 4
 - `transparencia-proy/Sprint 5 - Informe Final y Cierre.md` — Detalle Sprint 5
 - `transparencia-proy/Sprint 6 - Seguimiento Público.md` — Detalle Sprint 6
+- `transparencia-proy/Sprint 7 - Evaluación Técnica Previa.md` — Detalle Sprint 7 (próximo)
 - `transparencia-proy/Proyecto - Resumen General del Sistema.md` — Overview funcional completo
 - `transparencia-proy/Proyecto - Prototipo y Estrategia de Diseño.md` — Decisiones de diseño
 - `transparencia-proy/Proyecto - Transparencia Stack y Conceptos.md` — Conceptos del stack
+- `transparencia-proy/Proyecto - Vistas y Prototipo de Interfaz.md` — Prototipos de vistas
+- `transparencia-proy/Preguntas para el cliente.md` — Estado de preguntas pendientes
 
 ## Convenciones Vigentes
 - Colores institucionales: morado `#690bb2` + gold `#fecd2a` (CSS vars OKLCH)
 - Font: Outfit (sans) + Fira Code (mono)
 - Modo oscuro: clase `.dark` en `<html>`, persistido en localStorage
-- Sin roles en código (Fase 0) — se validan verbalmente con cliente
+- Sin roles en código (Fase 0/Fase 1 mock) — se implementarán formalmente en Sprint 15
 - Rutas via Ziggy `route()`
 - Subdirectorio URL: `/transparencia/public/`
 
+## Decisiones clave recientes (Junio 2026)
+- **Recepcionista → Registrador** (cambio de nombre en toda la documentación)
+- **SITPRECO obligatorio al admitir, opcional al rechazar** (no al cierre)
+- **Múltiples ampliaciones permitidas** (no solo una)
+- **Traspaso incluye historial completo** del técnico anterior (nada privado)
+- **Reaperturas sin límite** (manejo manual)
+- **Permitir registro fuera de plazo** con marca visible de mora
+- **Mensajes genéricos en seguimiento público** (no mostrar nombres de unidades externas)
+- **Reserva de identidad:** visible para todos con acceso al caso
+- **Subcategorías por tipo de denuncia** (definidas en panel administrativo)
+- **Notificaciones push vía campana** con historial tipo Facebook
+- **Reportes:** PDF + Excel + pantalla, con rango de fechas libre
+- **Reportes internos solo para Jefe** (no público)
+
 ## Notas / Pendientes
 
-> ⚠️ **TODO — Preguntar al cliente:** ¿La funcionalidad de "archivar casos" debe ser
+> ⏸️ **TODO — Preguntar al cliente:** ¿La funcionalidad de "archivar casos" debe ser
 > un subestado de `cerrada` (actual: `subestado: 'archivada'`) o un estado/proceso
 > separado con flujo propio? Por el momento se mantiene como subestado sin afectar
-> UX de la vista pública. Agendar consulta con cliente.
+> UX de la vista pública.
+
+> ⏸️ **Otros pendientes con el cliente:**
+> - C1: Días hábiles vs calendario (Sprint 18)
+> - C7: Destino del expediente al remitirse al Ministerio
+> - C8: Reglas del plazo al reabrir una denuncia
+> - Formato SITPRECO definitivo (#2, #4)
 
 ## Arquitectura Clave
 - `app/Data/DenunciaData.php` — Mock data estática (sesión, no DB)
 - `app/Data/SolicitudData.php` — Solicitudes a unidades externas (Sprint 4)
 - `app/Data/DescargoData.php` — Descargos de denunciados (Sprint 4)
 - `app/Data/UnidadData.php` — Catálogo de unidades externas (Sprint 4)
+- `app/Data/UsuarioData.php` — Técnicos, jefe y registrador mock
 - `app/Http/Controllers/DenunciaController.php` — Create + Store + admitir/rechazar/iniciar + saltarFase
 - `app/Http/Controllers/SolicitudController.php` — CRUD Solicitudes (Sprint 4)
 - `app/Http/Controllers/DescargoController.php` — CRUD Descargos (Sprint 4)
@@ -82,8 +128,9 @@ Tailwind v3 · shadcn/ui (New York) · Laragon (Windows local)
 - `php artisan migrate:fresh --seed` — Reset DB
 
 ## Próximo Sprint
-**Sprint 7 — Dashboard + Reportes**
-- KPIs y gráficos con Recharts
-- Página /reportes con tabla y filtros
-- Dependencia: `npm install recharts`
-- shadcn a instalar: `table`
+**Sprint 7 — Evaluación Técnica Previa** (NUEVO)
+- Flujo: Recepción → Jefe delega (opcional) → Técnico evalúa → Devuelve → Jefe admite/rechaza
+- SITPRECO obligatorio al admitir, opcional al rechazar
+- Plazo de 5 días no se pausa durante evaluación
+
+Ver detalle en `Sprints Pendientes - Contexto.md` y `Sprint 7 - Evaluación Técnica Previa.md` (cuando se cree el detalle).

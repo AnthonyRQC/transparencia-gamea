@@ -17,7 +17,7 @@ Para garantizar una experiencia premium, fluida e instantánea, el sistema se di
 
 ## 2. Matriz de Acceso a Vistas por Rol
 
-| Vista / Pantalla                                   | Recepcionista |  Técnico  | Jefe de Unidad | Administrador | Ciudadano |
+| Vista / Pantalla                                   | Registrador |  Técnico  | Jefe de Unidad | Administrador | Ciudadano |
 | -------------------------------------------------- | :-----------: | :-------: | :------------: | :-----------: | :-------: |
 | **Buscador Público (Seguimiento)**                 |               |           |                |               | 🟢 Acceso |
 | **Registro de Nueva Denuncia**                     |   🟢 Acceso   |           |                |               |           |
@@ -67,12 +67,12 @@ Una vista minimalista, premium y sumamente clara, accesible sin credenciales.
 
 ---
 
-### B. Vista de Recepción (Recepcionista)
+### B. Vista de Recepción (Registrador)
 
 Diseñada para registrar denuncias de manera rápida mientras el ciudadano está presente en la oficina.
 
 *   **Bandeja de Entrada**:
-    *   Listado tipo tabla con las denuncias creadas por el recepcionista en el día, permitiendo verificar que los datos se subieron correctamente.
+    *   Listado tipo tabla con las denuncias creadas por el registrador en el día, permitiendo verificar que los datos se subieron correctamente.
     *   Botón superior "➕ Registrar Nueva Denuncia".
 *   **Formulario Modal Multi-paso (Nueva Denuncia)**:
     Para no abrumar con un formulario largo, se dividirá en 3 pestañas dinámicas en el modal:
@@ -179,7 +179,7 @@ Vista enfocada para evitar distracciones.
     *   El administrador selecciona el mes y año. Puede hacer clic sobre cualquier día para **marcar/desmarcar como no laborable** (feriados nacionales, departamentales o asuetos decretados de última hora).
     *   Al guardar, los días marcados se insertan en la tabla `holidays` de MySQL de manera inmediata, recalculando en segundo plano los plazos de todas las alertas activas en el sistema sin retrasos.
 *   **Gestión de Usuarios**:
-    *   Formulario simple para agregar técnicos y recepcionistas, asignarles contraseñas y activar/desactivar sus cuentas.
+    *   Formulario simple para agregar técnicos y registradores, asignarles contraseñas y activar/desactivar sus cuentas.
 
 ---
 
