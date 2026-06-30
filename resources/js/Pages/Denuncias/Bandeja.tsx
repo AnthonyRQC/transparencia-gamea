@@ -28,6 +28,7 @@ import ModalAmpliarDescargo from '@/Components/Denuncias/ModalAmpliarDescargo';
 import ModalCancelarSolicitud from '@/Components/Denuncias/ModalCancelarSolicitud';
 import ModalNuevoDescargo from '@/Components/Denuncias/ModalNuevoDescargo';
 import ModalConfirmarEliminar from '@/Components/Denuncias/ModalConfirmarEliminar';
+import ModalAmpliacionPlazo from '@/Components/Denuncias/ModalAmpliacionPlazo';
 
 interface PlazoInfo {
   dias_restantes: number;
@@ -158,6 +159,8 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
   const [modalAsignacionTicket, setModalAsignacionTicket] = useState<string | null>(null);
   const [modalTraspasoTicket, setModalTraspasoTicket] = useState<string | null>(null);
   const [modalReabrirTicket, setModalReabrirTicket] = useState<string | null>(null);
+  // Sprint 8 — Ampliación de plazo
+  const [modalAmpliarPlazoDenuncia, setModalAmpliarPlazoDenuncia] = useState<Denuncia | null>(null);
   // Sprint 4 modals
   const [modalNuevaSolTicket, setModalNuevaSolTicket] = useState<string | null>(null);
   const [modalRespondeSolId, setModalRespondeSolId] = useState<number | null>(null);
@@ -479,6 +482,16 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
               Traspasar
             </button>
           )}
+          {['admitida', 'asignada', 'investigacion', 'informe'].includes(selectedDenuncia.estado) && (
+            <button
+              type="button"
+              onClick={() => { setModalAmpliarPlazoDenuncia(selectedDenuncia); }}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-indigo-100 text-indigo-800 text-sm font-semibold hover:bg-indigo-200 transition-colors dark:bg-indigo-900/30 dark:text-indigo-300"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Ampliar plazo
+            </button>
+          )}
           {['rechazada', 'cerrada'].includes(selectedDenuncia.estado) && (
             <button
               type="button"
@@ -598,6 +611,12 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
         descripcion="Este descargo se ocultará de la lista. Los datos se conservarán para auditoría."
         itemNombre={modalEliminarDesc?.nombre || ''}
         processing={processingEliminar}
+      />
+      <ModalAmpliacionPlazo
+        denuncia={modalAmpliarPlazoDenuncia}
+        open={modalAmpliarPlazoDenuncia !== null}
+        onOpenChange={(v) => { if (!v) setModalAmpliarPlazoDenuncia(null); }}
+        tecnicos={tecnicos}
       />
     </AppLayout>
   );

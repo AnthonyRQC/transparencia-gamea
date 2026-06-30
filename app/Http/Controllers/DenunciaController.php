@@ -348,4 +348,39 @@ class DenunciaController extends Controller
 
         return redirect()->back()->with('success', "Cierre eliminado. Denuncia {$ticket} vuelve a Informe Final.");
     }
+
+    // ──────────────────────────────────────────────
+    //  SPRINT 8 — Ampliaciones Múltiples
+    // ──────────────────────────────────────────────
+
+    public function aprobarAmpliacion(string $ticket, Request $request)
+    {
+        $validated = $request->validate([
+            'dias' => 'required|integer|min:1|max:45',
+            'justificacion' => 'required|string|min:10|max:500',
+            'solicitado_por' => 'nullable|string|max:100',
+        ]);
+
+        $denuncia = DenunciaData::find($ticket);
+        if (!$denuncia || !in_array($denuncia['estado'] ?? '', ['admitida', 'asignada', 'investigacion', 'informe'])) {
+            return redirect()->back()->with('error', 'No se puede ampliar el plazo de esta denuncia.');
+        }
+
+        $result = DenunciaData::aprobarAmpliacion(
+            ticket: $ticket,
+            dias: $validated['dias'],
+            justificacion: $validated['justificacion'],
+            solicitadoPor: $validated['solicitado_por'] ?? null
+        );
+
+        if ($result === false) {
+            return redirect()->back()->with('error', 'Denuncia no encontrada.');
+        }
+
+        if (isset($result['error'])) {
+            return redirect()->back()->with('error', $result['error']);
+        }
+
+        return redirect()->back()->with('success', "Plazo ampliado {$validated['dias']} días correctamente para {$ticket}.");
+    }
 }

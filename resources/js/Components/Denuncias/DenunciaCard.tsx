@@ -19,6 +19,11 @@ interface TecnicoData {
   color: string;
 }
 
+interface AmpliacionItem {
+  id: number;
+  dias: number;
+}
+
 interface DenunciaData {
   ticket: string;
   tipo: string;
@@ -35,6 +40,7 @@ interface DenunciaData {
   fecha_rechazada?: string | null;
   fecha_reapertura?: string | null;
   plazo_reapertura?: string | null;
+  ampliaciones?: AmpliacionItem[];
   // Sprint 5
   informe_clasificacion?: string | null;
   cierre_sitpreco?: string | null;
@@ -110,6 +116,7 @@ export default function DenunciaCard({ denuncia, plazo, tecnicos, onClick, class
   const denuncianteNombre = denuncia.denunciante?.nombres || 'Anónimo';
   const tecnicoInfo = denuncia.tecnico && tecnicos ? tecnicos[denuncia.tecnico] : null;
   const isRecentlyTraspasado = denuncia.fecha_traspaso && daysAgo(denuncia.fecha_traspaso) < 7;
+  const totalAmpliacionesDias = (denuncia.ampliaciones || []).reduce((sum, a) => sum + a.dias, 0);
   const contextualText = getContextualText(denuncia);
 
   const reabiertaText = denuncia.fecha_reapertura
@@ -156,6 +163,12 @@ export default function DenunciaCard({ denuncia, plazo, tecnicos, onClick, class
             <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 border border-amber-300 dark:bg-amber-900/30 dark:text-amber-300">
               <ArrowRightLeft className="w-3 h-3" />
               Reasignado
+            </span>
+          )}
+          {totalAmpliacionesDias > 0 && (
+            <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700 border border-indigo-300 dark:bg-indigo-900/30 dark:text-indigo-300">
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Ampliada +{totalAmpliacionesDias}d
             </span>
           )}
         </div>

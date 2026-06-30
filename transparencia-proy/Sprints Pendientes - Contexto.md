@@ -64,23 +64,59 @@ Ver `Sprint 7 - Evaluación Técnica Previa.md` cuando se cree.
 
 ## Sprint 8 — Ampliaciones Múltiples
 
-**Estado:** Pendiente.
+**Estado:** Pendiente (archivo detallado creado: `Sprint 8 - Ampliaciones Múltiples.md`).
 **Origen:** Respuesta del cliente #11 (C6 resuelta).
 
 ### Resumen
-El Jefe de Unidad puede aprobar **N ampliaciones parciales** del plazo total (no solo una prórroga por el máximo legal). Cada ampliación tiene su fecha, días concedidos, justificación y aprobado_por.
+El Jefe de Unidad puede aprobar **N ampliaciones parciales** del plazo total de una denuncia como eventos independientes, con validación del límite legal (45+45 corrupción, 20+10 negación info) y warning visual.
 
 ### Decisiones clave
-- Múltiples ampliaciones permitidas (sin límite)
-- Cada ampliación es un evento independiente
-- El plazo total se acumula: base + suma de ampliaciones
-- Máximo legal: 45 días para corrupción (ampliables +45), 20 días para negación de información (ampliables +10)
+- **Cada ampliación es evento independiente:** `{fecha, dias, justificacion, aprobado_por, solicitado_por?}`
+- **Días corridos** por ahora (días hábiles → Sprint 18)
+- **Mostrar límite legal** con warning visual (rojo si excede, amarillo si cerca)
+- **Jefe puede ampliar sin solicitud previa** (campo `solicitado_por` opcional)
+- **Plazo NO se congela** durante aprobación
+- **Ampliaciones se borran al reabrir** denuncia (reloj se reinicia)
+- **Permitido en cualquier estado activo post-admisión:** `admitida`, `asignada`, `investigacion`, `informe`, `evaluacion_tecnica`
+- **NO permitido en:** `ingresada`, `rechazada`, `cerrada`
+- **Validación:** `sumaAmpliaciones + nuevosDias ≤ maxAmpliacion` (45 corrupción, 10 negación)
+
+### Flujo
+1. Caso activo (admitida/asignada/etc.)
+2. Jefe abre DenunciaSheet → botón "Ampliar plazo"
+3. Modal muestra estado actual (plazo base, ampliaciones previas, límite legal)
+4. Jefe ingresa días + justificación + (opcional) solicitante
+5. Validación de límite legal
+6. Se agrega evento a `ampliaciones[]` o muestra warning de error
+
+### Cálculo de fecha de vencimiento
+```php
+$plazoBase = getPlazoDias($tipo);  // 45 o 20
+$sumaAmpliaciones = sum(array_column($ampliaciones, 'dias'));
+$plazoTotal = $plazoBase + $sumaAmpliaciones;
+$fechaVencimiento = Carbon::parse($created_at)->addDays($plazoTotal);
+$diasRestantes = $plazoTotal - $diasTranscurridos;
+```
+
+### Archivos a crear
+- `resources/js/Components/Denuncias/ModalAmpliacionPlazo.tsx` (nuevo, desde cero)
 
 ### Archivos a modificar
-- `app/Data/DenunciaData.php` (+array `ampliaciones[]`)
-- `app/Http/Controllers/DenunciaController.php` (+aprobarAmpliacion)
-- `resources/js/Components/Denuncias/ModalAmpliacionPlazo.tsx` (refactor)
-- `resources/js/Components/Denuncias/PlazoBadge.tsx` (mostrar plazo total acumulado)
+- `app/Data/DenunciaData.php` (+campo `ampliaciones[]`, +método `aprobarAmpliacion()`, modificar `getPlazoInfo()` para sumar ampliaciones, +método `getMaxAmpliacion()`)
+- `app/Http/Controllers/DenunciaController.php` (+método `aprobarAmpliacion(Request)`)
+- `routes/web.php` (+ruta `POST /denuncias/{id}/ampliar-plazo`)
+- `resources/js/Components/Denuncias/PlazoBadge.tsx` (mostrar plazo total con ampliaciones)
+- `resources/js/Components/Denuncias/DenunciaSheet.tsx` (+botón "Ampliar plazo" solo Jefe)
+- `resources/js/Components/Denuncias/DenunciaCard.tsx` (badge "Ampliada +Xd")
+
+### Dependencias
+- Ninguna externa (reusa shadcn `dialog`, `input`, `textarea`, `button`, `select`, `checkbox`, `badge`)
+- Compatible con Sprint 7 (estado `evaluacion_tecnica`)
+- Marco para Sprint 9 (notificaciones de ampliación)
+- Prepárate para Sprint 18 (días hábiles)
+
+### Detalle completo
+Ver `Sprint 8 - Ampliaciones Múltiples.md`.
 
 ---
 

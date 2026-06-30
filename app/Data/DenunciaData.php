@@ -68,6 +68,7 @@ class DenunciaData
         $data['fecha_reapertura'] = null;
         $data['justificacion_reapertura'] = null;
         $data['plazo_reapertura'] = null;
+        $data['ampliaciones'] = [];
         $data['bitacora'] = [];
         $data['token_consulta'] = self::generateToken();
 
@@ -232,7 +233,8 @@ class DenunciaData
                 $denuncias[$i]['fecha_reapertura'] = now()->toDateTimeString();
                 $denuncias[$i]['justificacion_reapertura'] = $justificacion;
                 $denuncias[$i]['plazo_reapertura'] = $nuevaFechaLimite;
-                self::addBitacoraEntry($denuncias, $i, 'reapertura', "Reabierta. Nuevo plazo: {$nuevaFechaLimite}. Justificación: {$justificacion}", $usuarioId);
+                $denuncias[$i]['ampliaciones'] = [];
+                self::addBitacoraEntry($denuncias, $i, 'reapertura', "Reabierta. Nuevo plazo: {$nuevaFechaLimite}. Ampliaciones previas eliminadas. Justificación: {$justificacion}", $usuarioId);
                 session()->put(self::SESSION_KEY, $denuncias);
                 return true;
             }
@@ -547,7 +549,9 @@ class DenunciaData
         if (!in_array($denuncia['tipo'] ?? '', ['corrupcion', 'negacion'])) return null;
         if (empty($denuncia['created_at'])) return null;
 
-        $plazoTotal = self::getPlazoDias($denuncia['tipo']);
+        $plazoBase = self::getPlazoDias($denuncia['tipo']);
+        $sumaAmpliaciones = array_sum(array_column($denuncia['ampliaciones'] ?? [], 'dias'));
+        $plazoTotal = $plazoBase + $sumaAmpliaciones;
 
         // Si fue reabierta y tiene nuevo plazo manual, calcular desde fecha_reapertura hasta plazo_reapertura
         if (!empty($denuncia['plazo_reapertura'])) {
@@ -577,6 +581,47 @@ class DenunciaData
             'negacion'   => 20,
             default      => 0,
         };
+    }
+
+    public static function getMaxAmpliacion(string $tipo): int
+    {
+        return match ($tipo) {
+            'corrupcion' => 45,
+            'negacion'   => 10,
+            default      => 0,
+        };
+    }
+
+    public static function aprobarAmpliacion(string $ticket, int $dias, string $justificacion, ?string $solicitadoPor = null): array|false
+    {
+        $items = session(self::SESSION_KEY, []);
+        foreach ($items as $i => $d) {
+            if (($d['ticket'] ?? '') !== $ticket) continue;
+
+            $tipo = $d['tipo'] ?? '';
+            $maxAmpliacion = self::getMaxAmpliacion($tipo);
+            $sumaActual = array_sum(array_column($d['ampliaciones'] ?? [], 'dias'));
+
+            if (($sumaActual + $dias) > $maxAmpliacion) {
+                return ['error' => "Excede el máximo legal de {$maxAmpliacion} días adicionales para {$tipo}"];
+            }
+
+            $numAmpliacion = count($d['ampliaciones'] ?? []) + 1;
+            $items[$i]['ampliaciones'][] = [
+                'id' => $numAmpliacion,
+                'fecha' => now()->toDateTimeString(),
+                'dias' => $dias,
+                'justificacion' => $justificacion,
+                'aprobado_por' => 'Jefe de Unidad',
+                'solicitado_por' => $solicitadoPor,
+                'archivo_respaldo' => null,
+            ];
+
+            self::addBitacoraEntry($items, $i, 'ampliacion_plazo', "Plazo ampliado {$dias} días (ampliación #{$numAmpliacion}). Justificación: {$justificacion}", 'sistema');
+            session()->put(self::SESSION_KEY, $items);
+            return $items[$i];
+        }
+        return false;
     }
 
     public static function getCategorias(): array
@@ -741,10 +786,16 @@ class DenunciaData
                 'created_at' => (clone $now)->subDays(40)->toDateTimeString(),
                 'fecha_admitida' => (clone $now)->subDays(38)->toDateTimeString(),
                 'fecha_asignada' => (clone $now)->subDays(37)->toDateTimeString(),
+                'ampliaciones' => [
+                    ['id' => 1, 'fecha' => (clone $now)->subDays(20)->toDateTimeString(), 'dias' => 15, 'justificacion' => 'Unidad externa de Auditoría Interna solicitó tiempo adicional para recopilar documentación.', 'aprobado_por' => 'Jefe de Unidad', 'solicitado_por' => 'Técnico Carlos Quispe'],
+                    ['id' => 2, 'fecha' => (clone $now)->subDays(10)->toDateTimeString(), 'dias' => 15, 'justificacion' => 'Denunciado presentó solicitud de ampliación de plazo para descargo con justificación válida.', 'aprobado_por' => 'Jefe de Unidad', 'solicitado_por' => 'Técnico Carlos Quispe'],
+                ],
                 'bitacora' => [
                     ['fecha' => (clone $now)->subDays(38)->toDateTimeString(), 'accion' => 'admitida', 'detalle' => 'Admitida sin justificación', 'usuario' => 'sistema'],
                     ['fecha' => (clone $now)->subDays(37)->toDateTimeString(), 'accion' => 'asignada', 'detalle' => 'Asignada a Carlos Quispe', 'usuario' => 'sistema'],
                     ['fecha' => (clone $now)->subDays(35)->toDateTimeString(), 'accion' => 'investigacion', 'detalle' => 'Investigación iniciada', 'usuario' => 'sistema'],
+                    ['fecha' => (clone $now)->subDays(20)->toDateTimeString(), 'accion' => 'ampliacion_plazo', 'detalle' => 'Plazo ampliado 15 días (ampliación #1). Justificación: Unidad externa de Auditoría Interna solicitó tiempo adicional para recopilar documentación.', 'usuario' => 'sistema'],
+                    ['fecha' => (clone $now)->subDays(10)->toDateTimeString(), 'accion' => 'ampliacion_plazo', 'detalle' => 'Plazo ampliado 15 días (ampliación #2). Justificación: Denunciado presentó solicitud de ampliación de plazo para descargo con justificación válida.', 'usuario' => 'sistema'],
                 ],
                 'denunciante' => ['nombres' => 'Gabriela Huanca', 'ci' => '4567890', 'email' => 'ghuanca@gmail.com', 'telefono' => '74567890'],
                 'denunciados' => [['conoce_identidad' => true, 'nombres' => 'Marcelo Álvarez', 'dependencia' => 'Unidad de Contrataciones', 'descripcion' => '']],
@@ -907,6 +958,7 @@ class DenunciaData
             'fecha_reapertura' => null,
             'justificacion_reapertura' => null,
             'plazo_reapertura' => null,
+            'ampliaciones' => [],
             'bitacora' => [],
             'token_consulta' => '',
             'resumen_rechazo' => null,
