@@ -1,8 +1,9 @@
 import React from 'react';
 import { usePage, Link } from '@inertiajs/react';
 import { route } from 'ziggy-js';
-import { Sun, Moon, Bell, LogOut, User, ChevronDown } from 'lucide-react';
+import { Sun, Moon, LogOut, User, ChevronDown } from 'lucide-react';
 import InstitutionalLogo from './InstitutionalLogo';
+import CampanaNotificaciones from './CampanaNotificaciones';
 
 interface HeaderProps {
     isDarkMode: boolean;
@@ -21,6 +22,9 @@ export default function Header({
 }: HeaderProps) {
     const { props } = usePage();
     const user = (props as any).auth?.user;
+    const notificaciones = (props as any).notificaciones;
+    const noLeidas = notificaciones?.no_leidas ?? 0;
+    const recientes = notificaciones?.recientes ?? [];
 
     const [dropdownOpen, setDropdownOpen] = React.useState(false);
     const dropdownRef = React.useRef<HTMLDivElement>(null);
@@ -83,14 +87,7 @@ export default function Header({
 
             <div className="flex items-center gap-2 shrink-0">
                 {/* Notifications Bell */}
-                <button
-                    className="relative p-2 rounded-lg hover:bg-sidebar-muted transition-colors cursor-pointer text-sidebar-foreground/60 hover:text-sidebar-foreground focus:outline-none focus:ring-2 focus:ring-sidebar-ring/40"
-                    aria-label="Notificaciones"
-                    title="Notificaciones"
-                >
-                    <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
-                    <span className="absolute top-1 right-1 w-2 h-2 bg-destructive rounded-full" />
-                </button>
+                <CampanaNotificaciones noLeidas={noLeidas} recientes={recientes} />
 
                 {/* Dark Mode Toggle */}
                 <button

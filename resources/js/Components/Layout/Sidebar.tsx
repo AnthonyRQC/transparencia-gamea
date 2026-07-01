@@ -8,6 +8,7 @@ import {
     ClipboardList,
     BarChart3,
     CalendarDays,
+    Bell,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -31,7 +32,9 @@ export default function Sidebar({
     isSidebarOpenMobile,
     onCloseSidebarMobile,
 }: SidebarProps) {
-    const { logo_url } = usePage().props as { logo_url?: string };
+    const sidebarProps = usePage().props as { logo_url?: string; notificaciones?: { no_leidas: number } };
+    const { logo_url } = sidebarProps;
+    const noLeidas = sidebarProps.notificaciones?.no_leidas ?? 0;
 
     const menuItems: MenuItem[] = [
         {
@@ -68,6 +71,14 @@ export default function Sidebar({
             href: route('denuncias.mi-resumen'),
             routeName: 'denuncias.mi-resumen',
             icon: <BarChart3 className="w-5 h-5 shrink-0" />,
+        },
+        {
+            key: 'notificaciones',
+            label: 'Notificaciones',
+            href: route('notificaciones.index'),
+            routeName: 'notificaciones.*',
+            icon: <Bell className="w-5 h-5 shrink-0" />,
+            badge: noLeidas,
         },
         {
             key: 'reportes',

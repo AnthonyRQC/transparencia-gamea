@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Data\NotificacionData;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -29,7 +30,7 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
-        return [
+        $share = [
             ...parent::share($request),
             'auth' => [
                 'user' => $request->user(),
@@ -39,5 +40,16 @@ class HandleInertiaRequests extends Middleware
             'success' => session('success'),
             'ticket' => session('ticket'),
         ];
+
+        if ($request->user()) {
+            NotificacionData::generarParaUsuario();
+            $share['notificaciones'] = [
+                'no_leidas' => NotificacionData::getUnreadCount(),
+                'recientes' => NotificacionData::getRecientes(5),
+            ];
+            $share['demo_mode'] = session('demo_mode', false);
+        }
+
+        return $share;
     }
 }

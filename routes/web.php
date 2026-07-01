@@ -8,6 +8,8 @@ use App\Http\Controllers\DenunciaController;
 use App\Http\Controllers\SolicitudController;
 use App\Http\Controllers\DescargoController;
 use App\Http\Controllers\SeguimientoController;
+use App\Http\Controllers\NotificacionController;
+use App\Http\Controllers\DemoNotificacionController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -128,6 +130,22 @@ Route::prefix('admin')->name('admin.')->group(function () {
         return Inertia::render('Admin/Feriados');
     })->name('feriados');
 });
+
+// Sprint 9 — Notificaciones
+Route::middleware('auth')->prefix('notificaciones')->name('notificaciones.')->group(function () {
+    Route::get('/', [NotificacionController::class, 'index'])->name('index');
+    Route::post('/{id}/leer', [NotificacionController::class, 'marcarLeida'])->name('marcar-leida');
+    Route::post('/leer-todas', [NotificacionController::class, 'marcarTodasLeidas'])->name('marcar-todas');
+
+    // Demo routes (simulación, solo en Fase 0)
+    Route::post('/demo/toggle', [DemoNotificacionController::class, 'toggle'])->name('demo.toggle');
+    Route::post('/demo/simular', [DemoNotificacionController::class, 'simular'])->name('demo.simular');
+    Route::post('/demo/reset', [DemoNotificacionController::class, 'reset'])->name('demo.reset');
+});
+
+// API — Endpoint ligero para polling futuro
+Route::get('/api/notificaciones/count', [NotificacionController::class, 'count'])
+    ->middleware('auth');
 
 // ----- Perfil de usuario -----
 Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
