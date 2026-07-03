@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Head, router } from '@inertiajs/react';
 import { toast } from 'sonner';
 import {
@@ -141,6 +141,7 @@ interface PageProps {
   solicitudesByTicket?: Record<string, Solicitud[]>;
   descargosByTicket?: Record<string, Descargo[]>;
   canAct?: boolean;
+  destacar?: string;
 }
 
 const contadorConfig = [
@@ -152,7 +153,7 @@ const contadorConfig = [
   { key: 'cerrada', label: 'Cerradas', icon: Archive, color: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300' },
 ];
 
-export default function Bandeja({ denuncias, porAsignar, enCurso, historial, contadores, tecnicos, cargaTecnicos, solicitudesByTicket = {}, descargosByTicket = {}, canAct = false }: PageProps) {
+export default function Bandeja({ denuncias, porAsignar, enCurso, historial, contadores, tecnicos, cargaTecnicos, solicitudesByTicket = {}, descargosByTicket = {}, canAct = false, destacar }: PageProps) {
   const [selectedDenuncia, setSelectedDenuncia] = useState<Denuncia | null>(null);
   const [modalAdmisionTicket, setModalAdmisionTicket] = useState<string | null>(null);
   const [modalRechazoTicket, setModalRechazoTicket] = useState<string | null>(null);
@@ -179,6 +180,21 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
   const [search, setSearch] = useState('');
   const [filterTipo, setFilterTipo] = useState('all');
   const [sortBy, setSortBy] = useState('plazo');
+
+  // Auto-abrir sheet si viene desde notificación
+  useEffect(() => {
+    if (destacar) {
+      const todas = [...denuncias, ...porAsignar, ...enCurso, ...historial];
+      const found = todas.find((d) => d.ticket === destacar);
+      if (found) {
+        setSelectedDenuncia(found);
+        const timer = setTimeout(() => {
+          window.history.replaceState({}, '', route('denuncias.bandeja'));
+        }, 100);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [destacar]);
 
   const tabs = [
     { value: 'por-admitir', label: 'Por admitir', count: contadores.ingresada },

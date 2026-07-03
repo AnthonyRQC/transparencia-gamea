@@ -7,7 +7,7 @@ use Inertia\Inertia;
 
 class BandejaController extends Controller
 {
-    public function index()
+    public function index(\Illuminate\Http\Request $request)
     {
         if (empty(DenunciaData::getAll())) {
             DenunciaData::seedDemoData();
@@ -50,6 +50,7 @@ class BandejaController extends Controller
             'solicitudesByTicket' => $solicitudesByTicket,
             'descargosByTicket' => $descargosByTicket,
             'canAct' => false,
+            'destacar' => $request->query('destacar'),
         ]);
     }
 }

@@ -57,7 +57,7 @@ class NotificacionData
                         titulo: 'Plazo total por vencer',
                         mensaje: "{$ticket} · {$tipoDenuncia} · {$diasRestantes} día(s) restante(s)",
                         ticket: $ticket,
-                        destinoUrl: "/denuncias/{$ticket}",
+                        destinoUrl: "/denuncias?destacar={$ticket}",
                         icono: 'Clock',
                         color: 'warning',
                     );
@@ -67,7 +67,7 @@ class NotificacionData
                         titulo: 'Plazo vencido',
                         mensaje: "{$ticket} · Vencido hace " . abs($diasRestantes) . ' día(s)',
                         ticket: $ticket,
-                        destinoUrl: "/denuncias/{$ticket}",
+                        destinoUrl: "/denuncias?destacar={$ticket}",
                         icono: 'AlertTriangle',
                         color: 'destructive',
                     );
@@ -84,7 +84,7 @@ class NotificacionData
                         titulo: 'Informe final por vencer',
                         mensaje: "{$ticket} · {$diasInforme} día(s) para concluir informe",
                         ticket: $ticket,
-                        destinoUrl: "/denuncias/{$ticket}",
+                        destinoUrl: "/denuncias?destacar={$ticket}",
                         icono: 'FileText',
                         color: 'warning',
                     );
@@ -101,7 +101,7 @@ class NotificacionData
                         titulo: 'Caso traspasado',
                         mensaje: "{$ticket} fue asignado a {$destino}",
                         ticket: $ticket,
-                        destinoUrl: "/denuncias/{$ticket}",
+                        destinoUrl: "/denuncias?destacar={$ticket}",
                         icono: 'ArrowRightLeft',
                         color: 'info',
                     );
@@ -118,7 +118,7 @@ class NotificacionData
                         titulo: 'Plazo ampliado',
                         mensaje: "{$ticket} · +{$amp['dias']} día(s) — {$just}",
                         ticket: $ticket,
-                        destinoUrl: "/denuncias/{$ticket}",
+                        destinoUrl: "/denuncias?destacar={$ticket}",
                         icono: 'CalendarPlus',
                         color: 'success',
                     );
@@ -140,7 +140,7 @@ class NotificacionData
                             titulo: $esAdmitida ? 'Denuncia admitida' : 'Denuncia rechazada',
                             mensaje: "{$ticket} fue " . ($esAdmitida ? 'admitida' : 'rechazada'),
                             ticket: $ticket,
-                            destinoUrl: "/denuncias/{$ticket}",
+                            destinoUrl: "/denuncias?destacar={$ticket}",
                             icono: $esAdmitida ? 'CheckCircle' : 'XCircle',
                             color: $esAdmitida ? 'success' : 'destructive',
                         );
@@ -161,14 +161,14 @@ class NotificacionData
                     titulo: 'Solicitud de información por vencer',
                     mensaje: "{$s['ticket']} · {$s['unidad_destino']} · {$diasRestantes} día(s)",
                     ticket: $s['ticket'],
-                    destinoUrl: "/denuncias/{$s['ticket']}",
-                    icono: 'MailQuestion',
-                    color: 'warning',
+                    destinoUrl: "/denuncias?destacar={$s['ticket']}",
+
+                    icono: 'MailQuestion', color: 'warning',
                 );
             }
         }
 
-        // --- Descargos próximos a vencer ---
+        // --- 3. Descargos próximos a vencer ---
         $descargos = DescargoData::getAll();
         foreach ($descargos as $desc) {
             if (!in_array($desc['estado'] ?? '', ['notificado', 'ampliado'])) continue;
@@ -177,11 +177,10 @@ class NotificacionData
             $diasRestantes = (int)$now->diffInDays($fechaVence, false);
             if ($diasRestantes >= 0 && $diasRestantes <= 3) {
                 $derivadas[] = self::createNotificacion(
-                    tipo: 'descargo_vence',
-                    titulo: 'Descargo por vencer',
+                    tipo: 'descargo_vence', titulo: 'Descargo por vencer',
                     mensaje: "{$desc['ticket']} · {$diasRestantes} día(s) para responder",
                     ticket: $desc['ticket'],
-                    destinoUrl: "/denuncias/{$desc['ticket']}",
+                    destinoUrl: "/denuncias?destacar={$desc['ticket']}",
                     icono: 'MessageSquareWarning',
                     color: 'warning',
                 );
@@ -329,7 +328,7 @@ class NotificacionData
      * Modifica los datos subyacentes (DenunciaData, SolicitudData, DescargoData)
      * para que la simulación sea coherente con el resto del sistema.
      */
-    public static function simular(string $tipo): string
+    public static function simular(string $tipo): array
     {
         self::init();
         $now = now();
@@ -359,7 +358,7 @@ class NotificacionData
                 return self::createNotificacion(
                     tipo: 'traspaso', titulo: 'Caso traspasado',
                     mensaje: "{$targetTicket} fue asignado a Luis Mamani",
-                    ticket: $targetTicket, destinoUrl: "/denuncias/{$targetTicket}",
+                    ticket: $targetTicket, destinoUrl: "/denuncias?destacar={$targetTicket}",
                     icono: 'ArrowRightLeft', color: 'info',
                 );
 
@@ -382,7 +381,7 @@ class NotificacionData
                         return self::createNotificacion(
                             tipo: 'ampliacion', titulo: 'Plazo ampliado',
                             mensaje: "DEN-2026-0004 · +10 día(s) — Ampliación por demo…",
-                            ticket: 'DEN-2026-0004', destinoUrl: "/denuncias/DEN-2026-0004",
+                            ticket: 'DEN-2026-0004', destinoUrl: "/denuncias?destacar=DEN-2026-0004",
                             icono: 'CalendarPlus', color: 'success',
                         );
                     }
@@ -401,7 +400,7 @@ class NotificacionData
                         return self::createNotificacion(
                             tipo: 'denuncia_admitida', titulo: 'Denuncia admitida',
                             mensaje: "DEN-2026-0003 fue admitida",
-                            ticket: 'DEN-2026-0003', destinoUrl: "/denuncias/DEN-2026-0003",
+                            ticket: 'DEN-2026-0003', destinoUrl: "/denuncias?destacar=DEN-2026-0003",
                             icono: 'CheckCircle', color: 'success',
                         );
                     }
@@ -421,7 +420,7 @@ class NotificacionData
                         return self::createNotificacion(
                             tipo: 'denuncia_rechazada', titulo: 'Denuncia rechazada',
                             mensaje: "DEN-2026-0002 fue rechazada",
-                            ticket: 'DEN-2026-0002', destinoUrl: "/denuncias/DEN-2026-0002",
+                            ticket: 'DEN-2026-0002', destinoUrl: "/denuncias?destacar=DEN-2026-0002",
                             icono: 'XCircle', color: 'destructive',
                         );
                     }
@@ -438,7 +437,7 @@ class NotificacionData
                         return self::createNotificacion(
                             tipo: 'plazo_por_vencer', titulo: 'Plazo total por vencer',
                             mensaje: "DEN-2026-0006 · corrupcion · 2 día(s) restante(s)",
-                            ticket: 'DEN-2026-0006', destinoUrl: "/denuncias/DEN-2026-0006",
+                            ticket: 'DEN-2026-0006', destinoUrl: "/denuncias?destacar=DEN-2026-0006",
                             icono: 'Clock', color: 'warning',
                         );
                     }
@@ -455,7 +454,7 @@ class NotificacionData
                         return self::createNotificacion(
                             tipo: 'plazo_vencido', titulo: 'Plazo vencido',
                             mensaje: "DEN-2026-0007 · Vencido hace 5 día(s)",
-                            ticket: 'DEN-2026-0007', destinoUrl: "/denuncias/DEN-2026-0007",
+                            ticket: 'DEN-2026-0007', destinoUrl: "/denuncias?destacar=DEN-2026-0007",
                             icono: 'AlertTriangle', color: 'destructive',
                         );
                     }
@@ -472,7 +471,7 @@ class NotificacionData
                         return self::createNotificacion(
                             tipo: 'plazo_informe', titulo: 'Informe final por vencer',
                             mensaje: "DEN-2026-0010 · 2 día(s) para concluir informe",
-                            ticket: 'DEN-2026-0010', destinoUrl: "/denuncias/DEN-2026-0010",
+                            ticket: 'DEN-2026-0010', destinoUrl: "/denuncias?destacar=DEN-2026-0010",
                             icono: 'FileText', color: 'warning',
                         );
                     }
@@ -488,7 +487,7 @@ class NotificacionData
                         return self::createNotificacion(
                             tipo: 'solicitud_vence', titulo: 'Solicitud de información por vencer',
                             mensaje: "DEN-2026-0008 · Unidad de Contrataciones · 2 día(s)",
-                            ticket: 'DEN-2026-0008', destinoUrl: "/denuncias/DEN-2026-0008",
+                            ticket: 'DEN-2026-0008', destinoUrl: "/denuncias?destacar=DEN-2026-0008",
                             icono: 'MailQuestion', color: 'warning',
                         );
                     }
@@ -505,7 +504,7 @@ class NotificacionData
                         return self::createNotificacion(
                             tipo: 'descargo_vence', titulo: 'Descargo por vencer',
                             mensaje: "DEN-2026-0008 · 2 día(s) para responder",
-                            ticket: 'DEN-2026-0008', destinoUrl: "/denuncias/DEN-2026-0008",
+                            ticket: 'DEN-2026-0008', destinoUrl: "/denuncias?destacar=DEN-2026-0008",
                             icono: 'MessageSquareWarning', color: 'warning',
                         );
                     }
