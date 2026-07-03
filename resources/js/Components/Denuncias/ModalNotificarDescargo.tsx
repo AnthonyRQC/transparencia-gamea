@@ -24,6 +24,7 @@ interface ModalNotificarDescargoProps {
 export default function ModalNotificarDescargo({ descargoId, open, onOpenChange }: ModalNotificarDescargoProps) {
   const [fechaNotificacion, setFechaNotificacion] = useState(new Date().toISOString().split('T')[0]);
   const [medio, setMedio] = useState('');
+  const [plazoDias, setPlazoDias] = useState(10);
   const [respaldoArchivo, setRespaldoArchivo] = useState<{ nombre: string; tamano: string } | null>(null);
   const [processing, setProcessing] = useState(false);
 
@@ -31,11 +32,12 @@ export default function ModalNotificarDescargo({ descargoId, open, onOpenChange 
     if (open) {
       setFechaNotificacion(new Date().toISOString().split('T')[0]);
       setMedio('');
+      setPlazoDias(10);
       setRespaldoArchivo(null);
     }
   }, [open]);
 
-  const canSubmit = fechaNotificacion && medio;
+  const canSubmit = fechaNotificacion && medio && plazoDias > 0;
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -55,6 +57,7 @@ export default function ModalNotificarDescargo({ descargoId, open, onOpenChange 
       {
         fecha_notificacion: fechaNotificacion,
         medio,
+        plazo_dias: plazoDias,
         respaldo: respaldoArchivo ? { nombre: respaldoArchivo.nombre, tamano: respaldoArchivo.tamano } : null,
       },
       {
@@ -97,20 +100,37 @@ export default function ModalNotificarDescargo({ descargoId, open, onOpenChange 
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="medio-notificacion" className="after:content-['*'] after:text-destructive after:ml-0.5">
-              Medio de notificación
-            </Label>
-            <Select value={medio} onValueChange={setMedio}>
-              <SelectTrigger id="medio-notificacion">
-                <SelectValue placeholder="Seleccionar medio..." />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.entries(MEDIOS).map(([key, label]) => (
-                  <SelectItem key={key} value={key}>{label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="medio-notificacion" className="after:content-['*'] after:text-destructive after:ml-0.5">
+                Medio de notificación
+              </Label>
+              <Select value={medio} onValueChange={setMedio}>
+                <SelectTrigger id="medio-notificacion">
+                  <SelectValue placeholder="Seleccionar medio..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(MEDIOS).map(([key, label]) => (
+                    <SelectItem key={key} value={key}>{label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="plazo-dias" className="after:content-['*'] after:text-destructive after:ml-0.5">
+                Plazo (días hábiles)
+              </Label>
+              <input
+                id="plazo-dias"
+                type="number"
+                min="1"
+                max="30"
+                value={plazoDias}
+                onChange={(e) => setPlazoDias(parseInt(e.target.value) || 0)}
+                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              />
+            </div>
           </div>
 
           <div className="space-y-2">

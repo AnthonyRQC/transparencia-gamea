@@ -106,6 +106,7 @@ Route::prefix('denuncias')->name('denuncias.')->group(function () {
     Route::post('/descargos/{id}/notificar', [DescargoController::class, 'notificar'])->name('descargos.notificar');
     Route::post('/descargos/{id}/responder', [DescargoController::class, 'responder'])->name('descargos.responder');
     Route::post('/descargos/{id}/ampliar', [DescargoController::class, 'ampliar'])->name('descargos.ampliar');
+    Route::post('/descargos/{id}/cancelar', [DescargoController::class, 'cancelar'])->name('descargos.cancelar');
     Route::post('/descargos/{id}/editar', [DescargoController::class, 'editar'])->name('descargos.editar');
     Route::post('/descargos/{id}/eliminar', [DescargoController::class, 'eliminar'])->name('descargos.eliminar');
 

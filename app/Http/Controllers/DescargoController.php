@@ -11,7 +11,7 @@ class DescargoController extends Controller
     public function store(string $ticket, Request $request)
     {
         $validated = $request->validate([
-            'denunciado_idx' => 'required|integer|min:0',
+            'denunciado_idx' => 'required|integer|min:-1',
             'nombres' => 'required|string|max:200',
             'dependencia' => 'nullable|string|max:200',
         ]);
@@ -33,6 +33,7 @@ class DescargoController extends Controller
         $validated = $request->validate([
             'fecha_notificacion' => 'required|date|before_or_equal:today',
             'medio' => 'required|in:' . implode(',', array_keys(DescargoData::MEDIOS)),
+            'plazo_dias' => 'required|integer|min:1|max:365',
             'respaldo' => 'nullable|array',
         ]);
 
@@ -46,8 +47,9 @@ class DescargoController extends Controller
         }
 
         $respaldo = $validated['respaldo'] ?? null;
+        $plazoDias = (int) $validated['plazo_dias'];
 
-        DescargoData::notificar($id, $validated['fecha_notificacion'], $validated['medio'], $respaldo);
+        DescargoData::notificar($id, $validated['fecha_notificacion'], $validated['medio'], $respaldo, $plazoDias);
 
         $medioLabel = DescargoData::getMedioLabel($validated['medio']);
 
@@ -124,6 +126,33 @@ class DescargoController extends Controller
         );
 
         return redirect()->back()->with('success', "Plazo ampliado {$validated['dias']} días para el descargo de {$descargo['nombres_denunciado']}.");
+    }
+
+    public function cancelar(int $id, Request $request)
+    {
+        $validated = $request->validate([
+            'motivo' => 'required|string|min:10|max:2000',
+        ]);
+
+        $descargo = DescargoData::find($id);
+        if (!$descargo) {
+            return redirect()->back()->with('error', 'Descargo no encontrado.');
+        }
+
+        if (in_array($descargo['estado'], ['respondido', 'cancelado'])) {
+            return redirect()->back()->with('error', 'No se puede cancelar este descargo.');
+        }
+
+        DescargoData::cancelar($id, $validated['motivo']);
+
+        DenunciaData::registrarAccion(
+            $descargo['ticket'],
+            'descargo_cancelado',
+            "Se canceló el requerimiento de descargo para {$descargo['nombres_denunciado']}. Motivo: {$validated['motivo']}",
+            'sistema'
+        );
+
+        return redirect()->back()->with('success', "Descargo de {$descargo['nombres_denunciado']} cancelado.");
     }
 
     public function editar(int $id, Request $request)

@@ -27,6 +27,7 @@ import ModalResponderDescargo from '@/Components/Denuncias/ModalResponderDescarg
 import ModalAmpliarDescargo from '@/Components/Denuncias/ModalAmpliarDescargo';
 import ModalCancelarSolicitud from '@/Components/Denuncias/ModalCancelarSolicitud';
 import ModalNuevoDescargo from '@/Components/Denuncias/ModalNuevoDescargo';
+import ModalCancelarDescargo from '@/Components/Denuncias/ModalCancelarDescargo';
 import ModalConfirmarEliminar from '@/Components/Denuncias/ModalConfirmarEliminar';
 import ModalAmpliacionPlazo from '@/Components/Denuncias/ModalAmpliacionPlazo';
 
@@ -170,6 +171,7 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
   const [modalRespDescId, setModalRespDescId] = useState<number | null>(null);
   const [modalAmpliaDescId, setModalAmpliaDescId] = useState<number | null>(null);
   const [modalCancelarSolId, setModalCancelarSolId] = useState<number | null>(null);
+  const [modalCancelarDescId, setModalCancelarDescId] = useState<number | null>(null);
   const [modalNuevoDescTicket, setModalNuevoDescTicket] = useState<string | null>(null);
   // Edit/Delete modals
   const [modalEditarSol, setModalEditarSol] = useState<Solicitud | null>(null);
@@ -433,14 +435,15 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
           solicitudes={solicitudesByTicket[selectedDenuncia.ticket] || []}
           descargos={descargosByTicket[selectedDenuncia.ticket] || []}
           canAct={canAct}
-          onNuevaSolicitud={(t) => { setSelectedDenuncia(null); setModalNuevaSolTicket(t); }}
-          onResponderSolicitud={(id) => { setSelectedDenuncia(null); setModalRespondeSolId(id); }}
-          onAmpliarSolicitud={(id) => { setSelectedDenuncia(null); setModalAmpliaSolId(id); }}
-          onCancelarSolicitud={(id) => { setSelectedDenuncia(null); setModalCancelarSolId(id); }}
-          onNuevoDescargo={(t) => { setSelectedDenuncia(null); setModalNuevoDescTicket(t); }}
-          onNotificarDescargo={(id) => { setSelectedDenuncia(null); setModalNotificarDescId(id); }}
-          onResponderDescargo={(id) => { setSelectedDenuncia(null); setModalRespDescId(id); }}
-          onAmpliarDescargo={(id) => { setSelectedDenuncia(null); setModalAmpliaDescId(id); }}
+          onNuevaSolicitud={(t) => { setModalNuevaSolTicket(t); }}
+          onResponderSolicitud={(id) => { setModalRespondeSolId(id); }}
+          onAmpliarSolicitud={(id) => { setModalAmpliaSolId(id); }}
+          onCancelarSolicitud={(id) => { setModalCancelarSolId(id); }}
+          onNuevoDescargo={(t) => { setModalNuevoDescTicket(t); }}
+          onNotificarDescargo={(id) => { setModalNotificarDescId(id); }}
+          onResponderDescargo={(id) => { setModalRespDescId(id); }}
+          onAmpliarDescargo={(id) => { setModalAmpliaDescId(id); }}
+          onCancelarDescargo={(id) => { setModalCancelarDescId(id); }}
           onEditarSolicitud={(id) => {
             const sol = solicitudesByTicket[selectedDenuncia.ticket]?.find(s => s.id === id) || null;
             setModalEditarSol(sol);
@@ -584,6 +587,11 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
         solicitudId={modalCancelarSolId}
         open={modalCancelarSolId !== null}
         onOpenChange={(v: boolean) => { if (!v) setModalCancelarSolId(null); }}
+      />
+      <ModalCancelarDescargo
+        descargoId={modalCancelarDescId}
+        open={modalCancelarDescId !== null}
+        onOpenChange={(v: boolean) => { if (!v) setModalCancelarDescId(null); }}
       />
       <ModalNuevoDescargo
         ticket={modalEditarDesc ? modalEditarDesc.ticket : modalNuevoDescTicket}

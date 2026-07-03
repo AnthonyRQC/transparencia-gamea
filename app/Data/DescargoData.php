@@ -107,12 +107,12 @@ class DescargoData
         return $id;
     }
 
-    public static function notificar(int $id, string $fechaNotificacion, string $medio, ?array $respaldo = null): bool
+    public static function notificar(int $id, string $fechaNotificacion, string $medio, ?array $respaldo = null, int $plazoDias = 10): bool
     {
         $items = self::getAll();
         foreach ($items as $i => $d) {
             if (($d['id'] ?? 0) === $id) {
-                $fechaVen = Carbon::parse($fechaNotificacion)->addDays(10)->endOfDay();
+                $fechaVen = Carbon::parse($fechaNotificacion)->addDays($plazoDias)->endOfDay();
                 $items[$i]['estado'] = 'notificado';
                 $items[$i]['fecha_notificacion'] = Carbon::parse($fechaNotificacion)->toDateTimeString();
                 $items[$i]['medio'] = $medio;
@@ -134,6 +134,22 @@ class DescargoData
                 $items[$i]['resumen_descargo'] = $resumen;
                 $items[$i]['documentos'] = $documentos;
                 $items[$i]['fecha_respuesta'] = Carbon::now()->toDateTimeString();
+                session()->put(self::SESSION_KEY, $items);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static function cancelar(int $id, string $motivo): bool
+    {
+        $items = self::getAll();
+        foreach ($items as $i => $d) {
+            if (($d['id'] ?? 0) === $id) {
+                if (in_array($d['estado'] ?? '', ['respondido', 'cancelado'])) return false;
+                $items[$i]['estado'] = 'cancelado';
+                $items[$i]['motivo_cancelacion'] = $motivo;
+                $items[$i]['fecha_cancelacion'] = Carbon::now()->toDateTimeString();
                 session()->put(self::SESSION_KEY, $items);
                 return true;
             }

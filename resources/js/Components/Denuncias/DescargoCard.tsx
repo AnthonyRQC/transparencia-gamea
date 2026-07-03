@@ -33,6 +33,7 @@ interface DescargoCardProps {
   onAmpliar?: (id: number) => void;
   onEditar?: (id: number) => void;
   onEliminar?: (id: number) => void;
+  onCancelar?: (id: number) => void;
 }
 
 const estadoBadge: Record<string, { label: string; variant: 'default' | 'secondary' | 'outline' | 'destructive' }> = {
@@ -41,6 +42,7 @@ const estadoBadge: Record<string, { label: string; variant: 'default' | 'seconda
   respondido: { label: 'Respondido', variant: 'default' },
   vencido: { label: 'Vencido', variant: 'destructive' },
   ampliado: { label: 'Ampliado', variant: 'secondary' },
+  cancelado: { label: 'Cancelado', variant: 'outline' },
 };
 
 function getInitials(name: string): string {
@@ -52,7 +54,7 @@ function formatDate(d?: string): string {
   return new Date(d).toLocaleDateString('es-BO', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
-export default function DescargoCard({ descargo, canAct, onClick, onNotificar, onResponder, onAmpliar, onEditar, onEliminar }: DescargoCardProps) {
+export default function DescargoCard({ descargo, canAct, onClick, onNotificar, onResponder, onAmpliar, onEditar, onEliminar, onCancelar }: DescargoCardProps) {
   const badge = estadoBadge[descargo.estado] || estadoBadge.pendiente_notif;
   const isVencido = descargo.estado === 'notificado' && descargo.fecha_vencimiento && new Date(descargo.fecha_vencimiento) < new Date();
 
@@ -152,6 +154,16 @@ export default function DescargoCard({ descargo, canAct, onClick, onNotificar, o
               >
                 <RotateCcw className="w-3 h-3" />
                 Ampliar
+              </button>
+            )}
+            {descargo.estado !== 'respondido' && descargo.estado !== 'cancelado' && onCancelar && (
+              <button
+                type="button"
+                onClick={() => onCancelar(descargo.id)}
+                className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-red-100 text-red-700 text-[11px] font-semibold hover:bg-red-200 transition-colors dark:bg-red-900/30 dark:text-red-300"
+              >
+                <Trash2 className="w-3 h-3" />
+                Cancelar
               </button>
             )}
           </div>

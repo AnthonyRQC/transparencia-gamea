@@ -143,6 +143,7 @@ interface DenunciaSheetProps {
   onNuevoDescargo?: (ticket: string) => void;
   onEditarDescargo?: (id: number) => void;
   onEliminarDescargo?: (id: number) => void;
+  onCancelarDescargo?: (id: number) => void;
 }
 
 const escenarioLabel: Record<string, string> = {
@@ -182,7 +183,7 @@ export default function DenunciaSheet({
   onNuevaSolicitud, onResponderSolicitud, onAmpliarSolicitud, onCancelarSolicitud,
   onEditarSolicitud, onEliminarSolicitud,
   onNotificarDescargo, onResponderDescargo, onAmpliarDescargo, onNuevoDescargo,
-  onEditarDescargo, onEliminarDescargo,
+  onEditarDescargo, onEliminarDescargo, onCancelarDescargo,
 }: DenunciaSheetProps) {
   if (!denuncia) return null;
 
@@ -261,6 +262,7 @@ export default function DenunciaSheet({
                 onNuevoDescargo={onNuevoDescargo}
                 onEditar={onEditarDescargo}
                 onEliminar={onEliminarDescargo}
+                onCancelar={onCancelarDescargo}
               />
             </TabsContent>
 

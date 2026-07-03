@@ -39,6 +39,7 @@ class HandleInertiaRequests extends Middleware
             'jacha_url' => asset('jacha.jpg'),
             'success' => session('success'),
             'ticket' => session('ticket'),
+            'token' => session('token'),
         ];
 
         if ($request->user()) {

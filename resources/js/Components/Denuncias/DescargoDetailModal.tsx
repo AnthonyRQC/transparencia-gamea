@@ -55,6 +55,7 @@ interface DescargoDetailModalProps {
   onAmpliar?: (id: number) => void;
   onEditar?: (id: number) => void;
   onEliminar?: (id: number) => void;
+  onCancelar?: (id: number) => void;
 }
 
 const MEDIOS_LABEL: Record<string, string> = {
@@ -86,11 +87,12 @@ const estadoBadgeVar: Record<string, { label: string; variant: 'default' | 'seco
   respondido: { label: 'Respondido', variant: 'default' },
   vencido: { label: 'Vencido', variant: 'destructive' },
   ampliado: { label: 'Ampliado', variant: 'secondary' },
+  cancelado: { label: 'Cancelado', variant: 'outline' },
 };
 
 export default function DescargoDetailModal({
   descargo, open, onOpenChange, canAct,
-  onNotificar, onResponder, onAmpliar, onEditar, onEliminar,
+  onNotificar, onResponder, onAmpliar, onEditar, onEliminar, onCancelar,
 }: DescargoDetailModalProps) {
   const [historialOpen, setHistorialOpen] = useState(false);
 
@@ -254,6 +256,12 @@ export default function DescargoDetailModal({
                   <button type="button" onClick={() => onAmpliar(descargo.id)}
                     className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-amber-100 text-amber-700 text-xs font-semibold hover:bg-amber-200 transition-colors dark:bg-amber-900/30 dark:text-amber-300">
                     <RotateCcw className="w-3.5 h-3.5" /> Ampliar
+                  </button>
+                )}
+                {descargo.estado !== 'respondido' && descargo.estado !== 'cancelado' && onCancelar && (
+                  <button type="button" onClick={() => onCancelar(descargo.id)}
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-red-100 text-red-700 text-xs font-semibold hover:bg-red-200 transition-colors dark:bg-red-900/30 dark:text-red-300">
+                    <Trash2 className="w-3.5 h-3.5" /> Cancelar
                   </button>
                 )}
                 <>

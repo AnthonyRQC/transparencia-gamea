@@ -60,9 +60,10 @@ interface TabDescargosProps {
   onNuevoDescargo?: (ticket: string) => void;
   onEditar?: (id: number) => void;
   onEliminar?: (id: number) => void;
+  onCancelar?: (id: number) => void;
 }
 
-export default function TabDescargos({ descargos, canAct, ticket, denunciados = [], onNotificar, onResponder, onAmpliar, onNuevoDescargo, onEditar, onEliminar }: TabDescargosProps) {
+export default function TabDescargos({ descargos, canAct, ticket, denunciados = [], onNotificar, onResponder, onAmpliar, onNuevoDescargo, onEditar, onEliminar, onCancelar }: TabDescargosProps) {
   const [detailDescargoId, setDetailDescargoId] = useState<number | null>(null);
 
   const sorted = [...descargos].sort((a, b) => {
@@ -107,6 +108,7 @@ export default function TabDescargos({ descargos, canAct, ticket, denunciados = 
             onNotificar={onNotificar}
             onResponder={onResponder}
             onAmpliar={onAmpliar}
+            onCancelar={onCancelar}
             onEditar={(id) => { setDetailDescargoId(null); onEditar?.(id); }}
             onEliminar={(id) => { setDetailDescargoId(null); onEliminar?.(id); }}
           />
@@ -152,6 +154,7 @@ export default function TabDescargos({ descargos, canAct, ticket, denunciados = 
             onNotificar={onNotificar}
             onResponder={onResponder}
             onAmpliar={onAmpliar}
+            onCancelar={onCancelar}
             onEditar={onEditar}
             onEliminar={onEliminar}
           />
@@ -167,6 +170,7 @@ export default function TabDescargos({ descargos, canAct, ticket, denunciados = 
           onNotificar={onNotificar}
           onResponder={onResponder}
           onAmpliar={onAmpliar}
+          onCancelar={onCancelar}
           onEditar={(id) => { setDetailDescargoId(null); onEditar?.(id); }}
           onEliminar={(id) => { setDetailDescargoId(null); onEliminar?.(id); }}
         />
