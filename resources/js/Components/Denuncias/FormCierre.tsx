@@ -54,9 +54,10 @@ interface FormCierreProps {
 export default function FormCierre({ ticket, cierre, informeExiste, tecnicoNombre, canAct, onEdit, onDelete }: FormCierreProps) {
   const [openHistorial, setOpenHistorial] = useState(false);
   const [processing, setProcessing] = useState(false);
+  const [isEditingForm, setIsEditingForm] = useState(false);
 
   const isClosed = cierre && !cierre.eliminado && cierre.cerrado_at;
-  const showForm = canAct && informeExiste && !isClosed;
+  const showForm = canAct && informeExiste && (!isClosed || isEditingForm);
 
   if (!informeExiste && !isClosed) {
     return (
@@ -78,11 +79,14 @@ export default function FormCierre({ ticket, cierre, informeExiste, tecnicoNombr
 
   return (
     <div className="space-y-5">
-      {isClosed ? (
+      {isClosed && !isEditingForm ? (
         <CierrePreview
           cierre={cierre}
           canAct={canAct}
-          onEdit={onEdit}
+          onEdit={() => {
+            setIsEditingForm(true);
+            if (onEdit) onEdit();
+          }}
           onDelete={onDelete}
         />
       ) : canAct ? (
@@ -92,6 +96,8 @@ export default function FormCierre({ ticket, cierre, informeExiste, tecnicoNombr
           tecnicoNombre={tecnicoNombre}
           processing={processing}
           setProcessing={setProcessing}
+          onCancel={isClosed ? () => setIsEditingForm(false) : undefined}
+          onSuccess={() => setIsEditingForm(false)}
         />
       ) : null}
 
@@ -209,12 +215,14 @@ function CierrePreview({ cierre, canAct, onEdit, onDelete }: {
   );
 }
 
-function CierreForm({ ticket, cierre, tecnicoNombre, processing, setProcessing }: {
+function CierreForm({ ticket, cierre, tecnicoNombre, processing, setProcessing, onCancel, onSuccess }: {
   ticket: string;
   cierre: CierreData | null;
   tecnicoNombre: string;
   processing: boolean;
   setProcessing: (v: boolean) => void;
+  onCancel?: () => void;
+  onSuccess?: () => void;
 }) {
   const [sitpreco, setSitpreco] = useState(cierre?.sitpreco || '');
   const [notificadoDenunciante, setNotificadoDenunciante] = useState(cierre?.notificado_denunciante ?? true);
@@ -271,12 +279,14 @@ function CierreForm({ ticket, cierre, tecnicoNombre, processing, setProcessing }
         no_notificado_motivo: notificadoDenunciante ? null : noNotificadoMotivo || null,
         concluido_por: concluidoPor,
         descripcion,
+        archivos,
       },
       {
         preserveScroll: true,
         onSuccess: () => {
           toast.success(isEdit ? 'Cierre actualizado' : 'Denuncia cerrada correctamente');
           setProcessing(false);
+          if (onSuccess) onSuccess();
         },
         onError: (errors) => {
           const keys = Object.keys(errors);
@@ -444,9 +454,16 @@ function CierreForm({ ticket, cierre, tecnicoNombre, processing, setProcessing }
         </Button>
       </div>
 
-      <Button disabled={processing || !canSubmit} onClick={handleSubmit} className="w-full">
-        {processing ? 'Procesando...' : isEdit ? 'Actualizar Cierre' : 'Cerrar Expediente'}
-      </Button>
+      <div className="flex gap-2">
+        {onCancel && (
+          <Button type="button" variant="outline" onClick={onCancel} disabled={processing} className="w-full">
+            Cancelar
+          </Button>
+        )}
+        <Button disabled={processing || !canSubmit} onClick={handleSubmit} className="w-full">
+          {processing ? 'Procesando...' : isEdit ? 'Actualizar Cierre' : 'Cerrar Expediente'}
+        </Button>
+      </div>
     </div>
   );
 }

@@ -51,6 +51,7 @@ interface FormInformeFinalProps {
 export default function FormInformeFinal({ ticket, informe, tecnicoNombre, canAct, onEdit, onDelete }: FormInformeFinalProps) {
   const [openHistorial, setOpenHistorial] = useState(false);
   const [processing, setProcessing] = useState(false);
+  const [isEditingForm, setIsEditingForm] = useState(false);
 
   const isEditing = informe && !informe.eliminado && informe.clasificacion && informe.redactado_at;
   const showForm = canAct && (!isEditing || (informe && !informe.eliminado));
@@ -63,12 +64,15 @@ export default function FormInformeFinal({ ticket, informe, tecnicoNombre, canAc
 
   return (
     <div className="space-y-5">
-      {isEditing ? (
+      {isEditing && !isEditingForm ? (
         <InformePreview
           informe={informe}
           tecnicoNombre={tecnicoNombre}
           canAct={canAct}
-          onEdit={onEdit}
+          onEdit={() => {
+            setIsEditingForm(true);
+            if (onEdit) onEdit();
+          }}
           onDelete={onDelete}
         />
       ) : canAct ? (
@@ -78,6 +82,8 @@ export default function FormInformeFinal({ ticket, informe, tecnicoNombre, canAc
           tecnicoNombre={tecnicoNombre}
           processing={processing}
           setProcessing={setProcessing}
+          onCancel={isEditing ? () => setIsEditingForm(false) : undefined}
+          onSuccess={() => setIsEditingForm(false)}
         />
       ) : null}
 
@@ -181,12 +187,14 @@ function InformePreview({ informe, canAct, onEdit, onDelete }: {
   );
 }
 
-function InformeForm({ ticket, informe, tecnicoNombre, processing, setProcessing }: {
+function InformeForm({ ticket, informe, tecnicoNombre, processing, setProcessing, onCancel, onSuccess }: {
   ticket: string;
   informe: InformeData | null;
   tecnicoNombre: string;
   processing: boolean;
   setProcessing: (v: boolean) => void;
+  onCancel?: () => void;
+  onSuccess?: () => void;
 }) {
   const [clasificacion, setClasificacion] = useState(informe?.clasificacion || '');
   const [fojas, setFojas] = useState(informe?.fojas?.toString() || '');
@@ -224,12 +232,14 @@ function InformeForm({ ticket, informe, tecnicoNombre, processing, setProcessing
         fojas: parseInt(fojas),
         justificacion,
         concluido_por: concluidoPor,
+        archivos,
       },
       {
         preserveScroll: true,
         onSuccess: () => {
           toast.success(isEdit ? 'Informe actualizado' : 'Informe redactado');
           setProcessing(false);
+          if (onSuccess) onSuccess();
         },
         onError: (errors) => {
           const keys = Object.keys(errors);
@@ -324,9 +334,16 @@ function InformeForm({ ticket, informe, tecnicoNombre, processing, setProcessing
         </Button>
       </div>
 
-      <Button disabled={processing || !canSubmit} onClick={handleSubmit} className="w-full">
-        {processing ? 'Procesando...' : isEdit ? 'Actualizar Informe' : 'Guardar Informe'}
-      </Button>
+      <div className="flex gap-2">
+        {onCancel && (
+          <Button type="button" variant="outline" onClick={onCancel} disabled={processing} className="w-full">
+            Cancelar
+          </Button>
+        )}
+        <Button disabled={processing || !canSubmit} onClick={handleSubmit} className="w-full">
+          {processing ? 'Procesando...' : isEdit ? 'Actualizar Informe' : 'Guardar Informe'}
+        </Button>
+      </div>
     </div>
   );
 }
