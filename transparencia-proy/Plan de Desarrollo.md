@@ -394,7 +394,7 @@ POST /denuncias/{ticket}/saltar-fase          → DenunciaController@saltarFase
 | 1 | Sheet con Tabs (Información/Solicitudes/Descargos) | Mantener scroll único | 3 areas de trabajo, cada una con scroll propio |
 | 2 | Solicitudes y Descargos independientes (una entrada por item) | Agrupar por denunciado | Cada trámite es independiente (plazos distintos, respuestas distintas) |
 | 3 | Lista única con orden por fecha_vencimiento asc + PlazoProgress | Sub-tabs internos | Menos clics, progreso visual directo |
-| 4 | Plazos en días naturales (Sprint 4) | Días hábiles | Sprint 8 ajustará con calendario feriados |
+| 4 | ~~Plazos en días naturales (Sprint 4)~~ **→ Plazos en días hábiles** (Julio 2026) | Días naturales (descartado) | Decisión Junio 2026 → Sprint 8. **Revisada Julio 2026: TODOS los plazos en días hábiles.** |
 | 5 | Bandeja = read-only en Solicitudes/Descargos | Ocultar tabs en Bandeja | Jefe debe ver progreso; usa MisCasos + "Ver como:" para actuar |
 | 6 | MisCasos = con acciones (canAct=true) | Sin acciones | El técnico asignado es quien gestiona |
 | 7 | SaltarFase siempre pide justificación (mín 20 chars) | Solo si hay items pendientes | La ley exige justificación excepcional |
@@ -420,6 +420,23 @@ Cuando se implemente la BD real, las acciones realizadas en MisCasos con el drop
 Esto requiere modificar SolicitudData, DescargoData y los Controllers para aceptar y propagar el `usuario_id` desde la sesión autenticada de Laravel, no desde el parámetro `?tecnico=` de la URL.
 
 En Fase 0 (mock, sin sesión real de usuarios individuales) esta diferenciación no es posible porque no hay autenticación granular. Todos los usuarios autenticados comparten la misma sesión. La bitácora de mock usa 'sistema' como usuario genérico.
+
+#### 📝 Actualizaciones post-cierre (Julio 2026)
+
+Tras la reunión con el cliente, se aplican los siguientes cambios retroactivos al Sprint 4:
+
+| Cambio | Detalle |
+|--------|---------|
+| **Días hábiles** | Todos los plazos pasan de naturales a hábiles (Lun-Vie, sin Sáb/Dom/feriados). |
+| **Uploads eliminados** | Se quitan inputs de archivo de: Responder Solicitud, Notificar Descargo, Responder Descargo, Ampliar Solicitud. |
+| **Umbrales reducidos** | Justificaciones y descripciones bajan de `min:10/20` a `min:5/10`. |
+| **Campos opcionales** | CI, email, teléfono del denunciante (no anónimo) y dependencia del denunciado pasan a opcionales. |
+| **Plazo configurable** | `plazo_dias` se mantiene como input configurable (default 10, rango 1-45 hábiles). No se fuerza valor fijo. |
+| **Bug fix: max ampliación** | `SolicitudController@ampliar`: `max:45` → `max:5` (consistente con frontend y descargo). |
+| **Evidencia Acompañamiento** | Campo `evidencia` eliminado del formulario. |
+| **Archivo Intervención** | Campo `archivo` pasa de `required` a `nullable`. |
+
+**Ver detalle completo:** `transparencia-proy/Preguntas para el cliente.md` → #31, #32, #36.
 
 ---
 
@@ -569,6 +586,36 @@ El `BuscadorTicket.tsx` original tenía un auto-formato con `formatTicketInput()
 #### TODO — Preguntar al cliente
 
 > ⚠️ **TODO — Preguntar al cliente:** ¿La funcionalidad de "archivar casos" debe ser un subestado de `cerrada` (actual: `subestado: 'archivada'`) o un estado/proceso separado con flujo propio? Por el momento se mantiene como subestado sin afectar UX de la vista pública. Agendar consulta con cliente.
+
+---
+
+### Sprint 6.5 — Simulación Multi-Rol para Demo (NUEVO — Julio 2026)
+
+**Objetivo:** Simulación de 5 usuarios con roles sin base de datos. Dropdown en Header para cambiar entre Registrador, Jefe y 3 Técnicos. Sidebar filtra menú según rol.
+
+**Origen:** Reunión con cliente Julio 2026 — necesidad de demo realista con roles.
+
+| Archivo | Descripción |
+|---------|-------------|
+| `app/Data/SesionUsuarioData.php` (nuevo) | 5 usuarios mock + current_user en sesión |
+| `app/Http/Controllers/SelectorUsuarioController.php` (nuevo) | POST para cambiar de usuario demo |
+| `resources/js/Components/Layout/SelectorUsuarioDemo.tsx` (nuevo) | Dropdown en Header con los 5 usuarios |
+| `resources/js/Components/Layout/Header.tsx` (modificado) | +SelectorUsuarioDemo en la barra superior |
+| `resources/js/Components/Layout/Sidebar.tsx` (modificado) | Filtrar menú por `user.rol` (registrador/jefe/tecnico) |
+| `resources/js/Components/Layout/AppLayout.tsx` (modificado) | Enviar currentUser como prop Inertia |
+| `resources/js/Components/Denuncias/Bandeja.tsx` (modificado) | Bandeja solo accesible para Jefe |
+| `resources/js/Components/Denuncias/MisCasos.tsx` (modificado) | MisCasos solo accesible para Técnicos |
+| `resources/js/Components/Denuncias/MiResumen.tsx` (modificado) | MiResumen solo accesible para Técnicos |
+
+**Usuarios demo:**
+- Registrador: María García (solo `/denuncias/registrar`)
+- Jefe: Pedro Mamani (Bandeja, Reportes, Admin/Feriados)
+- Técnicos: Carlos Quispe, Ana Torres, Luis Mamani (MisCasos, MiResumen)
+
+**Patrón de reusabilidad — Sprint 15:**
+Cuando se implementen roles reales (Sprint 15), el dropdown se elimina y se reemplaza por `Auth::user()`. La lógica de filtrado del Sidebar y controllers NO cambia — solo cambia la fuente de datos. Cero código desechable.
+
+**Ver detalle:** `Sprints Pendientes - Contexto.md` → Sprint 6.5.
 
 ---
 
@@ -836,23 +883,34 @@ Ver detalle: `Sprint 7 - Evaluación Técnica Previa.md`
 
 ---
 
-### Sprint 18 — Calendario Feriados + Días Hábiles
+### Sprint 18 — Calendario Feriados + Días Hábiles (FINAL)
 
-**Objetivo:** Administración de feriados y cálculo dinámico de plazos en días hábiles (o calendario, según decisión del cliente).
+**Objetivo:** Cierre formal del sistema de días hábiles. Helper unificado `DiasHabiles.php` + UI de administración + recálculo retroactivo del seed demo.
 
-**Origen:** Pregunta pendiente #6 (C1) + decisión de mantener como último sprint.
+**Origen:** Pregunta #6 (C1) — **decisión tomada en Julio 2026: días hábiles UNIVERSAL.**
+
+**Nota importante:** El sistema YA usa días hábiles desde Sprint 4 (decisión retroactiva tomada en Julio 2026). Este sprint **formaliza** el helper, la integración con feriados persistentes y el recálculo del seed. No cambia la lógica actual.
 
 | Archivo | Descripción |
 |---------|-------------|
-| `resources/js/Pages/Admin/Feriados.tsx` (nuevo) | Cuadrícula de calendario anual, click para marcar/desmarcar feriados |
+| `app/Helpers/DiasHabiles.php` (nuevo, formal) | `diasHabilesTranscurridos()` y `agregarDiasHabiles()` con feriados |
 | `app/Data/FeriadoData.php` (nuevo) | Catálogo de feriados (nacional + departamental La Paz) |
-| `app/Helpers/DiasHabiles.php` (nuevo) | Algoritmo de cálculo de días hábiles (Carbon + feriados) |
-| `app/Http/Controllers/FeriadoController.php` (nuevo) | CRUD feriados |
-| `resources/js/Components/Denuncias/PlazoBadge.tsx` (modificado) | Integrar helper de días hábiles |
+| `app/Http/Controllers/FeriadoController.php` (nuevo) | CRUD feriados (backend) |
+| `resources/js/Pages/Admin/Feriados.tsx` (refactor) | Conectar UI existente con el CRUD real |
+| `app/Data/DenunciaData.php` (modificado) | `getPlazoInfo()` usa helper. Seed recalculado. |
+| `app/Data/SolicitudData.php` (modificado) | `getPlazoInfo()` usa helper |
+| `app/Data/DescargoData.php` (modificado) | `getPlazoInfo()` usa helper |
+| `resources/js/Components/Denuncias/PlazoBadge.tsx` (modificado) | Integrar backend de días hábiles |
+| `resources/js/Components/Denuncias/PlazoProgress.tsx` (modificado) | Integrar backend de días hábiles |
 
-**Decisión pendiente con cliente:** ¿días hábiles o calendario? (Pregunta #6)
+**Comportamiento esperado:**
+- Todos los plazos se calculan en Lun-Vie, saltando Sáb/Dom y feriados
+- El Jefe administra feriados desde `/admin/feriados`
+- El seed demo regenera las 12 denuncias con plazos hábiles
 
-**Nota:** Este sprint es uno de los últimos a reestructurar. Se hará cuando se implemente Sprint 14 (BD).
+**Decisión:** ✅ Días hábiles confirmado (Julio 2026). Ver `Preguntas para el cliente.md` → #6 y #30.
+
+**Dependencias:** Sprint 14 (BD) para persistencia.
 
 ---
 
@@ -875,6 +933,34 @@ Ver detalle: `Sprint 7 - Evaluación Técnica Previa.md`
 - **Criterio "done" final:** checklist de requisitos de Fase 1
 
 **Nota para IAs:** Esta sección es solo roadmap. **No leerla** a menos que se esté trabajando explícitamente en el Sprint 19.
+
+---
+
+### Sprint 20 — Archivos Grandes + Conectividad Inestable (NUEVO — Post-Fase 1)
+
+**Objetivo:** Estrategia técnica para subida robusta de archivos de hasta 1000+ páginas (>100MB) en entornos con internet inestable (latencia variable, cortes momentáneos, señal baja).
+
+**Origen:** Reunión Julio 2026 — preocupación del cliente sobre infraestructura de red institucional.
+
+> ⚠️ **NO se implementa en Fase 0 ni Fase 1.** Es diseño y planificación para post-lanzamiento.
+
+**Estrategia propuesta:**
+
+| Técnica | Propósito | Librería sugerida |
+|---------|-----------|-------------------|
+| **Chunked uploads** | Dividir archivo grande en pedazos 5-10MB | `tus.io` protocol + `Uppy` cliente |
+| **Resumable uploads** | Reanudar desde último chunk tras corte | `tus-php` servidor |
+| **Retry con backoff exponencial** | Reintentos automáticos 1s→2s→4s→8s→... | Custom + Laravel Queue |
+| **Hash dedup SHA256** | No resubir archivo ya existente en el sistema | Custom |
+| **Queue asíncrona** | Subida en background, no bloquea la UI | Laravel Jobs |
+| **Compresión cliente** | Reducir tamaño de PDF escaneado antes de subir | Browser-side (opcional) |
+| **Storage alternativo** | S3-compat (MinIO) en lugar de disco local | `league/flysystem-aws-s3-v3` |
+
+**Mock en Fase 0:** Solo barra de progreso animada + botón de retry visual. Sin chunking real hasta Fase 1 o Sprint 20.
+
+**Dependencias:** Sprint 14 (BD), Sprint 15 (Auth).
+
+**Ver detalle:** `Sprints Pendientes - Contexto.md` → Sprint 20.
 
 ---
 

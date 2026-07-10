@@ -1,12 +1,12 @@
 # Preguntas para el Cliente
 
-> **Documento de trabajo.** Contiene todas las preguntas del proyecto y el estado de cada una.
-> Una vez respondidas las pendientes, trasladar decisiones a los documentos correspondientes.
-> Este archivo se mantiene vivo durante toda la Fase 1.
+> **Documento histórico cerrado.** Todas las preguntas resueltas en reuniones
+> de Junio y Julio 2026. Las decisiones se trasladan a `Sprints Pendientes - Contexto.md`
+> y `Plan de Desarrollo.md`. Este archivo se mantiene como referencia viva.
 
 ---
 
-## ✅ Preguntas Resueltas (24)
+## ✅ Preguntas Resueltas (30)
 
 ### Bloque A — Sprint 5 + Sprint 6
 
@@ -32,6 +32,16 @@
 
 ---
 
+### Bloque A — Sprint 7 + 8 (resueltas Junio 2026)
+
+#### #2 — SITPRECO: validación de formato ⏸️
+**Estado:** Mantiene. Se deja como **texto libre** sin hint. Cuando el cliente confirme el formato definitivo, se actualizará el input.
+
+#### #4 — Estructura del código SITPRECO ⏸️
+**Estado:** Mantiene. Misma que #2. Formato tentativo: 4-5 bloques de 3-4 caracteres separados por guion (ej. `XXX-XXXX-XXX-XXXXX`). Sin validación rígida.
+
+---
+
 #### #7 — C2: Comportamiento ante vencimiento de plazos ✅
 **Decisión:** El sistema **permite el registro posterior** (no bloquea), pero marca **visiblemente el retraso** con texto "+Xd de retraso" o badge "Vencido".
 
@@ -54,6 +64,45 @@
 
 #### #11 — C6: Modo de aprobación de ampliaciones ✅
 **Decisión:** El Jefe de Unidad puede aprobar **múltiples ampliaciones parciales** (no solo una prórroga directa por el máximo legal).
+
+---
+
+### Bloque C — Legales
+
+#### #5 — Archivar casos: subestado o estado ⏸️
+**Estado:** Mantiene para consulta con cliente. Por ahora se mantiene como subestado de `cerrada` sin afectar la UX pública.
+
+---
+
+#### #6 — C1: Días hábiles vs calendario ✅ **RESUELTO (Julio 2026)**
+**Decisión final:** Todos los plazos del sistema se calculan en **días hábiles** (lunes a viernes, sin sábados, domingos ni feriados).
+
+**Afecta a TODOS los plazos:**
+- Admisión (Art. 23): 5 días hábiles
+- Solicitudes información (Art. 25): 10 días hábiles (configurable, default 10)
+- Descargos (Art. 25): 10 días hábiles + 5 días prórroga (configurable, default 10)
+- Plazo total corrupción (Art. 30): 45 + 45 días hábiles
+- Plazo total negación (Art. 30): 20 + 10 días hábiles
+- Ampliaciones: todos los plazos en días hábiles
+
+**Administración de feriados:**
+- El **Jefe de Unidad** administra los feriados desde el panel `/admin/feriados`
+- Los feriados se cuentan a nivel nacional y departamental (La Paz)
+- El cálculo de plazos usa el helper `DiasHabiles` con la lista de feriados vigente
+
+**Sub-decisiones:**
+- El input `plazo_dias` en Solicitudes/Descargos se **mantiene configurable** (default 10, rango 1-45 hábiles) para permitir flexibilidad según urgencia. No se fuerza un valor fijo.
+- La fecha de vencimiento se calcula sumando los días hábiles desde la creación, saltando Sáb/Dom/feriados.
+
+---
+
+#### #12 — C7: Destino del expediente al remitirse al Ministerio ⏸️
+**Estado:** Mantiene. ¿El caso se marca como "Cerrado por Remisión al Ministerio" o permanece abierto en monitoreo?
+
+---
+
+#### #13 — C8: Reglas del plazo al reabrir una denuncia ⏸️
+**Estado:** Mantiene. ¿El temporizador se reanuda o se establece una nueva fecha límite manual?
 
 ---
 
@@ -153,6 +202,119 @@
 
 ---
 
+### Bloque E — Reunión Julio 2026 (7 nuevas decisiones)
+
+#### #30 — C1: Días hábiles vs calendario (cierre definitivo) ✅
+*(Esta pregunta reemplaza la #6 que estaba pendiente. La respuesta completa está en #6 arriba, en Bloque C. Aquí solo está referenciada.)*
+
+**Decisión:** Todos los plazos en días hábiles (Lun-Vie, sin Sáb/Dom/feriados). Administración de feriados por el Jefe de Unidad. Ver detalle en #6.
+
+---
+
+#### #31 — Aligeramiento: quitar uploads obligatorios en flujos intermedios ✅
+**Decisión:** Se eliminan los campos de archivo adjunto en los siguientes formularios para reducir carga operativa y evitar que el personal tenga que escanear documentos a cada rato:
+
+| Formulario | Ubicación | Acción |
+|---|---|---|
+| Responder Solicitud | `ModalResponderSolicitud.tsx` | Quitar input `archivos` |
+| Notificar Descargo | `ModalNotificarDescargo.tsx` | Quitar input `respaldo` |
+| Responder Descargo | `ModalResponderDescargo.tsx` | Quitar input `documentos` |
+| Ampliar Solicitud | `ModalAmpliarSolicitud.tsx` | Quitar input `archivo` |
+| Acompañamiento (Evidencia) | `FormularioAcompaniamiento.tsx` | Quitar input `evidencia` |
+| Intervención (Archivo) | `FormularioIntervencion.tsx` | Hacer `archivo` OPCIONAL (era `required`) |
+
+**Filosofía:** Los archivos solo se escanean y suben al **Informe Final + Cierre** (Sprint 5). Esto evita filas en el escáner y reduce la fricción del personal con el sistema. La digitalización completa del expediente se hace al final.
+
+---
+
+#### #32 — Flexibilización de campos obligatorios ✅
+**Decisión:** Se reducen los umbrales mínimos de caracteres en justificaciones y se hacen opcionales ciertos campos para agilizar el flujo de trabajo. Ver tabla completa:
+
+**Justificaciones con umbral reducido (10/20 → 5/10):**
+
+| Acción | Campo | Antes | Ahora |
+|---|---|---|---|
+| Denunciado: descripción (si anónimo) | `descripcion` | `min:5` | `min:3` (casi libre) |
+| Hechos de la denuncia | `hechos` | `min:20` | `min:10` |
+| Rechazar denuncia | `justificacion` | `min:10` | `min:5` |
+| Crear solicitud | `detalle` | `min:10` | `min:5` |
+| Responder solicitud | `respuesta` | `min:10` | `min:5` |
+| Cancelar solicitud | `motivo` | `min:10` | `min:5` |
+| Ampliar solicitud | `justificacion` | `min:20` | `min:10` |
+| Responder descargo | `resumen_descargo` | `min:10` | `min:5` |
+| Cancelar descargo | `motivo` | `min:10` | `min:5` |
+| Ampliar descargo | `justificacion` | `min:20` | `min:10` |
+| Traspasar caso | `justificacion` | `min:10` | `min:5` |
+| Saltar fase | `justificacion` | `min:20` | `min:10` |
+| Notificación cierre | `notificacion_descripcion` | `min:10` | `min:5` |
+| Motivo no notificado | `no_notificado_motivo` | `required_if` | **HACER OPCIONAL** |
+
+**Campos opcionales nuevos:**
+| Formulario | Campo | Cambio |
+|---|---|---|
+| Registro (no anónimo) | `denunciante.ci` | `required` → `nullable` |
+| Registro (no anónimo) | `denunciante.email` | `required` → `nullable` (al menos 1 contacto) |
+| Registro (no anónimo) | `denunciante.telefono` | `required` → `nullable` (al menos 1 contacto) |
+| Denunciado (si conoce) | `dependencia` | `required_if` → `nullable` |
+| Prueba | `descripcion` | `required_with` → `nullable` |
+| Acompañamiento | `ci` | `nullable` (ya) — sin cambio |
+| Intervención | `archivo` | `required` → `nullable` |
+| Intervención | `referencia_nota` | `required` → `nullable` |
+
+**Campos que se MANTIENEN obligatorios (16):**
+Todos los campos donde la ley exige explícitamente: `declaracion_jurada`, `denunciante.nombres` (si no anónimo), `denunciados` array, `detalles.categoria/fecha/lugar`, `hechos`, clasificación/fojas/justificación del informe, cierre `concluido_por`/`descripcion`, etc.
+
+---
+
+#### #33 — Archivos grandes + conectividad inestable (Sprint 20) ✅
+**Decisión:** Se documenta como **Sprint 20** (post-Fase 1, post-Sprint 19). No se implementa en Fase 0 ni Fase 1. El sprint contendrá:
+
+**Problema:** Los servidores de la institución presentan latencia variable, cortes momentáneos y señal inestable. Los archivos pueden tener hasta 1000+ páginas escaneadas (tamaño >100MB).
+
+**Estrategia propuesta:**
+- Chunked uploads (dividir en pedazos de 5-10MB)
+- Resumable uploads (reanudar desde último chunk tras corte)
+- Retry con backoff exponencial (reintentos automáticos 1s→2s→4s→...)
+- Queue asíncrona con Laravel Jobs (no bloquea la UI)
+- Hash dedup SHA256 (no resubir archivos duplicados)
+- Compresión en cliente (opcional, reducir PDF escaneado)
+- Almacenamiento alternativo S3-compat (MinIO local)
+
+**Ver detalle:** `Plan de Desarrollo.md` → Sprint 20.
+
+---
+
+#### #34 — Simulación multi-rol para demo (Sprint 6.5) ✅
+**Decisión:** Se crea **Sprint 6.5** (entre Sprint 6 y Sprint 7) para una simulación de roles sin base de datos. Mecanismo:
+
+- **Dropdown en el Header** con 5 usuarios demo:
+  - **Registrador:** María García (solo ve `/denuncias/registrar`)
+  - **Jefe de Unidad:** Sr. Pedro Mamani (ve Bandeja, Reportes, Admin/Feriados)
+  - **Técnicos (3):** Carlos Quispe, Ana Torres, Luis Mamani (ya existentes, ven MisCasos+MiResumen)
+- Al cambiar de usuario, se hace POST al backend que guarda en `session('demo_user_id')`
+- Sidebar filtra menú según el rol activo
+- **Persistencia:** Sesión Laravel (servidor), no localStorage
+
+**Patrón de reusabilidad:** Cuando llegue Sprint 15 (Roles reales + BD), el dropdown se elimina y se reemplaza por `Auth::user()`. El Sidebar usa la misma lógica de `rol` (solo cambia la fuente de datos). **Cero código desechable.**
+
+---
+
+#### #35 — Subdecisión: Administración de feriados por el Jefe ✅
+**Decisión:** El **Jefe de Unidad** es el único administrador del calendario de feriados. Accede desde `/admin/feriados` (cuadrícula calendario anual). Puede marcar/desmarcar cualquier día como feriado.
+
+Los feriados afectan a TODOS los plazos del sistema (cálculo centralizado). No hay restricción de cuántos feriados se pueden marcar — es potestad institucional.
+
+**Implementación:** Sprint 10 (Panel Catálogos) + Sprint 18 (helper formal).
+
+---
+
+#### #36 — Fix: max ampliación solicitud (bug heredado) ✅
+**Decisión:** Se detectó un bug en `SolicitudController@ampliar`: el frontend de `ModalAmpliarSolicitud.tsx` limita la ampliación a **max:5 días** (correcto según Art. 25), pero el backend tiene `max:45` (inconsistencia heredada). Se corrige bajando a `max:5` para coincidir con el frontend y con `DescargoController@ampliar` que ya tiene `max:5`.
+
+**Nota:** Esto NO afecta la ampliación del plazo total del caso (Sprint 8, `DenunciaController@aprobarAmpliacion`), que correctamente tiene `max:45` (Art. 30, 45+45 corrupción).
+
+---
+
 ## ⏸️ Preguntas Pendientes (5)
 
 ### #2 — SITPRECO: validación de formato
@@ -163,9 +325,6 @@
 
 ### #5 — Archivar casos: subestado o estado
 **Estado:** Mantiene para consulta con cliente. Por ahora se mantiene como subestado de `cerrada` sin afectar la UX pública.
-
-### #6 — C1: Días hábiles vs calendario
-**Estado:** Mantiene. Se hará cuando se implemente el Sprint 18 (Calendario Feriados + Plazos), que será uno de los últimos sprints.
 
 ### #12 — C7: Destino del expediente al remitirse al Ministerio
 **Estado:** Mantiene. ¿El caso se marca como "Cerrado por Remisión al Ministerio" o permanece abierto en monitoreo?
@@ -179,11 +338,11 @@
 
 | Bloque | Total | ✅ Resueltas | ⏸️ Pendientes |
 |--------|-------|--------------|----------------|
-| A — Sprint 5 | 4 | 1, 3 | 2, 4 |
-| A — Sprint 6 | 1 | — | 5 |
-| C — Legales | 8 | 7, 8, 9, 10, 11 | 6, 12, 13 |
-| D — Sprint 7 + Transv | 15 | 15-29 (todas) | — |
-| **Total** | **28** | **23** | **5** |
+| A — Sprint 5 + 6 | 4 | 1, 3 | 2, 4 |
+| C — Legales | 8 | 6, 7, 8, 9, 10, 11 | 5, 12, 13 |
+| D — Sprint 7 + Transv | 15 | 15-29 | — |
+| E — Reunión Julio 2026 | 7 | 30-36 | — |
+| **Total** | **34** | **29** | **5** |
 
 ---
 
@@ -192,22 +351,41 @@
 ### Cambio de nombre
 - **"Recepcionista" → "Registrador"** (en toda la documentación)
 
-### Roadmap reestructurado (sprints 7-19)
-- Sprint 7 — Evaluación Técnica Previa (NUEVO)
+### De la reunión de Julio 2026
+
+#### Días hábiles (transversal)
+Afecta a TODOS los plazos del sistema. Se implementa un helper `DiasHabiles.php` (Sprint 18) que recibe fecha inicio, cantidad de días hábiles y lista de feriados, y devuelve la fecha de vencimiento calculada. Este helper se integra en todos los puntos de cálculo de plazos retroactivamente (Sprint 4, 7, 8).
+
+#### Aligeramiento del sistema
+Se quitan 6 inputs de archivo de flujos intermedios (detalle en #31). Solo se suben archivos al Informe Final + Cierre (Sprint 5). Se flexibilizan 24 umbrales mínimos y se hacen opcionales 8 campos (detalle en #32).
+
+#### Nuevos sprints en el roadmap
+- **Sprint 6.5** — Simulación Multi-rol (demo)
+- **Sprint 20** — Archivos Grandes + Conectividad (post-Fase 1)
+
+#### Bug fix
+- `SolicitudController@ampliar`: `max:45` → `max:5` (consistente con frontend y descargo)
+
+---
+
+## Roadmap reestructurado (sprints 7-20)
+
+- Sprint 6.5 — Simulación Multi-rol (NUEVO)
+- Sprint 7 — Evaluación Técnica Previa
 - Sprint 8 — Ampliaciones Múltiples
 - Sprint 9 — Notificaciones Push + Historial
-- Sprint 10 — Panel Administración Catálogos + Subcategorías
+- Sprint 10 — Panel Administración Catálogos + Subcategorías + Feriados
 - Sprint 11 — Dashboard + KPIs + Reportes PDF/Excel
-- Sprint 12 — Tablero Público Cerrados (Welcome)
+- Sprint 12 — Tablero Público Cerrados
 - Sprint 13 — Tiempos entre Fases
 - Sprint 14 — Base de datos real (MySQL)
 - Sprint 15 — Roles y permisos (Registrador/Jefe/Técnico)
 - Sprint 16 — Auditoría backend detallada
 - Sprint 17 — Lógica de mora explícita +Xd
-- Sprint 18 — Calendario feriados + días hábiles
-- Sprint 19 — Cierre Fase 1 / Ajustes finales (testing, limpieza, docs, deploy)
-
-Ver `Plan de Desarrollo.md` y `Sprints Pendientes - Contexto.md` para detalle.
+- Sprint 18 — Calendario feriados + Días hábiles (helper formal)
+- Sprint 19 — Cierre Fase 1 / Ajustes finales
+- Sprint 20 — Archivos Grandes + Conectividad inestable (NUEVO, post-Fase 1)
 
 ---
-*Última actualización: Junio 2026.*
+
+*Última actualización: Julio 2026.*
