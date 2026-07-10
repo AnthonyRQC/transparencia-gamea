@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Data\DenunciaData;
+use App\Data\SesionUsuarioData;
 use Inertia\Inertia;
 
 class MisCasosController extends Controller
@@ -13,7 +14,13 @@ class MisCasosController extends Controller
             DenunciaData::seedDemoData();
         }
 
-        $tecnicoId = request('tecnico', 'tec-1');
+        $currentUser = SesionUsuarioData::getCurrent();
+        $tecnicoId = $currentUser['id'];
+
+        if ($currentUser['rol'] !== 'tecnico') {
+            $tecnicoId = 'tec-1';
+        }
+
         $denuncias = DenunciaData::getByTecnico($tecnicoId);
 
         $grouped = [];
@@ -42,7 +49,7 @@ class MisCasosController extends Controller
         return Inertia::render('Denuncias/MisCasos', [
             'grouped' => $grouped,
             'tecnicoActual' => $tecnicoId,
-            'tecnicos' => DenunciaData::TECNICOS_MOCK,
+            'tecnicos' => SesionUsuarioData::getAll(),
             'solicitudesByTicket' => $solicitudesByTicket,
             'descargosByTicket' => $descargosByTicket,
             'canAct' => true,

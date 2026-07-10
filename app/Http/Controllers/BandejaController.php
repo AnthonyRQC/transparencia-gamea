@@ -3,12 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Data\DenunciaData;
+use App\Data\SesionUsuarioData;
 use Inertia\Inertia;
 
 class BandejaController extends Controller
 {
     public function index(\Illuminate\Http\Request $request)
     {
+        $currentUser = SesionUsuarioData::getCurrent();
+        if ($currentUser['rol'] !== 'jefe') {
+            return redirect()->route('dashboard')->with('error', 'Solo el Jefe de Unidad puede acceder a la Bandeja de Admisión.');
+        }
+
         if (empty(DenunciaData::getAll())) {
             DenunciaData::seedDemoData();
         }

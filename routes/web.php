@@ -132,8 +132,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
     })->name('feriados');
 });
 
-// Sprint 9 — Notificaciones
-Route::middleware('auth')->prefix('notificaciones')->name('notificaciones.')->group(function () {
+// Sprint 6.5 — Selector de usuario demo
+Route::post('/cambiar-usuario', [\App\Http\Controllers\SelectorUsuarioController::class, 'cambiar'])->name('cambiar-usuario');
+
+// Sprint 9 — Notificaciones (sin auth, usa demo session)
+Route::prefix('notificaciones')->name('notificaciones.')->group(function () {
     Route::get('/', [NotificacionController::class, 'index'])->name('index');
     Route::post('/{id}/leer', [NotificacionController::class, 'marcarLeida'])->name('marcar-leida');
     Route::post('/leer-todas', [NotificacionController::class, 'marcarTodasLeidas'])->name('marcar-todas');

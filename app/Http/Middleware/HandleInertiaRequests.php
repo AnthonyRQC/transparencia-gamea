@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Data\NotificacionData;
+use App\Data\SesionUsuarioData;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -30,6 +31,8 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $currentUser = SesionUsuarioData::getCurrent();
+
         $share = [
             ...parent::share($request),
             'auth' => [
@@ -40,16 +43,16 @@ class HandleInertiaRequests extends Middleware
             'success' => session('success'),
             'ticket' => session('ticket'),
             'token' => session('token'),
+            'currentUser' => $currentUser,
+            'usuarios' => SesionUsuarioData::getAll(),
         ];
 
-        if ($request->user()) {
-            NotificacionData::generarParaUsuario();
-            $share['notificaciones'] = [
-                'no_leidas' => NotificacionData::getUnreadCount(),
-                'recientes' => NotificacionData::getRecientes(5),
-            ];
-            $share['demo_mode'] = session('demo_mode', false);
-        }
+        NotificacionData::generarParaUsuario($currentUser['id']);
+        $share['notificaciones'] = [
+            'no_leidas' => NotificacionData::getUnreadCount($currentUser['id']),
+            'recientes' => NotificacionData::getRecientes(5, $currentUser['id']),
+        ];
+        $share['demo_mode'] = session('demo_mode', false);
 
         return $share;
     }

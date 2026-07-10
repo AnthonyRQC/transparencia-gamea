@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Data\DenunciaData;
+use App\Data\SesionUsuarioData;
 use Inertia\Inertia;
 
 class MiResumenController extends Controller
@@ -13,13 +14,19 @@ class MiResumenController extends Controller
             DenunciaData::seedDemoData();
         }
 
-        $tecnicoId = request('tecnico', 'tec-1');
+        $currentUser = SesionUsuarioData::getCurrent();
+        $tecnicoId = $currentUser['id'];
+
+        if ($currentUser['rol'] !== 'tecnico') {
+            $tecnicoId = 'tec-1';
+        }
+
         $contadores = DenunciaData::getContadoresTecnico($tecnicoId);
 
         return Inertia::render('Denuncias/MiResumen', [
             'contadores' => $contadores,
             'tecnicoActual' => $tecnicoId,
-            'tecnicos' => DenunciaData::TECNICOS_MOCK,
+            'tecnicos' => SesionUsuarioData::getAll(),
         ]);
     }
 }

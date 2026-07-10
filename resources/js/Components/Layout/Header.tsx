@@ -4,6 +4,7 @@ import { route } from 'ziggy-js';
 import { Sun, Moon, LogOut, User, ChevronDown } from 'lucide-react';
 import InstitutionalLogo from './InstitutionalLogo';
 import CampanaNotificaciones from './CampanaNotificaciones';
+import SelectorUsuarioDemo from './SelectorUsuarioDemo';
 
 interface HeaderProps {
     isDarkMode: boolean;
@@ -23,6 +24,8 @@ export default function Header({
     const { props } = usePage();
     const user = (props as any).auth?.user;
     const notificaciones = (props as any).notificaciones;
+    const currentUser = (props as any).currentUser;
+    const usuarios = (props as any).usuarios;
     const noLeidas = notificaciones?.no_leidas ?? 0;
     const recientes = notificaciones?.recientes ?? [];
 
@@ -86,6 +89,9 @@ export default function Header({
             </div>
 
             <div className="flex items-center gap-2 shrink-0">
+                {/* Demo User Selector */}
+                {currentUser && usuarios && <SelectorUsuarioDemo currentUser={currentUser} usuarios={usuarios} />}
+
                 {/* Notifications Bell */}
                 <CampanaNotificaciones noLeidas={noLeidas} recientes={recientes} />
 

@@ -26,7 +26,24 @@ class NotificacionData
     //  GENERACIÓN DERIVADA
     // ──────────────────────────────────────────────
 
-    public static function generarParaUsuario(): array
+    private static function esRelevantePara(string $notifTicket, string $usuarioId): bool
+    {
+        $usuario = SesionUsuarioData::getAll()[$usuarioId] ?? null;
+        if (!$usuario) return false;
+
+        $rol = $usuario['rol'];
+
+        if ($rol === 'jefe') return true;
+
+        if ($rol === 'tecnico') {
+            $denuncia = DenunciaData::find($notifTicket);
+            return $denuncia && ($denuncia['tecnico'] ?? null) === $usuarioId;
+        }
+
+        return false;
+    }
+
+    public static function generarParaUsuario(string $usuarioId = 'jefe-1'): array
     {
         self::init();
         $sessionData = session(self::SESSION_KEY);
@@ -41,15 +58,13 @@ class NotificacionData
             $tipoDenuncia = $d['tipo'] ?? '';
             $estado = $d['estado'] ?? '';
 
-            // Resolver nombre del técnico
             $tecnicoId = $d['tecnico'] ?? null;
             $tecnicoNombre = $tecnicoId
                 ? (DenunciaData::TECNICOS_MOCK[$tecnicoId]['nombre'] ?? $tecnicoId)
                 : null;
 
-            // --- Plazo total por vencer (≤ 3d) ---
             $plazoInfo = DenunciaData::getPlazoInfo($d);
-            if ($plazoInfo !== null) {
+            if ($plazoInfo !== null && self::esRelevantePara($ticket, $usuarioId)) {
                 $diasRestantes = $plazoInfo['dias_restantes'];
                 if ($diasRestantes >= 0 && $diasRestantes <= 3) {
                     $derivadas[] = self::createNotificacion(
@@ -57,7 +72,7 @@ class NotificacionData
                         titulo: 'Plazo total por vencer',
                         mensaje: "{$ticket} · {$tipoDenuncia} · {$diasRestantes} día(s) restante(s)",
                         ticket: $ticket,
-                        destinoUrl: "/denuncias?destacar={$ticket}",
+                        destinoUrl: self::urlParaUsuario($ticket, $usuarioId),
                         icono: 'Clock',
                         color: 'warning',
                     );
@@ -67,15 +82,14 @@ class NotificacionData
                         titulo: 'Plazo vencido',
                         mensaje: "{$ticket} · Vencido hace " . abs($diasRestantes) . ' día(s)',
                         ticket: $ticket,
-                        destinoUrl: "/denuncias?destacar={$ticket}",
+                        destinoUrl: self::urlParaUsuario($ticket, $usuarioId),
                         icono: 'AlertTriangle',
                         color: 'destructive',
                     );
                 }
             }
 
-            // --- Plazo de informe por vencer ---
-            if ($estado === 'informe' && !empty($d['informe_created_at'])) {
+            if ($estado === 'informe' && !empty($d['informe_created_at']) && self::esRelevantePara($ticket, $usuarioId)) {
                 $fechaInforme = Carbon::parse($d['informe_created_at']);
                 $diasInforme = (int)$now->diffInDays($fechaInforme, false);
                 if ($diasInforme >= 0 && $diasInforme <= 3) {
@@ -84,15 +98,14 @@ class NotificacionData
                         titulo: 'Informe final por vencer',
                         mensaje: "{$ticket} · {$diasInforme} día(s) para concluir informe",
                         ticket: $ticket,
-                        destinoUrl: "/denuncias?destacar={$ticket}",
+                        destinoUrl: self::urlParaUsuario($ticket, $usuarioId),
                         icono: 'FileText',
                         color: 'warning',
                     );
                 }
             }
 
-            // --- Traspasos recientes (< 7 días) ---
-            if (!empty($d['fecha_traspaso'])) {
+            if (!empty($d['fecha_traspaso']) && self::esRelevantePara($ticket, $usuarioId)) {
                 $fechaTraspaso = Carbon::parse($d['fecha_traspaso']);
                 if ($now->diffInDays($fechaTraspaso) <= 7) {
                     $destino = $tecnicoNombre ?? 'otro técnico';
@@ -101,32 +114,32 @@ class NotificacionData
                         titulo: 'Caso traspasado',
                         mensaje: "{$ticket} fue asignado a {$destino}",
                         ticket: $ticket,
-                        destinoUrl: "/denuncias?destacar={$ticket}",
+                        destinoUrl: self::urlParaUsuario($ticket, $usuarioId),
                         icono: 'ArrowRightLeft',
                         color: 'info',
                     );
                 }
             }
 
-            // --- Ampliaciones recientes (< 7 días) ---
-            foreach ($d['ampliaciones'] ?? [] as $amp) {
-                $fechaAmp = Carbon::parse($amp['fecha']);
-                if ($now->diffInDays($fechaAmp) <= 7) {
-                    $just = !empty($amp['justificacion']) ? substr($amp['justificacion'], 0, 60) . '…' : '';
-                    $derivadas[] = self::createNotificacion(
-                        tipo: 'ampliacion',
-                        titulo: 'Plazo ampliado',
-                        mensaje: "{$ticket} · +{$amp['dias']} día(s) — {$just}",
-                        ticket: $ticket,
-                        destinoUrl: "/denuncias?destacar={$ticket}",
-                        icono: 'CalendarPlus',
-                        color: 'success',
-                    );
+            if (self::esRelevantePara($ticket, $usuarioId)) {
+                foreach ($d['ampliaciones'] ?? [] as $amp) {
+                    $fechaAmp = Carbon::parse($amp['fecha']);
+                    if ($now->diffInDays($fechaAmp) <= 7) {
+                        $just = !empty($amp['justificacion']) ? substr($amp['justificacion'], 0, 60) . '…' : '';
+                        $derivadas[] = self::createNotificacion(
+                            tipo: 'ampliacion',
+                            titulo: 'Plazo ampliado',
+                            mensaje: "{$ticket} · +{$amp['dias']} día(s) — {$just}",
+                            ticket: $ticket,
+                            destinoUrl: self::urlParaUsuario($ticket, $usuarioId),
+                            icono: 'CalendarPlus',
+                            color: 'success',
+                        );
+                    }
                 }
             }
 
-            // --- Cambios de estado recientes (feed de actividad) ---
-            if (in_array($estado, ['admitida', 'rechazada'])) {
+            if (in_array($estado, ['admitida', 'rechazada']) && self::esRelevantePara($ticket, $usuarioId)) {
                 $fechaCambio = $estado === 'admitida'
                     ? ($d['fecha_admitida'] ?? null)
                     : ($d['fecha_rechazada'] ?? null);
@@ -140,7 +153,7 @@ class NotificacionData
                             titulo: $esAdmitida ? 'Denuncia admitida' : 'Denuncia rechazada',
                             mensaje: "{$ticket} fue " . ($esAdmitida ? 'admitida' : 'rechazada'),
                             ticket: $ticket,
-                            destinoUrl: "/denuncias?destacar={$ticket}",
+                            destinoUrl: self::urlParaUsuario($ticket, $usuarioId),
                             icono: $esAdmitida ? 'CheckCircle' : 'XCircle',
                             color: $esAdmitida ? 'success' : 'destructive',
                         );
@@ -149,10 +162,10 @@ class NotificacionData
             }
         }
 
-        // --- Solicitudes próximas a vencer ---
         $solicitudes = SolicitudData::getAll();
         foreach ($solicitudes as $s) {
             if (!in_array($s['estado'] ?? '', ['pendiente', 'ampliada'])) continue;
+            if (!self::esRelevantePara($s['ticket'] ?? '', $usuarioId)) continue;
             $fechaVence = Carbon::parse($s['fecha_vencimiento']);
             $diasRestantes = (int)$now->diffInDays($fechaVence, false);
             if ($diasRestantes >= 0 && $diasRestantes <= 3) {
@@ -161,17 +174,16 @@ class NotificacionData
                     titulo: 'Solicitud de información por vencer',
                     mensaje: "{$s['ticket']} · {$s['unidad_destino']} · {$diasRestantes} día(s)",
                     ticket: $s['ticket'],
-                    destinoUrl: "/denuncias?destacar={$s['ticket']}",
-
+                    destinoUrl: self::urlParaUsuario($s['ticket'], $usuarioId),
                     icono: 'MailQuestion', color: 'warning',
                 );
             }
         }
 
-        // --- 3. Descargos próximos a vencer ---
         $descargos = DescargoData::getAll();
         foreach ($descargos as $desc) {
             if (!in_array($desc['estado'] ?? '', ['notificado', 'ampliado'])) continue;
+            if (!self::esRelevantePara($desc['ticket'] ?? '', $usuarioId)) continue;
             $fechaBase = Carbon::parse($desc['fecha_notificacion'] ?? $desc['created_at']);
             $fechaVence = (clone $fechaBase)->addDays(10);
             $diasRestantes = (int)$now->diffInDays($fechaVence, false);
@@ -180,19 +192,26 @@ class NotificacionData
                     tipo: 'descargo_vence', titulo: 'Descargo por vencer',
                     mensaje: "{$desc['ticket']} · {$diasRestantes} día(s) para responder",
                     ticket: $desc['ticket'],
-                    destinoUrl: "/denuncias?destacar={$desc['ticket']}",
+                    destinoUrl: self::urlParaUsuario($desc['ticket'], $usuarioId),
                     icono: 'MessageSquareWarning',
                     color: 'warning',
                 );
             }
         }
 
-        // Fusionar derivadas con persistentes (leídas)
-        $todas = self::fusionar($derivadas, $persistentes);
+        // Filtrar persistentes por usuario antes de fusionar
+        $persistentesDelUsuario = array_values(array_filter(
+            $persistentes,
+            fn($n) => ($n['usuario_id'] ?? null) === $usuarioId
+        ));
+
+        // Combinar derivadas + persistentes del usuario
+        $todas = self::fusionar($derivadas, $persistentesDelUsuario);
         $todas = self::ordenar($todas);
 
-        $sessionData['notificaciones'] = $todas;
-        session([self::SESSION_KEY => $sessionData]);
+        // NO sobreescribir la sesión — las persistentes se mantienen intactas
+
+        $todas = array_map(fn($n) => array_merge($n, ['destino_url' => self::normalizarUrl($n['destino_url'] ?? '#')]), $todas);
 
         return $todas;
     }
@@ -235,22 +254,30 @@ class NotificacionData
     //  CRUD
     // ──────────────────────────────────────────────
 
-    public static function getAll(): array
-    {
-        self::init();
-        return session(self::SESSION_KEY . '.notificaciones', []);
-    }
-
-    public static function getUnreadCount(): int
+    public static function getAll(?string $usuarioId = null): array
     {
         self::init();
         $items = session(self::SESSION_KEY . '.notificaciones', []);
+
+        if ($usuarioId !== null) {
+            $items = array_values(array_filter($items, fn($n) => ($n['usuario_id'] ?? null) === $usuarioId));
+        }
+
+        $items = array_map(fn($n) => array_merge($n, ['destino_url' => self::normalizarUrl($n['destino_url'] ?? '#')]), $items);
+
+        return $items;
+    }
+
+    public static function getUnreadCount(?string $usuarioId = null): int
+    {
+        self::init();
+        $items = self::getAll($usuarioId);
         return count(array_filter($items, fn($n) => empty($n['leida'])));
     }
 
-    public static function getRecientes(int $limit = 5): array
+    public static function getRecientes(int $limit = 5, ?string $usuarioId = null): array
     {
-        $todas = self::getAll();
+        $todas = self::getAll($usuarioId);
         return array_slice($todas, 0, $limit);
     }
 
@@ -358,7 +385,7 @@ class NotificacionData
                 return self::createNotificacion(
                     tipo: 'traspaso', titulo: 'Caso traspasado',
                     mensaje: "{$targetTicket} fue asignado a Luis Mamani",
-                    ticket: $targetTicket, destinoUrl: "/denuncias?destacar={$targetTicket}",
+                    ticket: $targetTicket, destinoUrl: self::urlParaUsuario($targetTicket, 'jefe-1'),
                     icono: 'ArrowRightLeft', color: 'info',
                 );
 
@@ -381,7 +408,7 @@ class NotificacionData
                         return self::createNotificacion(
                             tipo: 'ampliacion', titulo: 'Plazo ampliado',
                             mensaje: "DEN-2026-0004 · +10 día(s) — Ampliación por demo…",
-                            ticket: 'DEN-2026-0004', destinoUrl: "/denuncias?destacar=DEN-2026-0004",
+                            ticket: 'DEN-2026-0004', destinoUrl: self::urlParaUsuario('DEN-2026-0004', 'jefe-1'),
                             icono: 'CalendarPlus', color: 'success',
                         );
                     }
@@ -400,7 +427,7 @@ class NotificacionData
                         return self::createNotificacion(
                             tipo: 'denuncia_admitida', titulo: 'Denuncia admitida',
                             mensaje: "DEN-2026-0003 fue admitida",
-                            ticket: 'DEN-2026-0003', destinoUrl: "/denuncias?destacar=DEN-2026-0003",
+                            ticket: 'DEN-2026-0003', destinoUrl: self::urlParaUsuario('DEN-2026-0003', 'jefe-1'),
                             icono: 'CheckCircle', color: 'success',
                         );
                     }
@@ -420,7 +447,7 @@ class NotificacionData
                         return self::createNotificacion(
                             tipo: 'denuncia_rechazada', titulo: 'Denuncia rechazada',
                             mensaje: "DEN-2026-0002 fue rechazada",
-                            ticket: 'DEN-2026-0002', destinoUrl: "/denuncias?destacar=DEN-2026-0002",
+                            ticket: 'DEN-2026-0002', destinoUrl: self::urlParaUsuario('DEN-2026-0002', 'jefe-1'),
                             icono: 'XCircle', color: 'destructive',
                         );
                     }
@@ -437,7 +464,7 @@ class NotificacionData
                         return self::createNotificacion(
                             tipo: 'plazo_por_vencer', titulo: 'Plazo total por vencer',
                             mensaje: "DEN-2026-0006 · corrupcion · 2 día(s) restante(s)",
-                            ticket: 'DEN-2026-0006', destinoUrl: "/denuncias?destacar=DEN-2026-0006",
+                            ticket: 'DEN-2026-0006', destinoUrl: self::urlParaUsuario('DEN-2026-0006', 'jefe-1'),
                             icono: 'Clock', color: 'warning',
                         );
                     }
@@ -454,7 +481,7 @@ class NotificacionData
                         return self::createNotificacion(
                             tipo: 'plazo_vencido', titulo: 'Plazo vencido',
                             mensaje: "DEN-2026-0007 · Vencido hace 5 día(s)",
-                            ticket: 'DEN-2026-0007', destinoUrl: "/denuncias?destacar=DEN-2026-0007",
+                            ticket: 'DEN-2026-0007', destinoUrl: self::urlParaUsuario('DEN-2026-0007', 'jefe-1'),
                             icono: 'AlertTriangle', color: 'destructive',
                         );
                     }
@@ -471,7 +498,7 @@ class NotificacionData
                         return self::createNotificacion(
                             tipo: 'plazo_informe', titulo: 'Informe final por vencer',
                             mensaje: "DEN-2026-0010 · 2 día(s) para concluir informe",
-                            ticket: 'DEN-2026-0010', destinoUrl: "/denuncias?destacar=DEN-2026-0010",
+                            ticket: 'DEN-2026-0010', destinoUrl: self::urlParaUsuario('DEN-2026-0010', 'jefe-1'),
                             icono: 'FileText', color: 'warning',
                         );
                     }
@@ -487,7 +514,7 @@ class NotificacionData
                         return self::createNotificacion(
                             tipo: 'solicitud_vence', titulo: 'Solicitud de información por vencer',
                             mensaje: "DEN-2026-0008 · Unidad de Contrataciones · 2 día(s)",
-                            ticket: 'DEN-2026-0008', destinoUrl: "/denuncias?destacar=DEN-2026-0008",
+                            ticket: 'DEN-2026-0008', destinoUrl: self::urlParaUsuario('DEN-2026-0008', 'jefe-1'),
                             icono: 'MailQuestion', color: 'warning',
                         );
                     }
@@ -504,7 +531,7 @@ class NotificacionData
                         return self::createNotificacion(
                             tipo: 'descargo_vence', titulo: 'Descargo por vencer',
                             mensaje: "DEN-2026-0008 · 2 día(s) para responder",
-                            ticket: 'DEN-2026-0008', destinoUrl: "/denuncias?destacar=DEN-2026-0008",
+                            ticket: 'DEN-2026-0008', destinoUrl: self::urlParaUsuario('DEN-2026-0008', 'jefe-1'),
                             icono: 'MessageSquareWarning', color: 'warning',
                         );
                     }
@@ -552,6 +579,51 @@ class NotificacionData
     // ──────────────────────────────────────────────
     //  HELPERS
     // ──────────────────────────────────────────────
+
+    private static function urlParaUsuario(string $ticket, ?string $usuarioId = null): string
+    {
+        $usuario = SesionUsuarioData::getAll()[$usuarioId ?? ''] ?? null;
+        $rol = $usuario['rol'] ?? 'jefe';
+
+        return match ($rol) {
+            'tecnico' => route('denuncias.mis-casos', ['destacar' => $ticket]),
+            'registrador' => route('dashboard'),
+            default => route('denuncias.bandeja', ['destacar' => $ticket]),
+        };
+    }
+
+    private static function normalizarUrl(string $url): string
+    {
+        if (preg_match('#^/denuncias\?destacar=(.+)$#', $url, $matches)) {
+            $ticket = $matches[1];
+            return self::urlParaUsuario($ticket, SesionUsuarioData::getCurrent()['id']);
+        }
+        return $url;
+    }
+
+    public static function crearParaUsuario(
+        string $tipo,
+        string $titulo,
+        string $mensaje,
+        string $usuarioId,
+        ?string $ticket = null,
+        string $destinoUrl = '#',
+        string $icono = 'Bell',
+        string $color = 'primary',
+    ): array {
+        $notif = self::createNotificacion($tipo, $titulo, $mensaje, $ticket, $destinoUrl, $icono, $color);
+        $notif['usuario_id'] = $usuarioId;
+        self::guardarPersistente($notif);
+        return $notif;
+    }
+
+    private static function guardarPersistente(array $notif): void
+    {
+        self::init();
+        $items = session(self::SESSION_KEY . '.notificaciones', []);
+        $items[] = $notif;
+        session([self::SESSION_KEY . '.notificaciones' => $items]);
+    }
 
     private static function createNotificacion(
         string $tipo,

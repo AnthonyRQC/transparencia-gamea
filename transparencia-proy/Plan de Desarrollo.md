@@ -616,6 +616,11 @@ El `BuscadorTicket.tsx` original tenía un auto-formato con `formatTicketInput()
 **Patrón de reusabilidad — Sprint 15:**
 Cuando se implementen roles reales (Sprint 15), el dropdown se elimina y se reemplaza por `Auth::user()`. La lógica de filtrado del Sidebar y controllers NO cambia — solo cambia la fuente de datos. Cero código desechable.
 
+**Notas adicionales:**
+- Las notificaciones persistentes (asignación, traspaso) se guardan con `usuario_id` y se filtran por usuario activo
+- Los defaults de alerta son hardcoded (3d plazo total/informe, 2d solicitud/descargo)
+- Sprint 10 agregará panel de configuración de preferencias
+
 **Ver detalle:** `Sprints Pendientes - Contexto.md` → Sprint 6.5.
 
 ---
@@ -713,6 +718,11 @@ Ver detalle: `Sprint 7 - Evaluación Técnica Previa.md`
 | `resources/js/Components/Admin/TablaCatalogo.tsx` (nuevo) | Tabla editable con acciones (crear, editar, eliminar) |
 | `resources/js/Components/Admin/ModalEditarItem.tsx` (nuevo) | Modal de edición de un item del catálogo |
 
+**NUEVO — Configuración de alertas por usuario:**
+- Sliders por tipo de alerta (plazo total, informe, solicitud, descargo)
+- Defaults: 3, 3, 2, 2 días respectivamente
+- Persistencia en sesión (mock), luego en BD (Sprint 14)
+
 **Catálogos a administrar:**
 - Clasificaciones finales: Penal, Civil, Administrativo, Sin Indicios, Medida Correctiva, Archivado
 - Categorías de denuncia (por tipo)
@@ -767,6 +777,8 @@ Ver detalle: `Sprint 7 - Evaluación Técnica Previa.md`
 **Exportación:**
 - **PDF** y **Excel** además de vista en pantalla
 - Solo para el Jefe de Unidad (interno)
+
+**Nota:** Este sprint es SOLO el motor de notificaciones. Las preferencias de alerta (panel de configuración por usuario) se implementan en Sprint 10.
 
 **Dependencia:** `npm install recharts`, `composer require maatwebsite/excel barryvdh/laravel-dompdf`
 
@@ -867,7 +879,49 @@ Ver detalle: `Sprint 7 - Evaluación Técnica Previa.md`
 
 ---
 
-### Sprint 17 — Lógica de Mora Explícita
+### Sprint 17 — Panel de Usuario (NUEVO — Julio 2026)
+
+**Objetivo:** Panel completo de usuario con perfil, seguridad, preferencias de notificación y apariencia. Estilo Laravel Breeze pero en mock.
+
+**Origen:** Decisión #40 (reunión Julio 2026). Se implementa post-Sprint 16 por dependencia con BD, roles y auditoría.
+
+**Perfil:** Nombre, email, teléfono editables. Avatar/iniciales read-only.
+
+**Seguridad:** Cambio de contraseña mock (3 campos: actual, nueva, confirmar).
+
+**Preferencias de notificación (por usuario):**
+| Tipo de alerta | Default | Rango |
+|---|---|---|
+| Plazo total del caso por vencer | 3 días | 0-10 |
+| Informe final por vencer | 3 días | 0-10 |
+| Solicitud de información por vencer | 2 días | 0-10 |
+| Descargo de denunciados por vencer | 2 días | 0-10 |
+
+- Switch master: ¿Recibir notificaciones?
+- Switch individual por tipo
+
+**Apariencia:** Modo oscuro/claro (existente), idioma mock.
+
+| Archivo | Descripción |
+|---|---|
+| `app/Data/PreferenciasUsuarioData.php` (nuevo) | Mock data layer de preferencias por usuario |
+| `app/Http/Controllers/UserPanelController.php` (nuevo) | CRUD perfil + preferencias |
+| `app/Helpers/NotificacionesConfig.php` (nuevo) | Aplica preferencias al filtrado de notificaciones |
+| `resources/js/Pages/User/Perfil.tsx` (nuevo) | Formulario perfil |
+| `resources/js/Pages/User/Seguridad.tsx` (nuevo) | Cambio contraseña |
+| `resources/js/Pages/User/Preferencias.tsx` (nuevo) | Sliders + switches |
+| `resources/js/Pages/User/Apariencia.tsx` (nuevo) | Tema, idioma |
+| `resources/js/Layouts/UserPanelLayout.tsx` (nuevo) | Layout con tabs |
+| `app/Http/Controllers/NotificacionController.php` (modificado) | Usar preferencias al filtrar |
+| `routes/web.php` (modificado) | Rutas `/user/*` |
+| `HandleInertiaRequests.php` (modificado) | Compartir preferencias globalmente |
+| `Sidebar.tsx` (modificado) | + item "Mi Cuenta" |
+
+**Dependencias:** Sprint 14 (BD), Sprint 15 (Roles), Sprint 16 (Auditoría).
+
+---
+
+### Sprint 18 — Lógica de Mora Explícita
 
 **Objetivo:** Implementar lógica explícita de mora para fechas vencidas (texto "+Xd de retraso", badge "Vencido" en cards).
 
@@ -884,7 +938,7 @@ Ver detalle: `Sprint 7 - Evaluación Técnica Previa.md`
 
 ---
 
-### Sprint 18 — Calendario Feriados + Días Hábiles (FINAL)
+### Sprint 19 — Calendario Feriados + Días Hábiles (FINAL)
 
 **Objetivo:** Cierre formal del sistema de días hábiles. Helper unificado `DiasHabiles.php` + UI de administración + recálculo retroactivo del seed demo.
 
@@ -915,7 +969,7 @@ Ver detalle: `Sprint 7 - Evaluación Técnica Previa.md`
 
 ---
 
-### Sprint 19 — Cierre Fase 1 / Ajustes Finales
+### Sprint 20 — Cierre Fase 1 / Ajustes Finales
 
 **Objetivo:** Testing integral, limpieza técnica, documentación de usuario y deploy a producción. **No incluye funcionalidad nueva.**
 
@@ -933,11 +987,11 @@ Ver detalle: `Sprint 7 - Evaluación Técnica Previa.md`
 - **Deploy a producción:** servidor, DNS, SSL, backups
 - **Criterio "done" final:** checklist de requisitos de Fase 1
 
-**Nota para IAs:** Esta sección es solo roadmap. **No leerla** a menos que se esté trabajando explícitamente en el Sprint 19.
+**Nota para IAs:** Esta sección es solo roadmap. **No leerla** a menos que se esté trabajando explícitamente en el Sprint 20.
 
 ---
 
-### Sprint 20 — Archivos Grandes + Conectividad Inestable (NUEVO — Post-Fase 1)
+### Sprint 21 — Archivos Grandes + Conectividad Inestable (NUEVO — Post-Fase 1)
 
 **Objetivo:** Estrategia técnica para subida robusta de archivos de hasta 1000+ páginas (>100MB) en entornos con internet inestable (latencia variable, cortes momentáneos, señal baja).
 

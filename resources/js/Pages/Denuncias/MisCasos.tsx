@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Head, router } from '@inertiajs/react';
 import { toast } from 'sonner';
 import { route } from 'ziggy-js';
@@ -117,6 +117,7 @@ interface PageProps {
   solicitudesByTicket?: Record<string, Solicitud[]>;
   descargosByTicket?: Record<string, Descargo[]>;
   canAct?: boolean;
+  destacar?: string;
 }
 
 const estadoLabels: Record<string, { label: string; icon: any }> = {
@@ -128,7 +129,7 @@ const estadoLabels: Record<string, { label: string; icon: any }> = {
 
 const estadoOrden = ['asignada', 'investigacion', 'informe', 'cerrada'];
 
-export default function MisCasos({ grouped, tecnicoActual, tecnicos, solicitudesByTicket = {}, descargosByTicket = {}, canAct = true }: PageProps) {
+export default function MisCasos({ grouped, tecnicoActual, tecnicos, solicitudesByTicket = {}, descargosByTicket = {}, canAct = true, destacar }: PageProps) {
   const [selectedDenuncia, setSelectedDenuncia] = useState<Denuncia | null>(null);
   const [archivadasOpen, setArchivadasOpen] = useState(false);
   const [processingTicket, setProcessingTicket] = useState<string | null>(null);
@@ -151,6 +152,17 @@ export default function MisCasos({ grouped, tecnicoActual, tecnicos, solicitudes
   const [modalEditarDesc, setModalEditarDesc] = useState<Descargo | null>(null);
   const [modalEliminarDesc, setModalEliminarDesc] = useState<{ id: number; nombre: string } | null>(null);
   const [processingEliminar, setProcessingEliminar] = useState(false);
+
+  useEffect(() => {
+    if (destacar) {
+      const todas: Denuncia[] = Object.values(grouped).flatMap(g => g);
+      const found = todas.find((d) => d.ticket === destacar);
+      if (found) {
+        setSelectedDenuncia(found);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+  }, [destacar, grouped]);
 
   const handleTecnicoChange = (value: string) => {
     router.get(route('denuncias.mis-casos'), { tecnico: value }, { preserveState: true, preserveScroll: true });

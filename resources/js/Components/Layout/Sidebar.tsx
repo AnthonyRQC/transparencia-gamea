@@ -32,11 +32,13 @@ export default function Sidebar({
     isSidebarOpenMobile,
     onCloseSidebarMobile,
 }: SidebarProps) {
-    const sidebarProps = usePage().props as { logo_url?: string; notificaciones?: { no_leidas: number } };
+    const sidebarProps = usePage().props as { logo_url?: string; notificaciones?: { no_leidas: number }; currentUser?: { rol: string }; usuarios?: Record<string, any> };
     const { logo_url } = sidebarProps;
     const noLeidas = sidebarProps.notificaciones?.no_leidas ?? 0;
+    const currentUser = sidebarProps.currentUser;
+    const rol = currentUser?.rol || 'registrador';
 
-    const menuItems: MenuItem[] = [
+    const todosLosItems: MenuItem[] = [
         {
             key: 'inicio',
             label: 'Inicio',
@@ -95,6 +97,15 @@ export default function Sidebar({
             icon: <CalendarDays className="w-5 h-5 shrink-0" />,
         },
     ];
+
+    const filterByRol = (item: MenuItem): boolean => {
+        if (rol === 'jefe') return true;
+        if (rol === 'registrador') return ['inicio', 'nueva-denuncia', 'notificaciones'].includes(item.key);
+        if (rol === 'tecnico') return ['inicio', 'mis-casos', 'mi-resumen', 'notificaciones', 'nueva-denuncia'].includes(item.key);
+        return true;
+    };
+
+    const menuItems = todosLosItems.filter(filterByRol);
 
     const isActive = (routeName: string) => {
         if (routeName === 'dashboard') {

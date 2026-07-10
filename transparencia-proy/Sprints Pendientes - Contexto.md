@@ -51,6 +51,20 @@ Dropdown en el Header para cambiar entre **5 usuarios demo** (sin BD, sin auth r
 - `app/Http/Controllers/MiResumenController.php` (leer sesión para técnico activo)
 - `app/Http/Middleware/HandleInertiaRequests.php` (compartir currentUser global)
 
+### Notificaciones per-user
+Las notificaciones se filtran automáticamente según el rol y los casos asignados al usuario activo:
+- `NotificacionData::generarParaUsuario($usuarioId)` genera derivadas solo relevantes al usuario
+- Las notificaciones persistentes (asignación, traspaso) se guardan con `usuario_id`
+- `getUnreadCount($usuarioId)` y `getRecientes(5, $usuarioId)` filtran por usuario
+
+**Defaults de alerta (hardcoded en Sprint 6.5):**
+- Plazo total: 3 días antes
+- Informe final: 3 días antes
+- Solicitud info: 2 días antes
+- Descargo: 2 días antes
+
+> Estos defaults serán configurables en Sprint 10 (Panel Admin → Preferencias de alerta).
+
 ### Patrón de reusabilidad para Sprint 15
 Cuando se implementen roles reales (Sprint 15):
 1. El dropdown se **elimina** del Header
@@ -215,6 +229,13 @@ Sistema de notificaciones push vía **campana superior** en el navbar, con histo
 ### Archivos a modificar
 - `resources/js/Components/Layout/Header.tsx` (+integrar campana)
 
+### Nota — Julio 2026
+**Las preferencias de alerta (días antes de notificar) se implementan en Sprint 10, no aquí.** Sprint 9 es solo el motor de notificaciones. Sprint 10 agrega el panel `/admin/preferencias` donde cada usuario configura:
+- Días antes del plazo total para alertar (default: 3)
+- Días antes del informe final (default: 3)
+- Días antes de solicitud (default: 2)
+- Días antes de descargo (default: 2)
+
 ---
 
 ## Sprint 10 — Panel Administración Catálogos + Subcategorías
@@ -234,6 +255,18 @@ Panel administrativo único para **CRUD de todos los catálogos** del sistema. C
 - **Medios de notificación:** whatsapp, email, presencial, otro
 - **Tipos de prueba:** archivo, prueba física, testigo
 - **Dependencias/unidades externas**
+
+### Configuración de alertas por usuario (NUEVO — Julio 2026)
+Cada usuario (Jefe y Técnicos) podrá configurar los días de anticipación para recibir notificaciones:
+- Plazo total del caso: default 3 días
+- Informe final: default 3 días
+- Solicitud de información: default 2 días
+- Descargo de denunciados: default 2 días
+
+**UI:** Sliders/inputs numéricos con preview de simulación. Persistencia en sesión (mock) luego en BD (Sprint 14).
+
+**Archivo adicional:**
+- `resources/js/Pages/Admin/PreferenciasAlertas.tsx` (nuevo)
 
 ### Subcategorías
 - Cada tipo de denuncia tiene sus propias subcategorías
@@ -438,7 +471,72 @@ Requiere Sprint 14 (BD).
 
 ---
 
-## Sprint 17 — Lógica de Mora Explícita
+## Sprint 17 — Panel de Usuario (Perfil + Seguridad + Preferencias + Apariencia) (NUEVO — Julio 2026)
+
+**Estado:** Pendiente (post-Sprint 16).
+**Origen:** Decisión #40 (reunión Julio 2026).
+
+### Resumen
+Panel completo de usuario con secciones de perfil, seguridad, preferencias de notificación y apariencia. Estilo Laravel Breeze pero en mock (sin BD real, usando sesión).
+
+Se implementa después de tener la BD (Sprint 14), los roles (Sprint 15) y la auditoría (Sprint 16) — porque depende de ellos para persistencia real.
+
+### Secciones
+
+#### 1. Perfil
+- Avatar/iniciales (read-only)
+- Nombre completo (editable)
+- Email de contacto (editable)
+- Teléfono (editable)
+- Botón "Guardar cambios"
+
+#### 2. Seguridad
+- Cambiar contraseña: 3 campos (actual, nueva, confirmar)
+- Validación de fortaleza
+- Mock: no verifica la actual, solo simula
+- Botón "Actualizar contraseña"
+
+#### 3. Preferencias de notificación
+| Tipo de alerta | Default | Rango |
+|---|---|---|
+| Plazo total del caso por vencer | 3 días | 0-10 |
+| Informe final por vencer | 3 días | 0-10 |
+| Solicitud de información por vencer | 2 días | 0-10 |
+| Descargo de denunciados por vencer | 2 días | 0-10 |
+
+- Switch master: ¿Recibir notificaciones?
+- Switch individual por tipo
+- Sliders/inputs numéricos
+
+#### 4. Apariencia
+- Modo oscuro/claro (ya funciona vía localStorage)
+- Idioma (mock: solo español, selector visible)
+
+### Archivos a crear
+- `app/Data/PreferenciasUsuarioData.php` (mock data layer)
+- `app/Http/Controllers/UserPanelController.php` (CRUD perfil + preferencias)
+- `app/Helpers/NotificacionesConfig.php` (aplica preferencias al filtrado)
+- `resources/js/Pages/User/Perfil.tsx`
+- `resources/js/Pages/User/Seguridad.tsx`
+- `resources/js/Pages/User/Preferencias.tsx`
+- `resources/js/Pages/User/Apariencia.tsx`
+- `resources/js/Layouts/UserPanelLayout.tsx`
+
+### Archivos a modificar
+- `app/Http/Controllers/NotificacionController.php` (usar preferencias)
+- `routes/web.php` (rutas del panel)
+- `app/Http/Middleware/HandleInertiaRequests.php` (compartir preferencias)
+- `resources/js/Components/Layout/Sidebar.tsx` (+ item "Mi Cuenta")
+- `resources/js/Components/Layout/Header.tsx` (avatar → link al panel)
+
+### Dependencias
+- Sprint 14 (BD) para persistencia real
+- Sprint 15 (Roles) para asociar preferencias a usuarios
+- Sprint 16 (Auditoría) para registrar cambios
+
+---
+
+## Sprint 18 — Lógica de Mora Explícita
 
 **Estado:** Pendiente.
 **Origen:** Respuesta del cliente #7.
@@ -459,7 +557,7 @@ Sprint 14 (BD) si se persiste, opcional si solo se calcula on-the-fly.
 
 ---
 
-## Sprint 18 — Calendario Feriados + Días Hábiles
+## Sprint 19 — Calendario Feriados + Días Hábiles
 
 **Estado:** Pendiente (sprint formal de cierre del sistema de plazos).
 **Origen:** Pregunta #6 (C1) — **decisión tomada en Julio 2026**.
@@ -526,16 +624,16 @@ function agregarDiasHabiles(Carbon $fecha, int $dias, array $feriados): Carbon
 
 ---
 
-## Sprint 19 — Cierre Fase 1 / Ajustes Finales
+## Sprint 20 — Cierre Fase 1 / Ajustes Finales
 
-**Estado:** Pendiente (último sprint).
+**Estado:** Pendiente (último sprint de Fase 1).
 **Origen:** Decisión general de cierre.
 
 ### Resumen
 Sprint dedicado a **testing integral, limpieza técnica, documentación de usuario y deploy a producción**. **No incluye funcionalidad nueva.**
 
 ### ⚠️ CONVENCIÓN PARA IA
-**Esta sección es solo roadmap. No leerla a menos que se esté trabajando explícitamente en el Sprint 19.**
+**Esta sección es solo roadmap. No leerla a menos que se esté trabajando explícitamente en el Sprint 20.**
 
 ### Actividades
 - **Testing end-to-end** de todos los flujos
@@ -552,11 +650,11 @@ Sprint dedicado a **testing integral, limpieza técnica, documentación de usuar
 - **Criterio "done" final** (checklist de requisitos de Fase 1)
 
 ### Dependencias
-Requiere Sprints 14-18 completos.
+Requiere Sprints 14-19 completos.
 
 ---
 
-## Sprint 20 — Archivos Grandes + Conectividad Inestable (NUEVO — Julio 2026)
+## Sprint 21 — Archivos Grandes + Conectividad Inestable (NUEVO — Julio 2026)
 
 **Estado:** Post-Fase 1 (sprint de diseño/planificación, NO se implementa en Fase 0 ni Fase 1).
 **Origen:** Reunión con cliente Julio 2026 — preocupación por subida de archivos de 1000+ páginas en entornos con internet inestable.

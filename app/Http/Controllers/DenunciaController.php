@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Data\DenunciaData;
+use App\Data\NotificacionData;
+use App\Data\SesionUsuarioData;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -154,7 +156,17 @@ class DenunciaController extends Controller
 
         DenunciaData::asignarTecnico($ticket, $validated['tecnico_id']);
 
-        return redirect()->back()->with('success', "Denuncia {$ticket} asignada correctamente.");
+        $tipoDenuncia = $denuncia['tipo'] ?? '';
+        $tecnicoNombre = DenunciaData::TECNICOS_MOCK[$validated['tecnico_id']]['nombre'] ?? 'Técnico';
+        NotificacionData::crearParaUsuario(
+            tipo: 'asignacion', titulo: 'Nuevo caso asignado',
+            mensaje: "{$ticket} te fue asignado — {$tipoDenuncia}",
+            usuarioId: $validated['tecnico_id'], ticket: $ticket,
+            destinoUrl: "/denuncias?destacar={$ticket}",
+            icono: 'UserPlus', color: 'info',
+        );
+
+        return redirect()->back()->with('success', "Denuncia {$ticket} asignada a {$tecnicoNombre}.");
     }
 
     public function traspasar(string $ticket, Request $request)
@@ -175,6 +187,15 @@ class DenunciaController extends Controller
         }
 
         DenunciaData::traspasar($ticket, $validated['tecnico_id'], $validated['justificacion']);
+
+        $tecnicoNombre = DenunciaData::TECNICOS_MOCK[$validated['tecnico_id']]['nombre'] ?? 'Técnico';
+        NotificacionData::crearParaUsuario(
+            tipo: 'traspaso', titulo: 'Caso traspasado a ti',
+            mensaje: "{$ticket} fue traspasado a tu bandeja",
+            usuarioId: $validated['tecnico_id'], ticket: $ticket,
+            destinoUrl: "/denuncias?destacar={$ticket}",
+            icono: 'ArrowRightLeft', color: 'info',
+        );
 
         return redirect()->back()->with('success', "Denuncia {$ticket} traspasada correctamente.");
     }

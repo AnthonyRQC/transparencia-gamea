@@ -315,6 +315,56 @@ Los feriados afectan a TODOS los plazos del sistema (cálculo centralizado). No 
 
 ---
 
+#### #38 — Filtrado de notificaciones por usuario demo (Sprint 6.5) ✅
+**Decisión:** Cada usuario demo (Registrador, Jefe, Técnicos) ve solo notificaciones relevantes a su rol.
+
+- **Jefe de Unidad:** Ve notificaciones de gestión (plazos de TODOS los casos, traspasos, ampliaciones, asignaciones)
+- **Técnico (Carlos/Ana/Luis):** Ve solo notificaciones de SUS casos asignados (plazos, traspasos a él, solicitudes, descargos)
+- **Registrador:** Notificaciones mínimas (cambios de estado de los registros que hizo)
+
+**Implementación:** `NotificacionData::generarParaUsuario($usuarioId)` filtra las notificaciones derivadas según el rol. Las notificaciones persistentes (asignación, traspaso) se guardan con `usuario_id` y se filtran al recuperar.
+
+---
+
+#### #39 — Preferencias de alerta por usuario (Sprint 10 — Panel Admin) ✅
+**Decisión:** En Sprint 10 se implementa un panel de configuración donde cada usuario podrá ajustar los días de anticipación para recibir alertas.
+
+**Valores por defecto (Sprint 6.5, hardcoded):**
+| Tipo de alerta | Días antes | Sprint implementación |
+|---|---|---|
+| Plazo total del caso por vencer | 3 | 6.5 (default) → 10 (configurable) |
+| Informe final por vencer | 3 | 6.5 (default) → 10 (configurable) |
+| Solicitud de información por vencer | 2 | 6.5 (default) → 10 (configurable) |
+| Descargo de denunciados por vencer | 2 | 6.5 (default) → 10 (configurable) |
+| Traspaso de casos | Inmediato | 6.5 (siempre inmediato) |
+
+**Implementación:** Panel `/admin/preferencias` en Sprint 10 con sliders/inputs numéricos por tipo de alerta. Persistencia en sesión (mock) luego en BD.
+
+---
+
+#### #40 — Panel de Administración por Usuario (Sprint 17) ✅
+**Decisión (Julio 2026):** Se implementa un panel completo de usuario al final del proyecto (Sprint 17), después de la base de datos real (Sprint 14), roles (Sprint 15) y auditoría (Sprint 16).
+
+**Secciones del panel:**
+1. **Perfil:** Nombre, email, teléfono editables (mock)
+2. **Seguridad:** Cambio de contraseña (mock)
+3. **Preferencias de notificación:** Por usuario, cada uno configura sus alertas
+4. **Apariencia:** Modo oscuro/claro, idioma (mock)
+5. **Cuenta:** Cerrar sesión, eliminar cuenta (mock)
+
+**Preferencias de notificación (por usuario):**
+- Switch master: ¿Recibir notificaciones?
+- Sliders por tipo (días antes, 0-10):
+  - Plazo total del caso
+  - Informe final
+  - Solicitud de información
+  - Descargo de denunciados
+- Switch individual por tipo
+
+**Ver detalle:** `Plan de Desarrollo.md` → Sprint 17.
+
+---
+
 #### #37 — Denunciante anónimo sin datos de contacto ✅
 **Decisión (Julio 2026):** Una persona anónima puede NO tener email ni teléfono. 
 Ejemplo real: dejar una carta con pruebas físicas en la oficina de la UTLCC sin identificarse digitalmente.
@@ -356,8 +406,8 @@ Ejemplo real: dejar una carta con pruebas físicas en la oficina de la UTLCC sin
 | A — Sprint 5 + 6 | 4 | 1, 3 | 2, 4 |
 | C — Legales | 8 | 6, 7, 8, 9, 10, 11 | 5, 12, 13 |
 | D — Sprint 7 + Transv | 15 | 15-29 | — |
-| E — Reunión Julio 2026 | 8 | 30-37 | — |
-| **Total** | **35** | **30** | **5** |
+| E — Reunión Julio 2026 | 11 | 30-40 | — |
+| **Total** | **38** | **33** | **5** |
 
 ---
 
@@ -396,10 +446,11 @@ Se quitan 6 inputs de archivo de flujos intermedios (detalle en #31). Solo se su
 - Sprint 14 — Base de datos real (MySQL)
 - Sprint 15 — Roles y permisos (Registrador/Jefe/Técnico)
 - Sprint 16 — Auditoría backend detallada
-- Sprint 17 — Lógica de mora explícita +Xd
-- Sprint 18 — Calendario feriados + Días hábiles (helper formal)
-- Sprint 19 — Cierre Fase 1 / Ajustes finales
-- Sprint 20 — Archivos Grandes + Conectividad inestable (NUEVO, post-Fase 1)
+- Sprint 17 — Panel de Usuario (Perfil + Seguridad + Preferencias + Apariencia) (NUEVO)
+- Sprint 18 — Lógica de mora explícita +Xd
+- Sprint 19 — Calendario feriados + Días hábiles (helper formal)
+- Sprint 20 — Cierre Fase 1 / Ajustes finales
+- Sprint 21 — Archivos Grandes + Conectividad inestable (NUEVO, post-Fase 1)
 
 ---
 
