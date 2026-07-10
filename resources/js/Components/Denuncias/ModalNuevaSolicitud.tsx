@@ -77,7 +77,7 @@ export default function ModalNuevaSolicitud({ ticket, open, onOpenChange, solici
 
   const destinoValue = esLibre ? unidadLibre.trim() : unidadDestino;
   const canSubmit = (esLibre ? unidadLibre.trim().length >= 5 : unidadDestino)
-    && detalle.trim().length >= 10
+    && detalle.trim().length >= 5
     && plazoDias >= 1 && plazoDias <= 45
     && (isEdit ? solicitudToEdit?.id : ticket);
 
@@ -182,7 +182,7 @@ export default function ModalNuevaSolicitud({ ticket, open, onOpenChange, solici
 
           <div className="space-y-2">
             <Label htmlFor="plazo-dias" className="after:content-['*'] after:text-destructive after:ml-0.5">
-              Plazo (días)
+              Plazo (días hábiles)
             </Label>
             <Input
               id="plazo-dias"
@@ -193,7 +193,7 @@ export default function ModalNuevaSolicitud({ ticket, open, onOpenChange, solici
               onChange={(e) => setPlazoDias(Math.min(45, Math.max(1, parseInt(e.target.value) || 1)))}
             />
             <p className="text-[11px] text-muted-foreground">
-              Plazo legal referencial: 10 días. Ajuste según urgencia o complejidad (1-45 días).
+              Plazo legal referencial:               10 días hábiles. Ajuste según urgencia o complejidad (1-45 días hábiles).
             </p>
           </div>
 
@@ -211,8 +211,8 @@ export default function ModalNuevaSolicitud({ ticket, open, onOpenChange, solici
             />
             <div className="flex items-center justify-between">
               <p className="text-[11px] text-muted-foreground">{detalle.length}/2000</p>
-              {detalle.length > 0 && detalle.trim().length < 10 && (
-                <p className="text-[11px] text-destructive font-medium">Mínimo 10 caracteres</p>
+              {detalle.length > 0 && detalle.trim().length < 5 && (
+                <p className="text-[11px] text-destructive font-medium">Mínimo 5 caracteres</p>
               )}
             </div>
           </div>

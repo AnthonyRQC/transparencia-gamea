@@ -2,6 +2,7 @@
 
 namespace App\Data;
 
+use App\Helpers\DiasHabiles;
 use Carbon\Carbon;
 
 class DescargoData
@@ -112,7 +113,7 @@ class DescargoData
         $items = self::getAll();
         foreach ($items as $i => $d) {
             if (($d['id'] ?? 0) === $id) {
-                $fechaVen = Carbon::parse($fechaNotificacion)->addDays($plazoDias)->endOfDay();
+                $fechaVen = Carbon::parse(DiasHabiles::agregarDiasFin($plazoDias, Carbon::parse($fechaNotificacion)));
                 $items[$i]['estado'] = 'notificado';
                 $items[$i]['fecha_notificacion'] = Carbon::parse($fechaNotificacion)->toDateTimeString();
                 $items[$i]['medio'] = $medio;
@@ -162,7 +163,7 @@ class DescargoData
         $items = self::getAll();
         foreach ($items as $i => $d) {
             if (($d['id'] ?? 0) === $id) {
-                $nuevaFechaVen = Carbon::parse($d['fecha_vencimiento'])->addDays($dias);
+                $nuevaFechaVen = DiasHabiles::agregar($dias, Carbon::parse($d['fecha_vencimiento']));
                 $items[$i]['fecha_vencimiento'] = $nuevaFechaVen->endOfDay()->toDateTimeString();
                 $items[$i]['estado'] = 'ampliado';
                 $items[$i]['ampliaciones'][] = [
@@ -241,7 +242,7 @@ class DescargoData
                 'fecha_notificacion' => (clone $now)->subDays(5)->toDateTimeString(),
                 'medio' => 'cedula',
                 'respaldo_archivo' => ['nombre' => 'cedula_notificacion_001.pdf', 'tamano' => '0.3 MB'],
-                'fecha_vencimiento' => (clone $now)->addDays(5)->endOfDay()->toDateTimeString(),
+                'fecha_vencimiento' => DiasHabiles::agregarDiasFin(5),
                 'fecha_respuesta' => null,
                 'resumen_descargo' => null,
                 'documentos' => [],

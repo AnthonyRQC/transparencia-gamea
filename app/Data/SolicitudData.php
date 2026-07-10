@@ -2,6 +2,7 @@
 
 namespace App\Data;
 
+use App\Helpers\DiasHabiles;
 use Carbon\Carbon;
 
 class SolicitudData
@@ -86,7 +87,7 @@ class SolicitudData
             'detalle' => $detalle,
             'plazo_dias' => $plazo,
             'fecha_envio' => $now->toDateTimeString(),
-            'fecha_vencimiento' => (clone $now)->addDays($plazo)->endOfDay()->toDateTimeString(),
+            'fecha_vencimiento' => DiasHabiles::agregarDiasFin($plazo, $now),
             'fecha_respuesta' => null,
             'respuesta' => null,
             'archivos' => [],
@@ -142,7 +143,7 @@ class SolicitudData
         $items = self::getAll();
         foreach ($items as $i => $s) {
             if (($s['id'] ?? 0) === $id) {
-                $nuevaFechaVen = Carbon::parse($s['fecha_vencimiento'])->addDays($dias);
+                $nuevaFechaVen = DiasHabiles::agregar($dias, Carbon::parse($s['fecha_vencimiento']));
                 $items[$i]['fecha_vencimiento'] = $nuevaFechaVen->endOfDay()->toDateTimeString();
                 $items[$i]['estado'] = 'ampliada';
                 $items[$i]['ampliaciones'][] = [
@@ -182,7 +183,7 @@ class SolicitudData
                 if (!empty($cambios['plazo_dias'] ?? null)) {
                     $nuevoPlazo = max(1, min(45, (int) $cambios['plazo_dias']));
                     $items[$i]['plazo_dias'] = $nuevoPlazo;
-                    $items[$i]['fecha_vencimiento'] = Carbon::parse($s['fecha_envio'])->addDays($nuevoPlazo)->endOfDay()->toDateTimeString();
+                    $items[$i]['fecha_vencimiento'] = DiasHabiles::agregarDiasFin($nuevoPlazo, Carbon::parse($s['fecha_envio']));
                 }
 
                 $items[$i]['ediciones'] = array_merge($s['ediciones'] ?? [], $ediciones);
@@ -225,7 +226,7 @@ class SolicitudData
                 'detalle' => 'Solicitar copias de los contratos de compra de ambulancias, facturas y acta de recepción firmada por el Jefe de la Unidad de Contrataciones. Se requiere documentación completa para cotejar especificaciones técnicas.',
                 'plazo_dias' => 10,
                 'fecha_envio' => (clone $now)->subDays(2)->toDateTimeString(),
-                'fecha_vencimiento' => (clone $now)->addDays(8)->endOfDay()->toDateTimeString(),
+                'fecha_vencimiento' => DiasHabiles::agregarDiasFin(8),
                 'fecha_respuesta' => null,
                 'respuesta' => null,
                 'archivos' => [],
@@ -242,7 +243,7 @@ class SolicitudData
                 'detalle' => 'Solicitar registro de pagos de Bs 120,000 transferidos a la cuenta del proveedor de ambulancias, incluyendo autorizaciones y comprobantes de desembolso.',
                 'plazo_dias' => 10,
                 'fecha_envio' => (clone $now)->subDays(5)->toDateTimeString(),
-                'fecha_vencimiento' => (clone $now)->addDays(5)->endOfDay()->toDateTimeString(),
+                'fecha_vencimiento' => DiasHabiles::agregarDiasFin(5),
                 'fecha_respuesta' => (clone $now)->subDay()->toDateTimeString(),
                 'respuesta' => 'Se adjuntan los comprobantes de pago solicitados. Los desembolsos fueron autorizados por la Dirección de Hacienda según memorándum DHA-2026-045. Se envió copia de los 3 desembolsos realizados al proveedor.',
                 'archivos' => [

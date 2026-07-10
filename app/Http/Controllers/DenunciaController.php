@@ -27,9 +27,9 @@ class DenunciaController extends Controller
             if ($request->escenario !== 'anonimo') {
                 $rules = array_merge($rules, [
                     'denunciante.nombres' => 'required|string|min:2|max:100',
-                    'denunciante.ci' => 'required|digits_between:6,9',
-                    'denunciante.email' => 'required|email',
-                    'denunciante.telefono' => 'required|digits:8',
+                    'denunciante.ci' => 'nullable|digits_between:6,9',
+                    'denunciante.email' => 'nullable|email',
+                    'denunciante.telefono' => 'nullable|digits:8',
                 ]);
             } else {
                 $rules = array_merge($rules, [
@@ -42,7 +42,7 @@ class DenunciaController extends Controller
                 'denunciados' => 'required|array|min:1',
                 'denunciados.*.conoce_identidad' => 'required|boolean',
                 'denunciados.*.nombres' => 'required_if:denunciados.*.conoce_identidad,true|nullable|string|max:100',
-                'denunciados.*.dependencia' => 'required_if:denunciados.*.conoce_identidad,true|nullable|string|max:200',
+                'denunciados.*.dependencia' => 'nullable|string|max:200',
                 'denunciados.*.descripcion' => 'required_if:denunciados.*.conoce_identidad,false|nullable|string',
 
                 'detalles.categoria' => 'required|string',
@@ -50,11 +50,11 @@ class DenunciaController extends Controller
                 'detalles.hora' => 'nullable',
                 'detalles.lugar' => 'required|string|max:200',
 
-                'hechos' => 'required|string|min:20|max:5000',
+                'hechos' => 'required|string|min:10|max:5000',
 
                 'pruebas' => 'nullable|array',
                 'pruebas.*.tipo' => 'required_with:pruebas.*|in:archivo,fisica,testigo',
-                'pruebas.*.descripcion' => 'required_with:pruebas.*|string',
+                'pruebas.*.descripcion' => 'nullable|string',
                 'pruebas.*.testigo_nombre' => 'required_if:pruebas.*.tipo,testigo|nullable|string|max:100',
                 'pruebas.*.testigo_telefono' => 'required_if:pruebas.*.tipo,testigo|nullable|digits:8',
             ]);
@@ -67,7 +67,6 @@ class DenunciaController extends Controller
                 'dependencia_funcionario' => 'required|string|max:200',
                 'motivo' => 'required|string|min:20|max:5000',
                 'resolucion' => 'required|string|min:10|max:5000',
-                'evidencia' => 'nullable',
             ]);
         }
 
@@ -75,8 +74,8 @@ class DenunciaController extends Controller
             $rules = array_merge($rules, [
                 'dependencia_observada' => 'required|string|max:200',
                 'motivo' => 'required|string|min:20|max:5000',
-                'archivo' => 'required',
-                'referencia_nota' => 'required|string|max:200',
+                'archivo' => 'nullable',
+                'referencia_nota' => 'nullable|string|max:200',
             ]);
         }
 
@@ -112,7 +111,7 @@ class DenunciaController extends Controller
     public function rechazar(string $ticket, Request $request)
     {
         $validated = $request->validate([
-            'justificacion' => 'required|string|min:10|max:2000',
+            'justificacion' => 'required|string|min:5|max:2000',
             'resumen_rechazo' => 'nullable|string|max:200',
         ]);
 
@@ -162,7 +161,7 @@ class DenunciaController extends Controller
     {
         $validated = $request->validate([
             'tecnico_id' => 'required|string|in:tec-1,tec-2,tec-3',
-            'justificacion' => 'required|string|min:10|max:2000',
+            'justificacion' => 'required|string|min:5|max:2000',
         ]);
 
         $denuncia = DenunciaData::find($ticket);
@@ -295,8 +294,8 @@ class DenunciaController extends Controller
             'notificado_denunciante' => 'required|boolean',
             'notificacion_medio' => 'required_if:notificado_denunciante,true|nullable|in:whatsapp,email,presencial,otro',
             'notificacion_fecha' => 'required_if:notificado_denunciante,true|nullable|date|before_or_equal:today',
-            'notificacion_descripcion' => 'required_if:notificado_denunciante,true|nullable|string|min:10|max:2000',
-            'no_notificado_motivo' => 'required_if:notificado_denunciante,false|nullable|string|max:500',
+            'notificacion_descripcion' => 'required_if:notificado_denunciante,true|nullable|string|min:5|max:2000',
+            'no_notificado_motivo' => 'nullable|string|max:500',
             'concluido_por' => 'required|string|min:2|max:100',
             'descripcion' => 'required|string|min:20|max:5000',
             'archivos' => 'nullable|array',
@@ -320,8 +319,8 @@ class DenunciaController extends Controller
             'notificado_denunciante' => 'required|boolean',
             'notificacion_medio' => 'required_if:notificado_denunciante,true|nullable|in:whatsapp,email,presencial,otro',
             'notificacion_fecha' => 'required_if:notificado_denunciante,true|nullable|date|before_or_equal:today',
-            'notificacion_descripcion' => 'required_if:notificado_denunciante,true|nullable|string|min:10|max:2000',
-            'no_notificado_motivo' => 'required_if:notificado_denunciante,false|nullable|string|max:500',
+            'notificacion_descripcion' => 'required_if:notificado_denunciante,true|nullable|string|min:5|max:2000',
+            'no_notificado_motivo' => 'nullable|string|max:500',
             'concluido_por' => 'required|string|min:2|max:100',
             'descripcion' => 'required|string|min:20|max:5000',
             'archivos' => 'nullable|array',

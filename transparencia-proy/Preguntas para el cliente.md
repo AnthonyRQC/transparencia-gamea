@@ -315,6 +315,21 @@ Los feriados afectan a TODOS los plazos del sistema (cálculo centralizado). No 
 
 ---
 
+#### #37 — Denunciante anónimo sin datos de contacto ✅
+**Decisión (Julio 2026):** Una persona anónima puede NO tener email ni teléfono. 
+Ejemplo real: dejar una carta con pruebas físicas en la oficina de la UTLCC sin identificarse digitalmente.
+
+**Implementación:**
+- En modo **anónimo**: email y teléfono son **completamente opcionales** (ninguno es obligatorio, ni siquiera "al menos uno de contacto")
+- En modo **revelado / no anónimo**: `nombres` sigue siendo obligatorio; `CI`, `email`, `teléfono` son opcionales
+- La barra de progreso del formulario NO cuenta email/teléfono como campos obligatorios en ningún escenario
+- El texto de ayuda indica: "Si no proporciona contacto, podrá consultar el caso presencialmente en la UTLCC con el código de seguimiento"
+**Decisión:** Se detectó un bug en `SolicitudController@ampliar`: el frontend de `ModalAmpliarSolicitud.tsx` limita la ampliación a **max:5 días** (correcto según Art. 25), pero el backend tiene `max:45` (inconsistencia heredada). Se corrige bajando a `max:5` para coincidir con el frontend y con `DescargoController@ampliar` que ya tiene `max:5`.
+
+**Nota:** Esto NO afecta la ampliación del plazo total del caso (Sprint 8, `DenunciaController@aprobarAmpliacion`), que correctamente tiene `max:45` (Art. 30, 45+45 corrupción).
+
+---
+
 ## ⏸️ Preguntas Pendientes (5)
 
 ### #2 — SITPRECO: validación de formato
@@ -341,8 +356,8 @@ Los feriados afectan a TODOS los plazos del sistema (cálculo centralizado). No 
 | A — Sprint 5 + 6 | 4 | 1, 3 | 2, 4 |
 | C — Legales | 8 | 6, 7, 8, 9, 10, 11 | 5, 12, 13 |
 | D — Sprint 7 + Transv | 15 | 15-29 | — |
-| E — Reunión Julio 2026 | 7 | 30-36 | — |
-| **Total** | **34** | **29** | **5** |
+| E — Reunión Julio 2026 | 8 | 30-37 | — |
+| **Total** | **35** | **30** | **5** |
 
 ---
 

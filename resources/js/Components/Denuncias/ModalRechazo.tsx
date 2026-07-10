@@ -79,7 +79,7 @@ export default function ModalRechazo({ ticket, open, onOpenChange }: ModalRechaz
               </p>
               {!canSubmit && justificacion.length > 0 && (
                 <p className="text-[11px] text-destructive font-medium">
-                  Mínimo 10 caracteres
+                  Mínimo 5 caracteres
                 </p>
               )}
             </div>

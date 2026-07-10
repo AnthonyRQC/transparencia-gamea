@@ -7,8 +7,7 @@ import { Label } from '@/Components/ui/label';
 import { Input } from '@/Components/ui/input';
 import { Textarea } from '@/Components/ui/textarea';
 import { Button } from '@/Components/ui/button';
-import { RotateCcw, Paperclip } from 'lucide-react';
-import ArchivoAdjunto from './ArchivoAdjunto';
+import { RotateCcw } from 'lucide-react';
 
 interface ModalAmpliarSolicitudProps {
   solicitudId: number | null;
@@ -19,39 +18,23 @@ interface ModalAmpliarSolicitudProps {
 export default function ModalAmpliarSolicitud({ solicitudId, open, onOpenChange }: ModalAmpliarSolicitudProps) {
   const [dias, setDias] = useState(5);
   const [justificacion, setJustificacion] = useState('');
-  const [archivo, setArchivo] = useState<{ nombre: string; tamano: string } | null>(null);
   const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
     if (open) {
       setDias(5);
       setJustificacion('');
-      setArchivo(null);
     }
   }, [open]);
 
-  const canSubmit = dias >= 1 && dias <= 5 && justificacion.trim().length >= 20;
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const tamano = file.size > 1024 * 1024
-      ? `${(file.size / (1024 * 1024)).toFixed(1)} MB`
-      : `${Math.round(file.size / 1024)} KB`;
-    setArchivo({ nombre: file.name, tamano });
-    e.target.value = '';
-  };
+  const canSubmit = dias >= 1 && dias <= 5 && justificacion.trim().length >= 10;
 
   const handleSubmit = () => {
     if (!canSubmit || !solicitudId) return;
     setProcessing(true);
     router.post(
       route('denuncias.solicitudes.ampliar', { id: solicitudId }),
-      {
-        dias,
-        justificacion,
-        archivo: archivo ? { nombre: archivo.nombre, tamano: archivo.tamano } : null,
-      },
+      { dias, justificacion },
       {
         preserveScroll: true,
         onSuccess: () => {
@@ -107,24 +90,10 @@ export default function ModalAmpliarSolicitud({ solicitudId, open, onOpenChange 
             />
             <div className="flex items-center justify-between">
               <p className="text-[11px] text-muted-foreground">{justificacion.length}/2000</p>
-              {justificacion.length > 0 && justificacion.trim().length < 20 && (
-                <p className="text-[11px] text-destructive font-medium">Mínimo 20 caracteres</p>
+              {justificacion.length > 0 && justificacion.trim().length < 10 && (
+                <p className="text-[11px] text-destructive font-medium">Mínimo 10 caracteres</p>
               )}
             </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Solicitud formal de prórroga (opcional)</Label>
-            <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-xs font-semibold hover:bg-muted cursor-pointer transition-colors">
-              <Paperclip className="w-3.5 h-3.5" />
-              Adjuntar archivo
-              <input type="file" className="hidden" onChange={handleFileChange} />
-            </label>
-            {archivo && (
-              <div className="mt-1">
-                <ArchivoAdjunto nombre={archivo.nombre} tamano={archivo.tamano} onEliminar={() => setArchivo(null)} />
-              </div>
-            )}
           </div>
         </div>
 

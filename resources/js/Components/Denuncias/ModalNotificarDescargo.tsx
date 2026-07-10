@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
 import { Label } from '@/Components/ui/label';
 import { Button } from '@/Components/ui/button';
-import { Bell, Paperclip } from 'lucide-react';
+import { Bell } from 'lucide-react';
 
 const MEDIOS: Record<string, string> = {
   personal: 'Notificación Personal',
@@ -25,7 +25,6 @@ export default function ModalNotificarDescargo({ descargoId, open, onOpenChange 
   const [fechaNotificacion, setFechaNotificacion] = useState(new Date().toISOString().split('T')[0]);
   const [medio, setMedio] = useState('');
   const [plazoDias, setPlazoDias] = useState(10);
-  const [respaldoArchivo, setRespaldoArchivo] = useState<{ nombre: string; tamano: string } | null>(null);
   const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
@@ -33,21 +32,10 @@ export default function ModalNotificarDescargo({ descargoId, open, onOpenChange 
       setFechaNotificacion(new Date().toISOString().split('T')[0]);
       setMedio('');
       setPlazoDias(10);
-      setRespaldoArchivo(null);
     }
   }, [open]);
 
   const canSubmit = fechaNotificacion && medio && plazoDias > 0;
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const tamano = file.size > 1024 * 1024
-      ? `${(file.size / (1024 * 1024)).toFixed(1)} MB`
-      : `${Math.round(file.size / 1024)} KB`;
-    setRespaldoArchivo({ nombre: file.name, tamano });
-    e.target.value = '';
-  };
 
   const handleSubmit = () => {
     if (!canSubmit || !descargoId) return;
@@ -58,7 +46,6 @@ export default function ModalNotificarDescargo({ descargoId, open, onOpenChange 
         fecha_notificacion: fechaNotificacion,
         medio,
         plazo_dias: plazoDias,
-        respaldo: respaldoArchivo ? { nombre: respaldoArchivo.nombre, tamano: respaldoArchivo.tamano } : null,
       },
       {
         preserveScroll: true,
@@ -133,19 +120,6 @@ export default function ModalNotificarDescargo({ descargoId, open, onOpenChange 
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label>Respaldo de notificación (opcional)</Label>
-            <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-xs font-semibold hover:bg-muted cursor-pointer transition-colors">
-              <Paperclip className="w-3.5 h-3.5" />
-              Adjuntar archivo
-              <input type="file" className="hidden" onChange={handleFileChange} />
-            </label>
-            {respaldoArchivo && (
-              <p className="text-xs text-muted-foreground mt-1">
-                {respaldoArchivo.nombre} ({respaldoArchivo.tamano})
-              </p>
-            )}
-          </div>
         </div>
 
         <DialogFooter>

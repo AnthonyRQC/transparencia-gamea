@@ -4,7 +4,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/Components/u
 import { Badge } from '@/Components/ui/badge';
 import { Separator } from '@/Components/ui/separator';
 import PlazoProgress from './PlazoProgress';
-import ArchivoAdjunto from './ArchivoAdjunto';
 
 interface SolicitudAmpliacion {
   dias: number;
@@ -94,7 +93,7 @@ export default function SolicitudDetailModal({
   const campoLabel: Record<string, string> = {
     unidad_destino: 'Unidad destino',
     detalle: 'Detalle',
-    plazo_dias: 'Plazo (días)',
+    plazo_dias: 'Plazo (días hábiles)',
     nombres_denunciado: 'Nombres',
     dependencia_denunciado: 'Dependencia',
   };
@@ -140,8 +139,8 @@ export default function SolicitudDetailModal({
           )}
 
           <div className="text-[11px] text-muted-foreground flex items-center gap-3">
-            <span>Plazo original: <strong>{plazoOriginal}d</strong></span>
-            {countAmplDias > 0 && <span>Ampliado: <strong>+{countAmplDias}d</strong></span>}
+            <span>Plazo original: <strong>{plazoOriginal}d hábiles</strong></span>
+            {countAmplDias > 0 && <span>Ampliado: <strong>+{countAmplDias}d hábiles</strong></span>}
             <span>Vence: <strong>{formatDate(solicitud.fecha_vencimiento)}</strong></span>
           </div>
 
@@ -178,21 +177,8 @@ export default function SolicitudDetailModal({
             </>
           )}
 
-          {solicitud.archivos && solicitud.archivos.length > 0 && (
-            <>
-              <Separator />
-              <section>
-                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1">
-                  <FileText className="w-3.5 h-3.5 text-blue-500" />
-                  Archivos recibidos ({solicitud.archivos.length})
-                </h4>
-                <div className="space-y-1">
-                  {solicitud.archivos.map((a, i) => (
-                    <ArchivoAdjunto key={i} nombre={a.nombre} tamano={a.tamano} />
-                  ))}
-                </div>
-              </section>
-            </>
+          {false && solicitud.archivos && solicitud.archivos.length > 0 && (
+            <></>
           )}
 
           {ampliaciones.length > 0 && (

@@ -22,7 +22,7 @@ export default function ModalCancelarDescargo({ descargoId, open, onOpenChange }
     if (open) setMotivo('');
   }, [open]);
 
-  const canSubmit = motivo.trim().length >= 10;
+  const canSubmit = motivo.trim().length >= 5;
 
   const handleSubmit = () => {
     if (!canSubmit || !descargoId) return;

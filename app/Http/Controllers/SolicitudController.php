@@ -13,7 +13,7 @@ class SolicitudController extends Controller
     {
         $validated = $request->validate([
             'unidad_destino' => 'required|string|min:2|max:200',
-            'detalle' => 'required|string|min:10|max:2000',
+            'detalle' => 'required|string|min:5|max:2000',
             'plazo_dias' => 'required|integer|min:1|max:45',
         ]);
 
@@ -36,8 +36,7 @@ class SolicitudController extends Controller
     public function responder(int $id, Request $request)
     {
         $validated = $request->validate([
-            'respuesta' => 'required|string|min:10|max:5000',
-            'archivos' => 'nullable|array',
+            'respuesta' => 'required|string|min:5|max:5000',
         ]);
 
         $solicitud = SolicitudData::find($id);
@@ -49,13 +48,7 @@ class SolicitudController extends Controller
             return redirect()->back()->with('error', 'Esta solicitud ya fue respondida.');
         }
 
-        $archivos = array_map(fn($a) => [
-            'nombre' => $a['nombre'] ?? 'documento.pdf',
-            'tamano' => $a['tamano'] ?? '0 B',
-            'fecha_subida' => now()->toDateTimeString(),
-        ], $validated['archivos'] ?? []);
-
-        SolicitudData::responder($id, $validated['respuesta'], $archivos);
+        SolicitudData::responder($id, $validated['respuesta']);
 
         DenunciaData::registrarAccion($solicitud['ticket'], 'solicitud_respondida', "Respuesta recibida de {$solicitud['unidad_destino']}", 'sistema');
 
@@ -65,7 +58,7 @@ class SolicitudController extends Controller
     public function cancelar(int $id, Request $request)
     {
         $validated = $request->validate([
-            'motivo' => 'required|string|min:10|max:2000',
+            'motivo' => 'required|string|min:5|max:2000',
         ]);
 
         $solicitud = SolicitudData::find($id);
@@ -92,9 +85,8 @@ class SolicitudController extends Controller
     public function ampliar(int $id, Request $request)
     {
         $validated = $request->validate([
-            'dias' => 'required|integer|min:1|max:45',
-            'justificacion' => 'required|string|min:20|max:2000',
-            'archivo' => 'nullable|array',
+            'dias' => 'required|integer|min:1|max:5',
+            'justificacion' => 'required|string|min:10|max:2000',
         ]);
 
         $solicitud = SolicitudData::find($id);
@@ -106,9 +98,7 @@ class SolicitudController extends Controller
             return redirect()->back()->with('error', 'No se puede ampliar una solicitud ya respondida o cancelada.');
         }
 
-        $archivo = $validated['archivo'] ?? null;
-
-        SolicitudData::ampliar($id, $validated['dias'], $validated['justificacion'], $archivo);
+        SolicitudData::ampliar($id, $validated['dias'], $validated['justificacion']);
 
         $numAmpliaciones = count($solicitud['ampliaciones']) + 1;
 
@@ -126,7 +116,7 @@ class SolicitudController extends Controller
     {
         $validated = $request->validate([
             'unidad_destino' => 'required|string|min:2|max:200',
-            'detalle' => 'required|string|min:10|max:2000',
+            'detalle' => 'required|string|min:5|max:2000',
             'plazo_dias' => 'required|integer|min:1|max:45',
         ]);
 

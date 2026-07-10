@@ -152,7 +152,7 @@ export default function BloquePrueba({ items, onChange, errors }: BloquePruebaPr
                             <div className="space-y-3">
                                 <div className="space-y-1.5">
                                     <Label className={cn('text-xs font-medium', getError(index, 'descripcion') ? 'text-destructive' : 'text-muted-foreground')}>
-                                        Descripción de la prueba <span className="text-destructive">*</span>
+                                        Descripción de la prueba <span className="text-muted-foreground font-normal">(opcional)</span>
                                     </Label>
                                     <div className="relative">
                                         <Textarea
@@ -212,7 +212,7 @@ export default function BloquePrueba({ items, onChange, errors }: BloquePruebaPr
                         {item.tipo === 'fisica' && (
                             <div className="space-y-1.5">
                                 <Label className={cn('text-xs font-medium', getError(index, 'descripcion') ? 'text-destructive' : 'text-muted-foreground')}>
-                                    Descripción de la prueba <span className="text-destructive">*</span>
+                                    Descripción de la prueba <span className="text-muted-foreground font-normal">(opcional)</span>
                                 </Label>
                                 <div className="relative">
                                     <Textarea
@@ -236,7 +236,7 @@ export default function BloquePrueba({ items, onChange, errors }: BloquePruebaPr
                             <div className="space-y-3">
                                 <div className="space-y-1.5">
                                     <Label className={cn('text-xs font-medium', getError(index, 'descripcion') ? 'text-destructive' : 'text-muted-foreground')}>
-                                        Descripción <span className="text-destructive">*</span>
+                                        Descripción <span className="text-muted-foreground font-normal">(opcional)</span>
                                     </Label>
                                     <div className="relative">
                                         <Textarea

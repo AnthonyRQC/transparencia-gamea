@@ -125,7 +125,7 @@ export default function BloqueDenunciado({ items, onChange, errors }: BloqueDenu
                                 </div>
                                 <div className="space-y-1.5">
                                 <Label className={cn('text-xs font-medium', getError(index, 'dependencia') ? 'text-destructive' : 'text-muted-foreground')}>
-                                    Cargo y/o Dependencia de trabajo <span className="text-destructive">*</span>
+                                    Cargo y/o Dependencia de trabajo <span className="text-muted-foreground font-normal">(opcional)</span>
                                 </Label>
                                     <div className="relative">
                                         <Input

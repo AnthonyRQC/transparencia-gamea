@@ -259,7 +259,7 @@ function CierreForm({ ticket, cierre, tecnicoNombre, processing, setProcessing, 
   }, [cierre, tecnicoNombre]);
 
   const canSubmit = notificadoDenunciante
-    ? concluidoPor.trim().length >= 2 && descripcion.trim().length >= 20 && notificacionMedio && notificacionFecha && notificacionDescripcion.trim().length >= 10
+    ? concluidoPor.trim().length >= 2 && descripcion.trim().length >= 20 && notificacionMedio && notificacionFecha && notificacionDescripcion.trim().length >= 5
     : concluidoPor.trim().length >= 2 && descripcion.trim().length >= 20;
 
   const isEdit = cierre && cierre.cerrado_at;
@@ -379,8 +379,8 @@ function CierreForm({ ticket, cierre, tecnicoNombre, processing, setProcessing, 
               />
               <div className="flex items-center justify-between">
                 <p className="text-[11px] text-muted-foreground">{notificacionDescripcion.length}/2000</p>
-                {notificacionDescripcion.length > 0 && notificacionDescripcion.trim().length < 10 && (
-                  <p className="text-[11px] text-destructive font-medium">Mínimo 10 caracteres</p>
+                {notificacionDescripcion.length > 0 && notificacionDescripcion.trim().length < 5 && (
+                  <p className="text-[11px] text-destructive font-medium">Mínimo 5 caracteres</p>
                 )}
               </div>
             </div>

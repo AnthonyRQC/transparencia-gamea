@@ -111,7 +111,7 @@ export default function SeccionDenunciante({ escenario, data, onChange, errors }
                 <div className="space-y-1.5">
                     <div className="flex items-center gap-1.5">
                         <Label htmlFor="ci" className={cn('text-xs font-medium', errors['denunciante.ci'] ? 'text-destructive' : 'text-muted-foreground')}>
-                            Cédula de Identidad <span className="text-destructive">*</span>
+                            Cédula de Identidad <span className="text-muted-foreground font-normal">(opcional)</span>
                         </Label>
                         <FieldHelp text="Ingrese el número sin puntos ni guiones. Ej: 1234567" />
                     </div>
@@ -134,7 +134,7 @@ export default function SeccionDenunciante({ escenario, data, onChange, errors }
                 <div className="space-y-1.5">
                     <div className="flex items-center gap-1.5">
                         <Label htmlFor="email" className={cn('text-xs font-medium', errors['denunciante.email'] ? 'text-destructive' : 'text-muted-foreground')}>
-                            Correo electrónico <span className="text-destructive">*</span>
+                            Correo electrónico <span className="text-muted-foreground font-normal">(opcional)</span>
                         </Label>
                         <FieldHelp text="Correo electrónico válido para notificaciones del caso." />
                     </div>
@@ -157,7 +157,7 @@ export default function SeccionDenunciante({ escenario, data, onChange, errors }
                 <div className="space-y-1.5">
                     <div className="flex items-center gap-1.5">
                         <Label htmlFor="telefono" className={cn('text-xs font-medium', errors['denunciante.telefono'] ? 'text-destructive' : 'text-muted-foreground')}>
-                            Teléfono / Celular <span className="text-destructive">*</span>
+                            Teléfono / Celular <span className="text-muted-foreground font-normal">(opcional)</span>
                         </Label>
                         <FieldHelp text="8 dígitos, sin código de país. Ej: 70123456" />
                     </div>

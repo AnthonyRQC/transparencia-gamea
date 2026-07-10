@@ -27,7 +27,7 @@ export default function ModalAmpliarDescargo({ descargoId, open, onOpenChange }:
     }
   }, [open]);
 
-  const canSubmit = dias >= 1 && dias <= 5 && justificacion.trim().length >= 20;
+  const canSubmit = dias >= 1 && dias <= 5 && justificacion.trim().length >= 10;
 
   const handleSubmit = () => {
     if (!canSubmit || !descargoId) return;
@@ -90,8 +90,8 @@ export default function ModalAmpliarDescargo({ descargoId, open, onOpenChange }:
             />
             <div className="flex items-center justify-between">
               <p className="text-[11px] text-muted-foreground">{justificacion.length}/2000</p>
-              {justificacion.length > 0 && justificacion.trim().length < 20 && (
-                <p className="text-[11px] text-destructive font-medium">Mínimo 20 caracteres</p>
+              {justificacion.length > 0 && justificacion.trim().length < 10 && (
+                <p className="text-[11px] text-destructive font-medium">Mínimo 10 caracteres</p>
               )}
             </div>
           </div>

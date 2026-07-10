@@ -41,7 +41,7 @@ export default function SeccionRelacionHechos({ value, onChange, error }: Seccio
                 <div className="absolute bottom-2 right-3">
                     <span
                         className={`text-[10px] font-mono tabular-nums ${
-                            chars < 20 ? 'text-destructive' : 'text-muted-foreground'
+                            chars < 10 ? 'text-destructive' : 'text-muted-foreground'
                         }`}
                     >
                         {chars}/{MAX_CHARS}

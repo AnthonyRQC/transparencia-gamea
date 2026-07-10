@@ -433,6 +433,7 @@ Tras la reunión con el cliente, se aplican los siguientes cambios retroactivos 
 | **Campos opcionales** | CI, email, teléfono del denunciante (no anónimo) y dependencia del denunciado pasan a opcionales. |
 | **Plazo configurable** | `plazo_dias` se mantiene como input configurable (default 10, rango 1-45 hábiles). No se fuerza valor fijo. |
 | **Bug fix: max ampliación** | `SolicitudController@ampliar`: `max:45` → `max:5` (consistente con frontend y descargo). |
+| **Anónimo sin contacto** | En modo anónimo, email y teléfono son 100% opcionales. Caso real: carta con pruebas físicas sin datos digitales. |
 | **Evidencia Acompañamiento** | Campo `evidencia` eliminado del formulario. |
 | **Archivo Intervención** | Campo `archivo` pasa de `required` a `nullable`. |
 

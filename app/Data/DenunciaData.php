@@ -2,6 +2,7 @@
 
 namespace App\Data;
 
+use App\Helpers\DiasHabiles;
 use Carbon\Carbon;
 use App\Data\SolicitudData;
 use App\Data\DescargoData;
@@ -565,7 +566,7 @@ class DenunciaData
 
         $fechaVencimiento = !empty($denuncia['plazo_reapertura'])
             ? Carbon::parse($denuncia['plazo_reapertura'])->format('Y-m-d')
-            : Carbon::parse($denuncia['created_at'])->addDays($plazoTotal)->format('Y-m-d');
+            : DiasHabiles::agregar($plazoTotal, Carbon::parse($denuncia['created_at']))->format('Y-m-d');
 
         $result = ['dias_restantes' => $diasRestantes, 'color' => 'green', 'fecha_vencimiento' => $fechaVencimiento];
 

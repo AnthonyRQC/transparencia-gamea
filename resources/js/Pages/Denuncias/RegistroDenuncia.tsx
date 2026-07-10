@@ -337,12 +337,10 @@ export default function RegistroDenuncia() {
                 return { total, completed };
             }
             if (form.tipo === 'intervencion') {
-                const total = 5;
+                const total = 3;
                 let completed = 0;
                 if (form.dependencia_observada.length >= 2) completed += 1;
-                if (form.referencia_nota.length >= 2) completed += 1;
                 if (form.motivo.length >= 20) completed += 1;
-                if (form.archivo.length > 0) completed += 1;
                 if (form.declaracion_jurada) completed += 1;
                 return { total, completed };
             }
@@ -356,21 +354,15 @@ export default function RegistroDenuncia() {
         if (form.escenario) completed += 1;
 
         if (form.escenario !== 'anonimo') {
-            total += 4;
-            if (form.denunciante.nombres.length >= 2) completed += 1;
-            if (form.denunciante.ci.length >= 6) completed += 1;
-            if (form.denunciante.email.includes('@')) completed += 1;
-            if (form.denunciante.telefono.length === 8) completed += 1;
-        } else {
             total += 1;
-            if (form.denunciante.email?.includes('@') || form.denunciante.telefono?.length === 8) completed += 1;
+            if (form.denunciante.nombres.length >= 2) completed += 1;
         }
 
         total += 1;
         if (form.denunciados.length > 0) {
             const first = form.denunciados[0];
             if (first.conoce_identidad) {
-                if (first.nombres.length >= 2 && first.dependencia.length >= 2) completed += 1;
+                if (first.nombres.length >= 2) completed += 1;
             } else {
                 if (first.descripcion.length >= 2) completed += 1;
             }
@@ -382,7 +374,7 @@ export default function RegistroDenuncia() {
         if (form.detalles.lugar.length >= 2) completed += 1;
 
         total += 1;
-        if (form.hechos.length >= 20) completed += 1;
+        if (form.hechos.length >= 10) completed += 1;
 
         total += 1;
         if (form.declaracion_jurada) completed += 1;

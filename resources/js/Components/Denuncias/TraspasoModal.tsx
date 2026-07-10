@@ -35,7 +35,7 @@ export default function TraspasoModal({ ticket, open, tecnicos, onOpenChange }: 
     }
   }, [open]);
 
-  const canSubmit = tecnicoId && justificacion.trim().length >= 10 && ticket;
+  const canSubmit = tecnicoId && justificacion.trim().length >= 5 && ticket;
   const tecnicosList = tecnicos ? Object.values(tecnicos) : [];
 
   const handleSubmit = () => {
@@ -106,9 +106,9 @@ export default function TraspasoModal({ ticket, open, tecnicos, onOpenChange }: 
               <p className="text-[11px] text-muted-foreground">
                 {justificacion.length}/2000 caracteres
               </p>
-              {justificacion.length > 0 && justificacion.trim().length < 10 && (
+              {justificacion.length > 0 && justificacion.trim().length < 5 && (
                 <p className="text-[11px] text-destructive font-medium">
-                  Mínimo 10 caracteres
+                  Mínimo 5 caracteres
                 </p>
               )}
             </div>

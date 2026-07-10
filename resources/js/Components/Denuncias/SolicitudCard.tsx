@@ -177,11 +177,8 @@ export default function SolicitudCard({ solicitud, canAct, onClick, onResponder,
         </p>
       )}
 
-      {solicitud.archivos && solicitud.archivos.length > 0 && (
-        <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
-          <CircleCheck className="w-3 h-3 text-green-500" />
-          {solicitud.archivos.length} archivo(s) recibido(s)
-        </div>
+      {false && solicitud.archivos && solicitud.archivos.length > 0 && (
+        <></>
       )}
     </div>
   );

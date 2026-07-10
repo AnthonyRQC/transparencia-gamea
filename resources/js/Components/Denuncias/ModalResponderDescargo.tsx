@@ -6,14 +6,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from '@/Components/ui/label';
 import { Textarea } from '@/Components/ui/textarea';
 import { Button } from '@/Components/ui/button';
-import { CircleCheck, Paperclip } from 'lucide-react';
-import ArchivoAdjunto from './ArchivoAdjunto';
-
-interface MockDocumento {
-  nombre: string;
-  tamano: string;
-}
-
+import { CircleCheck } from 'lucide-react';
 interface ModalResponderDescargoProps {
   descargoId: number | null;
   open: boolean;
@@ -22,43 +15,22 @@ interface ModalResponderDescargoProps {
 
 export default function ModalResponderDescargo({ descargoId, open, onOpenChange }: ModalResponderDescargoProps) {
   const [resumen, setResumen] = useState('');
-  const [documentos, setDocumentos] = useState<MockDocumento[]>([]);
   const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
     if (open) {
       setResumen('');
-      setDocumentos([]);
     }
   }, [open]);
 
-  const canSubmit = resumen.trim().length >= 10;
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files) return;
-    for (const file of Array.from(files)) {
-      const tamano = file.size > 1024 * 1024
-        ? `${(file.size / (1024 * 1024)).toFixed(1)} MB`
-        : `${Math.round(file.size / 1024)} KB`;
-      setDocumentos((prev) => [...prev, { nombre: file.name, tamano }]);
-    }
-    e.target.value = '';
-  };
-
-  const removeDocumento = (index: number) => {
-    setDocumentos((prev) => prev.filter((_, i) => i !== index));
-  };
+  const canSubmit = resumen.trim().length >= 5;
 
   const handleSubmit = () => {
     if (!canSubmit || !descargoId) return;
     setProcessing(true);
     router.post(
       route('denuncias.descargos.responder', { id: descargoId }),
-      {
-        resumen_descargo: resumen,
-        documentos: documentos.map((d) => ({ nombre: d.nombre, tamano: d.tamano })),
-      },
+      { resumen_descargo: resumen },
       {
         preserveScroll: true,
         onSuccess: () => {
@@ -99,27 +71,12 @@ export default function ModalResponderDescargo({ descargoId, open, onOpenChange 
             />
             <div className="flex items-center justify-between">
               <p className="text-[11px] text-muted-foreground">{resumen.length}/5000</p>
-              {resumen.length > 0 && resumen.trim().length < 10 && (
-                <p className="text-[11px] text-destructive font-medium">Mínimo 10 caracteres</p>
+              {resumen.length > 0 && resumen.trim().length < 5 && (
+                <p className="text-[11px] text-destructive font-medium">Mínimo 5 caracteres</p>
               )}
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label>Documentos del descargo</Label>
-            <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-xs font-semibold hover:bg-muted cursor-pointer transition-colors">
-              <Paperclip className="w-3.5 h-3.5" />
-              Adjuntar documentos
-              <input type="file" multiple className="hidden" onChange={handleFileChange} />
-            </label>
-            {documentos.length > 0 && (
-              <div className="space-y-1 mt-2">
-                {documentos.map((d, i) => (
-                  <ArchivoAdjunto key={i} nombre={d.nombre} tamano={d.tamano} onEliminar={() => removeDocumento(i)} />
-                ))}
-              </div>
-            )}
-          </div>
         </div>
 
         <DialogFooter>

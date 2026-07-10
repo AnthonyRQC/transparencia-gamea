@@ -5,7 +5,6 @@ import { Badge } from '@/Components/ui/badge';
 import { Separator } from '@/Components/ui/separator';
 import { Avatar, AvatarFallback } from '@/Components/ui/avatar';
 import PlazoProgress from './PlazoProgress';
-import ArchivoAdjunto from './ArchivoAdjunto';
 
 interface DescargoAmpliacion {
   dias: number;
@@ -108,7 +107,7 @@ export default function DescargoDetailModal({
     dependencia_denunciado: 'Dependencia',
     unidad_destino: 'Unidad destino',
     detalle: 'Detalle',
-    plazo_dias: 'Plazo (días)',
+    plazo_dias: 'Plazo (días hábiles)',
   };
 
   return (
@@ -173,11 +172,7 @@ export default function DescargoDetailModal({
               <div className="text-sm space-y-1">
                 <p><span className="text-muted-foreground">Fecha:</span> {formatDate(descargo.fecha_notificacion)}</p>
                 {descargo.medio && <p><span className="text-muted-foreground">Medio:</span> {MEDIOS_LABEL[descargo.medio] || descargo.medio}</p>}
-                {descargo.respaldo_archivo && (
-                  <div className="mt-2">
-                    <ArchivoAdjunto nombre={descargo.respaldo_archivo.nombre} tamano={descargo.respaldo_archivo.tamano} />
-                  </div>
-                )}
+                
               </div>
             </section>
           )}
@@ -195,21 +190,8 @@ export default function DescargoDetailModal({
             </>
           )}
 
-          {descargo.documentos && descargo.documentos.length > 0 && (
-            <>
-              <Separator />
-              <section>
-                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1">
-                  <FileText className="w-3.5 h-3.5 text-blue-500" />
-                  Documentos del descargo ({descargo.documentos.length})
-                </h4>
-                <div className="space-y-1">
-                  {descargo.documentos.map((d, i) => (
-                    <ArchivoAdjunto key={i} nombre={d.nombre} tamano={d.tamano} />
-                  ))}
-                </div>
-              </section>
-            </>
+          {false && descargo.documentos && descargo.documentos.length > 0 && (
+            <></>
           )}
 
           {ampliaciones.length > 0 && (

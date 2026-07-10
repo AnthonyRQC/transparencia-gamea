@@ -44,7 +44,7 @@ export default function FormularioIntervencion({ data, onChange, errors }: Formu
                 <div className="space-y-1.5">
                     <div className="flex items-center gap-1.5">
                         <Label className={cn('text-xs font-medium', errors.referencia_nota ? 'text-destructive' : 'text-muted-foreground')}>
-                            Referencia de la Nota <span className="text-destructive">*</span>
+                            Referencia de la Nota <span className="text-muted-foreground font-normal">(opcional)</span>
                         </Label>
                         <FieldHelp text="Número o código de la nota interna que motiva la intervención." />
                     </div>
@@ -71,7 +71,7 @@ export default function FormularioIntervencion({ data, onChange, errors }: Formu
                 </div>
                 <div className="space-y-1.5 md:col-span-2">
                     <Label className={cn('text-xs font-medium', errors.archivo ? 'text-destructive' : 'text-muted-foreground')}>
-                        Archivo Adjunto <span className="text-destructive">*</span>
+                        Archivo Adjunto <span className="text-muted-foreground font-normal">(opcional)</span>
                     </Label>
                     {data.archivo ? (
                         <div className="flex items-center justify-between bg-muted/50 rounded-lg px-3 py-2 border border-border/60">
