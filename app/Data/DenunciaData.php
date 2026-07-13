@@ -4,6 +4,7 @@ namespace App\Data;
 
 use App\Helpers\DiasHabiles;
 use Carbon\Carbon;
+use App\Data\EvaluacionData;
 use App\Data\SolicitudData;
 use App\Data\DescargoData;
 
@@ -73,6 +74,15 @@ class DenunciaData
         $data['bitacora'] = [];
         $data['token_consulta'] = self::generateToken();
 
+        // Sprint 7 — Evaluación Técnica Previa
+        $data['evaluacion_tecnica_tecnico_id'] = null;
+        $data['evaluacion_tecnica_tecnico_nombre'] = null;
+        $data['evaluacion_tecnica_delegada_at'] = null;
+        $data['evaluacion_tecnica_justificacion'] = null;
+        $data['evaluacion_tecnica_texto'] = null;
+        $data['evaluacion_tecnica_recomendacion'] = null;
+        $data['evaluacion_tecnica_devuelta_at'] = null;
+
         // Sprint 5 — Informe Final y Cierre
         $data['informe_clasificacion'] = null;
         $data['informe_fojas'] = null;
@@ -136,6 +146,13 @@ class DenunciaData
                 $denuncias[$i]['estado'] = 'admitida';
                 $denuncias[$i]['fecha_admitida'] = now()->toDateTimeString();
                 $denuncias[$i]['justificacion_admision'] = $justificacion;
+                $denuncias[$i]['evaluacion_tecnica_tecnico_id'] = null;
+                $denuncias[$i]['evaluacion_tecnica_tecnico_nombre'] = null;
+                $denuncias[$i]['evaluacion_tecnica_delegada_at'] = null;
+                $denuncias[$i]['evaluacion_tecnica_justificacion'] = null;
+                $denuncias[$i]['evaluacion_tecnica_texto'] = null;
+                $denuncias[$i]['evaluacion_tecnica_recomendacion'] = null;
+                $denuncias[$i]['evaluacion_tecnica_devuelta_at'] = null;
                 self::addBitacoraEntry($denuncias, $i, 'admitida', $justificacion ? "Admitida con justificación: {$justificacion}" : 'Admitida sin justificación', 'sistema');
                 session()->put(self::SESSION_KEY, $denuncias);
                 return true;
@@ -153,6 +170,13 @@ class DenunciaData
                 $denuncias[$i]['fecha_rechazada'] = now()->toDateTimeString();
                 $denuncias[$i]['justificacion_rechazo'] = $justificacion;
                 $denuncias[$i]['resumen_rechazo'] = $resumenRechazo;
+                $denuncias[$i]['evaluacion_tecnica_tecnico_id'] = null;
+                $denuncias[$i]['evaluacion_tecnica_tecnico_nombre'] = null;
+                $denuncias[$i]['evaluacion_tecnica_delegada_at'] = null;
+                $denuncias[$i]['evaluacion_tecnica_justificacion'] = null;
+                $denuncias[$i]['evaluacion_tecnica_texto'] = null;
+                $denuncias[$i]['evaluacion_tecnica_recomendacion'] = null;
+                $denuncias[$i]['evaluacion_tecnica_devuelta_at'] = null;
                 self::addBitacoraEntry($denuncias, $i, 'rechazada', "Rechazada: {$justificacion}", 'sistema');
                 session()->put(self::SESSION_KEY, $denuncias);
                 return true;
@@ -235,6 +259,13 @@ class DenunciaData
                 $denuncias[$i]['justificacion_reapertura'] = $justificacion;
                 $denuncias[$i]['plazo_reapertura'] = $nuevaFechaLimite;
                 $denuncias[$i]['ampliaciones'] = [];
+                $denuncias[$i]['evaluacion_tecnica_tecnico_id'] = null;
+                $denuncias[$i]['evaluacion_tecnica_tecnico_nombre'] = null;
+                $denuncias[$i]['evaluacion_tecnica_delegada_at'] = null;
+                $denuncias[$i]['evaluacion_tecnica_justificacion'] = null;
+                $denuncias[$i]['evaluacion_tecnica_texto'] = null;
+                $denuncias[$i]['evaluacion_tecnica_recomendacion'] = null;
+                $denuncias[$i]['evaluacion_tecnica_devuelta_at'] = null;
                 self::addBitacoraEntry($denuncias, $i, 'reapertura', "Reabierta. Nuevo plazo: {$nuevaFechaLimite}. Ampliaciones previas eliminadas. Justificación: {$justificacion}", $usuarioId);
                 session()->put(self::SESSION_KEY, $denuncias);
                 return true;
@@ -284,6 +315,99 @@ class DenunciaData
     {
         $d = self::find($ticket);
         return $d['bitacora'] ?? [];
+    }
+
+    // ──────────────────────────────────────────────
+    //  SPRINT 7 — Evaluación Técnica Previa
+    // ──────────────────────────────────────────────
+
+    public static function delegarEvaluacion(string $ticket, string $tecnicoId, ?string $justificacion, string $usuarioId = 'sistema'): bool
+    {
+        $denuncias = self::getAll();
+        foreach ($denuncias as $i => $d) {
+            if (($d['ticket'] ?? '') === $ticket && ($d['estado'] ?? '') === 'ingresada') {
+                $tecnicoNombre = self::TECNICOS_MOCK[$tecnicoId]['nombre'] ?? $tecnicoId;
+                $denuncias[$i]['estado'] = 'evaluacion_tecnica';
+                $denuncias[$i]['evaluacion_tecnica_tecnico_id'] = $tecnicoId;
+                $denuncias[$i]['evaluacion_tecnica_tecnico_nombre'] = $tecnicoNombre;
+                $denuncias[$i]['evaluacion_tecnica_delegada_at'] = now()->toDateTimeString();
+                $denuncias[$i]['evaluacion_tecnica_justificacion'] = $justificacion;
+                $denuncias[$i]['evaluacion_tecnica_texto'] = null;
+                $denuncias[$i]['evaluacion_tecnica_recomendacion'] = null;
+                $denuncias[$i]['evaluacion_tecnica_devuelta_at'] = null;
+                EvaluacionData::add([
+                    'ticket' => $ticket,
+                    'tecnico_id' => $tecnicoId,
+                    'tecnico_nombre' => $tecnicoNombre,
+                    'delegada_por' => $usuarioId,
+                    'delegada_at' => now()->toDateTimeString(),
+                    'justificacion_delegacion' => $justificacion,
+                    'texto_evaluacion' => null,
+                    'recomendacion' => null,
+                    'devuelta_at' => null,
+                    'devuelta_por' => null,
+                    'estado' => 'pendiente',
+                ]);
+                self::addBitacoraEntry($denuncias, $i, 'evaluacion_delegada', "Evaluación delegada a {$tecnicoNombre}" . ($justificacion ? ": {$justificacion}" : ''), $usuarioId);
+                session()->put(self::SESSION_KEY, $denuncias);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static function devolverEvaluacion(int $evaluacionId, string $texto, string $recomendacion, string $usuarioId = 'sistema'): bool
+    {
+        $evaluacion = EvaluacionData::find($evaluacionId);
+        if (!$evaluacion || ($evaluacion['estado'] ?? '') !== 'pendiente') return false;
+
+        EvaluacionData::marcarDevuelta($evaluacionId, $texto, $recomendacion, $usuarioId);
+
+        $denuncias = self::getAll();
+        foreach ($denuncias as $i => $d) {
+            if (($d['ticket'] ?? '') === ($evaluacion['ticket'] ?? '') && ($d['estado'] ?? '') === 'evaluacion_tecnica') {
+                $denuncias[$i]['estado'] = 'ingresada';
+                $denuncias[$i]['evaluacion_tecnica_texto'] = $texto;
+                $denuncias[$i]['evaluacion_tecnica_recomendacion'] = $recomendacion;
+                $denuncias[$i]['evaluacion_tecnica_devuelta_at'] = now()->toDateTimeString();
+                $recomendacionLabel = match ($recomendacion) {
+                    'admitir' => 'Admitir',
+                    'rechazar' => 'Rechazar',
+                    default => $recomendacion,
+                };
+                self::addBitacoraEntry($denuncias, $i, 'evaluacion_devuelta', "Evaluación devuelta. Recomendación: {$recomendacionLabel}", $usuarioId);
+                session()->put(self::SESSION_KEY, $denuncias);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static function reasumirEvaluacion(string $ticket, string $usuarioId = 'sistema'): bool
+    {
+        $denuncias = self::getAll();
+        foreach ($denuncias as $i => $d) {
+            if (($d['ticket'] ?? '') === $ticket && ($d['estado'] ?? '') === 'evaluacion_tecnica') {
+                $denuncias[$i]['estado'] = 'ingresada';
+                $denuncias[$i]['evaluacion_tecnica_tecnico_id'] = null;
+                $denuncias[$i]['evaluacion_tecnica_tecnico_nombre'] = null;
+                $denuncias[$i]['evaluacion_tecnica_delegada_at'] = null;
+                $denuncias[$i]['evaluacion_tecnica_justificacion'] = null;
+                $denuncias[$i]['evaluacion_tecnica_texto'] = null;
+                $denuncias[$i]['evaluacion_tecnica_recomendacion'] = null;
+                $denuncias[$i]['evaluacion_tecnica_devuelta_at'] = null;
+                EvaluacionData::eliminarPorTicket($ticket);
+                self::addBitacoraEntry($denuncias, $i, 'evaluacion_reasumida', "Jefe reasumió la evaluación", $usuarioId);
+                session()->put(self::SESSION_KEY, $denuncias);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static function getEvaluaciones(string $ticket): array
+    {
+        return EvaluacionData::getByTicket($ticket);
     }
 
     // ──────────────────────────────────────────────
@@ -508,7 +632,7 @@ class DenunciaData
     public static function getContadores(): array
     {
         $contadores = [
-            'ingresada' => 0, 'admitida' => 0, 'asignada' => 0,
+            'ingresada' => 0, 'evaluacion_tecnica' => 0, 'admitida' => 0, 'asignada' => 0,
             'investigacion' => 0, 'informe' => 0, 'cerrada' => 0, 'rechazada' => 0,
         ];
         foreach (self::getAll() as $d) {
@@ -657,9 +781,10 @@ class DenunciaData
         session()->put(self::SESSION_KEY, $denuncias);
         session()->put(self::COUNTER_KEY, count($denuncias));
 
-        // Seed solicitudes and descargos demo (Sprint 4)
+        // Seed solicitudes, descargos and evaluaciones demo
         SolicitudData::seedDemoData();
         DescargoData::seedDemoData();
+        EvaluacionData::seedDemoData();
     }
 
     private static function buildSeedItems(): array
@@ -928,6 +1053,51 @@ class DenunciaData
                 'hechos' => 'Solicitaba la renovación de mi licencia de conducir y el funcionario me ofreció "saltarme la fila" y no rendir el examen práctico por Bs 300. Acepté por la premura del tiempo. Luego supe que esto era una práctica común en esa oficina.',
                 'pruebas' => [],
             ],
+            [
+                'ticket' => 'DEN-2026-0013',
+                'token_consulta' => '1013',
+                'tipo' => 'corrupcion',
+                'estado' => 'evaluacion_tecnica',
+                'created_at' => (clone $now)->subDays(7)->toDateTimeString(),
+                'evaluacion_tecnica_tecnico_id' => 'tec-2',
+                'evaluacion_tecnica_tecnico_nombre' => 'Ana Torres',
+                'evaluacion_tecnica_delegada_at' => (clone $now)->subDays(3)->toDateTimeString(),
+                'evaluacion_tecnica_justificacion' => 'Denuncia compleja que requiere evaluación técnica especializada.',
+                'evaluacion_tecnica_texto' => null,
+                'evaluacion_tecnica_recomendacion' => null,
+                'evaluacion_tecnica_devuelta_at' => null,
+                'bitacora' => [
+                    ['fecha' => (clone $now)->subDays(3)->toDateTimeString(), 'accion' => 'evaluacion_delegada', 'detalle' => 'Evaluación delegada a Ana Torres: Denuncia compleja que requiere evaluación técnica especializada.', 'usuario' => 'sistema'],
+                ],
+                'denunciante' => ['nombres' => 'Fernanda Rojas', 'ci' => '5678910', 'email' => 'frojas@correo.com', 'telefono' => '75678910'],
+                'denunciados' => [['conoce_identidad' => true, 'nombres' => 'Luis Morales', 'dependencia' => 'Unidad de Fiscalización', 'descripcion' => '']],
+                'detalles' => ['categoria' => 'cohecho', 'fecha' => '2026-06-01', 'hora' => '14:30', 'lugar' => 'Oficina de Fiscalización, piso 2'],
+                'hechos' => 'El Jefe de Fiscalización me solicitó Bs 1,000 para omitir una infracción de construcción en mi propiedad. Me indicó que si no pagaba, procederían con la demolición de la obra realizada. Tengo testigos de la conversación.',
+                'pruebas' => [['tipo' => 'testigo', 'descripcion' => 'Mi esposa presenció la conversación', 'testigo_nombre' => 'María Rojas', 'testigo_telefono' => '71234567']],
+            ],
+            [
+                'ticket' => 'DEN-2026-0014',
+                'token_consulta' => '1014',
+                'tipo' => 'negacion',
+                'estado' => 'ingresada',
+                'created_at' => (clone $now)->subDays(7)->toDateTimeString(),
+                'evaluacion_tecnica_tecnico_id' => 'tec-1',
+                'evaluacion_tecnica_tecnico_nombre' => 'Carlos Quispe',
+                'evaluacion_tecnica_delegada_at' => (clone $now)->subDays(5)->toDateTimeString(),
+                'evaluacion_tecnica_justificacion' => 'Evaluación preliminar solicitada por el Jefe.',
+                'evaluacion_tecnica_texto' => 'La denuncia presenta elementos suficientes para ser admitida. Los hechos descritos coinciden con el patrón de cohecho reportado en otras denuncias similares. La documentación adjunta es consistente y los testigos están identificados. Se recomienda admitir la denuncia para investigación formal.',
+                'evaluacion_tecnica_recomendacion' => 'admitir',
+                'evaluacion_tecnica_devuelta_at' => (clone $now)->subDays(3)->toDateTimeString(),
+                'bitacora' => [
+                    ['fecha' => (clone $now)->subDays(5)->toDateTimeString(), 'accion' => 'evaluacion_delegada', 'detalle' => 'Evaluación delegada a Carlos Quispe: Evaluación preliminar solicitada por el Jefe.', 'usuario' => 'sistema'],
+                    ['fecha' => (clone $now)->subDays(3)->toDateTimeString(), 'accion' => 'evaluacion_devuelta', 'detalle' => 'Evaluación devuelta. Recomendación: Admitir', 'usuario' => 'sistema'],
+                ],
+                'denunciante' => ['nombres' => 'Sofía Camacho', 'ci' => '3456790', 'email' => 'scamacho@mail.com', 'telefono' => '73456790'],
+                'denunciados' => [['conoce_identidad' => false, 'nombres' => '', 'dependencia' => '', 'descripcion' => 'Funcionario de la ventanilla de atención al público, mujer, cabello largo, aproximadamente 35 años']],
+                'detalles' => ['categoria' => 'incumplimiento', 'fecha' => '2026-06-05', 'hora' => '11:00', 'lugar' => 'Ventanilla Única de Atención Ciudadana'],
+                'hechos' => 'Solicité información sobre el avance de mi trámite de registro de propiedad. La funcionaria se negó a proporcionarme la información y me dijo que "vuelva la próxima semana". Han pasado 3 semanas y sigo sin respuesta. Presenté una solicitud formal por escrito y no fue respondida en el plazo legal.',
+                'pruebas' => [['tipo' => 'archivo', 'descripcion' => 'Copia de la solicitud por escrito con sello de recepción', 'archivo_nombre' => 'solicitud_registro.pdf']],
+            ],
         ];
     }
 
@@ -962,6 +1132,13 @@ class DenunciaData
             'bitacora' => [],
             'token_consulta' => '',
             'resumen_rechazo' => null,
+            'evaluacion_tecnica_tecnico_id' => null,
+            'evaluacion_tecnica_tecnico_nombre' => null,
+            'evaluacion_tecnica_delegada_at' => null,
+            'evaluacion_tecnica_justificacion' => null,
+            'evaluacion_tecnica_texto' => null,
+            'evaluacion_tecnica_recomendacion' => null,
+            'evaluacion_tecnica_devuelta_at' => null,
             'informe_clasificacion' => null,
             'informe_fojas' => null,
             'informe_justificacion' => null,

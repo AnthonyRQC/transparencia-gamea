@@ -10,6 +10,7 @@ use App\Http\Controllers\DescargoController;
 use App\Http\Controllers\SeguimientoController;
 use App\Http\Controllers\NotificacionController;
 use App\Http\Controllers\DemoNotificacionController;
+use App\Http\Controllers\EvaluacionController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -90,10 +91,13 @@ Route::prefix('denuncias')->name('denuncias.')->group(function () {
     // Carga de técnicos (Sprint 3)
     Route::get('/carga-tecnicos', [DenunciaController::class, 'cargaTecnicos'])->name('carga-tecnicos');
 
+    // Sprint 7 — Evaluación Técnica Previa
+    Route::post('/{ticket}/delegar-evaluacion', [DenunciaController::class, 'delegarEvaluacion'])->name('delegar-evaluacion');
+    Route::post('/{ticket}/reasumir-evaluacion', [DenunciaController::class, 'reasumirEvaluacion'])->name('reasumir-evaluacion');
+    Route::post('/evaluaciones/{id}/devolver', [EvaluacionController::class, 'devolver'])->name('evaluaciones.devolver');
+
     // Sprint 8 — Ampliaciones Múltiples
-    Route::post('/{ticket}/ampliar-plazo', [DenunciaController::class, 'aprobarAmpliacion'])
-        ->middleware('auth')
-        ->name('ampliar-plazo');
+    Route::post('/{ticket}/ampliar-plazo', [DenunciaController::class, 'aprobarAmpliacion'])->name('ampliar-plazo');
 
     // Sprint 4 — Solicitudes
     Route::post('/{ticket}/solicitudes', [SolicitudController::class, 'store'])->name('solicitudes.store');
@@ -115,6 +119,9 @@ Route::prefix('denuncias')->name('denuncias.')->group(function () {
     // Mis Casos + Mi Resumen (Sprint 2)
     Route::get('/mis-casos', [MisCasosController::class, 'index'])->name('mis-casos');
     Route::get('/mi-resumen', [MiResumenController::class, 'index'])->name('mi-resumen');
+
+    // Evaluaciones Delegadas — Bandeja del Técnico (Sprint 7)
+    Route::get('/evaluaciones', [MisCasosController::class, 'evaluaciones'])->name('evaluaciones');
 
     // Detalle de denuncia (placeholder — el detalle real se implementa con Sheet)
     Route::get('/{id}', function ($id) {

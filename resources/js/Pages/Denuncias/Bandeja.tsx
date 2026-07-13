@@ -5,7 +5,7 @@ import {
   Inbox, CheckCircle2, ClipboardList, Eye, Archive,
   InboxIcon, X, UserPlus, RotateCcw, ArrowRightLeft, Search
 } from 'lucide-react';
-import { FileText } from 'lucide-react';
+import { FileText, FileSearch, Undo2 } from 'lucide-react';
 import { Input } from '@/Components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
 import AppLayout from '@/Components/Layout/AppLayout';
@@ -30,6 +30,8 @@ import ModalNuevoDescargo from '@/Components/Denuncias/ModalNuevoDescargo';
 import ModalCancelarDescargo from '@/Components/Denuncias/ModalCancelarDescargo';
 import ModalConfirmarEliminar from '@/Components/Denuncias/ModalConfirmarEliminar';
 import ModalAmpliacionPlazo from '@/Components/Denuncias/ModalAmpliacionPlazo';
+import ModalDelegarEvaluacion from '@/Components/Denuncias/ModalDelegarEvaluacion';
+import ModalConfirmar from '@/Components/Denuncias/ModalConfirmar';
 
 interface PlazoInfo {
   dias_restantes: number;
@@ -118,6 +120,10 @@ interface Denuncia {
   fecha_traspaso?: string | null;
   justificacion_traspaso?: string | null;
   fecha_rechazada?: string | null;
+  evaluacion_tecnica_tecnico_nombre?: string | null;
+  evaluacion_tecnica_recomendacion?: string | null;
+  evaluacion_tecnica_delegada_at?: string | null;
+  evaluacion_tecnica_texto?: string | null;
   plazo: PlazoInfo | null;
 }
 
@@ -141,12 +147,14 @@ interface PageProps {
   cargaTecnicos?: Array<{ id: string; nombre: string; iniciales: string; color: string; activos: number; por_vencer: number; vencidos: number }>;
   solicitudesByTicket?: Record<string, Solicitud[]>;
   descargosByTicket?: Record<string, Descargo[]>;
+  evaluacionesByTicket?: Record<string, any[]>;
   canAct?: boolean;
   destacar?: string;
 }
 
 const contadorConfig = [
   { key: 'ingresada', label: 'Ingresadas', icon: Inbox, color: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300' },
+  { key: 'evaluacion_tecnica', label: 'En evaluación', icon: FileSearch, color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300' },
   { key: 'admitida', label: 'Admitidas', icon: CheckCircle2, color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' },
   { key: 'asignada', label: 'Asignadas', icon: ClipboardList, color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' },
   { key: 'investigacion', label: 'Investigación', icon: Eye, color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300' },
@@ -154,7 +162,7 @@ const contadorConfig = [
   { key: 'cerrada', label: 'Cerradas', icon: Archive, color: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300' },
 ];
 
-export default function Bandeja({ denuncias, porAsignar, enCurso, historial, contadores, tecnicos, cargaTecnicos, solicitudesByTicket = {}, descargosByTicket = {}, canAct = false, destacar }: PageProps) {
+export default function Bandeja({ denuncias, porAsignar, enCurso, historial, contadores, tecnicos, cargaTecnicos, solicitudesByTicket = {}, descargosByTicket = {}, evaluacionesByTicket = {}, canAct = false, destacar }: PageProps) {
   const [selectedDenuncia, setSelectedDenuncia] = useState<Denuncia | null>(null);
   const [modalAdmisionTicket, setModalAdmisionTicket] = useState<string | null>(null);
   const [modalRechazoTicket, setModalRechazoTicket] = useState<string | null>(null);
@@ -163,6 +171,9 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
   const [modalReabrirTicket, setModalReabrirTicket] = useState<string | null>(null);
   // Sprint 8 — Ampliación de plazo
   const [modalAmpliarPlazoDenuncia, setModalAmpliarPlazoDenuncia] = useState<Denuncia | null>(null);
+  // Sprint 7 modals
+  const [modalDelegarEvaluacionTicket, setModalDelegarEvaluacionTicket] = useState<string | null>(null);
+  const [modalReasumirEvaluacionTicket, setModalReasumirEvaluacionTicket] = useState<string | null>(null);
   // Sprint 4 modals
   const [modalNuevaSolTicket, setModalNuevaSolTicket] = useState<string | null>(null);
   const [modalRespondeSolId, setModalRespondeSolId] = useState<number | null>(null);
@@ -199,7 +210,7 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
   }, [destacar]);
 
   const tabs = [
-    { value: 'por-admitir', label: 'Por admitir', count: contadores.ingresada },
+    { value: 'por-admitir', label: 'Por admitir', count: contadores.ingresada + contadores.evaluacion_tecnica },
     { value: 'por-asignar', label: 'Por asignar', count: contadores.admitida },
     { value: 'en-curso', label: 'En curso', count: contadores.asignada + contadores.investigacion + contadores.informe },
     { value: 'historial', label: 'Historial', count: contadores.rechazada + contadores.cerrada },
@@ -289,35 +300,93 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
               />
             ) : (
               <div className="space-y-3">
-                {filtered.map((d) => (
+                {filtered.map((d) => {
+                  const enEvaluacion = d.estado === 'evaluacion_tecnica';
+                  const evaluacionDevuelta = d.estado === 'ingresada' && d.evaluacion_tecnica_texto;
+                  return (
                     <DenunciaCard
                       key={d.ticket}
                       denuncia={d}
                       plazo={d.plazo}
                       tecnicos={tecnicos}
                       onClick={() => setSelectedDenuncia(d)}
-                      isNew={d.estado === 'ingresada' && isNewHours(d.created_at)}
+                      isNew={d.estado === 'ingresada' && !evaluacionDevuelta && isNewHours(d.created_at)}
                     >
-                      <div className="flex items-center gap-2 pt-1">
-                      <button
-                        type="button"
-                        onClick={(e) => { e.stopPropagation(); setModalAdmisionTicket(d.ticket); }}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors"
-                      >
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        Admitir
-                      </button>
-                      <button
-                        type="button"
-                        onClick={(e) => { e.stopPropagation(); setModalRechazoTicket(d.ticket); }}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-destructive/10 text-destructive text-xs font-semibold hover:bg-destructive/20 transition-colors"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                        Rechazar
-                      </button>
-                    </div>
-                  </DenunciaCard>
-                ))}
+                      <div className="flex items-center gap-2 pt-1 flex-wrap">
+                        {enEvaluacion ? (
+                          <>
+                            <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-full bg-amber-100 text-amber-700 border border-amber-300 dark:bg-amber-900/30 dark:text-amber-300">
+                              <FileSearch className="w-3 h-3" />
+                              En evaluación por {d.evaluacion_tecnica_tecnico_nombre || 'técnico'}
+                            </span>
+                            <span className="text-[10px] text-muted-foreground">
+                              (delegada {d.evaluacion_tecnica_delegada_at ? new Date(d.evaluacion_tecnica_delegada_at).toLocaleDateString('es-BO', { day: '2-digit', month: 'short' }) : ''})
+                            </span>
+                            <button
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); setModalReasumirEvaluacionTicket(d.ticket); }}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-100 text-amber-800 text-xs font-semibold hover:bg-amber-200 transition-colors dark:bg-amber-900/30 dark:text-amber-300"
+                            >
+                              <Undo2 className="w-3.5 h-3.5" />
+                              Reasumir
+                            </button>
+                          </>
+                        ) : evaluacionDevuelta ? (
+                          <>
+                            <button
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); setModalAdmisionTicket(d.ticket); }}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors"
+                            >
+                              <CheckCircle2 className="w-3.5 h-3.5" />
+                              Admitir
+                            </button>
+                            <button
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); setModalRechazoTicket(d.ticket); }}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-destructive/10 text-destructive text-xs font-semibold hover:bg-destructive/20 transition-colors"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                              Rechazar
+                            </button>
+                            <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-full bg-blue-100 text-blue-700 border border-blue-300 dark:bg-blue-900/30 dark:text-blue-300">
+                              <FileSearch className="w-3 h-3" />
+                              Evaluada por {d.evaluacion_tecnica_tecnico_nombre || 'técnico'}
+                              {d.evaluacion_tecnica_recomendacion === 'admitir' ? ' · Recomienda admitir' : d.evaluacion_tecnica_recomendacion === 'rechazar' ? ' · Recomienda rechazar' : ''}
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <button
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); setModalAdmisionTicket(d.ticket); }}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors"
+                            >
+                              <CheckCircle2 className="w-3.5 h-3.5" />
+                              Admitir
+                            </button>
+                            <button
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); setModalRechazoTicket(d.ticket); }}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-destructive/10 text-destructive text-xs font-semibold hover:bg-destructive/20 transition-colors"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                              Rechazar
+                            </button>
+                            <button
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); setModalDelegarEvaluacionTicket(d.ticket); }}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-100 text-blue-700 text-xs font-semibold hover:bg-blue-200 transition-colors dark:bg-blue-900/30 dark:text-blue-300"
+                            >
+                              <FileSearch className="w-3.5 h-3.5" />
+                              Delegar evaluación
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </DenunciaCard>
+                  );
+                })}
               </div>
             );
           }
@@ -434,6 +503,7 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
           tecnicoNombre={selectedDenuncia.tecnico && tecnicos[selectedDenuncia.tecnico]?.nombre || selectedDenuncia.tecnico || '—'}
           solicitudes={solicitudesByTicket[selectedDenuncia.ticket] || []}
           descargos={descargosByTicket[selectedDenuncia.ticket] || []}
+          evaluaciones={evaluacionesByTicket?.[selectedDenuncia.ticket] || []}
           canAct={canAct}
           onNuevaSolicitud={(t) => { setModalNuevaSolTicket(t); }}
           onResponderSolicitud={(id) => { setModalRespondeSolId(id); }}
@@ -479,7 +549,25 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
                 <X className="w-4 h-4" />
                 Rechazar
               </button>
+              <button
+                type="button"
+                onClick={() => { const t = selectedDenuncia.ticket; setSelectedDenuncia(null); setModalDelegarEvaluacionTicket(t); }}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-blue-100 text-blue-700 text-sm font-semibold hover:bg-blue-200 transition-colors dark:bg-blue-900/30 dark:text-blue-300"
+              >
+                <FileSearch className="w-4 h-4" />
+                Delegar evaluación
+              </button>
             </>
+          )}
+          {selectedDenuncia.estado === 'evaluacion_tecnica' && (
+            <button
+              type="button"
+              onClick={() => { setModalReasumirEvaluacionTicket(selectedDenuncia.ticket); }}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-amber-100 text-amber-800 text-sm font-semibold hover:bg-amber-200 transition-colors dark:bg-amber-900/30 dark:text-amber-300"
+            >
+              <Undo2 className="w-4 h-4" />
+              Reasumir evaluación
+            </button>
           )}
           {selectedDenuncia.estado === 'admitida' && (
             <button
@@ -641,6 +729,33 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
         open={modalAmpliarPlazoDenuncia !== null}
         onOpenChange={(v) => { if (!v) setModalAmpliarPlazoDenuncia(null); }}
         tecnicos={tecnicos}
+      />
+      <ModalDelegarEvaluacion
+        ticket={modalDelegarEvaluacionTicket}
+        open={modalDelegarEvaluacionTicket !== null}
+        onOpenChange={(v) => { if (!v) setModalDelegarEvaluacionTicket(null); }}
+        tecnicos={tecnicos}
+        cargaTecnicos={cargaTecnicos}
+      />
+      <ModalConfirmar
+        isOpen={modalReasumirEvaluacionTicket !== null}
+        onClose={() => setModalReasumirEvaluacionTicket(null)}
+        onConfirm={() => {
+          if (!modalReasumirEvaluacionTicket) return;
+          const ticket = modalReasumirEvaluacionTicket;
+          setModalReasumirEvaluacionTicket(null);
+          router.post(route('denuncias.reasumir-evaluacion', { ticket }), {}, {
+            preserveScroll: true,
+            onSuccess: () => {
+              toast.success('Evaluación reasumida correctamente');
+            },
+            onError: () => toast.error('Error al reasumir evaluación'),
+          });
+        }}
+        title="¿Reasumir evaluación?"
+        message="El técnico ya no tendrá esta delegación. La denuncia volverá a 'Por admitir'."
+        confirmText="Sí, reasumir"
+        cancelText="Cancelar"
       />
     </AppLayout>
   );

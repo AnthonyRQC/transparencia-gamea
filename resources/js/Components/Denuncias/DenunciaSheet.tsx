@@ -7,6 +7,7 @@ import TipoDenunciaBadge from './TipoDenunciaBadge';
 import TabSolicitudes from './TabSolicitudes';
 import TabDescargos from './TabDescargos';
 import TabInformeCierre from './TabInformeCierre';
+import TabEvaluacionPrevia from './TabEvaluacionPrevia';
 import { CheckCircle2, History, UserPlus, ArrowRightLeft, RotateCcw, XCircle, X as XIcon, FileSearch, UserX, FileText, ScrollText } from 'lucide-react';
 
 interface PlazoInfo {
@@ -79,6 +80,10 @@ interface DenunciaDetail {
   informe_eliminado?: boolean;
   informe_fecha_eliminacion?: string | null;
   informe_sitpreco?: string | null;
+  evaluacion_tecnica_tecnico_nombre?: string | null;
+  evaluacion_tecnica_recomendacion?: string | null;
+  evaluacion_tecnica_delegada_at?: string | null;
+  evaluacion_tecnica_texto?: string | null;
   cierre_notificado_denunciante?: boolean | null;
   cierre_notificacion_medio?: string | null;
   cierre_notificacion_fecha?: string | null;
@@ -144,6 +149,9 @@ interface DenunciaSheetProps {
   onEditarDescargo?: (id: number) => void;
   onEliminarDescargo?: (id: number) => void;
   onCancelarDescargo?: (id: number) => void;
+
+  // Sprint 7 evaluations
+  evaluaciones?: any[];
 }
 
 const escenarioLabel: Record<string, string> = {
@@ -184,6 +192,7 @@ export default function DenunciaSheet({
   onEditarSolicitud, onEliminarSolicitud,
   onNotificarDescargo, onResponderDescargo, onAmpliarDescargo, onNuevoDescargo,
   onEditarDescargo, onEliminarDescargo, onCancelarDescargo,
+  evaluaciones = [],
 }: DenunciaSheetProps) {
   if (!denuncia) return null;
 
@@ -218,6 +227,12 @@ export default function DenunciaSheet({
               <TabsTrigger value="descargos" className="text-xs data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-3 py-2">
                 Descargos {descargos.length > 0 && `(${descargos.length})`}
               </TabsTrigger>
+              {evaluaciones.length > 0 && (
+                <TabsTrigger value="evaluacion" className="text-xs data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-3 py-2">
+                  <FileSearch className="w-3.5 h-3.5 mr-1" />
+                  Evaluación Previa
+                </TabsTrigger>
+              )}
               {(denuncia.estado === 'informe' || denuncia.estado === 'cerrada') && (
                 <TabsTrigger value="informe_cierre" className="text-xs data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-3 py-2">
                   <ScrollText className="w-3.5 h-3.5 mr-1" />
@@ -266,6 +281,11 @@ export default function DenunciaSheet({
               />
             </TabsContent>
 
+            {evaluaciones.length > 0 && (
+              <TabsContent value="evaluacion" className="flex-1 overflow-y-auto py-4 mt-0 data-[state=inactive]:hidden">
+                <TabEvaluacionPrevia evaluaciones={evaluaciones} />
+              </TabsContent>
+            )}
             {(denuncia.estado === 'informe' || denuncia.estado === 'cerrada') && (
               <TabsContent value="informe_cierre" className="flex-1 overflow-y-auto py-4 mt-0 data-[state=inactive]:hidden">
                 {!canAct && (

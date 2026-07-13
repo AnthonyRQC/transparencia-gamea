@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import { route } from 'ziggy-js';
 import {
   ClipboardList, Search, FileText, Archive, ChevronDown, ChevronRight,
-  Inbox, Eye, Play, CircleArrowRight, ArrowUpDown, ScrollText
+  Inbox, Eye, Play, CircleArrowRight, ArrowUpDown, ScrollText, FileSearch
 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
 import AppLayout from '@/Components/Layout/AppLayout';
@@ -116,6 +116,9 @@ interface PageProps {
   tecnicos: Record<string, { id: string; nombre: string; iniciales: string; color: string }>;
   solicitudesByTicket?: Record<string, Solicitud[]>;
   descargosByTicket?: Record<string, Descargo[]>;
+  evaluacionesByTicket?: Record<string, any[]>;
+  evaluacionesDelegadas?: any[];
+  evaluacionesDevueltas?: any[];
   canAct?: boolean;
   destacar?: string;
 }
@@ -129,7 +132,7 @@ const estadoLabels: Record<string, { label: string; icon: any }> = {
 
 const estadoOrden = ['asignada', 'investigacion', 'informe', 'cerrada'];
 
-export default function MisCasos({ grouped, tecnicoActual, tecnicos, solicitudesByTicket = {}, descargosByTicket = {}, canAct = true, destacar }: PageProps) {
+export default function MisCasos({ grouped, tecnicoActual, tecnicos, solicitudesByTicket = {}, descargosByTicket = {}, evaluacionesByTicket = {}, evaluacionesDelegadas = [], evaluacionesDevueltas = [], canAct = true, destacar }: PageProps) {
   const [selectedDenuncia, setSelectedDenuncia] = useState<Denuncia | null>(null);
   const [archivadasOpen, setArchivadasOpen] = useState(false);
   const [processingTicket, setProcessingTicket] = useState<string | null>(null);
@@ -184,7 +187,9 @@ export default function MisCasos({ grouped, tecnicoActual, tecnicos, solicitudes
     });
   };
 
-  const tabs = estadoOrden.map((estado) => {
+  const evaluacionesPendientes = evaluacionesDelegadas.length ?? 0;
+  const tabs = [
+    ...estadoOrden.map((estado) => {
     const items = grouped[estado] || [];
     const countVisible = estado === 'cerrada'
       ? items.filter((d) => !d.subestado).length
@@ -194,7 +199,13 @@ export default function MisCasos({ grouped, tecnicoActual, tecnicos, solicitudes
       label: estadoLabels[estado]?.label || estado,
       count: countVisible,
     };
-  });
+  }),
+  ...(evaluacionesPendientes > 0 ? [{
+    value: 'evaluaciones',
+    label: 'Evaluaciones delegadas',
+    count: evaluacionesPendientes,
+  }] : []),
+];
 
   const isNewHours = (dateStr?: string | null): boolean => {
     if (!dateStr) return false;
@@ -297,6 +308,42 @@ export default function MisCasos({ grouped, tecnicoActual, tecnicos, solicitudes
           const visible = isCierre ? sorted.filter((d) => !d.subestado) : sorted;
           const archivadas = isCierre ? items.filter((d) => d.subestado === 'archivada') : [];
 
+          if (value === 'evaluaciones') {
+            const evaluacionesList = evaluacionesDelegadas;
+            return (
+              <div className="space-y-3">
+                {evaluacionesList.length === 0 ? (
+                  <ListaVacia
+                    icon={FileSearch}
+                    titulo="No hay evaluaciones delegadas"
+                    descripcion="Todas las evaluaciones han sido respondidas."
+                  />
+                ) : (
+                  evaluacionesList.map((e: any) => (
+                    <div key={e.id} className="w-full bg-card border border-border rounded-xl px-4 py-3 space-y-2">
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-sm font-bold">{e.ticket}</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Delegada el {new Date(e.delegada_at).toLocaleDateString('es-BO', { day: '2-digit', month: 'long', year: 'numeric' })}
+                      </p>
+                      <div className="pt-1">
+                        <button
+                          type="button"
+                          onClick={() => router.get(route('denuncias.evaluaciones'))}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors"
+                        >
+                          <FileSearch className="w-3.5 h-3.5" />
+                          Ir a evaluaciones
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            );
+          }
+
           return (
             <div className="space-y-3">
               {visible.length === 0 && archivadas.length === 0 && (
@@ -366,6 +413,7 @@ export default function MisCasos({ grouped, tecnicoActual, tecnicos, solicitudes
           tecnicoNombre={tecnicos[tecnicoActual]?.nombre || tecnicoActual}
           solicitudes={solicitudesByTicket[selectedDenuncia.ticket] || []}
           descargos={descargosByTicket[selectedDenuncia.ticket] || []}
+          evaluaciones={evaluacionesByTicket?.[selectedDenuncia.ticket] || []}
           canAct={canAct}
           onNuevaSolicitud={(t) => { setModalNuevaSolTicket(t); }}
           onResponderSolicitud={(id) => { setModalRespondeSolId(id); }}

@@ -1,4 +1,6 @@
 import { AlertTriangle } from 'lucide-react';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/Components/ui/dialog';
+import { Button } from '@/Components/ui/button';
 
 interface ModalConfirmarProps {
     isOpen: boolean;
@@ -19,50 +21,31 @@ export default function ModalConfirmar({
     confirmText = 'Cancelar Denuncia',
     cancelText = 'Continuar Llenando',
 }: ModalConfirmarProps) {
-    if (!isOpen) return null;
-
     return (
-        <div 
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs animate-in fade-in duration-200" 
-            role="dialog" 
-            aria-modal="true" 
-            onClick={onClose}
-        >
-            <div
-                className="bg-card border border-border rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden animate-in fade-in zoom-in-95 duration-200"
-                onClick={(e) => e.stopPropagation()}
-            >
-                <div className="p-6 text-center space-y-4">
-                    <div className="w-12 h-12 mx-auto rounded-full bg-destructive/10 flex items-center justify-center">
-                        <AlertTriangle className="w-6 h-6 text-destructive" />
+        <Dialog open={isOpen} onOpenChange={(v) => { if (!v) onClose(); }}>
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center shrink-0">
+                            <AlertTriangle className="w-5 h-5 text-destructive" />
+                        </div>
+                        <div>
+                            <DialogTitle>{title}</DialogTitle>
+                        </div>
                     </div>
-                    <div className="space-y-1">
-                        <h3 className="text-lg font-bold text-foreground">{title}</h3>
-                        <p className="text-sm text-muted-foreground leading-relaxed">
-                            {message}
-                        </p>
-                    </div>
-                </div>
-                <div className="flex items-center gap-3 px-6 pb-6">
-                    <button
-                        type="button"
-                        onClick={onClose}
-                        className="flex-1 py-2.5 rounded-xl border border-border text-sm font-semibold hover:bg-muted text-foreground transition-all duration-200 cursor-pointer text-center"
-                    >
+                </DialogHeader>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                    {message}
+                </p>
+                <DialogFooter>
+                    <Button variant="outline" onClick={onClose}>
                         {cancelText}
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => {
-                            onConfirm();
-                            onClose();
-                        }}
-                        className="flex-1 py-2.5 rounded-xl bg-destructive text-destructive-foreground text-sm font-bold hover:brightness-110 active:scale-[0.98] transition-all duration-200 cursor-pointer shadow-sm text-center"
-                    >
+                    </Button>
+                    <Button variant="destructive" onClick={() => { onConfirm(); onClose(); }}>
                         {confirmText}
-                    </button>
-                </div>
-            </div>
-        </div>
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     );
 }

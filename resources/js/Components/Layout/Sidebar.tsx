@@ -9,6 +9,7 @@ import {
     BarChart3,
     CalendarDays,
     Bell,
+    FileSearch,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -75,6 +76,13 @@ export default function Sidebar({
             icon: <BarChart3 className="w-5 h-5 shrink-0" />,
         },
         {
+            key: 'evaluaciones',
+            label: 'Evaluaciones',
+            href: route('denuncias.evaluaciones'),
+            routeName: 'denuncias.evaluaciones',
+            icon: <FileSearch className="w-5 h-5 shrink-0" />,
+        },
+        {
             key: 'notificaciones',
             label: 'Notificaciones',
             href: route('notificaciones.index'),
@@ -101,7 +109,7 @@ export default function Sidebar({
     const filterByRol = (item: MenuItem): boolean => {
         if (rol === 'jefe') return true;
         if (rol === 'registrador') return ['inicio', 'nueva-denuncia', 'notificaciones'].includes(item.key);
-        if (rol === 'tecnico') return ['inicio', 'mis-casos', 'mi-resumen', 'notificaciones'].includes(item.key);
+        if (rol === 'tecnico') return ['inicio', 'mis-casos', 'mi-resumen', 'notificaciones', 'evaluaciones'].includes(item.key);
         return true;
     };
 

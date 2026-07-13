@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Data\DenunciaData;
+use App\Data\EvaluacionData;
 use App\Data\SesionUsuarioData;
 use Inertia\Inertia;
 
@@ -38,15 +39,21 @@ class BandejaController extends Controller
 
         $solicitudesByTicket = [];
         $descargosByTicket = [];
+        $evaluacionesByTicket = [];
         foreach ($allTickets as $t) {
             $sols = DenunciaData::getSolicitudes($t);
             $descs = DenunciaData::getDescargos($t);
+            $evals = DenunciaData::getEvaluaciones($t);
             if (!empty($sols)) $solicitudesByTicket[$t] = $sols;
             if (!empty($descs)) $descargosByTicket[$t] = $descs;
+            if (!empty($evals)) $evaluacionesByTicket[$t] = $evals;
         }
 
         return Inertia::render('Denuncias/Bandeja', [
-            'denuncias' => array_values(array_map($mapPlazo, DenunciaData::getByEstado('ingresada'))),
+            'denuncias' => array_values(array_map($mapPlazo, array_merge(
+                DenunciaData::getByEstado('ingresada'),
+                DenunciaData::getByEstado('evaluacion_tecnica'),
+            ))),
             'porAsignar' => array_values(array_map($mapPlazo, DenunciaData::getByEstado('admitida'))),
             'enCurso' => $enCurso,
             'historial' => $historial,
@@ -55,6 +62,7 @@ class BandejaController extends Controller
             'cargaTecnicos' => DenunciaData::getCargaTecnicos(),
             'solicitudesByTicket' => $solicitudesByTicket,
             'descargosByTicket' => $descargosByTicket,
+            'evaluacionesByTicket' => $evaluacionesByTicket,
             'canAct' => false,
             'destacar' => $request->query('destacar'),
         ]);

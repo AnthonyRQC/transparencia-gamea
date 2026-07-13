@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Data\DenunciaData;
+use App\Data\EvaluacionData;
 use App\Data\SesionUsuarioData;
 use Inertia\Inertia;
 
@@ -38,12 +39,21 @@ class MisCasosController extends Controller
 
         $solicitudesByTicket = [];
         $descargosByTicket = [];
+        $evaluacionesByTicket = [];
         foreach ($allTickets as $t) {
             $sols = DenunciaData::getSolicitudes($t);
             $descs = DenunciaData::getDescargos($t);
+            $evals = DenunciaData::getEvaluaciones($t);
             if (!empty($sols)) $solicitudesByTicket[$t] = $sols;
             if (!empty($descs)) $descargosByTicket[$t] = $descs;
+            if (!empty($evals)) $evaluacionesByTicket[$t] = $evals;
         }
+
+        $evaluacionesDelegadas = EvaluacionData::getActivasPorTecnico($tecnicoId);
+        $evaluacionesDevueltas = array_values(array_filter(
+            EvaluacionData::getAll(),
+            fn($e) => ($e['tecnico_id'] ?? '') === $tecnicoId && ($e['estado'] ?? '') === 'devuelta'
+        ));
 
         return Inertia::render('Denuncias/MisCasos', [
             'grouped' => $grouped,
@@ -51,7 +61,44 @@ class MisCasosController extends Controller
             'tecnicos' => SesionUsuarioData::getAll(),
             'solicitudesByTicket' => $solicitudesByTicket,
             'descargosByTicket' => $descargosByTicket,
+            'evaluacionesByTicket' => $evaluacionesByTicket,
+            'evaluacionesDelegadas' => $evaluacionesDelegadas,
+            'evaluacionesDevueltas' => $evaluacionesDevueltas,
             'canAct' => true,
+        ]);
+    }
+
+    public function evaluaciones()
+    {
+        if (empty(DenunciaData::getAll())) {
+            DenunciaData::seedDemoData();
+        }
+
+        $currentUser = SesionUsuarioData::getCurrent();
+        if ($currentUser['rol'] !== 'tecnico') {
+            return redirect()->route('dashboard')->with('error', 'Solo los técnicos pueden acceder a las evaluaciones.');
+        }
+        $tecnicoId = $currentUser['id'];
+
+        $evaluacionesDelegadas = EvaluacionData::getActivasPorTecnico($tecnicoId);
+        $evaluacionesDevueltas = array_values(array_filter(
+            EvaluacionData::getAll(),
+            fn($e) => ($e['tecnico_id'] ?? '') === $tecnicoId && ($e['estado'] ?? '') === 'devuelta'
+        ));
+
+        $denunciasByTicket = [];
+        foreach (DenunciaData::getAll() as $d) {
+            $denunciasByTicket[$d['ticket']] = array_merge($d, [
+                'plazo' => DenunciaData::getPlazoInfo($d),
+            ]);
+        }
+
+        return Inertia::render('Denuncias/Evaluaciones', [
+            'evaluacionesDelegadas' => $evaluacionesDelegadas,
+            'evaluacionesDevueltas' => $evaluacionesDevueltas,
+            'denunciasByTicket' => $denunciasByTicket,
+            'tecnicoActual' => $tecnicoId,
+            'tecnicos' => SesionUsuarioData::getAll(),
         ]);
     }
 }

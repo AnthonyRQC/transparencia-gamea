@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Data\DenunciaData;
+use App\Data\EvaluacionData;
 use App\Data\NotificacionData;
 use App\Data\SesionUsuarioData;
 use Illuminate\Http\Request;
@@ -366,6 +367,65 @@ class DenunciaController extends Controller
         DenunciaData::eliminarCierre($ticket);
 
         return redirect()->back()->with('success', "Cierre eliminado. Denuncia {$ticket} vuelve a Informe Final.");
+    }
+
+    // ──────────────────────────────────────────────
+    //  SPRINT 7 — Evaluación Técnica Previa
+    // ──────────────────────────────────────────────
+
+    public function delegarEvaluacion(string $ticket, Request $request)
+    {
+        $validated = $request->validate([
+            'tecnico_id' => 'required|string|in:tec-1,tec-2,tec-3',
+            'justificacion' => 'nullable|string|max:500',
+        ]);
+
+        $denuncia = DenunciaData::find($ticket);
+        if (!$denuncia || $denuncia['estado'] !== 'ingresada') {
+            return redirect()->back()->with('error', 'No se puede delegar la evaluación de esta denuncia.');
+        }
+
+        DenunciaData::delegarEvaluacion($ticket, $validated['tecnico_id'], $validated['justificacion'] ?? null);
+
+        $tecnicoNombre = DenunciaData::TECNICOS_MOCK[$validated['tecnico_id']]['nombre'] ?? 'Técnico';
+        NotificacionData::crearParaUsuario(
+            tipo: 'evaluacion_delegada',
+            titulo: 'Evaluación técnica asignada',
+            mensaje: "{$ticket} te fue delegada para evaluación",
+            usuarioId: $validated['tecnico_id'],
+            ticket: $ticket,
+            destinoUrl: route('denuncias.evaluaciones'),
+            icono: 'FileSearch',
+            color: 'info',
+        );
+
+        return redirect()->back()->with('success', "Evaluación delegada a {$tecnicoNombre} para {$ticket}.");
+    }
+
+    public function reasumirEvaluacion(string $ticket)
+    {
+        $denuncia = DenunciaData::find($ticket);
+        if (!$denuncia || $denuncia['estado'] !== 'evaluacion_tecnica') {
+            return redirect()->back()->with('error', 'No se puede reasumir la evaluación de esta denuncia.');
+        }
+
+        $tecnicoId = $denuncia['evaluacion_tecnica_tecnico_id'] ?? null;
+        DenunciaData::reasumirEvaluacion($ticket);
+
+        if ($tecnicoId) {
+            NotificacionData::crearParaUsuario(
+                tipo: 'evaluacion_reasumida',
+                titulo: 'Evaluación reasumida',
+                mensaje: "{$ticket} — El Jefe reasumió la evaluación",
+                usuarioId: $tecnicoId,
+                ticket: $ticket,
+                destinoUrl: route('denuncias.mis-casos'),
+                icono: 'Undo2',
+                color: 'warning',
+            );
+        }
+
+        return redirect()->back()->with('success', "Evaluación reasumida para {$ticket}. La denuncia volvió a 'Por admitir'.");
     }
 
     // ──────────────────────────────────────────────
