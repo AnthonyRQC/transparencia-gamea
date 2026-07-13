@@ -43,7 +43,7 @@ interface DenunciaData {
   ampliaciones?: AmpliacionItem[];
   // Sprint 5
   informe_clasificacion?: string | null;
-  cierre_sitpreco?: string | null;
+  informe_sitpreco?: string | null;
   cierre_cerrado_at?: string | null;
 }
 
@@ -202,9 +202,9 @@ export default function DenunciaCard({ denuncia, plazo, tecnicos, onClick, class
         {denuncia.estado === 'cerrada' && (
           <div className="flex items-center gap-2 flex-wrap">
             <ClasificacionBadge clasificacion={denuncia.informe_clasificacion} />
-            {denuncia.cierre_sitpreco && (
+            {denuncia.informe_sitpreco && (
               <span className="text-[10px] font-mono font-medium px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
-                {denuncia.cierre_sitpreco}
+                {denuncia.informe_sitpreco}
               </span>
             )}
             {denuncia.cierre_cerrado_at && (

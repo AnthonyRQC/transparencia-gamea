@@ -34,6 +34,7 @@ interface InformeData {
   archivos: ArchivoSimulado[];
   redactado_at: string | null;
   concluido_por: string | null;
+  sitpreco: string | null;
   ediciones: Array<{ fecha: string; cambios: string[]; usuario: string }>;
   eliminado: boolean;
   fecha_eliminacion: string | null;
@@ -158,6 +159,10 @@ function InformePreview({ informe, canAct, onEdit, onDelete }: {
           <span className="text-muted-foreground">Redactado por:</span>
           <p className="font-medium">{informe.concluido_por || '—'}</p>
         </div>
+        <div className="col-span-2">
+          <span className="text-muted-foreground">SITPRECO:</span>
+          <p className="font-mono text-xs font-medium">{informe.sitpreco || '—'}</p>
+        </div>
       </div>
 
       {informe.redactado_at && (
@@ -200,6 +205,7 @@ function InformeForm({ ticket, informe, tecnicoNombre, processing, setProcessing
   const [fojas, setFojas] = useState(informe?.fojas?.toString() || '');
   const [justificacion, setJustificacion] = useState(informe?.justificacion || '');
   const [concluidoPor, setConcluidoPor] = useState(informe?.concluido_por || tecnicoNombre);
+  const [sitpreco, setSitpreco] = useState(informe?.sitpreco || '');
   const [archivos, setArchivos] = useState<ArchivoSimulado[]>(informe?.archivos || []);
 
   useEffect(() => {
@@ -208,12 +214,14 @@ function InformeForm({ ticket, informe, tecnicoNombre, processing, setProcessing
       setFojas(informe.fojas?.toString() || '');
       setJustificacion(informe.justificacion || '');
       setConcluidoPor(informe.concluido_por || tecnicoNombre);
+      setSitpreco(informe.sitpreco || '');
       setArchivos(informe.archivos || []);
     } else {
       setClasificacion('');
       setFojas('');
       setJustificacion('');
       setConcluidoPor(tecnicoNombre);
+      setSitpreco('');
       setArchivos([]);
     }
   }, [informe, tecnicoNombre]);
@@ -232,6 +240,7 @@ function InformeForm({ ticket, informe, tecnicoNombre, processing, setProcessing
         fojas: parseInt(fojas),
         justificacion,
         concluido_por: concluidoPor,
+        sitpreco: sitpreco || null,
         archivos,
       },
       {
@@ -292,6 +301,22 @@ function InformeForm({ ticket, informe, tecnicoNombre, processing, setProcessing
           value={concluidoPor}
           onChange={(e) => setConcluidoPor(e.target.value)}
           placeholder="Nombre del responsable"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="sitpreco">
+          SITPRECO
+          <span className="text-[10px] text-muted-foreground ml-1 font-normal">
+            (opcional — código del sistema nacional de Bolivia)
+          </span>
+        </Label>
+        <Input
+          id="sitpreco"
+          value={sitpreco}
+          onChange={(e) => setSitpreco(e.target.value)}
+          placeholder="Ej: SIT-UML-CC1-2026-0501"
+          maxLength={50}
         />
       </div>
 

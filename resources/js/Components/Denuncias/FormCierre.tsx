@@ -26,7 +26,6 @@ interface ArchivoSimulado {
 }
 
 interface CierreData {
-  sitpreco: string | null;
   notificado_denunciante: boolean | null;
   notificacion_medio: string | null;
   notificacion_fecha: string | null;
@@ -163,10 +162,6 @@ function CierrePreview({ cierre, canAct, onEdit, onDelete }: {
 
       <div className="grid grid-cols-2 gap-3 text-sm">
         <div>
-          <span className="text-muted-foreground">SITPRECO:</span>
-          <p className="font-mono text-xs font-medium">{cierre.sitpreco || '—'}</p>
-        </div>
-        <div>
           <span className="text-muted-foreground">Concluido por:</span>
           <p className="font-medium">{cierre.concluido_por || '—'}</p>
         </div>
@@ -224,7 +219,6 @@ function CierreForm({ ticket, cierre, tecnicoNombre, processing, setProcessing, 
   onCancel?: () => void;
   onSuccess?: () => void;
 }) {
-  const [sitpreco, setSitpreco] = useState(cierre?.sitpreco || '');
   const [notificadoDenunciante, setNotificadoDenunciante] = useState(cierre?.notificado_denunciante ?? true);
   const [notificacionMedio, setNotificacionMedio] = useState(cierre?.notificacion_medio || '');
   const [notificacionFecha, setNotificacionFecha] = useState(cierre?.notificacion_fecha || '');
@@ -236,7 +230,6 @@ function CierreForm({ ticket, cierre, tecnicoNombre, processing, setProcessing, 
 
   useEffect(() => {
     if (cierre) {
-      setSitpreco(cierre.sitpreco || '');
       setNotificadoDenunciante(cierre.notificado_denunciante ?? true);
       setNotificacionMedio(cierre.notificacion_medio || '');
       setNotificacionFecha(cierre.notificacion_fecha || '');
@@ -246,7 +239,6 @@ function CierreForm({ ticket, cierre, tecnicoNombre, processing, setProcessing, 
       setDescripcion(cierre.descripcion || '');
       setArchivos(cierre.archivos || []);
     } else {
-      setSitpreco('');
       setNotificadoDenunciante(true);
       setNotificacionMedio('');
       setNotificacionFecha('');
@@ -271,7 +263,6 @@ function CierreForm({ ticket, cierre, tecnicoNombre, processing, setProcessing, 
     router.post(
       route(routeName, { ticket }),
       {
-        sitpreco: sitpreco || null,
         notificado_denunciante: notificadoDenunciante,
         notificacion_medio: notificadoDenunciante ? notificacionMedio : null,
         notificacion_fecha: notificadoDenunciante ? notificacionFecha : null,
@@ -304,27 +295,6 @@ function CierreForm({ ticket, cierre, tecnicoNombre, processing, setProcessing, 
         <Archive className="w-4 h-4 text-primary" />
         <span className="text-sm font-semibold">{isEdit ? 'Editar Cierre' : 'Registrar Cierre'}</span>
       </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="sitpreco">
-          SITPRECO
-          <span className="text-[10px] text-muted-foreground ml-1 font-normal">
-            (opcional — código del sistema nacional de Bolivia)
-          </span>
-        </Label>
-        <Input
-          id="sitpreco"
-          value={sitpreco}
-          onChange={(e) => setSitpreco(e.target.value)}
-          placeholder="Ej: SIT-UML-CC1-2026-0501"
-          maxLength={50}
-        />
-        <p className="text-[11px] text-muted-foreground italic">
-          ⚠️ Dato a coordinar con el cliente — actualmente campo opcional.
-        </p>
-      </div>
-
-      <Separator />
 
       <div className="space-y-3">
         <h5 className="text-xs font-semibold text-muted-foreground">Notificación al denunciante</h5>

@@ -20,7 +20,7 @@ interface InformeDetailModalProps {
     informe_archivos?: ArchivoSimulado[];
     informe_redactado_at?: string | null;
     informe_concluido_por?: string | null;
-    cierre_sitpreco?: string | null;
+    informe_sitpreco?: string | null;
     cierre_notificado_denunciante?: boolean | null;
     cierre_notificacion_medio?: string | null;
     cierre_notificacion_fecha?: string | null;
@@ -84,6 +84,10 @@ export default function InformeDetailModal({ denuncia, open, onOpenChange }: Inf
                   </span>
                 </div>
               )}
+              <div className="col-span-2">
+                <span className="text-muted-foreground">SITPRECO:</span>
+                <p className="font-mono text-xs font-medium">{denuncia.informe_sitpreco || '—'}</p>
+              </div>
             </div>
             {denuncia.informe_justificacion && (
               <div className="mt-3">
@@ -119,10 +123,6 @@ export default function InformeDetailModal({ denuncia, open, onOpenChange }: Inf
                 {showCierre && (
                   <div className="mt-3 space-y-3">
                     <div className="grid grid-cols-2 gap-3 text-sm">
-                      <div>
-                        <span className="text-muted-foreground">SITPRECO:</span>
-                        <p className="font-mono text-xs font-medium">{denuncia.cierre_sitpreco || '—'}</p>
-                      </div>
                       <div>
                         <span className="text-muted-foreground">Concluido por:</span>
                         <p className="font-medium">{denuncia.cierre_concluido_por || '—'}</p>

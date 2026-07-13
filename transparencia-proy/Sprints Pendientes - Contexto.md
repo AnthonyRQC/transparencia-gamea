@@ -1,14 +1,14 @@
 # Sprints Pendientes — Contexto para IA
 
-> **CONVENCIÓN DE LECTURA:** Este archivo contiene el contexto de sprints pendientes (7-19).
+> **CONVENCIÓN DE LECTURA:** Este archivo contiene el contexto de sprints pendientes (7, 10-19) y cerrados referenciales.
 > **Solo leer la sección del sprint en el que se está trabajando actualmente.**
 > No leer las secciones de sprints futuros para evitar cargar contexto innecesario.
 
 ---
 
-## Sprint 6.5 — Simulación Multi-Rol para Demo (NUEVO — Julio 2026)
+## Sprint 6.5 — Simulación Multi-Rol para Demo ✅ CERRADO (Julio 2026)
 
-**Estado:** Pendiente de implementación.
+**Estado:** Cerrado — implementado.
 **Origen:** Reunión con cliente Julio 2026 — necesidad de demo multi-rol realista.
 
 ### Resumen
@@ -96,8 +96,8 @@ El Jefe de Unidad puede **delegar la evaluación de una denuncia** a un técnico
 4. Si delegó: estado cambia a `evaluacion_tecnica`
 5. Técnico evalúa y devuelve con texto resumen → estado vuelve a `ingresada` (o queda `evaluacion_devuelta`)
 6. Jefe decide:
-   - **Admitir** → SITPRECO **obligatorio** → estado `admitida`
-   - **Rechazar** → SITPRECO **opcional** → estado `rechazada`
+   - **Admitir** → estado `admitida`
+   - **Rechazar** → estado `rechazada`
 7. Si admitió, Jefe asigna al técnico (mismo que evaluó u otro)
 
 ### Plazos
@@ -109,7 +109,7 @@ El Jefe de Unidad puede **delegar la evaluación de una denuncia** a un técnico
 - El Jefe **puede elegir** si delega o evalúa él mismo
 - Cualquier técnico disponible puede ser delegado
 - El técnico que evalúa puede ser reasignado o no al caso final (decisión del Jefe)
-- SITPRECO obligatorio al admitir, opcional al rechazar
+- SITPRECO solo en informe final (no en admisión ni cierre)
 - Sin hint de formato en input SITPRECO (texto libre)
 
 ### Archivos a crear
@@ -123,24 +123,21 @@ El Jefe de Unidad puede **delegar la evaluación de una denuncia** a un técnico
 ### Archivos a modificar
 - `app/Data/DenunciaData.php` (nuevo sub-estado `evaluacion_tecnica`, +campos evaluación)
 - `app/Http/Controllers/DenunciaController.php` (+delegarEvaluacion, +devolverEvaluacion)
-- `resources/js/Components/Denuncias/ModalAdmision.tsx` (SITPRECO obligatorio)
-- `resources/js/Components/Denuncias/ModalRechazo.tsx` (SITPRECO opcional, sin hint)
-- `resources/js/Components/Denuncias/FormCierre.tsx` (SITPRECO read-only heredado)
 - `resources/js/Pages/Denuncias/Bandeja.tsx` (+botón "Delegar evaluación")
 - `resources/js/Pages/Denuncias/MisCasos.tsx` (+tab "Evaluaciones delegadas")
-- `resources/js/Components/Denuncias/DetalleDenuncia.tsx` (+tab Evaluación Previa)
+- `resources/js/Components/Denuncias/DenunciaSheet.tsx` (+tab Evaluación Previa)
 
 ### Nota — Julio 2026
 Los plazos de la evaluación técnica (5 días de admisión, Art. 23) se cuentan en **días hábiles** (Lun-Vie, sin Sáb/Dom/feriados). Decisión tomada en reunión Julio 2026.
 
 ### Detalle completo
-Ver `Sprint 7 - Evaluación Técnica Previa.md` cuando se cree.
+Ver `Sprint 7 - Evaluación Técnica Previa.md`.
 
 ---
 
-## Sprint 8 — Ampliaciones Múltiples
+## Sprint 8 — Ampliaciones Múltiples ✅ CERRADO (Julio 2026)
 
-**Estado:** Pendiente (archivo detallado creado: `Sprint 8 - Ampliaciones Múltiples.md`).
+**Estado:** Cerrado — implementado.
 **Origen:** Respuesta del cliente #11 (C6 resuelta).
 
 ### Resumen
@@ -196,9 +193,9 @@ Ver `Sprint 8 - Ampliaciones Múltiples.md`.
 
 ---
 
-## Sprint 9 — Notificaciones Push + Historial
+## Sprint 9 — Notificaciones Push + Historial ✅ CERRADO (Julio 2026)
 
-**Estado:** Pendiente.
+**Estado:** Cerrado — implementado.
 **Origen:** Respuesta del cliente #22.
 
 ### Resumen

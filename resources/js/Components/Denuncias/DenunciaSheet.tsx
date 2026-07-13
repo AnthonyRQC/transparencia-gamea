@@ -78,7 +78,7 @@ interface DenunciaDetail {
   informe_ediciones?: Array<{ fecha: string; cambios: string[]; usuario: string }>;
   informe_eliminado?: boolean;
   informe_fecha_eliminacion?: string | null;
-  cierre_sitpreco?: string | null;
+  informe_sitpreco?: string | null;
   cierre_notificado_denunciante?: boolean | null;
   cierre_notificacion_medio?: string | null;
   cierre_notificacion_fecha?: string | null;

@@ -15,11 +15,10 @@ class MisCasosController extends Controller
         }
 
         $currentUser = SesionUsuarioData::getCurrent();
-        $tecnicoId = $currentUser['id'];
-
         if ($currentUser['rol'] !== 'tecnico') {
-            $tecnicoId = 'tec-1';
+            return redirect()->route('dashboard')->with('error', 'Solo los técnicos pueden acceder a Mis Casos.');
         }
+        $tecnicoId = $currentUser['id'];
 
         $denuncias = DenunciaData::getByTecnico($tecnicoId);
 

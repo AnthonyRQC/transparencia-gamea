@@ -91,7 +91,9 @@ Route::prefix('denuncias')->name('denuncias.')->group(function () {
     Route::get('/carga-tecnicos', [DenunciaController::class, 'cargaTecnicos'])->name('carga-tecnicos');
 
     // Sprint 8 — Ampliaciones Múltiples
-    Route::post('/{ticket}/ampliar-plazo', [DenunciaController::class, 'aprobarAmpliacion'])->name('ampliar-plazo');
+    Route::post('/{ticket}/ampliar-plazo', [DenunciaController::class, 'aprobarAmpliacion'])
+        ->middleware('auth')
+        ->name('ampliar-plazo');
 
     // Sprint 4 — Solicitudes
     Route::post('/{ticket}/solicitudes', [SolicitudController::class, 'store'])->name('solicitudes.store');

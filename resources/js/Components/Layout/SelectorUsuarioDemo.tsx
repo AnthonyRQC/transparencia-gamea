@@ -39,7 +39,7 @@ export default function SelectorUsuarioDemo({ currentUser, usuarios }: SelectorU
     router.post(route('cambiar-usuario'), { usuario_id: id }, {
       preserveScroll: true,
       onSuccess: () => {
-        window.location.reload();
+        router.reload({ only: ['currentUser', 'usuarios', 'notificaciones'] });
       },
     });
   };

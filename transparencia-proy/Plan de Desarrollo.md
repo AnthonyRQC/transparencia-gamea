@@ -39,6 +39,9 @@
 - ✅ Sprint 4: Investigación con Solicitudes/Descargos autónomos, Sheet con Tabs, SaltarFaseButton
 - ✅ Sprint 5: Informe Final + Cierre (6 endpoints, soft delete, historial ediciones)
 - ✅ Sprint 6: Seguimiento Público (búsqueda por ticket+token, input plano, stepper visual, resumen_rechazo en ModalRechazo, modal éxito token, tokens determinísticos seed)
+- ✅ Sprint 6.5: Simulación Multi-Rol (SesionUsuarioData, SelectorUsuarioController, SelectorUsuarioDemo, sidebar por rol)
+- ✅ Sprint 8: Ampliaciones Múltiples (ModalAmpliacionPlazo, aprobarAmpliacion, límite legal, ampliaciones[] en DenunciaData)
+- ✅ Sprint 9: Notificaciones Push (CampanaNotificaciones, PanelNotificaciones, ItemNotificacion, NotificacionData con generación derivada, página /notificaciones con paginación)
 
 ---
 
@@ -590,7 +593,7 @@ El `BuscadorTicket.tsx` original tenía un auto-formato con `formatTicketInput()
 
 ---
 
-### Sprint 6.5 — Simulación Multi-Rol para Demo (NUEVO — Julio 2026)
+### Sprint 6.5 — Simulación Multi-Rol para Demo ✅ COMPLETADO (Julio 2026)
 
 **Objetivo:** Simulación de 5 usuarios con roles sin base de datos. Dropdown en Header para cambiar entre Registrador, Jefe y 3 Técnicos. Sidebar filtra menú según rol.
 
@@ -658,7 +661,7 @@ Ver detalle: `Sprint 7 - Evaluación Técnica Previa.md`
 
 ---
 
-### Sprint 8 — Ampliaciones Múltiples
+### Sprint 8 — Ampliaciones Múltiples ✅ COMPLETADO (Julio 2026)
 
 **Objetivo:** Permitir al Jefe de Unidad aprobar múltiples ampliaciones parciales del plazo total (no solo una prórroga por el máximo legal).
 
@@ -673,7 +676,7 @@ Ver detalle: `Sprint 7 - Evaluación Técnica Previa.md`
 
 ---
 
-### Sprint 9 — Notificaciones Push + Historial
+### Sprint 9 — Notificaciones Push + Historial ✅ COMPLETADO (Julio 2026)
 
 **Objetivo:** Sistema de notificaciones push vía campana superior en el navbar, con historial tipo notificaciones de Facebook.
 

@@ -264,6 +264,7 @@ class DenunciaController extends Controller
             'justificacion' => 'required|string|min:20|max:5000',
             'archivos' => 'nullable|array',
             'concluido_por' => 'required|string|min:2|max:100',
+            'sitpreco' => 'nullable|string|min:3|max:50',
         ]);
 
         $denuncia = DenunciaData::find($ticket);
@@ -284,6 +285,7 @@ class DenunciaController extends Controller
             'justificacion' => 'required|string|min:20|max:5000',
             'archivos' => 'nullable|array',
             'concluido_por' => 'required|string|min:2|max:100',
+            'sitpreco' => 'nullable|string|min:3|max:50',
         ]);
 
         $denuncia = DenunciaData::find($ticket);
@@ -311,7 +313,6 @@ class DenunciaController extends Controller
     public function guardarCierre(string $ticket, Request $request)
     {
         $validated = $request->validate([
-            'sitpreco' => 'nullable|string|min:3|max:50',
             'notificado_denunciante' => 'required|boolean',
             'notificacion_medio' => 'required_if:notificado_denunciante,true|nullable|in:whatsapp,email,presencial,otro',
             'notificacion_fecha' => 'required_if:notificado_denunciante,true|nullable|date|before_or_equal:today',
@@ -329,14 +330,12 @@ class DenunciaController extends Controller
 
         DenunciaData::guardarCierre($ticket, $validated);
 
-        $cod = $validated['sitpreco'] ?? '—';
-        return redirect()->back()->with('success', "Denuncia {$ticket} cerrada. SITPRECO: {$cod}");
+        return redirect()->back()->with('success', "Denuncia {$ticket} cerrada correctamente.");
     }
 
     public function editarCierre(string $ticket, Request $request)
     {
         $validated = $request->validate([
-            'sitpreco' => 'nullable|string|min:3|max:50',
             'notificado_denunciante' => 'required|boolean',
             'notificacion_medio' => 'required_if:notificado_denunciante,true|nullable|in:whatsapp,email,presencial,otro',
             'notificacion_fecha' => 'required_if:notificado_denunciante,true|nullable|date|before_or_equal:today',

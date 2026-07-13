@@ -18,8 +18,11 @@ Tailwind v3 · shadcn/ui (New York) · Laragon (Windows local)
 **Sprint 4** (Investigación: Solicitudes + Descargos + Saltar Fase + Mejoras) — Cerrado ✅
 **Sprint 5** (Informe Final + Cierre) — Cerrado ✅
 **Sprint 6** (Seguimiento Público) — Cerrado ✅ (Junio 2026)
+**Sprint 6.5** (Simulación Multi-Rol para Demo) — Cerrado ✅ (Julio 2026)
+**Sprint 8** (Ampliaciones Múltiples) — Cerrado ✅ (Julio 2026)
+**Sprint 9** (Notificaciones Push + Historial) — Cerrado ✅ (Julio 2026)
 
-Ver `Sprints Pendientes - Contexto.md` para sprints 7-19.
+Ver `Sprints Pendientes - Contexto.md` para sprints 7, 10-19.
 
 ## Roles (post sesión con cliente, Junio 2026)
 - **Registrador** (antes "Recepcionista")
@@ -36,7 +39,7 @@ Ver `Sprints Pendientes - Contexto.md` para sprints 7-19.
 2. **Para ver roadmap completo:** Lee `Plan de Desarrollo.md` (alto nivel).
 3. **Para trabajar en un sprint específico:**
    - **Sprint cerrado (0-6):** Lee `Sprint X - [Nombre].md` solo si es necesario detalle histórico.
-   - **Sprint pendiente (7-19):** Lee SOLO la sección correspondiente en `Sprints Pendientes - Contexto.md`. **No leas otras secciones** (lazy load).
+   - **Sprint pendiente (7, 10-19):** Lee SOLO la sección correspondiente en `Sprints Pendientes - Contexto.md`. **No leas otras secciones** (lazy load).
 4. **Para entender el sistema completo:** Lee `Proyecto - Resumen General del Sistema.md` solo si es necesario.
 5. **NO LEER por defecto:**
    - `Proyecto - Prototipo y Estrategia de Diseño.md`
@@ -76,7 +79,7 @@ Ver `Sprints Pendientes - Contexto.md` para sprints 7-19.
 
 ## Decisiones clave recientes (Junio 2026)
 - **Recepcionista → Registrador** (cambio de nombre en toda la documentación)
-- **SITPRECO obligatorio al admitir, opcional al rechazar** (no al cierre)
+- **SITPRECO solo en informe final** (opcional — código del sistema nacional de Bolivia)
 - **Múltiples ampliaciones permitidas** (no solo una)
 - **Traspaso incluye historial completo** del técnico anterior (nada privado)
 - **Reaperturas sin límite** (manejo manual)
@@ -99,28 +102,36 @@ Ver `Sprints Pendientes - Contexto.md` para sprints 7-19.
 > - C1: Días hábiles vs calendario (Sprint 18)
 > - C7: Destino del expediente al remitirse al Ministerio
 > - C8: Reglas del plazo al reabrir una denuncia
-> - Formato SITPRECO definitivo (#2, #4)
 
 ## Arquitectura Clave
 - `app/Data/DenunciaData.php` — Mock data estática (sesión, no DB)
 - `app/Data/SolicitudData.php` — Solicitudes a unidades externas (Sprint 4)
 - `app/Data/DescargoData.php` — Descargos de denunciados (Sprint 4)
 - `app/Data/UnidadData.php` — Catálogo de unidades externas (Sprint 4)
-- `app/Data/UsuarioData.php` — Técnicos, jefe y registrador mock
-- `app/Http/Controllers/DenunciaController.php` — Create + Store + admitir/rechazar/iniciar + saltarFase
+- `app/Data/SesionUsuarioData.php` — 5 usuarios mock con roles (Sprint 6.5)
+- `app/Data/NotificacionData.php` — Notificaciones generadas por derivación (Sprint 9)
+- `app/Http/Controllers/DenunciaController.php` — Create + Store + admitir/rechazar/iniciar + saltarFase + aprobarAmpliacion
 - `app/Http/Controllers/SolicitudController.php` — CRUD Solicitudes (Sprint 4)
 - `app/Http/Controllers/DescargoController.php` — CRUD Descargos (Sprint 4)
 - `app/Http/Controllers/BandejaController.php` — Bandeja de Admisión (Jefe, envia solicitudes/descargos read-only)
 - `app/Http/Controllers/MisCasosController.php` — Mis Casos (Técnico, filtrado por técnico + solicitudes/descargos con acciones)
 - `app/Http/Controllers/SeguimientoController.php` — Búsqueda pública por ticket (Sprint 6)
+- `app/Http/Controllers/SelectorUsuarioController.php` — Cambio de usuario demo (Sprint 6.5)
+- `app/Http/Controllers/NotificacionController.php` — CRUD notificaciones + paginación (Sprint 9)
+- `app/Http/Controllers/DemoNotificacionController.php` — Simulaciones demo de notificaciones (Sprint 9)
 - `resources/js/Components/Layout/AppLayout.tsx` — Layout root
-- `resources/js/Components/Denuncias/` — Componentes de denuncias (Card, Sheet, Badges, Modales, AsignacionModal, TraspasoModal, ReabrirModal, TecnicoCargaCard, TabSolicitudes, TabDescargos, SolicitudCard, DescargoCard, PlazoProgress, ArchivoAdjunto, SaltarFaseButton, modales solicitud/descargo, SolicitudDetailModal, DescargoDetailModal, ModalCancelarSolicitud, ModalNuevoDescargo, ModalConfirmarEliminar, ClasificacionBadge, FormInformeFinal, FormCierre, TabInformeCierre, InformeDetailModal)
+- `resources/js/Components/Layout/SelectorUsuarioDemo.tsx` — Dropdown de simulación de usuario (Sprint 6.5)
+- `resources/js/Components/Layout/CampanaNotificaciones.tsx` — Campana con badge + Popover (Sprint 9)
+- `resources/js/Components/Layout/PanelNotificaciones.tsx` — Panel dropdown scrolleable (Sprint 9)
+- `resources/js/Components/Layout/ItemNotificacion.tsx` — Item individual con icono, timestamp, color (Sprint 9)
+- `resources/js/Components/Denuncias/` — Componentes de denuncias (Card, Sheet, Badges, Modales, AsignacionModal, TraspasoModal, ReabrirModal, TecnicoCargaCard, TabSolicitudes, TabDescargos, SolicitudCard, DescargoCard, PlazoProgress, ArchivoAdjunto, SaltarFaseButton, modales solicitud/descargo, SolicitudDetailModal, DescargoDetailModal, ModalCancelarSolicitud, ModalNuevoDescargo, ModalConfirmarEliminar, ClasificacionBadge, FormInformeFinal, FormCierre, TabInformeCierre, InformeDetailModal, ModalAmpliacionPlazo)
 - `resources/js/Pages/Denuncias/RegistroDenuncia.tsx` — Formulario de registro
 - `resources/js/Pages/Denuncias/Bandeja.tsx` — Bandeja del Jefe (5 tabs: Por admitir, Por asignar, En curso, Historial, Visión general)
 - `resources/js/Pages/Denuncias/MisCasos.tsx` — Mis Casos del Técnico (4 tabs)
 - `resources/js/Pages/Denuncias/MiResumen.tsx` — Resumen del Técnico (4 cards)
+- `resources/js/Pages/Notificaciones/Index.tsx` — Página completa de notificaciones con filtros + paginación (Sprint 9)
 - `resources/js/Components/Publico/` — Componentes públicos de seguimiento (BuscadorTicket, StepperProgreso, ResultadoSeguimiento, EstadoVacio, EstadoNoEncontrado, EsqueletoBusqueda) (Sprint 6)
-- `resources/js/Components/ui/` — shadcn components (tooltip, progress, scroll-area agregados Sprint 3)
+- `resources/js/Components/ui/` — shadcn components (tooltip, progress, scroll-area, popover, separator agregados)
 
 ## Comandos
 - `npm run dev` / `npm run build` — Vite
@@ -130,7 +141,7 @@ Ver `Sprints Pendientes - Contexto.md` para sprints 7-19.
 ## Próximo Sprint
 **Sprint 7 — Evaluación Técnica Previa** (NUEVO)
 - Flujo: Recepción → Jefe delega (opcional) → Técnico evalúa → Devuelve → Jefe admite/rechaza
-- SITPRECO obligatorio al admitir, opcional al rechazar
+- SITPRECO solo en informe final (no en admisión ni en cierre)
 - Plazo de 5 días no se pausa durante evaluación
 
-Ver detalle en `Sprints Pendientes - Contexto.md` y `Sprint 7 - Evaluación Técnica Previa.md` (cuando se cree el detalle).
+Ver detalle en `Sprints Pendientes - Contexto.md` y `Sprint 7 - Evaluación Técnica Previa.md`.

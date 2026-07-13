@@ -15,11 +15,10 @@ class MiResumenController extends Controller
         }
 
         $currentUser = SesionUsuarioData::getCurrent();
-        $tecnicoId = $currentUser['id'];
-
         if ($currentUser['rol'] !== 'tecnico') {
-            $tecnicoId = 'tec-1';
+            return redirect()->route('dashboard')->with('error', 'Solo los técnicos pueden acceder a Mi Resumen.');
         }
+        $tecnicoId = $currentUser['id'];
 
         $contadores = DenunciaData::getContadoresTecnico($tecnicoId);
 

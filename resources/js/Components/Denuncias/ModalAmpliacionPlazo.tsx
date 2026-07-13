@@ -94,7 +94,7 @@ export default function ModalAmpliacionPlazo({ denuncia, open, onOpenChange, tec
   const numAmpliaciones = (denuncia.ampliaciones || []).length;
   const diasNum = parseInt(dias, 10) || 0;
   const exceed = diasNum > restante;
-  const canSubmit = diasNum >= 1 && diasNum <= 45 && justificacion.trim().length >= 10 && !exceed && !processing;
+  const canSubmit = diasNum >= 1 && diasNum <= maxAmpliacion && justificacion.trim().length >= 10 && !exceed && !processing;
 
   const warningClass = exceed
     ? 'text-destructive border-destructive/50 bg-destructive/10'

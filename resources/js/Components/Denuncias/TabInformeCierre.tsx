@@ -21,13 +21,13 @@ interface InformeData {
   archivos: ArchivoSimulado[];
   redactado_at: string | null;
   concluido_por: string | null;
+  sitpreco: string | null;
   ediciones: Array<{ fecha: string; cambios: string[]; usuario: string }>;
   eliminado: boolean;
   fecha_eliminacion: string | null;
 }
 
 interface CierreData {
-  sitpreco: string | null;
   notificado_denunciante: boolean | null;
   notificacion_medio: string | null;
   notificacion_fecha: string | null;
@@ -54,7 +54,7 @@ interface DenunciaData {
   informe_ediciones?: Array<{ fecha: string; cambios: string[]; usuario: string }>;
   informe_eliminado?: boolean;
   informe_fecha_eliminacion?: string | null;
-  cierre_sitpreco?: string | null;
+  informe_sitpreco?: string | null;
   cierre_notificado_denunciante?: boolean | null;
   cierre_notificacion_medio?: string | null;
   cierre_notificacion_fecha?: string | null;
@@ -88,6 +88,7 @@ export default function TabInformeCierre({ denuncia, tecnicoNombre = '—', canA
         archivos: denuncia.informe_archivos ?? [],
         redactado_at: denuncia.informe_redactado_at ?? null,
         concluido_por: denuncia.informe_concluido_por ?? null,
+        sitpreco: denuncia.informe_sitpreco ?? null,
         ediciones: denuncia.informe_ediciones ?? [],
         eliminado: denuncia.informe_eliminado ?? false,
         fecha_eliminacion: denuncia.informe_fecha_eliminacion ?? null,
@@ -96,7 +97,6 @@ export default function TabInformeCierre({ denuncia, tecnicoNombre = '—', canA
 
   const cierre: CierreData | null = denuncia.cierre_cerrado_at
     ? {
-        sitpreco: denuncia.cierre_sitpreco ?? null,
         notificado_denunciante: denuncia.cierre_notificado_denunciante ?? null,
         notificacion_medio: denuncia.cierre_notificacion_medio ?? null,
         notificacion_fecha: denuncia.cierre_notificacion_fecha ?? null,

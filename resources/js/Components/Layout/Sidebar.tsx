@@ -101,7 +101,7 @@ export default function Sidebar({
     const filterByRol = (item: MenuItem): boolean => {
         if (rol === 'jefe') return true;
         if (rol === 'registrador') return ['inicio', 'nueva-denuncia', 'notificaciones'].includes(item.key);
-        if (rol === 'tecnico') return ['inicio', 'mis-casos', 'mi-resumen', 'notificaciones', 'nueva-denuncia'].includes(item.key);
+        if (rol === 'tecnico') return ['inicio', 'mis-casos', 'mi-resumen', 'notificaciones'].includes(item.key);
         return true;
     };
 

@@ -83,7 +83,7 @@ class DenunciaData
         $data['informe_ediciones'] = [];
         $data['informe_eliminado'] = false;
         $data['informe_fecha_eliminacion'] = null;
-        $data['cierre_sitpreco'] = null;
+        $data['informe_sitpreco'] = null;
         $data['cierre_notificado_denunciante'] = null;
         $data['cierre_notificacion_medio'] = null;
         $data['cierre_notificacion_fecha'] = null;
@@ -342,6 +342,7 @@ class DenunciaData
                 $denuncias[$i]['informe_archivos'] = $data['archivos'] ?? [];
                 $denuncias[$i]['informe_redactado_at'] = now()->toDateTimeString();
                 $denuncias[$i]['informe_concluido_por'] = $data['concluido_por'];
+                $denuncias[$i]['informe_sitpreco'] = $data['sitpreco'] ?? null;
                 $denuncias[$i]['informe_eliminado'] = false;
                 $denuncias[$i]['informe_fecha_eliminacion'] = null;
                 self::addBitacoraEntry($denuncias, $i, 'informe_redactado', "Informe Final redactado. Clasificación: {$data['clasificacion']}. Fojas: {$data['fojas']}", $usuarioId);
@@ -364,6 +365,7 @@ class DenunciaData
                     'justificacion' => 'informe_justificacion',
                     'archivos' => 'informe_archivos',
                     'concluido_por' => 'informe_concluido_por',
+                    'sitpreco' => 'informe_sitpreco',
                 ];
                 foreach ($map as $campo => $key) {
                     if (array_key_exists($campo, $data)) {
@@ -411,7 +413,6 @@ class DenunciaData
         $denuncias = self::getAll();
         foreach ($denuncias as $i => $d) {
             if (($d['ticket'] ?? '') === $ticket && ($d['estado'] ?? '') === 'informe') {
-                $denuncias[$i]['cierre_sitpreco'] = $data['sitpreco'] ?? null;
                 $denuncias[$i]['cierre_notificado_denunciante'] = $data['notificado_denunciante'] ?? false;
                 $denuncias[$i]['cierre_notificacion_medio'] = $data['notificacion_medio'] ?? null;
                 $denuncias[$i]['cierre_notificacion_fecha'] = $data['notificacion_fecha'] ?? null;
@@ -424,8 +425,7 @@ class DenunciaData
                 $denuncias[$i]['cierre_eliminado'] = false;
                 $denuncias[$i]['cierre_fecha_eliminacion'] = null;
                 $denuncias[$i]['estado'] = 'cerrada';
-                $sitpreco = $data['sitpreco'] ?? '—';
-                self::addBitacoraEntry($denuncias, $i, 'cierre_registrado', "Cierre registrado. SITPRECO: {$sitpreco}. Estado: cerrada", $usuarioId);
+                self::addBitacoraEntry($denuncias, $i, 'cierre_registrado', "Cierre registrado. Estado: cerrada", $usuarioId);
                 session()->put(self::SESSION_KEY, $denuncias);
                 return true;
             }
@@ -440,7 +440,6 @@ class DenunciaData
             if (($d['ticket'] ?? '') === $ticket && ($d['estado'] ?? '') === 'cerrada') {
                 $cambios = [];
                 $map = [
-                    'sitpreco' => 'cierre_sitpreco',
                     'notificado_denunciante' => 'cierre_notificado_denunciante',
                     'notificacion_medio' => 'cierre_notificacion_medio',
                     'notificacion_fecha' => 'cierre_notificacion_fecha',
@@ -875,7 +874,7 @@ class DenunciaData
                 'informe_archivos' => [['nombre' => 'informe_final_0011.pdf', 'tamano' => '2.4 MB', 'fecha_subida' => (clone $now)->subDays(50)->toDateTimeString()]],
                 'informe_redactado_at' => (clone $now)->subDays(50)->toDateTimeString(),
                 'informe_concluido_por' => 'Carlos Quispe',
-                'cierre_sitpreco' => 'SIT-UML-CC1-2026-0501',
+                'informe_sitpreco' => 'SIT-UML-CC1-2026-0501',
                 'cierre_notificado_denunciante' => true,
                 'cierre_notificacion_medio' => 'email',
                 'cierre_notificacion_fecha' => (clone $now)->subDays(45)->toDateTimeString(),
@@ -915,7 +914,7 @@ class DenunciaData
                 'informe_archivos' => [['nombre' => 'informe_final_0012.pdf', 'tamano' => '1.8 MB', 'fecha_subida' => (clone $now)->subDays(80)->toDateTimeString()]],
                 'informe_redactado_at' => (clone $now)->subDays(80)->toDateTimeString(),
                 'informe_concluido_por' => 'Ana Torres',
-                'cierre_sitpreco' => 'SIT-UML-CC1-2026-0302',
+                'informe_sitpreco' => 'SIT-UML-CC1-2026-0302',
                 'cierre_notificado_denunciante' => false,
                 'cierre_no_notificado_motivo' => 'Denunciante anónimo sin datos de contacto.',
                 'cierre_concluido_por' => 'Ana Torres',
@@ -972,7 +971,7 @@ class DenunciaData
             'informe_ediciones' => [],
             'informe_eliminado' => false,
             'informe_fecha_eliminacion' => null,
-            'cierre_sitpreco' => null,
+            'informe_sitpreco' => null,
             'cierre_notificado_denunciante' => null,
             'cierre_notificacion_medio' => null,
             'cierre_notificacion_fecha' => null,
