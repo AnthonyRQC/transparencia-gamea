@@ -53,7 +53,7 @@ export default function ModalDevolverEvaluacion({ evaluacion, denuncia, open, on
     if (!canSubmit) return;
     setProcessing(true);
     router.post(
-      route('evaluaciones.devolver', { id: evaluacion.id }),
+      route('denuncias.evaluaciones.devolver', { id: evaluacion.id }),
       {
         texto_evaluacion: texto.trim(),
         recomendacion,
