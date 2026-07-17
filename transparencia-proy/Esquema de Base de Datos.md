@@ -2,6 +2,18 @@
 
 Para soportar todas las funcionalidades implementadas en los Sprints 0–9 de la Fase 0 (registro de denuncias, bandeja de admisión, asignación/traspaso/reapertura, investigación con solicitudes y descargos, informe final, cierre, seguimiento público, simulación multi-rol, ampliaciones múltiples, notificaciones y evaluación técnica previa), la base de datos está estructurada de forma relacional bajo el marco legal de la **Ley 974** (Bolivia).
 
+> 📝 **Actualización Julio 2026:** Se incorporaron los cambios urgentes acordados para los nuevos sprints 7.A, 7.5, 7.6, 7.7, más las decisiones diferidas (Sprint 22, 23, 24). Cambios principales:
+> - Eliminados `acompaniamiento` e `intervencion` del enum `denuncias.tipo` (diferidos a Sprint 22 v2)
+> - `descargos.medio` pasa de ENUM a texto libre
+> - Nueva tabla `denuncias_archivos` (repositorio unificado, Sprint 7.6)
+> - Fusión de 4 tablas de ediciones en **campos JSON** (filosofía "minimizar tablas", Sprint 14)
+> - MAYÚSCULAS obligatorias en textos libres (Sprint 7.5)
+> - Nuevos campos de conciliación de fechas (Sprint 7.5)
+> - Quitada acción `consulta_codigo` de `bitacora` (Sprint 7.7 — sin log)
+> - Campos para casos legacy y configuración de numeración (Sprint 23, diferido)
+>
+> Stack fijo: **MySQL** (Laragon) + Eloquent con cast JSON. Portable a `JSONB` (Postgres) si en el futuro se migra.
+
 A continuación se detalla el diseño propuesto con sus tablas, columnas y relaciones.
 
 ---
@@ -12,6 +24,9 @@ A continuación se detalla el diseño propuesto con sus tablas, columnas y relac
 - Soft delete (`eliminado` / `deleted_at`) donde aplique para preservar trazabilidad y auditoría.
 - Timestamps Laravel (`created_at`, `updated_at`) implícitos en todas las tablas (no listados explícitamente salvo donde tengan significado de negocio).
 - Las llaves foráneas usan `ON DELETE RESTRICT` por defecto (protección referencial).
+- **MAYÚSCULAS en textos libres** (Sprint 7.5): todos los campos de texto libre se almacenan en MAYÚSCULAS por convención institucional. Se aplica en backend con `Str::upper()` antes del `save()` y en frontend con `text-transform: uppercase` en inputs. Ver lista completa de campos afectados al final de este documento.
+- **Filosofía "minimizar tablas"** (Sprint 14): las tablas puramente históricas (sin CRUD, solo información derivada) se fusionan como **campos JSON** en su tabla padre. En MySQL se usa tipo `JSON` + Eloquent cast `array`. Portable a `JSONB` (Postgres) si en el futuro se requiere.
+- **Archivos físicos:** los archivos "eliminados" vía soft delete NO se borran físicamente del disco. Solo se mueven a `archivos_eliminados/` con timestamp. La DB mantiene el registro con `eliminado: true` para auditoría forense.
 
 ---
 
@@ -62,11 +77,9 @@ A continuación se detalla el diseño propuesto con sus tablas, columnas y relac
 - **`id`**: Entero, Llave Primaria (Autoincremental).
 - **`ticket`**: Texto, Único, Obligatorio (formato `DEN-YYYY-NNNN`, ej. "DEN-2026-0001"). Generado secuencialmente al registrar.
 - **`token_consulta`**: Texto(4), Obligatorio (PIN numérico de 4 dígitos, ej. "1001"). Generado aleatoriamente al registrar. Usado junto con `ticket` como par de autenticación para el seguimiento público (Sprint 6).
-- **`tipo`**: Enum(`'corrupcion'`, `'negacion'`, `'acompaniamiento'`, `'intervencion'`), Obligatorio.
+- **`tipo`**: Enum(`'corrupcion'`, `'negacion'`), Obligatorio. **(Actualizado Julio 2026: se eliminaron `acompaniamiento` e `intervencion` del MVP, diferidos a Sprint 22 v2).**
   - `corrupcion`: Plazo legal hasta 45 días hábiles + 45 de ampliación (Art. 30).
   - `negacion`: Plazo legal hasta 20 días hábiles + 10 de ampliación.
-  - `acompaniamiento`: Resolución inmediata, sin plazo.
-  - `intervencion`: Medida correctiva, sin plazo.
 - **`escenario`**: Enum(`'revelada'`, `'anonimo'`, `'reservada'`), por defecto `'revelada'`.
   - `revelada`: Identidad del denunciante visible para todos con acceso al caso.
   - `anonimo`: Sin datos de denunciante (Art. 22 §IV Ley 974).
@@ -94,7 +107,15 @@ A continuación se detalla el diseño propuesto con sus tablas, columnas y relac
 - **`plazo_reapertura`**: Fecha, Nullable. Nueva fecha límite manual definida por el Jefe al reabrir.
 - **`registrado_por_id`**: Entero, **Llave Foránea** → `usuarios(id)`, Nullable. Usuario registrador que ingresó la denuncia.
 
-> **Nota sobre tipos especiales:** Para `acompaniamiento` e `intervencion`, los campos de hechos y plazo no aplican de la misma forma. Los campos específicos de estos formularios (`resolucion_acuerdo`, `referencia_nota`, `unidad_observada`, etc.) se almacenan en columnas nullable adicionales o en una tabla `denuncias_detalle_especial` según se defina en la Fase 1.
+> 🆕 **Campos Sprint 7.5 (conciliación de fechas):**
+> - **`sitpreco_rechazo`**: Texto(50), Nullable. SITPRECO opcional capturado al rechazar la denuncia (no se pide al admitir).
+> - **`conciliado_por_id`**: Entero, **Llave Foránea** → `usuarios(id)`, Nullable. Jefe que realizó la conciliación.
+> - **`conciliacion_motivo`**: Texto, Nullable. Motivo de la conciliación (mín. 20 caracteres).
+> - **`conciliacion_at`**: Timestamp, Nullable. Momento de la conciliación.
+> - **`fecha_cierre_real`**: Fecha, Nullable. Fecha real de cierre del caso (puede diferir de la fecha de cierre del sistema por conciliación).
+> - **`es_legacy`**: Booleano, por defecto `false`. Sprint 23 (diferido): marca casos migrados del sistema legacy (sin historial automático).
+
+> ~~**Nota sobre tipos especiales:** Para `acompaniamiento` e `intervencion`, los campos de hechos y plazo no aplican de la misma forma.~~ **(Eliminada Julio 2026: acomp/intervención se difirieron a Sprint 22 v2, no requieren tabla especial).**
 
 ---
 
@@ -119,7 +140,7 @@ A continuación se detalla el diseño propuesto con sus tablas, columnas y relac
 - **`conoce_identidad`**: Booleano, Obligatorio. Si el denunciante conoce la identidad del presunto responsable.
 - **`nombres`**: Texto, Nullable. Nombre y apellidos (si `conoce_identidad = true`).
 - **`dependencia`**: Texto, Nullable. Cargo y/o área de trabajo (opcional).
-- **`descripcion`**: Texto, Nullable. Descripción física y vestimenta (si `conoce_identidad = false`).
+- **`descripcion`**: Texto, Nullable. Descripción física y vestimenta (si `conoce_identidad = false`). **Texto libre → MAYÚSCULAS** (Sprint 7.5).
 
 ---
 
@@ -132,12 +153,31 @@ A continuación se detalla el diseño propuesto con sus tablas, columnas y relac
   - `archivo`: Evidencia digital con upload.
   - `fisica`: Prueba física descrita textualmente (sin upload).
   - `testigo`: Datos de contacto del testigo.
-- **`descripcion`**: Texto, Obligatorio. Descripción de la prueba o testimonio.
+- **`descripcion`**: Texto, Obligatorio. Descripción de la prueba o testimonio. **Texto libre → MAYÚSCULAS** (Sprint 7.5).
 - **`archivo_nombre`**: Texto, Nullable. Nombre del archivo subido (solo si `tipo = 'archivo'`).
 - **`archivo_path`**: Texto, Nullable. Ruta de almacenamiento del archivo en disco/S3.
 - **`archivo_tamano`**: Texto, Nullable. Tamaño legible (ej. "2.4 MB").
 - **`testigo_nombre`**: Texto, Nullable. Nombre del testigo (solo si `tipo = 'testigo'`).
 - **`testigo_telefono`**: Texto, Nullable. Teléfono de contacto del testigo.
+
+### 7.5 Tabla: `denuncias_archivos` (NUEVA — Sprint 7.6)
+*Repositorio unificado de archivos del caso (Sprint 7.6). Permite subir archivos en cualquier momento del caso, no solo al final. Convive con los archivos específicos por fase (`solicitudes_archivos`, `descargos_documentos`, `informes_archivos`, `cierres_archivos`).*
+
+- **`id`**: Entero, Llave Primaria (Autoincremental).
+- **`denuncia_id`**: Entero, **Llave Foránea** → `denuncias(id)`. Relación N:1.
+- **`usuario_id`**: Entero, **Llave Foránea** → `usuarios(id)`. Usuario que subió el archivo.
+- **`nombre`**: Texto, Obligatorio (ej. "acta_notarial_2026.pdf"). **Respetar case original del archivo** (no MAYÚSCULAS — es nombre técnico).
+- **`path`**: Texto, Obligatorio. Ruta de almacenamiento en disco/S3.
+- **`tamano`**: Texto, Nullable (ej. "2.4 MB").
+- **`mime_type`**: Texto, Nullable (ej. "application/pdf").
+- **`descripcion`**: Texto, Nullable. Descripción del archivo. **Texto libre → MAYÚSCULAS** (Sprint 7.5).
+- **`contexto`**: Enum(`'registro'`, `'general'`, `'informe'`, `'cierre'`), por defecto `'general'`. Indica el contexto del archivo.
+- **`contexto_id`**: Entero, Nullable. ID de la entidad relacionada (solicitud, descargo, informe, cierre) si aplica. FK polimórfica lógica.
+- **`eliminado`**: Booleano, por defecto `false`. Soft delete (archivo físico se preserva en `archivos_eliminados/`).
+- **`fecha_eliminacion`**: Timestamp, Nullable.
+- **`fecha_subida`**: Timestamp, Obligatorio.
+
+> **Comportamiento del soft delete (Sprint 7.6):** El archivo "eliminado" desaparece de la UI pero el archivo físico se preserva en disco (movido a `archivos_eliminados/` con timestamp). La DB mantiene el registro con `eliminado: true` para auditoría forense.
 
 ---
 
@@ -164,17 +204,18 @@ A continuación se detalla el diseño propuesto con sus tablas, columnas y relac
 - **`id`**: Entero, Llave Primaria (Autoincremental).
 - **`denuncia_id`**: Entero, **Llave Foránea** → `denuncias(id)`. Relación N:1.
 - **`unidad_destino_id`**: Entero, **Llave Foránea** → `unidades_externas(id)`. Unidad a la que se dirige la solicitud.
-- **`detalle`**: Texto, Obligatorio. Descripción de la información solicitada.
+- **`detalle`**: Texto, Obligatorio. Descripción de la información solicitada. **Texto libre → MAYÚSCULAS** (Sprint 7.5).
 - **`plazo_dias`**: Entero, por defecto `10`. Plazo concedido en días hábiles (rango 1–45).
-- **`fecha_envio`**: Timestamp, Obligatorio. Momento de envío de la solicitud.
+- **`fecha_envio`**: Timestamp, Obligatorio. **(Actualizado Sprint 7.5: editable por el usuario, no se asigna automáticamente a `now()`).** Momento real de envío de la solicitud.
 - **`fecha_vencimiento`**: Timestamp, Obligatorio. Fecha límite calculada en días hábiles desde `fecha_envio`.
-- **`fecha_respuesta`**: Timestamp, Nullable. Momento en que la unidad respondió.
-- **`respuesta`**: Texto, Nullable. Contenido de la respuesta recibida.
+- **`fecha_respuesta`**: Timestamp, Nullable. **(Actualizado Sprint 7.5: editable por el usuario vía date picker).** Momento en que la unidad respondió.
+- **`respuesta`**: Texto, Nullable. Contenido de la respuesta recibida. **Texto libre → MAYÚSCULAS** (Sprint 7.5).
 - **`estado`**: Enum(`'pendiente'`, `'ampliada'`, `'respondida'`, `'cancelada'`), por defecto `'pendiente'`.
-- **`motivo_cancelacion`**: Texto, Nullable. Motivo de la cancelación (mín. 5 caracteres).
+- **`motivo_cancelacion`**: Texto, Nullable. Motivo de la cancelación (mín. 5 caracteres). **Texto libre → MAYÚSCULAS** (Sprint 7.5).
 - **`fecha_cancelacion`**: Timestamp, Nullable.
 - **`eliminado`**: Booleano, por defecto `false`. Soft delete para preservar auditoría.
 - **`fecha_eliminacion`**: Timestamp, Nullable.
+- **`historial_ediciones`**: JSON, Nullable. **(Sprint 14: fusión de la antigua tabla `solicitudes_ediciones`).** Almacena array con `{fecha, campo, anterior, nuevo, usuario_id}` por cada edición. Eloquent cast `array`. Portable a `JSONB` (Postgres) si en el futuro se migra.
 
 ---
 
@@ -221,18 +262,19 @@ A continuación se detalla el diseño propuesto con sus tablas, columnas y relac
 - **`denuncia_id`**: Entero, **Llave Foránea** → `denuncias(id)`. Relación N:1.
 - **`denunciado_id`**: Entero, **Llave Foránea** → `denunciados(id)`. Denunciado al que se notifica.
 - **`fecha_notificacion`**: Timestamp, Nullable. Momento de notificación formal.
-- **`medio`**: Enum(`'personal'`, `'cedula'`, `'email'`, `'otro'`), Nullable. Medio de notificación utilizado.
+- **`medio`**: **Texto(200), Nullable. (Actualizado Sprint 7.5: pasa de ENUM a texto libre.)** Descripción libre del medio de notificación (ej. "Cédula de notificación N° 234", "Email institucional", "WhatsApp", etc.). **Texto libre → MAYÚSCULAS** (Sprint 7.5).
 - **`respaldo_archivo_nombre`**: Texto, Nullable. Nombre del archivo respaldo de la notificación (ej. cédula de notificación).
 - **`respaldo_archivo_path`**: Texto, Nullable.
 - **`respaldo_archivo_tamano`**: Texto, Nullable.
 - **`fecha_vencimiento`**: Timestamp, Nullable. Calculada: 10 días hábiles desde `fecha_notificacion`.
 - **`fecha_respuesta`**: Timestamp, Nullable. Momento de recepción del descargo.
-- **`resumen_descargo`**: Texto largo, Nullable. Resumen del descargo presentado por el denunciado.
+- **`resumen_descargo`**: Texto largo, Nullable. Resumen del descargo presentado por el denunciado. **Texto libre → MAYÚSCULAS** (Sprint 7.5).
 - **`estado`**: Enum(`'pendiente_notif'`, `'notificado'`, `'ampliado'`, `'respondido'`, `'cancelado'`), por defecto `'pendiente_notif'`.
-- **`motivo_cancelacion`**: Texto, Nullable.
+- **`motivo_cancelacion`**: Texto, Nullable. **Texto libre → MAYÚSCULAS** (Sprint 7.5).
 - **`fecha_cancelacion`**: Timestamp, Nullable.
 - **`eliminado`**: Booleano, por defecto `false`. Soft delete.
 - **`fecha_eliminacion`**: Timestamp, Nullable.
+- **`historial_ediciones`**: JSON, Nullable. **(Sprint 14: fusión de la antigua tabla `descargos_ediciones`).** Almacena array con `{fecha, campo, anterior, nuevo, usuario_id}` por cada edición. Eloquent cast `array`. Portable a `JSONB` (Postgres) si en el futuro se migra.
 
 ---
 
@@ -305,6 +347,7 @@ A continuación se detalla el diseño propuesto con sus tablas, columnas y relac
 - **`redactado_at`**: Timestamp, Obligatorio.
 - **`eliminado`**: Booleano, por defecto `false`. Soft delete.
 - **`fecha_eliminacion`**: Timestamp, Nullable.
+- **`historial_ediciones`**: JSON, Nullable. **(Sprint 14: fusión de la antigua tabla `informes_ediciones`).** Almacena array con `{cambios, usuario_id, fecha}` por cada edición. Eloquent cast `array`. Portable a `JSONB` (Postgres).
 
 ---
 
@@ -342,10 +385,11 @@ A continuación se detalla el diseño propuesto con sus tablas, columnas y relac
 - **`notificacion_descripcion`**: Texto, Nullable. Detalle de la notificación.
 - **`no_notificado_motivo`**: Texto, Nullable. Motivo si NO se notificó (ej. "Denunciante anónimo sin datos de contacto").
 - **`concluido_por`**: Texto, Obligatorio. Nombre del técnico que cerró el caso.
-- **`descripcion`**: Texto, Nullable. Descripción del cierre y observaciones finales.
+- **`descripcion`**: Texto, Nullable. Descripción del cierre y observaciones finales. **Texto libre → MAYÚSCULAS** (Sprint 7.5).
 - **`cerrado_at`**: Timestamp, Obligatorio. Momento del cierre.
 - **`eliminado`**: Booleano, por defecto `false`. Soft delete (si se elimina, la denuncia vuelve a estado `informe`).
 - **`fecha_eliminacion`**: Timestamp, Nullable.
+- **`historial_ediciones`**: JSON, Nullable. **(Sprint 14: fusión de la antigua tabla `cierres_ediciones`).** Almacena array con `{cambios, usuario_id, fecha}` por cada edición. Eloquent cast `array`. Portable a `JSONB` (Postgres).
 
 ---
 
@@ -377,8 +421,9 @@ A continuación se detalla el diseño propuesto con sus tablas, columnas y relac
 
 - **`id`**: Entero, Llave Primaria (Autoincremental).
 - **`denuncia_id`**: Entero, **Llave Foránea** → `denuncias(id)`. Relación N:1.
-- **`accion`**: Texto, Obligatorio. Tipo de acción (ej. `'admitida'`, `'rechazada'`, `'asignada'`, `'traspaso'`, `'reapertura'`, `'investigacion'`, `'evaluacion_delegada'`, `'evaluacion_devuelta'`, `'evaluacion_reasumida'`, `'solicitud_creada'`, `'solicitud_respondida'`, `'solicitud_ampliada'`, `'descargo_notificado'`, `'descargo_respondido'`, `'descargo_ampliado'`, `'saltar_fase'`, `'ampliacion_plazo'`, `'informe_redactado'`, `'informe_editado'`, `'informe_eliminado'`, `'cierre_registrado'`, `'cierre_editado'`, `'cierre_eliminado'`).
-- **`detalle`**: Texto, Obligatorio. Descripción legible de la acción (ej. "Asignada a Carlos Quispe", "Plazo ampliado 15 días (ampliación #1)").
+- **`accion`**: Texto, Obligatorio. Tipo de acción (ej. `'admitida'`, `'rechazada'`, `'asignada'`, `'traspaso'`, `'reapertura'`, `'investigacion'`, `'evaluacion_delegada'`, `'evaluacion_devuelta'`, `'evaluacion_reasumida'`, `'solicitud_creada'`, `'solicitud_respondida'`, `'solicitud_ampliada'`, `'descargo_notificado'`, `'descargo_respondido'`, `'descargo_ampliado'`, `'saltar_fase'`, `'ampliacion_plazo'`, `'conciliacion_fechas'`, `'informe_redactado'`, `'informe_editado'`, `'informe_eliminado'`, `'cierre_registrado'`, `'cierre_editado'`, `'cierre_eliminado'`).
+  - ~~`'consulta_codigo'`~~ **(Eliminado Julio 2026 — Sprint 7.7: la consulta de código por Registrador NO se registra en bitácora, por decisión del cliente).**
+- **`detalle`**: Texto, Obligatorio. Descripción legible de la acción (ej. "Asignada a Carlos Quispe", "Plazo ampliado 15 días (ampliación #1)"). **Texto libre → MAYÚSCULAS** (Sprint 7.5).
 - **`usuario_id`**: Entero, **Llave Foránea** → `usuarios(id)`. Autor de la acción.
 - **`fecha`**: Timestamp, Obligatorio.
 
@@ -390,8 +435,8 @@ A continuación se detalla el diseño propuesto con sus tablas, columnas y relac
 - **`id`**: Entero, Llave Primaria (Autoincremental).
 - **`usuario_id`**: Entero, **Llave Foránea** → `usuarios(id)`. Destinatario de la notificación.
 - **`tipo`**: Texto, Obligatorio. Tipo de evento (ej. `'traspaso'`, `'ampliacion'`, `'denuncia_admitida'`, `'denuncia_rechazada'`, `'plazo_por_vencer'`, `'plazo_vencido'`, `'plazo_informe'`, `'solicitud_vence'`, `'descargo_vence'`, `'sistema'`).
-- **`titulo`**: Texto, Obligatorio (ej. "Caso traspasado", "Plazo total por vencer").
-- **`mensaje`**: Texto, Obligatorio (ej. "DEN-2026-0006 fue asignado a Luis Mamani").
+- **`titulo`**: Texto, Obligatorio (ej. "Caso traspasado", "Plazo total por vencer"). **Texto libre → MAYÚSCULAS** (Sprint 7.5).
+- **`mensaje`**: Texto, Obligatorio (ej. "DEN-2026-0006 fue asignado a Luis Mamani"). **Texto libre → MAYÚSCULAS** (Sprint 7.5).
 - **`ticket`**: Texto, Nullable. Ticket de la denuncia relacionada (para navegación directa).
 - **`destino_url`**: Texto, Obligatorio. URL de destino al hacer clic en la notificación.
 - **`icono`**: Texto, por defecto `'Bell'`. Nombre del icono Lucide React a mostrar.
@@ -407,8 +452,22 @@ A continuación se detalla el diseño propuesto con sus tablas, columnas y relac
 
 - **`id`**: Entero, Llave Primaria (Autoincremental).
 - **`fecha`**: Fecha, Única, Obligatorio.
-- **`nombre`**: Texto, Obligatorio (ej. "Día del Estado Plurinacional", "Año Nuevo Aymara").
+- **`nombre`**: Texto, Obligatorio (ej. "Día del Estado Plurinacional", "Año Nuevo Aymara"). **Texto libre → MAYÚSCULAS** (Sprint 7.5).
 - **`recurrente`**: Booleano, por defecto `false`. Si se repite cada año (solo se guarda día y mes).
+
+---
+
+### 27. Tabla: `configuracion_sistema` (NUEVA — Sprint 23, diferido)
+*Configuración general del sistema. Inicialmente solo para configurar el número de inicio de tickets por año (continuación de casos legacy).*
+
+- **`id`**: Entero, Llave Primaria (Autoincremental).
+- **`clave`**: Texto, Único, Obligatorio (ej. `'siguiente_numero_ticket'`, `'anio_vigente'`).
+- **`valor`**: Texto, Obligatorio.
+- **`descripcion`**: Texto, Nullable. Descripción del parámetro. **Texto libre → MAYÚSCULAS** (Sprint 7.5).
+- **`actualizado_por_id`**: Entero, **Llave Foránea** → `usuarios(id)`, Nullable.
+- **`actualizado_at`**: Timestamp, Nullable.
+
+> **Nota Sprint 23 (diferido):** La UTLCC tiene actualmente 46 denuncias físicas. El sistema debe permitir configurar que el primer ticket de 2026 sea `DEN-2026-0047` (continuación), no `DEN-2026-0001`. Esto se logra con la clave `siguiente_numero_ticket` en esta tabla. **Solo Jefe puede modificar.**
 
 ---
 
@@ -420,10 +479,12 @@ erDiagram
     usuarios ||--o{ evaluaciones_tecnicas : "evalúa"
     usuarios ||--o{ bitacora : "autor"
     usuarios ||--o{ notificaciones : "destinatario"
+    usuarios ||--o{ denuncias_archivos : "sube archivo"
 
     denuncias ||--|| denunciantes : "tiene"
     denuncias ||--o{ denunciados : "contra"
     denuncias ||--o{ pruebas : "adjunta"
+    denuncias ||--o{ denuncias_archivos : "repositorio unificado"
     denuncias ||--o{ evaluaciones_tecnicas : "recibe evaluación"
     denuncias ||--o{ solicitudes_informacion : "genera"
     denuncias ||--o{ descargos : "genera"
@@ -436,19 +497,25 @@ erDiagram
     solicitudes_informacion }o--|| unidades_externas : "dirigida a"
     solicitudes_informacion ||--o{ solicitudes_archivos : "adjunta"
     solicitudes_informacion ||--o{ solicitudes_ampliaciones : "ampliada"
-    solicitudes_informacion ||--o{ solicitudes_ediciones : "editada"
+    solicitudes_informacion ||--|| solicitudes_informacion : "historial_ediciones (JSON)"
 
     descargos }o--|| denunciados : "notifica a"
     descargos ||--o{ descargos_documentos : "adjunta"
     descargos ||--o{ descargos_ampliaciones : "ampliado"
-    descargos ||--o{ descargos_ediciones : "editado"
+    descargos ||--|| descargos : "historial_ediciones (JSON)"
 
     informes_finales ||--o{ informes_archivos : "adjunta"
-    informes_finales ||--o{ informes_ediciones : "editado"
+    informes_finales ||--|| informes_finales : "historial_ediciones (JSON)"
 
     cierres ||--o{ cierres_archivos : "adjunta"
-    cierres ||--o{ cierres_ediciones : "editado"
+    cierres ||--|| cierres : "historial_ediciones (JSON)"
 ```
+
+> 🆕 **Actualizaciones Julio 2026:**
+> - Eliminadas las relaciones con tablas `*_ediciones` (ahora son campos JSON en sus tablas padre).
+> - Nueva relación `denuncias ||--o{ denuncias_archivos` (repositorio unificado, Sprint 7.6).
+> - `usuarios ||--o{ denuncias_archivos` (usuario que subió el archivo).
+> - Las auto-relaciones de cada tabla representan el campo JSON `historial_ediciones`.
 
 ---
 
@@ -463,14 +530,69 @@ La arquitectura actual de `app/Data/` (clases estáticas con sesión) fue diseñ
 | `SolicitudData::getByTicket()`     | `$denuncia->solicitudes()->active()->get()`   |
 | `SesionUsuarioData::getCurrent()`  | `Auth::user()`                          |
 | `session('denuncias_mock')`        | Eloquent ORM / MySQL                    |
+| `session('permisos_demo')`         | (Sprint 15) `Auth::user()->can('x')` + `spatie/laravel-permission` si se requiere granularidad |
+
+### Filosofía "minimizar tablas" (Sprint 14)
+Tablas puramente históricas (sin CRUD, solo información derivada) se fusionan como **campos JSON** en su tabla padre. Esto reduce la BD de 26 a 22 tablas y simplifica queries de lectura.
+
+| Tabla antigua (Fase 0) | Campo nuevo (Fase 1) | Razón |
+|---|---|---|
+| `solicitudes_ediciones` | `solicitudes_informacion.historial_ediciones` (JSON) | Sin CRUD; solo historial |
+| `descargos_ediciones` | `descargos.historial_ediciones` (JSON) | Sin CRUD; solo historial |
+| `informes_ediciones` | `informes_finales.historial_ediciones` (JSON) | Sin CRUD; solo historial |
+| `cierres_ediciones` | `cierres.historial_ediciones` (JSON) | Sin CRUD; solo historial |
+
+**Tipo de dato en MySQL:** `JSON` nativo. Eloquent cast: `protected $casts = ['historial_ediciones' => 'array']`.
+**Portable a Postgres:** cambiar a `JSONB` con índice GIN si en el futuro se requiere búsqueda eficiente dentro del JSON.
+
+> **Trade-off:** las queries de auditoría forense son más lentas que en una tabla relacional normal. Para una BD institucional mediana (cientos a miles de denuncias/año), el impacto es despreciable. Si llegara a ser problema, se puede crear un índice generado en MySQL 8 sobre campos específicos del JSON.
+
+### MAYÚSCULAS en textos libres (Sprint 7.5)
+Todos los campos de texto libre se almacenan en MAYÚSCULAS por convención institucional. Se aplica:
+- **Backend:** `Str::upper()` antes del `save()` mediante el trait `UppercaseText` (Sprint 7.5).
+- **Frontend:** `text-transform: uppercase` en inputs/textareas con CSS, más helper visual "Se guardará en MAYÚSCULAS".
+
+**Campos afectados (lista completa):**
+
+| Tabla | Campo |
+|---|---|
+| `denunciantes` | `nombres`, `ci` |
+| `denunciados` | `nombres`, `dependencia`, `descripcion` |
+| `pruebas` | `descripcion` |
+| `denuncias` | `lugar_hechos`, `hechos`, `justificacion_*`, `resumen_rechazo`, `conciliacion_motivo` |
+| `denuncias_archivos` | `descripcion` |
+| `solicitudes_informacion` | `detalle`, `respuesta`, `motivo_cancelacion` |
+| `solicitudes_ampliaciones` | `justificacion` |
+| `descargos` | `medio`, `resumen_descargo`, `motivo_cancelacion` |
+| `descargos_ampliaciones` | `justificacion` |
+| `ampliaciones_plazo` | `justificacion`, `solicitado_por` |
+| `informes_finales` | `justificacion`, `concluido_por` |
+| `cierres` | `descripcion`, `notificacion_medio`, `notificacion_descripcion`, `no_notificado_motivo`, `concluido_por` |
+| `bitacora` | `detalle` |
+| `evaluaciones_tecnicas` | `texto_evaluacion`, `justificacion_delegacion` |
+| `notificaciones` | `titulo`, `mensaje` |
+| `feriados` | `nombre` |
+| `categorias_denuncia` | `nombre`, `descripcion` |
+| `unidades_externas` | `nombre` |
+| `usuarios` | `nombre` |
+| `configuracion_sistema` | `descripcion` |
+
+**Campos NO afectados (mantienen case original):**
+- `email`, `password`, `ticket` (auto-generado), `token_consulta` (auto-generado)
+- `archivo_nombre`, `archivo_path` (respetar case original del archivo)
+- URLs, paths, códigos de sistema
+- Valores de ENUM (lowercase por convención)
 
 ### Índices recomendados
-- `denuncias`: Índice único en `ticket`. Índice en `estado`. Índice en `tecnico_id`.
+- `denuncias`: Índice único en `ticket`. Índice en `estado`. Índice en `tecnico_id`. Índice en `es_legacy` (Sprint 23).
 - `solicitudes_informacion`: Índice en `denuncia_id`. Índice en `estado`.
 - `descargos`: Índice en `denuncia_id`. Índice en `estado`.
 - `bitacora`: Índice en `denuncia_id`. Índice en `fecha DESC`.
 - `notificaciones`: Índice compuesto en `(usuario_id, leida, fecha DESC)`.
 - `evaluaciones_tecnicas`: Índice en `(denuncia_id, estado)`.
+- `denuncias_archivos`: Índice en `(denuncia_id, eliminado)`. Índice en `contexto`.
+- `feriados`: Índice único en `fecha`. Índice en `recurrente`.
+- `configuracion_sistema`: Índice único en `clave`.
 
 ### Plazos legales (referencia rápida)
 
@@ -484,7 +606,43 @@ La arquitectura actual de `app/Data/` (clases estáticas con sesión) fue diseñ
 | Remisión al Ministerio | 2 días hábiles (si daño ≥ Bs 7M o MAE involucrada) | Art. 21, Art. 15 §I |
 
 ### Pendientes con el cliente (impactan esquema)
-- **C1:** Días hábiles vs calendario → Resuelto: días hábiles (tabla `feriados`).
+- **C1:** Días hábiles vs calendario → ✅ Resuelto (tabla `feriados`).
 - **Archivar:** ¿Subestado de `cerrada` o proceso separado? → Actual: subestado.
 - **C7:** Destino del expediente al remitirse al Ministerio.
 - **C8:** Reglas del plazo al reabrir una denuncia.
+
+### Sprints diferidos (anotaciones)
+- **Sprint 22 (v2):** `acompaniamiento` e `intervencion` se podrían reincorporar al enum `denuncias.tipo` con un simple `ALTER TABLE`.
+- **Sprint 23:** Tabla `configuracion_sistema` con `siguiente_numero_ticket` para continuación de numeración legacy.
+- **Sprint 24 (v2):** Permisos granulares por usuario (no se contempla en Fase 0/1).
+
+---
+
+## 🆕 Resumen de cambios Julio 2026
+
+### Tablas
+- **Nueva:** `denuncias_archivos` (repositorio unificado, Sprint 7.6)
+- **Nueva:** `configuracion_sistema` (Sprint 23, diferido)
+- **Fusionadas a JSON (Sprint 14):** `solicitudes_ediciones`, `descargos_ediciones`, `informes_ediciones`, `cierres_ediciones` → campos `historial_ediciones` JSON en sus tablas padre
+
+### Enums modificados
+- `denuncias.tipo`: ❌ eliminados `acompaniamiento`, `intervencion` (Sprint 22 v2)
+- `descargos.medio`: ❌ eliminados valores del ENUM → ahora texto libre (Sprint 7.5)
+- `bitacora.accion`: ❌ eliminada `consulta_codigo` (Sprint 7.7)
+- `bitacora.accion`: ➕ agregada `conciliacion_fechas` (Sprint 7.5)
+- `denuncias_archivos.contexto`: ➕ nuevo ENUM `'registro' | 'general' | 'informe' | 'cierre'` (Sprint 7.6)
+
+### Campos nuevos
+- `denuncias.sitpreco_rechazo` (Sprint 7.A)
+- `denuncias.conciliado_por_id`, `conciliacion_motivo`, `conciliacion_at`, `fecha_cierre_real` (Sprint 7.5)
+- `denuncias.es_legacy` (Sprint 23, diferido)
+- `solicitudes_informacion.historial_ediciones` JSON (Sprint 14, reemplaza tabla)
+- `descargos.historial_ediciones` JSON (Sprint 14, reemplaza tabla)
+- `descargos.medio`: ENUM → TEXT(200) (Sprint 7.5)
+- `informes_finales.historial_ediciones` JSON (Sprint 14, reemplaza tabla)
+- `cierres.historial_ediciones` JSON (Sprint 14, reemplaza tabla)
+
+### Comportamiento
+- MAYÚSCULAS obligatorias en textos libres (Sprint 7.5)
+- Archivos físicos no se borran en soft delete (Sprint 7.6)
+- Consulta de código no se registra en bitácora (Sprint 7.7)

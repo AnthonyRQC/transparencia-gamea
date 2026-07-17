@@ -19,10 +19,13 @@ Tailwind v3 · shadcn/ui (New York) · Laragon (Windows local)
 **Sprint 5** (Informe Final + Cierre) — Cerrado ✅
 **Sprint 6** (Seguimiento Público) — Cerrado ✅ (Junio 2026)
 **Sprint 6.5** (Simulación Multi-Rol para Demo) — Cerrado ✅ (Julio 2026)
+**Sprint 7** (Evaluación Técnica Previa) — Cerrado ✅ (Julio 2026)
+**Sprint 7.A** (Cierre SITPRECO en rechazo) — Pendiente ⏳
 **Sprint 8** (Ampliaciones Múltiples) — Cerrado ✅ (Julio 2026)
 **Sprint 9** (Notificaciones Push + Historial) — Cerrado ✅ (Julio 2026)
 
-Ver `Sprints Pendientes - Contexto.md` para sprints 7, 10-19.
+Sprints urgentes próximos (pre-cliente): **7.A**, **7.5**, **7.6**, **7.7**.
+Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (7.A, 7.5, 7.6, 7.7, 10–21).
 
 ## Roles (post sesión con cliente, Junio 2026)
 - **Registrador** (antes "Recepcionista")
@@ -30,6 +33,8 @@ Ver `Sprints Pendientes - Contexto.md` para sprints 7, 10-19.
 - **Técnicos**
 
 (Implementación formal de roles será en Sprint 15, una vez la BD esté operativa).
+
+> 🆕 **Importante (Julio 2026):** Aunque los roles aún no están formalizados en BD, el **frontend debe gestionar permisos (no roles)** siguiendo buenas prácticas. El catálogo de permisos y la utilidad `useCan()`/`@can` se introducen en **Sprint 7.5**. Esto desacopla la UI de los nombres de roles y prepara el terreno para Sprint 15.
 
 ## Convenciones de lectura para IAs
 
@@ -50,7 +55,7 @@ Ver `Sprints Pendientes - Contexto.md` para sprints 7, 10-19.
 ## Documentación Esencial (LEER SIEMPRE)
 1. `transparencia-proy/AI-CONTEXT.md` (este archivo) — Snapshot del estado actual
 2. `transparencia-proy/Plan de Desarrollo.md` — Hoja de ruta, sprints, decisiones
-3. `transparencia-proy/Sprints Pendientes - Contexto.md` — Contexto de sprints 7-19 (lazy load)
+3. `transparencia-proy/Sprints Pendientes - Contexto.md` — Contexto de sprints 7.A, 7.5, 7.6, 7.7, 10-21 (lazy load)
 4. `transparencia-proy/RESUMEN LEY 974.md` — Marco legal
 
 ## Documentación de Referencia (LEER SOLO SI NECESARIO)
@@ -73,13 +78,15 @@ Ver `Sprints Pendientes - Contexto.md` para sprints 7, 10-19.
 - Colores institucionales: morado `#690bb2` + gold `#fecd2a` (CSS vars OKLCH)
 - Font: Outfit (sans) + Fira Code (mono)
 - Modo oscuro: clase `.dark` en `<html>`, persistido en localStorage
-- Sin roles en código (Fase 0/Fase 1 mock) — se implementarán formalmente en Sprint 15
+- **MAYÚSCULAS obligatorias en todos los campos de texto libre** (convención institucional). Aplica en frontend con `text-transform: uppercase` en inputs/textareas y en backend con `Str::upper()` antes del `save()`. Ver lista completa en `Sprint 7.5`.
+- **Frontend por permisos, no por roles** (buenas prácticas). El catálogo de permisos y la utilidad `useCan()` se introducen en Sprint 7.5. Los roles formales (BD) llegan en Sprint 15.
 - Rutas via Ziggy `route()`
 - Subdirectorio URL: `/transparencia/public/`
+- **Stack fijo:** MySQL (Laragon), Eloquent con cast JSON. Sin migración a Postgres.
 
 ## Decisiones clave recientes (Junio 2026)
 - **Recepcionista → Registrador** (cambio de nombre en toda la documentación)
-- **SITPRECO solo en informe final** (opcional — código del sistema nacional de Bolivia)
+- **SITPRECO solo en informe final** (opcional — código del sistema nacional de Bolivia). Aplica también opcional al rechazo. NO se pide al admitir (corregido Julio 2026 para evitar burocracia).
 - **Múltiples ampliaciones permitidas** (no solo una)
 - **Traspaso incluye historial completo** del técnico anterior (nada privado)
 - **Reaperturas sin límite** (manejo manual)
@@ -91,6 +98,19 @@ Ver `Sprints Pendientes - Contexto.md` para sprints 7, 10-19.
 - **Reportes:** PDF + Excel + pantalla, con rango de fechas libre
 - **Reportes internos solo para Jefe** (no público)
 
+## Decisiones clave recientes (Julio 2026)
+- **Acompañamiento/Intervención eliminadas del MVP.** Diferidas a **Sprint 22 (v2)**. Se mantienen como apuntes en `Sprints Pendientes - Contexto.md`.
+- **MAYÚSCULAS obligatorias en todos los textos libres** (convención institucional, no configurable).
+- **`descargos.medio` pasa de ENUM a texto libre** (Sprint 7.5). La opción cerrada limitaba la realidad operativa.
+- **Solicitudes con date picker manual** de `fecha_envio` y `fecha_respuesta` (paridad con descargos, Sprint 7.5).
+- **Edición/eliminación libre de la denuncia raíz solo en estado `ingresada`** (Sprint 7.5). Después de admisión, solo acciones formales (traspaso, reapertura, ampliación, conciliación).
+- **Conciliación de fechas por el Jefe** (Sprint 7.5): puede ajustar fechas retroactivas en cualquier estado con justificación, registrado en `bitacora` con acción `conciliacion_fechas`. Notificación visible al técnico.
+- **Consulta de código (ticket + PIN) por Registrador sin bitácora** (Sprint 7.7). Sin restricción, sin log: el responsable de la información es el Registrador.
+- **Repositorio unificado de archivos del caso** (Sprint 7.6): nueva tabla `denuncias_archivos` conviviendo con archivos por fase. Soft delete: archivo "eliminado" desaparece de UI pero archivo físico se preserva.
+- **Hechos del registro:** 5000 → **8000 caracteres** (Sprint 7.5).
+- **Filosofía "minimizar tablas":** en BD real (Sprint 14), las 4 tablas puramente históricas de ediciones se fusionan como **campos JSON** en su tabla padre (`solicitudes_ediciones` → JSON en `solicitudes_informacion`, etc.). Stack fijo: MySQL con `JSON` + Eloquent cast `array`, portable a `JSONB` (Postgres) si en el futuro se requiere.
+- **Frontend por permisos, no por roles.** Catálogo de permisos y utilidad `useCan()` introducidos en Sprint 7.5. Sprint 15 formaliza con BD, Gates y Policies.
+
 ## Notas / Pendientes
 
 > ⏸️ **TODO — Preguntar al cliente:** ¿La funcionalidad de "archivar casos" debe ser
@@ -99,9 +119,13 @@ Ver `Sprints Pendientes - Contexto.md` para sprints 7, 10-19.
 > UX de la vista pública.
 
 > ⏸️ **Otros pendientes con el cliente:**
-> - C1: Días hábiles vs calendario (Sprint 18)
 > - C7: Destino del expediente al remitirse al Ministerio
 > - C8: Reglas del plazo al reabrir una denuncia
+
+> ⏸️ **Funcionalidades diferidas a v2 (no implementar en Fase 1):**
+> - Acompañamiento/Intervención → **Sprint 22**
+> - Permisos personalizados por usuario (granulares) → **Sprint 24**
+> - Migración de casos legacy → **Sprint 23** (detalle cuando se implemente BD)
 
 ## Arquitectura Clave
 - `app/Data/DenunciaData.php` — Mock data estática (sesión, no DB)
@@ -110,7 +134,10 @@ Ver `Sprints Pendientes - Contexto.md` para sprints 7, 10-19.
 - `app/Data/UnidadData.php` — Catálogo de unidades externas (Sprint 4)
 - `app/Data/SesionUsuarioData.php` — 5 usuarios mock con roles (Sprint 6.5)
 - `app/Data/NotificacionData.php` — Notificaciones generadas por derivación (Sprint 9)
-- `app/Http/Controllers/DenunciaController.php` — Create + Store + admitir/rechazar/iniciar + saltarFase + aprobarAmpliacion
+- `app/Data/EvaluacionData.php` — Evaluaciones técnicas previas (Sprint 7)
+- `app/Data/PermisosCatalogo.php` — Catálogo de permisos del sistema (Sprint 7.5)
+- `app/Helpers/UppercaseText.php` — Trait para transformar textos libres a MAYÚSCULAS (Sprint 7.5)
+- `app/Http/Controllers/DenunciaController.php` — Create + Store + admitir/rechazar/iniciar + saltarFase + aprobarAmpliacion + delegarEvaluacion + reasumirEvaluacion + conciliarFechas
 - `app/Http/Controllers/SolicitudController.php` — CRUD Solicitudes (Sprint 4)
 - `app/Http/Controllers/DescargoController.php` — CRUD Descargos (Sprint 4)
 - `app/Http/Controllers/BandejaController.php` — Bandeja de Admisión (Jefe, envia solicitudes/descargos read-only)
@@ -119,19 +146,27 @@ Ver `Sprints Pendientes - Contexto.md` para sprints 7, 10-19.
 - `app/Http/Controllers/SelectorUsuarioController.php` — Cambio de usuario demo (Sprint 6.5)
 - `app/Http/Controllers/NotificacionController.php` — CRUD notificaciones + paginación (Sprint 9)
 - `app/Http/Controllers/DemoNotificacionController.php` — Simulaciones demo de notificaciones (Sprint 9)
+- `app/Http/Controllers/EvaluacionController.php` — Devolver evaluación (Sprint 7)
+- `app/Http/Controllers/ConsultaCasosController.php` — Búsqueda de casos para Registrador (Sprint 7.7)
+- `app/Http/Controllers/ArchivosCasoController.php` — CRUD del repositorio de archivos del caso (Sprint 7.6)
 - `resources/js/Components/Layout/AppLayout.tsx` — Layout root
 - `resources/js/Components/Layout/SelectorUsuarioDemo.tsx` — Dropdown de simulación de usuario (Sprint 6.5)
 - `resources/js/Components/Layout/CampanaNotificaciones.tsx` — Campana con badge + Popover (Sprint 9)
 - `resources/js/Components/Layout/PanelNotificaciones.tsx` — Panel dropdown scrolleable (Sprint 9)
 - `resources/js/Components/Layout/ItemNotificacion.tsx` — Item individual con icono, timestamp, color (Sprint 9)
-- `resources/js/Components/Denuncias/` — Componentes de denuncias (Card, Sheet, Badges, Modales, AsignacionModal, TraspasoModal, ReabrirModal, TecnicoCargaCard, TabSolicitudes, TabDescargos, SolicitudCard, DescargoCard, PlazoProgress, ArchivoAdjunto, SaltarFaseButton, modales solicitud/descargo, SolicitudDetailModal, DescargoDetailModal, ModalCancelarSolicitud, ModalNuevoDescargo, ModalConfirmarEliminar, ClasificacionBadge, FormInformeFinal, FormCierre, TabInformeCierre, InformeDetailModal, ModalAmpliacionPlazo)
+- `resources/js/permissions.ts` — Catálogo de permisos TypeScript + tipos (Sprint 7.5)
+- `resources/js/hooks/useCan.ts` — Hook React para chequeo de permisos (Sprint 7.5)
+- `resources/js/Components/Can.tsx` — Componente para render condicional por permiso (Sprint 7.5)
+- `resources/js/Components/Denuncias/` — Componentes de denuncias (Card, Sheet, Badges, Modales, AsignacionModal, TraspasoModal, ReabrirModal, TecnicoCargaCard, TabSolicitudes, TabDescargos, SolicitudCard, DescargoCard, PlazoProgress, ArchivoAdjunto, SaltarFaseButton, modales solicitud/descargo, SolicitudDetailModal, DescargoDetailModal, ModalCancelarSolicitud, ModalNuevoDescargo, ModalConfirmarEliminar, ClasificacionBadge, FormInformeFinal, FormCierre, TabInformeCierre, InformeDetailModal, ModalAmpliacionPlazo, ModalDelegarEvaluacion, ModalDevolverEvaluacion, TabEvaluacionPrevia, ModalEditarDenuncia, ModalConciliarFechas, ModalArchivosDelCaso)
 - `resources/js/Pages/Denuncias/RegistroDenuncia.tsx` — Formulario de registro
 - `resources/js/Pages/Denuncias/Bandeja.tsx` — Bandeja del Jefe (5 tabs: Por admitir, Por asignar, En curso, Historial, Visión general)
 - `resources/js/Pages/Denuncias/MisCasos.tsx` — Mis Casos del Técnico (4 tabs)
 - `resources/js/Pages/Denuncias/MiResumen.tsx` — Resumen del Técnico (4 cards)
+- `resources/js/Pages/Denuncias/Evaluaciones.tsx` — Bandeja de evaluaciones delegadas para el técnico (Sprint 7)
+- `resources/js/Pages/Denuncias/ConsultarCasos.tsx` — Búsqueda y consulta de casos para Registrador (Sprint 7.7)
 - `resources/js/Pages/Notificaciones/Index.tsx` — Página completa de notificaciones con filtros + paginación (Sprint 9)
 - `resources/js/Components/Publico/` — Componentes públicos de seguimiento (BuscadorTicket, StepperProgreso, ResultadoSeguimiento, EstadoVacio, EstadoNoEncontrado, EsqueletoBusqueda) (Sprint 6)
-- `resources/js/Components/ui/` — shadcn components (tooltip, progress, scroll-area, popover, separator agregados)
+- `resources/js/Components/ui/` — shadcn components (tooltip, progress, scroll-area, popover, separator, table agregados)
 
 ## Comandos
 - `npm run dev` / `npm run build` — Vite
@@ -139,9 +174,15 @@ Ver `Sprints Pendientes - Contexto.md` para sprints 7, 10-19.
 - `php artisan migrate:fresh --seed` — Reset DB
 
 ## Próximo Sprint
-**Sprint 7 — Evaluación Técnica Previa** (NUEVO)
-- Flujo: Recepción → Jefe delega (opcional) → Técnico evalúa → Devuelve → Jefe admite/rechaza
-- SITPRECO solo en informe final (no en admisión ni en cierre)
-- Plazo de 5 días no se pausa durante evaluación
+**Sprint 7.A — Cierre SITPRECO Sprint 7** (urgente, pre-cliente)
+- Agregar input SITPRECO **opcional** en `ModalRechazo.tsx`
+- Backend `DenunciaController@rechazar` y `DenunciaData::rechazar` aceptan `sitpreco_rechazo`
+- Eliminar toda referencia a "SITPRECO obligatorio al admitir" y "SITPRECO heredado en cierre"
+- Ver `Sprint 7.A - Cierre SITPRECO Sprint 7.md`
 
-Ver detalle en `Sprints Pendientes - Contexto.md` y `Sprint 7 - Evaluación Técnica Previa.md`.
+Tras cerrar 7.A, el orden de sprints urgentes pre-cliente es:
+1. **Sprint 7.5** — Ajustes UX Urgentes (CRUD, MAYÚSCULAS, medio libre, solicitud calendario, eliminar acomp/intervención, hechos 8000, **catálogo de permisos**)
+2. **Sprint 7.6** — Repositorio de Archivos del Caso
+3. **Sprint 7.7** — Búsqueda y Consulta para Registrador
+
+Ver detalle en `Sprints Pendientes - Contexto.md`.

@@ -1,9 +1,11 @@
 #transparencia
-# Sprint 7 — Evaluación Técnica Previa ✅ PLANIFICADO (Junio 2026)
+# Sprint 7 — Evaluación Técnica Previa ✅ CERRADO (Julio 2026)
 
-**Objetivo:** Permitir al Jefe de Unidad delegar la evaluación de una denuncia a un técnico antes de admitirla o rechazarla. El técnico evalúa y devuelve la denuncia con su evaluación resumida. Cuando el Jefe recibe la evaluación, decide si admite (con SITPRECO obligatorio) o rechaza (SITPRECO opcional).
+**Objetivo:** Permitir al Jefe de Unidad delegar la evaluación de una denuncia a un técnico antes de admitirla o rechazarla. El técnico evalúa y devuelve la denuncia con su evaluación resumida. El Jefe decide entonces si admite o rechaza.
 
-**Origen:** Respuesta del cliente #1 (SITPRECO + nuevo flujo de evaluación), Junio 2026.
+**Origen:** Respuesta del cliente #1 (delegación de evaluación), Junio 2026.
+
+> 🆕 **Actualización Julio 2026:** Sprint 7 cerrado a nivel de núcleo funcional. El bloque SITPRECO fue **diferido al Sprint 7.A** con un nuevo lineamiento (SITPRECO solo en informe final + opcional en rechazo; NO se pide al admitir). Ver `Sprint 7.A - Cierre SITPRECO Sprint 7.md` para los ajustes finos.
 
 ---
 
@@ -133,20 +135,32 @@ Nuevo sub-estado `evaluacion_tecnica` entre `ingresada` y `admitida/rechazada`. 
 
 ## 5. Decisiones del Sprint
 
-| # | Decisión | Alternativa descartada | Motivo |
-|---|----------|------------------------|--------|
-| 1 | Sub-estado `evaluacion_tecnica` (no estado separado) | Crear un estado nuevo completo | Es una fase corta, no merece un estado con flujo propio |
-| 2 | Cualquier técnico disponible puede ser delegado | Solo técnicos "senior" / con experiencia | El cliente no impuso restricciones |
-| 3 | El Jefe puede evaluar sin delegar | Hacer siempre la evaluación técnicamente | El Jefe tiene la opción; a veces no necesita delegado |
-| 4 | Plazos no se pausan | Pausar mientras técnico evalúa | Ley 974 dice "5 días desde la recepción" sin excepciones |
-| 5 | SITPRECO obligatorio al admitir, opcional al rechazar | Siempre obligatorio o siempre opcional | Refleja el proceso real: rechazar no genera código SITPRECO en todos los casos |
-| 6 | Input SITPRECO sin hint de formato | Mostrar placeholder tipo "XXX-XXXX-XXX-XXXXX" | El cliente aún no confirmó formato definitivo, no quisimos pre-implementar |
-| 7 | SITPRECO se almacena al admitir, no al cierre | Almacenar al cierre (como decía Sprint 5) | Decisión del cliente #1: SITPRECO se obtiene al admitir/rechazar |
-| 8 | Técnico que evalúa puede ser reasignado o no al caso final | Siempre reasignar al que evaluó | El Jefe decide por carga o expertise |
-| 9 | Técnico ve el caso en su `MisCasos` con tab "Evaluaciones delegadas" | Vista separada completa | Mantener un solo lugar de trabajo por usuario |
-| 10 | Evaluación tiene recomendación (Admitir/Rechazar/Más info) | Texto libre sin recomendación | Facilita la decisión del Jefe, pero no la ata |
-| 11 | Bandeja del Jefe muestra "Esperando evaluación de [Técnico]" en cards delegadas | Ocultar hasta que vuelva | Transparencia del estado para el Jefe |
-| 12 | El `FormCierre` muestra SITPRECO read-only heredado | Pedir SITPRECO de nuevo al cierre | Ya viene de admisión, evitar doble ingreso |
+| # | Decisión | Estado | Motivo |
+|---|----------|--------|--------|
+| 1 | Sub-estado `evaluacion_tecnica` (no estado separado) | ✅ Vigente | Es una fase corta, no merece un estado con flujo propio |
+| 2 | Cualquier técnico disponible puede ser delegado | ✅ Vigente | El cliente no impuso restricciones |
+| 3 | El Jefe puede evaluar sin delegar | ✅ Vigente | El Jefe tiene la opción; a veces no necesita delegado |
+| 4 | Plazos no se pausan | ✅ Vigente | Ley 974 dice "5 días desde la recepción" sin excepciones |
+| 5 | ~~SITPRECO obligatorio al admitir, opcional al rechazar~~ | ❌ **Revocado Julio 2026** | ~~Refleja el proceso real: rechazar no genera código SITPRECO en todos los casos~~ → Ver Sprint 7.A |
+| 6 | ~~Input SITPRECO sin hint de formato~~ | ❌ **Revocado Julio 2026** | Ver Sprint 7.A |
+| 7 | ~~SITPRECO se almacena al admitir, no al cierre~~ | ❌ **Revocado Julio 2026** | Ver Sprint 7.A |
+| 8 | Técnico que evalúa puede ser reasignado o no al caso final | ✅ Vigente | El Jefe decide por carga o expertise |
+| 9 | Técnico ve el caso en su `MisCasos` con tab "Evaluaciones delegadas" | ✅ Vigente | Mantener un solo lugar de trabajo por usuario |
+| 10 | Evaluación tiene recomendación (Admitir/Rechazar) | ✅ Vigente (sin "Más info") | Facilita la decisión del Jefe, pero no la ata |
+| 11 | Bandeja del Jefe muestra "Esperando evaluación de [Técnico]" en cards delegadas | ✅ Vigente | Transparencia del estado para el Jefe |
+| 12 | ~~El `FormCierre` muestra SITPRECO read-only heredado~~ | ❌ **Revocado Julio 2026** | Ver Sprint 7.A |
+
+### 🆕 Nuevo lineamiento SITPRECO (Julio 2026)
+
+**Decisión revisada con el cliente:** el SITPRECO es un código del sistema externo SITPRECO que puede tardar. Pedirlo al admitir genera burocracia innecesaria.
+
+**Comportamiento definitivo (aplicado en Sprint 7.A):**
+- **Admisión:** NO se pide SITPRECO. `ModalAdmision` queda como está.
+- **Rechazo:** SITPRECO opcional. `ModalRechazo` agrega un input opcional (sin required, sin hint, max 50).
+- **Cierre:** NO hereda SITPRECO de admisión (porque no se pidió). `FormCierre` queda como está (usa su propio `cierre_sitpreco` si existe, en el `informe_final`).
+- **Informe final:** SITPRECO se mantiene (ya estaba en `FormInformeFinal` desde Sprint 5). Es la única instancia formal del código.
+
+**Ver detalle de los cambios finos:** `Sprint 7.A - Cierre SITPRECO Sprint 7.md`.
 
 ---
 
@@ -222,7 +236,7 @@ Nuevo sub-estado `evaluacion_tecnica` entre `ingresada` y `admitida/rechazada`. 
 
 ---
 
-## 8. Pruebas manuales sugeridas
+## 8. Pruebas manuales sugeridas (actualizadas Julio 2026)
 
 | Caso | Pasos | Resultado esperado |
 |------|-------|---------------------|
@@ -230,17 +244,19 @@ Nuevo sub-estado `evaluacion_tecnica` entre `ingresada` y `admitida/rechazada`. 
 | 2. Técnico ve delegación | Login como técnico delegado → MisCasos → Tab "Evaluaciones delegadas" | Ve la denuncia con botón "Evaluar y devolver" |
 | 3. Devolver evaluación | Click "Evaluar y devolver" → Llenar textarea + recomendación → "Devolver" | Desaparece del tab "Evaluaciones delegadas", aparece en "Evaluaciones devueltas" (historial) |
 | 4. Jefe ve recomendación | Bandeja → Por admitir → Card ahora muestra banner "Evaluación devuelta por [Técnico]. Recomendación: Admitir" | Jefe puede decidir con más información |
-| 5. Admitir con SITPRECO | Click "Admitir" → Aparece input SITPRECO obligatorio → Llenar → "Admitir" | Denuncia pasa a `admitida`, SITPRECO guardado |
-| 6. Rechazar con SITPRECO opcional | Click "Rechazar" → Aparece input SITPRECO opcional → Dejar vacío → "Rechazar" | Denuncia pasa a `rechazada`, sin SITPRECO |
-| 7. Ver SITPRECO en cierre | Si el caso avanzó a cierre → FormCierre muestra SITPRECO read-only | "SITPRECO registrado en admisión: [valor]" |
+| 5. Admitir (sin SITPRECO) | Click "Admitir" → NO aparece input SITPRECO → Justificación opcional → "Admitir" | Denuncia pasa a `admitida` |
+| 6. ~~Rechazar con SITPRECO opcional~~ | _(cubierto por Sprint 7.A)_ | _(cubierto por Sprint 7.A)_ |
+| 7. ~~Ver SITPRECO en cierre~~ | _(revocado — FormCierre ya no muestra SITPRECO heredado)_ | _(N/A)_ |
 
 ---
 
 ## 9. TODO / Pendientes
 
-> ⏸️ **Pendiente con cliente:** Formato SITPRECO definitivo. Por ahora se mantiene como texto libre sin hint.
+> ⏸️ **Pendiente con cliente:** Formato SITPRECO definitivo. Por ahora se mantiene como texto libre sin hint (solo en rechazo opcional y en informe final).
 
 > ⏸️ **Pendiente con cliente:** Pregunta #5 — ¿Archivar casos debe ser subestado de `cerrada` o estado separado? (no afecta este sprint, pero está en cola).
+
+> ✅ **Resuelto Julio 2026:** Bloque SITPRECO del Sprint 7 diferenciado. Ver `Sprint 7.A - Cierre SITPRECO Sprint 7.md`.
 
 ---
 
@@ -248,7 +264,7 @@ Nuevo sub-estado `evaluacion_tecnica` entre `ingresada` y `admitida/rechazada`. 
 
 - **Mock data:** Se agrega 1-2 denuncias en seed en estado `evaluacion_tecnica` para testing
 - **shadcn:** No se requieren componentes nuevos (se reusan `dialog`, `select`, `textarea`, `button`, `card`, `badge`)
-- **Validación SITPRECO:** `required|string|min:3|max:50` en admisión, sin validación específica en rechazo
+- **Validación SITPRECO (post-Sprint 7.A):** rechazo acepta `nullable|string|max:50`, sin required. Admisión y cierre no piden SITPRECO.
 - **Re-render:** `useRef` en modales, optimistic updates con Inertia
 - **Performance:** Solo cargar técnicos disponibles al abrir el modal (lazy fetch)
 - **Compatibilidad:** Mantener todos los estados existentes (`ingresada`, `admitida`, `rechazada`, etc.)
@@ -259,10 +275,28 @@ Nuevo sub-estado `evaluacion_tecnica` entre `ingresada` y `admitida/rechazada`. 
 ## 11. Cambios en otros archivos .md
 
 - `AI-CONTEXT.md`: ✅ actualizado
-- `Plan de Desarrollo.md`: ✅ actualizado con sprint 7
-- `Sprints Pendientes - Contexto.md`: ✅ creado
-- `Preguntas para el cliente.md`: ✅ actualizado con respuestas
-- `Proyecto - Resumen General del Sistema.md`: ✅ actualizado con P1 y C6 resueltas
+- `Plan de Desarrollo.md`: ✅ actualizado con sprint 7 cerrado
+- `Sprints Pendientes - Contexto.md`: ✅ actualizado (Sprint 7 cerrado, agregado 7.A, 7.5, 7.6, 7.7, 22, 23, 24)
+- `Esquema de Base de Datos.md`: ✅ actualizado (SITPRECO en `denuncias.sitpreco_rechazo`)
+- `Preguntas para el cliente.md`: ⏸️ pendiente actualización
+- `Proyecto - Resumen General del Sistema.md`: ⏸️ pendiente actualización
 
 ---
-*Documento creado: Junio 2026. Pendiente de implementación.*
+
+## 12. Cierre (Julio 2026)
+
+**Estado final:** Sprint 7 **cerrado a nivel de núcleo funcional**. Implementación realizada:
+- ✅ `EvaluacionData.php` y `EvaluacionController.php` con método `devolver`
+- ✅ `DenunciaData` con sub-estado `evaluacion_tecnica`, 7 campos `evaluacion_tecnica_*` y métodos `delegarEvaluacion/devolverEvaluacion/reasumirEvaluacion`
+- ✅ `DenunciaController` con métodos `delegarEvaluacion` y `reasumirEvaluacion`
+- ✅ `ModalDelegarEvaluacion` y `ModalDevolverEvaluacion`
+- ✅ `TabEvaluacionPrevia` en `DenunciaSheet`
+- ✅ `Pages/Denuncias/Evaluaciones.tsx` con tabs "Pendientes" y "Devueltas"
+- ✅ `Bandeja.tsx` con botón "Delegar evaluación", botón "Reasumir", banner "En evaluación por [Técnico]"
+- ✅ `MisCasos.tsx` con tab "Evaluaciones delegadas" + badge
+- ✅ Seed con `DEN-2026-0013` (pendiente de devolución) y `DEN-2026-0014` (devuelta con recomendación)
+
+**Pendiente para Sprint 7.A:** Ajuste del bloque SITPRECO al nuevo lineamiento. Ver `Sprint 7.A - Cierre SITPRECO Sprint 7.md`.
+
+---
+*Documento creado: Junio 2026. Cerrado: Julio 2026. Bloque SITPRECO refinado en Sprint 7.A.*

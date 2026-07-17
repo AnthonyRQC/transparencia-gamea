@@ -1,8 +1,12 @@
 # Sprints Pendientes — Contexto para IA
 
-> **CONVENCIÓN DE LECTURA:** Este archivo contiene el contexto de sprints pendientes (7, 10-19) y cerrados referenciales.
+> **CONVENCIÓN DE LECTURA:** Este archivo contiene el contexto de sprints pendientes (7.A, 7.5, 7.6, 7.7, 10-21) y cerrados referenciales.
 > **Solo leer la sección del sprint en el que se está trabajando actualmente.**
 > No leer las secciones de sprints futuros para evitar cargar contexto innecesario.
+
+**Sprints urgentes próximos (pre-cliente):** 7.A → 7.5 → 7.6 → 7.7.
+**Sprints diferidos a v2:** 22 (Acompañamiento/Intervención), 24 (Permisos Personalizados).
+**Sprint diferido (detalle a definir en Sprint 14):** 23 (Migración Casos Legacy).
 
 ---
 
@@ -79,59 +83,42 @@ Cuando se implementen roles reales (Sprint 15):
 
 ---
 
-## Sprint 7 — Evaluación Técnica Previa
+## Sprint 7 — Evaluación Técnica Previa ✅ CERRADO (Julio 2026)
 
-**Estado:** Pendiente de implementación (próximo sprint activo).
-**Origen:** Respuesta del cliente #1 (SITPRECO + delegación de evaluación).
+**Estado:** Cerrado — núcleo implementado. Bloque SITPRECO diferido a **Sprint 7.A**.
 
 ### Resumen
-El Jefe de Unidad puede **delegar la evaluación de una denuncia** a un técnico antes de admitirla o rechazarla. El técnico evalúa y devuelve la denuncia con su evaluación resumida en un texto. El Jefe decide entonces si admite o rechaza.
+El Jefe de Unidad puede **delegar la evaluación de una denuncia** a un técnico antes de admitirla o rechazarla. El técnico evalúa y devuelve la denuncia con su evaluación resumida. El Jefe decide entonces si admite o rechaza.
 
-### Flujo completo
-1. Recepción (Registrador registra la denuncia)
-2. Estado `ingresada`
-3. Jefe de Unidad evalúa opciones:
-   - **Opción A:** Delegar evaluación a un técnico disponible
-   - **Opción B:** Evaluar él mismo (sin delegar)
-4. Si delegó: estado cambia a `evaluacion_tecnica`
-5. Técnico evalúa y devuelve con texto resumen → estado vuelve a `ingresada` (o queda `evaluacion_devuelta`)
-6. Jefe decide:
-   - **Admitir** → estado `admitida`
-   - **Rechazar** → estado `rechazada`
-7. Si admitió, Jefe asigna al técnico (mismo que evaluó u otro)
+### Implementado
+- `app/Data/EvaluacionData.php` ✅
+- `app/Http/Controllers/EvaluacionController.php` ✅ (solo `devolver`; `delegar` está en `DenunciaController`)
+- `app/Data/DenunciaData.php` ✅ (+sub-estado `evaluacion_tecnica`, +7 campos `evaluacion_tecnica_*`, +métodos `delegarEvaluacion/devolverEvaluacion/reasumirEvaluacion`)
+- `app/Http/Controllers/DenunciaController.php` ✅ (+delegarEvaluacion, +reasumirEvaluacion)
+- `resources/js/Components/Denuncias/ModalDelegarEvaluacion.tsx` ✅
+- `resources/js/Components/Denuncias/ModalDevolverEvaluacion.tsx` ✅
+- `resources/js/Components/Denuncias/TabEvaluacionPrevia.tsx` ✅
+- `resources/js/Pages/Denuncias/Evaluaciones.tsx` ✅
+- `resources/js/Pages/Denuncias/Bandeja.tsx` ✅ (+botón "Delegar evaluación", +botón "Reasumir", +banner "En evaluación por [Técnico]")
+- `resources/js/Pages/Denuncias/MisCasos.tsx` ✅ (+tab "Evaluaciones delegadas")
+- `resources/js/Components/Denuncias/DenunciaSheet.tsx` ✅ (+tab Evaluación Previa, 4to tab)
 
-### Plazos
-- Los 5 días de admisión (Art. 23) **se cuentan desde la recepción**
-- **No se pausan** durante la evaluación del técnico
-- Técnico y Jefe **comparten el mismo plazo** de 5 días
-
-### Decisiones clave
+### Decisiones finales
 - El Jefe **puede elegir** si delega o evalúa él mismo
 - Cualquier técnico disponible puede ser delegado
+- Los 5 días de admisión (Art. 23) **se cuentan desde la recepción** (no se pausan)
 - El técnico que evalúa puede ser reasignado o no al caso final (decisión del Jefe)
-- SITPRECO solo en informe final (no en admisión ni cierre)
-- Sin hint de formato en input SITPRECO (texto libre)
 
-### Archivos a crear
-- `app/Data/EvaluacionData.php`
-- `app/Http/Controllers/EvaluacionController.php`
-- `resources/js/Components/Denuncias/ModalDelegarEvaluacion.tsx`
-- `resources/js/Components/Denuncias/ModalDevolverEvaluacion.tsx`
-- `resources/js/Components/Denuncias/TabEvaluacionPrevia.tsx`
-- `resources/js/Pages/Denuncias/Evaluaciones.tsx`
-
-### Archivos a modificar
-- `app/Data/DenunciaData.php` (nuevo sub-estado `evaluacion_tecnica`, +campos evaluación)
-- `app/Http/Controllers/DenunciaController.php` (+delegarEvaluacion, +devolverEvaluacion)
-- `resources/js/Pages/Denuncias/Bandeja.tsx` (+botón "Delegar evaluación")
-- `resources/js/Pages/Denuncias/MisCasos.tsx` (+tab "Evaluaciones delegadas")
-- `resources/js/Components/Denuncias/DenunciaSheet.tsx` (+tab Evaluación Previa)
-
-### Nota — Julio 2026
-Los plazos de la evaluación técnica (5 días de admisión, Art. 23) se cuentan en **días hábiles** (Lun-Vie, sin Sáb/Dom/feriados). Decisión tomada en reunión Julio 2026.
+### Bloque SITPRECO — Diferido a Sprint 7.A
+Decisión del cliente (Julio 2026): **SITPRECO solo en informe final** (donde ya estaba) y **opcional al rechazar**. NO se pide al admitir (genera burocracia). Por tanto:
+- `ModalAdmision`: NO tendrá input SITPRECO (queda como está)
+- `ModalRechazo`: SÍ tendrá input SITPRECO opcional (nuevo en Sprint 7.A)
+- `FormCierre`: NO muestra SITPRECO heredado (queda como está, usa su propio `cierre_sitpreco` si existe)
 
 ### Detalle completo
 Ver `Sprint 7 - Evaluación Técnica Previa.md`.
+
+---
 
 ---
 
@@ -232,6 +219,232 @@ Sistema de notificaciones push vía **campana superior** en el navbar, con histo
 - Días antes del informe final (default: 3)
 - Días antes de solicitud (default: 2)
 - Días antes de descargo (default: 2)
+
+---
+
+## Sprint 7.A — Cierre SITPRECO Sprint 7 ⏳ URGENTE (Julio 2026)
+
+**Estado:** Pendiente (próximo sprint activo). Urgente pre-cliente.
+**Origen:** Decisión del cliente Julio 2026 — el SITPRECO es código del sistema externo que puede tardar; pedirlo al admitir genera burocracia innecesaria.
+
+### Resumen
+Ajustar el alcance del bloque SITPRECO del Sprint 7 al nuevo lineamiento. Eliminar toda referencia a "SITPRECO obligatorio al admitir" y "SITPRECO heredado en cierre". Agregar SITPRECO opcional en `ModalRechazo`.
+
+### Cambios
+1. **`ModalRechazo.tsx`**: agregar input `sitpreco_rechazo` opcional (sin required, sin hint, max 50).
+2. **`DenunciaController@rechazar`**: aceptar `sitpreco` opcional en validación.
+3. **`DenunciaData::rechazar`**: guardar `sitpreco_rechazo` en la denuncia.
+4. **NO tocar** `ModalAdmision.tsx` (queda como está, sin SITPRECO).
+5. **NO tocar** `FormCierre.tsx` (queda como está, sin SITPRECO heredado).
+
+### Archivos a modificar
+- `resources/js/Components/Denuncias/ModalRechazo.tsx` (+input SITPRECO opcional)
+- `app/Http/Controllers/DenunciaController.php` (`rechazar()` acepta `sitpreco` opcional)
+- `app/Data/DenunciaData.php` (`rechazar()` guarda `sitpreco_rechazo`)
+
+### Estimación
+1-2 días. Cambios pequeños, sin impacto en otros sprints.
+
+### Detalle completo
+Ver `Sprint 7.A - Cierre SITPRECO Sprint 7.md`.
+
+---
+
+## Sprint 7.5 — Ajustes UX Urgentes pre-cliente ⏳ URGENTE (Julio 2026)
+
+**Estado:** Pendiente. Urgente pre-cliente.
+**Origen:** Múltiples pedidos del cliente en reunión Julio 2026.
+
+### Resumen
+Sprint grande que agrupa 6 bloques de ajustes UX urgentes + 1 refactor arquitectónico (catálogo de permisos).
+
+### Bloques
+
+#### 1. Catálogo de permisos (refactor arquitectónico)
+- `app/Data/PermisosCatalogo.php` (nuevo) — array PHP con todos los permisos
+- `resources/js/permissions.ts` (nuevo) — espejo en TypeScript con tipos
+- `resources/js/hooks/useCan.ts` (nuevo) — hook React
+- `resources/js/Components/Can.tsx` (nuevo) — componente render condicional
+- Mapeo `rol → permisos[]` en `SesionUsuarioData`
+- Compartir permisos via Inertia shared data
+- **Refactor de componentes** que hoy chequean por `user.rol` → cambian a `useCan('permiso.x')`
+
+#### 2. MAYÚSCULAS obligatorias en textos libres
+- `app/Helpers/UppercaseText.php` (nuevo) — trait Eloquent
+- Aplicar en `Str::upper()` antes del `save()` en modelos relevantes
+- CSS `text-transform: uppercase` en todos los inputs/textareas de textos libres
+- Helper visual: placeholder "Se guardará en MAYÚSCULAS"
+- **NO aplicar a:** email, ticket, token_consulta, password, URLs, paths, enum values
+
+#### 3. CRUD denuncia raíz (solo en `ingresada`)
+- `ModalEditarDenuncia.tsx` (nuevo) — editar todos los campos editables
+- Acción "Eliminar denuncia" (Jefe/Registrador, solo `ingresada`)
+- `DenunciaController@editar()`, `eliminar()` (nuevos)
+- `DenunciaData::editar()`, `eliminar()` (nuevos)
+- En `Bandeja.tsx` y `MisCasos.tsx`: botones en card de `ingresada`
+
+#### 4. `descargos.medio` libre
+- `ModalNotificarDescargo.tsx`: cambiar Select → Input con placeholder
+- `DescargoData::notificar()`: aceptar texto libre
+- `descargos.medio`: ENUM → TEXT(200)
+- MAYÚSCULAS aplica
+
+#### 5. Solicitud con date picker manual
+- `ModalNuevaSolicitud.tsx`: agregar `<input type="date">` para `fecha_envio` (default hoy, max hoy, min -90 días)
+- `ModalResponderSolicitud.tsx`: agregar date picker para `fecha_respuesta`
+- `SolicitudData::add()`: aceptar `fecha_envio` opcional (default = hoy)
+- `SolicitudData::responder()`: aceptar `fecha_respuesta` opcional
+- Paridad con `ModalNotificarDescargo`
+
+#### 6. Eliminar acomp/intervención
+- `RegistroDenuncia.tsx`: dropdown de tipo solo con 2 opciones (corrupción, negación)
+- Eliminar `FormularioAcompaniamiento.tsx` y `FormularioIntervencion.tsx`
+- BD (Sprint 14): enum `denuncias.tipo` solo con `corrupcion`, `negacion`
+- Sprint 22 los retoma en v2
+
+#### 7. Hechos 5000 → 8000 chars
+- `DenunciaController@store`: `max:5000` → `max:8000`
+- `RegistroDenuncia.tsx`: actualizar contador
+- `denuncias.hechos` (BD Sprint 14): TEXT, documentar max 8000
+
+### Archivos nuevos
+- `app/Data/PermisosCatalogo.php`
+- `app/Helpers/UppercaseText.php`
+- `resources/js/permissions.ts`
+- `resources/js/hooks/useCan.ts`
+- `resources/js/Components/Can.tsx`
+- `resources/js/Components/Denuncias/ModalEditarDenuncia.tsx`
+- `resources/js/Components/Denuncias/ModalConciliarFechas.tsx`
+
+### Archivos a modificar
+- `app/Http/Controllers/DenunciaController.php` (+editar, +eliminar, +conciliarFechas, modificar `rechazar`, modificar `store`)
+- `app/Data/DenunciaData.php` (+editar, +eliminar, +conciliarFechas, modificar `rechazar`)
+- `app/Data/SesionUsuarioData.php` (+permisos[] por usuario)
+- `app/Http/Middleware/HandleInertiaRequests.php` (compartir permisos)
+- `resources/js/Components/Layout/Sidebar.tsx` (refactor: chequeo por permisos)
+- `resources/js/Components/Layout/Header.tsx` (refactor: chequeo por permisos)
+- `resources/js/Components/Layout/SelectorUsuarioDemo.tsx` (mostrar permisos al hover)
+- `resources/js/Pages/Denuncias/RegistroDenuncia.tsx` (quitar acomp/intervención, 8000 chars)
+- `resources/js/Pages/Denuncias/Bandeja.tsx` (+botones editar/eliminar/conciliar en `ingresada`)
+- `resources/js/Pages/Denuncias/MisCasos.tsx` (+botón editar en `ingresada`)
+- `resources/js/Components/Denuncias/ModalRechazo.tsx` (Sprint 7.A — SITPRECO opcional)
+- `resources/js/Components/Denuncias/ModalNotificarDescargo.tsx` (medio libre)
+- `resources/js/Components/Denuncias/ModalNuevaSolicitud.tsx` (+date picker `fecha_envio`)
+- `resources/js/Components/Denuncias/ModalResponderSolicitud.tsx` (+date picker `fecha_respuesta`)
+- `resources/js/Components/Denuncias/FormularioAcompaniamiento.tsx` (ELIMINAR)
+- `resources/js/Components/Denuncias/FormularioIntervencion.tsx` (ELIMINAR)
+- `app/Http/Controllers/SolicitudController.php` (modificar `store`, `responder`)
+- `app/Data/SolicitudData.php` (modificar `add`, `responder`)
+- `app/Http/Controllers/DescargoController.php` (modificar `notificar`)
+- `app/Data/DescargoData.php` (modificar `notificar`)
+
+### shadcn a instalar
+- `dropdown-menu` (para `useCan` en componentes)
+
+### Estimación
+3-4 días.
+
+### Detalle completo
+Ver `Sprint 7.5 - Ajustes UX Urgentes pre-cliente.md`.
+
+---
+
+## Sprint 7.6 — Repositorio de Archivos del Caso ⏳ URGENTE (Julio 2026)
+
+**Estado:** Pendiente. Urgente pre-cliente.
+**Origen:** Decisión del cliente Julio 2026 — evitar pedir archivos en cada paso del flujo de investigación; preferir subida al final consolidada con listado para evitar duplicidades.
+
+### Resumen
+Crear un **repositorio unificado de archivos por denuncia** que convive con los archivos específicos por fase. Los archivos se suben en cualquier momento del caso (no solo al final), pero la UI fomenta la subida al final mostrando un listado consolidado.
+
+### Comportamiento
+- Nueva sección "Archivos del caso" en el `DenunciaSheet`
+- Lista todos los archivos subidos al caso (independiente de la fase)
+- Permite subir nuevos archivos en cualquier momento
+- Permite eliminar archivos (soft delete — UI los oculta, archivo físico se preserva)
+- El bloque "Archivos subidos en la denuncia" original (`pruebas`) se mantiene intacto
+
+### Convivencia
+- `solicitudes_archivos`, `descargos_documentos`, `informes_archivos`, `cierres_archivos` se mantienen (adjuntos formales por fase)
+- `denuncias_archivos` (nuevo, Sprint 14) será el repositorio libre
+- En Fase 0 (mock), conviven en `app/Data/ArchivoData.php` (nuevo) con clave de sesión `archivos_mock`
+
+### Archivos a crear
+- `app/Data/ArchivoData.php` (mock, sesión `archivos_mock`)
+- `app/Http/Controllers/ArchivosCasoController.php` (CRUD con soft delete)
+- `resources/js/Components/Denuncias/ModalArchivosDelCaso.tsx` (subir/listar/eliminar)
+- `resources/js/Components/Denuncias/TablaArchivosCaso.tsx` (lista con buscador)
+
+### Archivos a modificar
+- `resources/js/Components/Denuncias/DenunciaSheet.tsx` (+sección "Archivos del caso")
+- `resources/js/Pages/Denuncias/Bandeja.tsx` (sin cambios visibles, hereda Sheet)
+- `resources/js/Pages/Denuncias/MisCasos.tsx` (sin cambios visibles, hereda Sheet)
+
+### BD (Sprint 14)
+- Nueva tabla `denuncias_archivos` con campos: `id`, `denuncia_id`, `usuario_id`, `nombre`, `path`, `tamano`, `mime_type`, `descripcion` (MAYÚSCULAS), `contexto` (ENUM: 'registro'|'general'|'informe'|'cierre'), `contexto_id` (nullable), `eliminado`, `fecha_eliminacion`, `fecha_subida`
+
+### Comportamiento del soft delete
+- Botón "Eliminar archivo" en UI → `eliminado: true`
+- Archivo "eliminado" desaparece de la tabla
+- **Archivo físico se preserva en disco** (no se borra) — solo se mueve a `archivos_eliminados/` con timestamp para liberar espacio visual
+- DB mantiene el registro con `eliminado: true` para auditoría forense
+
+### Estimación
+2-3 días.
+
+### Detalle completo
+Ver `Sprint 7.6 - Repositorio de Archivos del Caso.md`.
+
+---
+
+## Sprint 7.7 — Búsqueda y Consulta para Registrador ⏳ URGENTE (Julio 2026)
+
+**Estado:** Pendiente. Urgente pre-cliente.
+**Origen:** Pedido del cliente Julio 2026 — los denunciantes vienen presencialmente a preguntar el estado de su caso y a veces olvidan el código. El Registrador necesita ver y consultar.
+
+### Resumen
+Nueva página `/denuncias/consultar` solo accesible para rol Registrador. Permite buscar casos con 7 filtros esenciales, ver el detalle (read-only) y consultar el código (ticket + PIN) cuando un denunciante lo solicita presencialmente.
+
+### Filtros esenciales (7)
+1. **Búsqueda por texto libre** — busca en: ticket, descripción `hechos`, nombres denunciante, nombres denunciados, dependencia denunciado, resumen rechazo
+2. **Ticket exacto** — campo dedicado
+3. **Estado** — multi-select: ingresada, evaluacion_tecnica, admitida, rechazada, asignada, investigacion, informe, cerrada
+4. **Tipo** — corrupcion, negacion
+5. **Escenario** — revelada, anonimo, reservada
+6. **Rango fechas de ingreso** — desde / hasta
+7. **Técnico asignado** — select con técnicos activos
+
+### Columnas de la tabla
+- Ticket | Tipo | Estado | Fecha ingreso | Denunciante (masked si reservada/anonimo) | Denunciado(s) resumido | Técnico | Plazo restante | Acciones
+
+### Acciones por fila
+- **Ver detalle** (read-only) — abre DenunciaSheet en modo consulta
+- **Consultar código** — modal con ticket + PIN + botón "Copiar"
+- **Copiar al portapapeles** (botón auxiliar)
+
+### Auditoría — IMPORTANTE
+**NO se registra en bitácora** la consulta de código. Decisión del cliente (Julio 2026): "el Registrador es responsable de la información que consulta, puede consultar cuanto quiera". No hay restricción ni log visible.
+
+### Archivos a crear
+- `app/Http/Controllers/ConsultaCasosController.php` (`index()` con filtros, `consultarCodigo()`)
+- `resources/js/Pages/Denuncias/ConsultarCasos.tsx` (página principal con tabla + filtros)
+- `resources/js/Components/Denuncias/TablaResultadosConsulta.tsx` (tabla shadcn)
+- `resources/js/Components/Denuncias/ModalConsultarCodigo.tsx` (modal con ticket + PIN + botón copiar)
+- `resources/js/Components/Denuncias/FiltrosConsulta.tsx` (panel de 7 filtros)
+
+### Archivos a modificar
+- `resources/js/Components/Layout/Sidebar.tsx` (+item "Consultar casos" solo para Registrador)
+- `resources/js/Components/Layout/AppLayout.tsx` (ruta `/denuncias/consultar`)
+- `routes/web.php` (+ruta `GET /denuncias/consultar` con middleware de rol)
+
+### shadcn a instalar
+- `table`
+
+### Estimación
+2-3 días.
+
+### Detalle completo
+Ver `Sprint 7.7 - Búsqueda y Consulta para Registrador.md`.
 
 ---
 
@@ -689,6 +902,94 @@ No se implementa. Solo se simula una barra de progreso visual + retry animado co
 - Subida WebSocket en tiempo real
 - CDN externo (decisión institucional)
 - Almacenamiento en blockchain
+
+---
+
+## Sprint 22 — Acompañamiento e Intervención (v2) ⏸️ DIFERIDO
+
+**Estado:** ⏸️ **Diferido a v2.** NO se implementa en Fase 0/1.
+
+**Origen:** Decisión del cliente Julio 2026 — estas funcionalidades son extras opcionales, no son núcleo del objetivo del sistema (Ley 974 = denuncias de corrupción y negación de información). Se retomarán en una v2 cuando el MVP esté consolidado.
+
+### Funcionalidades diferidas
+- **Acompañamiento:** formulario propio con campos `nombres`, `ci`, `unidad_involucrada`, `motivo_reclamo`, `resolucion_acuerdo`.
+- **Intervención / Medida Correctiva:** formulario propio con `unidad_observada`, `motivo_patron`, `referencia_nota`, `archivo`.
+
+### Estado actual (Fase 0)
+- El dropdown selector de tipo (`RegistroDenuncia.tsx`) actualmente tiene 2 opciones (corrupción, negación). En v2 se reagregan 2 opciones.
+- Los archivos `FormularioAcompaniamiento.tsx` y `FormularioIntervencion.tsx` se eliminan en Sprint 7.5.
+- El enum `denuncias.tipo` en BD (Sprint 14) actualmente solo tiene `corrupcion`, `negacion`. En v2 se agregan `acompaniamiento`, `intervencion`.
+
+### Cambios en v2 (cuando se reactive)
+- Reactivar las 2 opciones en el dropdown
+- Restaurar `FormularioAcompaniamiento.tsx` y `FormularioIntervencion.tsx` (o reescribir)
+- `ALTER TABLE denuncias MODIFY tipo ENUM('corrupcion', 'negacion', 'acompaniamiento', 'intervencion')`
+- Mantener plazo "sin límite" para estos 2 tipos
+- Sin implicación mayor en otros módulos
+
+### Estimación (referencia v2)
+1-2 días.
+
+### Detalle completo
+Ver `Sprint 22 - Acompañamiento e Intervención v2 (diferido).md`.
+
+---
+
+## Sprint 23 — Migración de Casos Legacy ⏸️ DIFERIDO
+
+**Estado:** ⏸️ **Diferido.** Detalle a definir en Sprint 14 (BD real). Anotación temprana para no perder el requerimiento.
+
+**Origen:** Duda del cliente Julio 2026 — la UTLCC tiene actualmente **46 denuncias físicas** que necesitan migrarse al sistema nuevo. Casos legacy no tendrán historial (bitácora) pero sí opción de digitalizar archivos.
+
+### Funcionalidades planificadas (a detalle en Sprint 14)
+- **Panel administrativo** para configurar número de inicio de tickets por año (ej. "Comenzar DEN-2026 desde 0047", continuando los 46 legacy).
+- **Vista de "Importación legacy"** con carga masiva (CSV/Excel).
+- Cada caso legacy tiene flag `es_legacy: true`, sin historial completo, sin plazos automáticos.
+- Opción de **digitalizar archivos** (subir PDFs escaneados al repositorio).
+- **Numeración:** el sistema respeta el `siguiente_numero` configurado por el Jefe; no se reinicia cada año automáticamente.
+
+### Decisiones pendientes
+- ¿Los legacy mantienen su numeración original o se renumeran?
+- ¿Se importa la fecha original o se usa la fecha de importación?
+- ¿Se permite editar legacy o son read-only?
+
+### Dependencias
+- Sprint 14 (BD) para crear tabla y campo
+- Sprint 10 (Panel Admin) para configurar `siguiente_numero`
+
+### Estimación (referencia)
+2-3 días. A refinar cuando se defina Sprint 14.
+
+### Detalle completo
+Ver `Sprint 23 - Migración de Casos Legacy (diferido).md`.
+
+---
+
+## Sprint 24 — Permisos Personalizados (v2) ⏸️ DIFERIDO
+
+**Estado:** ⏸️ **Diferido a v2.** NO se implementa en Fase 0/1.
+
+**Origen:** Duda del cliente Julio 2026 — ¿se necesita un panel de control para dar distintos tipos de permisos a ciertos usuarios o edición de permisos a roles?
+
+### Decisión tomada (Julio 2026)
+- **Fase 0/1:** 3 roles fijos (Registrador, Jefe, Técnico) con permisos hardcodeados en el catálogo (Sprint 7.5) y formalizados en Sprint 15.
+- **NO se implementa** un panel de control de permisos granulares por usuario.
+- Si en el futuro se requiere granularidad, Sprint 24+ (v2) lo abordará con librería tipo `spatie/laravel-permission`.
+
+### Razón
+Mantener el sistema simple y predecible en la primera versión. La experiencia ha mostrado que la mayoría de usuarios encajan en uno de los 3 roles.
+
+### Cambios en v2 (cuando se reactive)
+- Instalar `spatie/laravel-permission` u otro similar
+- Crear UI de administración de permisos
+- Refactor de `SesionUsuarioData` para cargar permisos por usuario
+- Refactor de todos los chequeos de permisos
+
+### Estimación (referencia v2)
+3-5 días.
+
+### Detalle completo
+Ver `Sprint 24 - Permisos Personalizados v2 (diferido).md`.
 
 ---
 
