@@ -11,6 +11,7 @@ use App\Http\Controllers\SeguimientoController;
 use App\Http\Controllers\NotificacionController;
 use App\Http\Controllers\DemoNotificacionController;
 use App\Http\Controllers\EvaluacionController;
+use App\Http\Controllers\ArchivosCasoController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -98,6 +99,18 @@ Route::prefix('denuncias')->name('denuncias.')->group(function () {
 
     // Sprint 8 — Ampliaciones Múltiples
     Route::post('/{ticket}/ampliar-plazo', [DenunciaController::class, 'aprobarAmpliacion'])->name('ampliar-plazo');
+
+    // Sprint 7.5 — Editar/Eliminar denuncia raíz (solo ingresada)
+    Route::post('/{ticket}/editar', [DenunciaController::class, 'editar'])->name('editar');
+    Route::post('/{ticket}/eliminar', [DenunciaController::class, 'eliminar'])->name('eliminar');
+
+    // Sprint 7.5 — Conciliación de Fechas
+    Route::post('/{ticket}/conciliar-fechas', [DenunciaController::class, 'conciliarFechas'])->name('conciliar-fechas');
+
+    // Sprint 7.6 — Archivos del caso
+    Route::get('/{ticket}/archivos', [ArchivosCasoController::class, 'listar'])->name('archivos.listar');
+    Route::post('/{ticket}/archivos', [ArchivosCasoController::class, 'subir'])->name('archivos.subir');
+    Route::post('/archivos/{id}/eliminar', [ArchivosCasoController::class, 'eliminar'])->name('archivos.eliminar');
 
     // Sprint 4 — Solicitudes
     Route::post('/{ticket}/solicitudes', [SolicitudController::class, 'store'])->name('solicitudes.store');

@@ -449,4 +449,76 @@ class DenunciaController extends Controller
 
         return redirect()->back()->with('success', "Plazo ampliado {$validated['dias']} días correctamente para {$ticket}.");
     }
+
+    public function editar(string $ticket, Request $request)
+    {
+        $denuncia = DenunciaData::find($ticket);
+        if (!$denuncia || $denuncia['estado'] !== 'ingresada') {
+            return redirect()->back()->with('error', 'Solo se puede editar una denuncia en estado Ingresada.');
+        }
+
+        $validated = $request->validate([
+            'escenario' => 'required|in:revelada,reservada,anonimo',
+            'denunciante.nombres' => 'nullable|string|max:100',
+            'denunciante.ci' => 'nullable|digits_between:6,9',
+            'denunciante.email' => 'nullable|email',
+            'denunciante.telefono' => 'nullable|digits:8',
+            'denunciados' => 'required|array|min:1',
+            'denunciados.*.conoce_identidad' => 'required|boolean',
+            'denunciados.*.nombres' => 'nullable|string|max:100',
+            'denunciados.*.dependencia' => 'nullable|string|max:200',
+            'denunciados.*.descripcion' => 'nullable|string',
+            'detalles.categoria' => 'required|string',
+            'detalles.fecha' => 'required|date|before_or_equal:today|after_or_equal:' . now()->subYears(5)->format('Y-m-d'),
+            'detalles.hora' => 'nullable',
+            'detalles.lugar' => 'required|string|max:200',
+            'hechos' => 'required|string|min:10|max:8000',
+            'pruebas' => 'nullable|array',
+        ]);
+
+        DenunciaData::editar($ticket, $validated);
+
+        return redirect()->back()->with('success', "Denuncia {$ticket} actualizada correctamente.");
+    }
+
+    public function eliminar(string $ticket, Request $request)
+    {
+        $denuncia = DenunciaData::find($ticket);
+        if (!$denuncia || $denuncia['estado'] !== 'ingresada') {
+            return redirect()->back()->with('error', 'Solo se puede eliminar una denuncia en estado Ingresada.');
+        }
+
+        DenunciaData::eliminar($ticket);
+
+        return redirect()->back()->with('success', "Denuncia {$ticket} eliminada correctamente.");
+    }
+
+    public function conciliarFechas(string $ticket, Request $request)
+    {
+        $validated = $request->validate([
+            'created_at' => 'nullable|date',
+            'fecha_admitida' => 'nullable|date',
+            'fecha_asignada' => 'nullable|date',
+            'fecha_rechazada' => 'nullable|date',
+            'justificacion' => 'required|string|min:20|max:2000',
+        ]);
+
+        $denuncia = DenunciaData::find($ticket);
+        if (!$denuncia) {
+            return redirect()->back()->with('error', 'Denuncia no encontrada.');
+        }
+
+        DenunciaData::conciliarFechas(
+            $ticket,
+            [
+                'created_at' => $validated['created_at'] ?? null,
+                'fecha_admitida' => $validated['fecha_admitida'] ?? null,
+                'fecha_asignada' => $validated['fecha_asignada'] ?? null,
+                'fecha_rechazada' => $validated['fecha_rechazada'] ?? null,
+            ],
+            $validated['justificacion']
+        );
+
+        return redirect()->back()->with('success', "Fechas conciliadas para {$ticket}.");
+    }
 }

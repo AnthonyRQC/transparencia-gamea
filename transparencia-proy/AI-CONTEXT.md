@@ -110,6 +110,7 @@ Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (7.A, 
 - **Hechos del registro:** 5000 → **8000 caracteres** (Sprint 7.5).
 - **Filosofía "minimizar tablas":** en BD real (Sprint 14), las 4 tablas puramente históricas de ediciones se fusionan como **campos JSON** en su tabla padre (`solicitudes_ediciones` → JSON en `solicitudes_informacion`, etc.). Stack fijo: MySQL con `JSON` + Eloquent cast `array`, portable a `JSONB` (Postgres) si en el futuro se requiere.
 - **Frontend por permisos, no por roles.** Catálogo de permisos y utilidad `useCan()` introducidos en Sprint 7.5. Sprint 15 formaliza con BD, Gates y Policies.
+- **Archivos del caso (Sprint 7.6):** En Fase 0 (mock) Jefe y Técnico ven completo (subir/eliminar). En Sprint 15 se restringirá: **Jefe solo `archivo.ver`** (lectura), **Técnico mantiene `archivo.subir` y `archivo.eliminar`** (CRUD completo). No implementar la restricción antes de Sprint 15 para mantener simplicidad en Fase 0.
 
 ## Notas / Pendientes
 

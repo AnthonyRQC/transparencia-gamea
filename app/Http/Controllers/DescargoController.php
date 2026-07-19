@@ -32,7 +32,7 @@ class DescargoController extends Controller
     {
         $validated = $request->validate([
             'fecha_notificacion' => 'required|date|before_or_equal:today',
-            'medio' => 'required|in:' . implode(',', array_keys(DescargoData::MEDIOS)),
+            'medio' => 'required|string|max:200',
             'plazo_dias' => 'required|integer|min:1|max:365',
         ]);
 

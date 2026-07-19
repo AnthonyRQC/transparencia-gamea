@@ -8,7 +8,7 @@ import TabSolicitudes from './TabSolicitudes';
 import TabDescargos from './TabDescargos';
 import TabInformeCierre from './TabInformeCierre';
 import TabEvaluacionPrevia from './TabEvaluacionPrevia';
-import { CheckCircle2, History, UserPlus, ArrowRightLeft, RotateCcw, XCircle, X as XIcon, FileSearch, UserX, FileText, ScrollText } from 'lucide-react';
+import { CheckCircle2, History, UserPlus, ArrowRightLeft, RotateCcw, XCircle, X as XIcon, FileSearch, UserX, FileText, ScrollText, FolderOpen } from 'lucide-react';
 
 interface PlazoInfo {
   dias_restantes: number;
@@ -152,6 +152,9 @@ interface DenunciaSheetProps {
 
   // Sprint 7 evaluations
   evaluaciones?: any[];
+
+  // Sprint 7.6 — Archivos del caso
+  onAbrirArchivos?: (ticket: string) => void;
 }
 
 const escenarioLabel: Record<string, string> = {
@@ -193,6 +196,7 @@ export default function DenunciaSheet({
   onNotificarDescargo, onResponderDescargo, onAmpliarDescargo, onNuevoDescargo,
   onEditarDescargo, onEliminarDescargo, onCancelarDescargo,
   evaluaciones = [],
+  onAbrirArchivos,
 }: DenunciaSheetProps) {
   if (!denuncia) return null;
 
@@ -305,11 +309,19 @@ export default function DenunciaSheet({
           </div>
         )}
 
-        {children && (
-          <div className="shrink-0 pt-4 border-t border-border flex items-center gap-2 flex-wrap">
-            {children}
-          </div>
-        )}
+        <div className="shrink-0 pt-4 border-t border-border flex items-center gap-2 flex-wrap">
+          {onAbrirArchivos && (
+            <button
+              type="button"
+              onClick={() => onAbrirArchivos(denuncia.ticket)}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-100 text-slate-700 text-xs font-semibold hover:bg-slate-200 transition-colors dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+            >
+              <FolderOpen className="w-3.5 h-3.5" />
+              Archivos del caso
+            </button>
+          )}
+          {children}
+        </div>
       </SheetContent>
     </Sheet>
   );

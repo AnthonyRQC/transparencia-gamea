@@ -24,6 +24,7 @@ import ModalNuevoDescargo from '@/Components/Denuncias/ModalNuevoDescargo';
 import ModalCancelarDescargo from '@/Components/Denuncias/ModalCancelarDescargo';
 import ModalConfirmarEliminar from '@/Components/Denuncias/ModalConfirmarEliminar';
 import ModalAmpliacionPlazo from '@/Components/Denuncias/ModalAmpliacionPlazo';
+import ModalArchivosDelCaso from '@/Components/Denuncias/ModalArchivosDelCaso';
 
 interface PlazoInfo {
   dias_restantes: number;
@@ -147,6 +148,7 @@ export default function MisCasos({ grouped, tecnicoActual, tecnicos, solicitudes
   const [modalCancelarSolId, setModalCancelarSolId] = useState<number | null>(null);
   const [modalCancelarDescId, setModalCancelarDescId] = useState<number | null>(null);
   const [modalNuevoDescTicket, setModalNuevoDescTicket] = useState<string | null>(null);
+  const [modalArchivosTicket, setModalArchivosTicket] = useState<string | null>(null);
   // Sprint 8 — Ampliación de plazo
   const [modalAmpliarPlazoDenuncia, setModalAmpliarPlazoDenuncia] = useState<Denuncia | null>(null);
   // Edit/Delete modals
@@ -415,6 +417,7 @@ export default function MisCasos({ grouped, tecnicoActual, tecnicos, solicitudes
           descargos={descargosByTicket[selectedDenuncia.ticket] || []}
           evaluaciones={evaluacionesByTicket?.[selectedDenuncia.ticket] || []}
           canAct={canAct}
+          onAbrirArchivos={(t) => { setModalArchivosTicket(t); }}
           onNuevaSolicitud={(t) => { setModalNuevaSolTicket(t); }}
           onResponderSolicitud={(id) => { setModalRespondeSolId(id); }}
           onAmpliarSolicitud={(id) => { setModalAmpliaSolId(id); }}
@@ -562,6 +565,11 @@ export default function MisCasos({ grouped, tecnicoActual, tecnicos, solicitudes
         open={modalAmpliarPlazoDenuncia !== null}
         onOpenChange={(v) => { if (!v) setModalAmpliarPlazoDenuncia(null); }}
         tecnicos={tecnicos}
+      />
+      <ModalArchivosDelCaso
+        ticket={modalArchivosTicket}
+        open={modalArchivosTicket !== null}
+        onOpenChange={(v) => { if (!v) setModalArchivosTicket(null); }}
       />
     </AppLayout>
   );

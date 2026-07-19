@@ -15,6 +15,7 @@ class SolicitudController extends Controller
             'unidad_destino' => 'required|string|min:2|max:200',
             'detalle' => 'required|string|min:5|max:2000',
             'plazo_dias' => 'required|integer|min:1|max:45',
+            'fecha_envio' => 'nullable|date|before_or_equal:today',
         ]);
 
         $denuncia = DenunciaData::find($ticket);
@@ -26,7 +27,7 @@ class SolicitudController extends Controller
             return redirect()->back()->with('error', 'No se pueden crear solicitudes en el estado actual de la denuncia.');
         }
 
-        $id = SolicitudData::add($ticket, $validated['unidad_destino'], $validated['detalle'], (int) $validated['plazo_dias']);
+        $id = SolicitudData::add($ticket, $validated['unidad_destino'], $validated['detalle'], (int) $validated['plazo_dias'], $validated['fecha_envio'] ?? null);
 
         DenunciaData::registrarAccion($ticket, 'solicitud_creada', "Solicitud de información enviada a {$validated['unidad_destino']}: {$validated['detalle']}. Plazo: {$validated['plazo_dias']} días.", 'sistema');
 
@@ -37,6 +38,7 @@ class SolicitudController extends Controller
     {
         $validated = $request->validate([
             'respuesta' => 'required|string|min:5|max:5000',
+            'fecha_respuesta' => 'nullable|date|before_or_equal:today',
         ]);
 
         $solicitud = SolicitudData::find($id);
@@ -48,7 +50,7 @@ class SolicitudController extends Controller
             return redirect()->back()->with('error', 'Esta solicitud ya fue respondida.');
         }
 
-        SolicitudData::responder($id, $validated['respuesta']);
+        SolicitudData::responder($id, $validated['respuesta'], [], $validated['fecha_respuesta'] ?? null);
 
         DenunciaData::registrarAccion($solicitud['ticket'], 'solicitud_respondida', "Respuesta recibida de {$solicitud['unidad_destino']}", 'sistema');
 

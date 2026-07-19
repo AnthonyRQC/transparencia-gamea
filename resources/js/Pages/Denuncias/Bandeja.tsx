@@ -5,7 +5,7 @@ import {
   Inbox, CheckCircle2, ClipboardList, Eye, Archive,
   InboxIcon, X, UserPlus, RotateCcw, ArrowRightLeft, Search
 } from 'lucide-react';
-import { FileText, FileSearch, Undo2 } from 'lucide-react';
+import { FileText, FileSearch, Undo2, CalendarArrowUp, Trash2 } from 'lucide-react';
 import { Input } from '@/Components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
 import AppLayout from '@/Components/Layout/AppLayout';
@@ -31,6 +31,9 @@ import ModalCancelarDescargo from '@/Components/Denuncias/ModalCancelarDescargo'
 import ModalConfirmarEliminar from '@/Components/Denuncias/ModalConfirmarEliminar';
 import ModalAmpliacionPlazo from '@/Components/Denuncias/ModalAmpliacionPlazo';
 import ModalDelegarEvaluacion from '@/Components/Denuncias/ModalDelegarEvaluacion';
+import ModalEditarDenuncia from '@/Components/Denuncias/ModalEditarDenuncia';
+import ModalArchivosDelCaso from '@/Components/Denuncias/ModalArchivosDelCaso';
+import ModalConciliarFechas from '@/Components/Denuncias/ModalConciliarFechas';
 import ModalConfirmar from '@/Components/Denuncias/ModalConfirmar';
 
 interface PlazoInfo {
@@ -171,6 +174,13 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
   const [modalReabrirTicket, setModalReabrirTicket] = useState<string | null>(null);
   // Sprint 8 — Ampliación de plazo
   const [modalAmpliarPlazoDenuncia, setModalAmpliarPlazoDenuncia] = useState<Denuncia | null>(null);
+  // Sprint 7.5 — Editar/Eliminar denuncia raíz
+  const [modalEditarDenuncia, setModalEditarDenuncia] = useState<Denuncia | null>(null);
+  const [modalEliminarDenunciaTicket, setModalEliminarDenunciaTicket] = useState<string | null>(null);
+  // Sprint 7.6 — Archivos del caso
+  const [modalArchivosTicket, setModalArchivosTicket] = useState<string | null>(null);
+  // Sprint 7.5 — Conciliación de fechas
+  const [modalConciliarDenuncia, setModalConciliarDenuncia] = useState<Denuncia | null>(null);
   // Sprint 7 modals
   const [modalDelegarEvaluacionTicket, setModalDelegarEvaluacionTicket] = useState<string | null>(null);
   const [modalReasumirEvaluacionTicket, setModalReasumirEvaluacionTicket] = useState<string | null>(null);
@@ -503,6 +513,7 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
           descargos={descargosByTicket[selectedDenuncia.ticket] || []}
           evaluaciones={evaluacionesByTicket?.[selectedDenuncia.ticket] || []}
           canAct={canAct}
+          onAbrirArchivos={(t) => { setModalArchivosTicket(t); }}
           onNuevaSolicitud={(t) => { setModalNuevaSolTicket(t); }}
           onResponderSolicitud={(id) => { setModalRespondeSolId(id); }}
           onAmpliarSolicitud={(id) => { setModalAmpliaSolId(id); }}
@@ -531,6 +542,22 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
         >
           {selectedDenuncia.estado === 'ingresada' && (
             <>
+              <button
+                type="button"
+                onClick={() => { setModalEditarDenuncia(selectedDenuncia); }}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-sky-100 text-sky-800 text-sm font-semibold hover:bg-sky-200 transition-colors dark:bg-sky-900/30 dark:text-sky-300"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+                Editar
+              </button>
+              <button
+                type="button"
+                onClick={() => { setModalEliminarDenunciaTicket(selectedDenuncia.ticket); }}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-rose-100 text-rose-800 text-sm font-semibold hover:bg-rose-200 transition-colors dark:bg-rose-900/30 dark:text-rose-300"
+              >
+                <Trash2 className="w-4 h-4" />
+                Eliminar
+              </button>
               <button
                 type="button"
                 onClick={() => { const t = selectedDenuncia.ticket; setSelectedDenuncia(null); setModalAdmisionTicket(t); }}
@@ -607,6 +634,14 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
               Reabrir denuncia
             </button>
           )}
+          <button
+            type="button"
+            onClick={() => { setModalConciliarDenuncia(selectedDenuncia); }}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-rose-100 text-rose-800 text-sm font-semibold hover:bg-rose-200 transition-colors dark:bg-rose-900/30 dark:text-rose-300"
+          >
+            <CalendarArrowUp className="w-4 h-4" />
+            Conciliar fechas
+          </button>
         </DenunciaSheet>
       )}
 
@@ -728,6 +763,17 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
         onOpenChange={(v) => { if (!v) setModalAmpliarPlazoDenuncia(null); }}
         tecnicos={tecnicos}
       />
+      <ModalArchivosDelCaso
+        ticket={modalArchivosTicket}
+        open={modalArchivosTicket !== null}
+        onOpenChange={(v) => { if (!v) setModalArchivosTicket(null); }}
+      />
+      <ModalConciliarFechas
+        ticket={modalConciliarDenuncia?.ticket ?? null}
+        denuncia={modalConciliarDenuncia}
+        open={modalConciliarDenuncia !== null}
+        onOpenChange={(v) => { if (!v) setModalConciliarDenuncia(null); }}
+      />
       <ModalDelegarEvaluacion
         ticket={modalDelegarEvaluacionTicket}
         open={modalDelegarEvaluacionTicket !== null}
@@ -753,6 +799,33 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
         title="¿Reasumir evaluación?"
         message="El técnico ya no tendrá esta delegación. La denuncia volverá a 'Por admitir'."
         confirmText="Sí, reasumir"
+        cancelText="Cancelar"
+      />
+
+      <ModalEditarDenuncia
+        denuncia={modalEditarDenuncia as any}
+        open={modalEditarDenuncia !== null}
+        onOpenChange={(v) => { if (!v) setModalEditarDenuncia(null); }}
+      />
+
+      <ModalConfirmar
+        isOpen={modalEliminarDenunciaTicket !== null}
+        onClose={() => setModalEliminarDenunciaTicket(null)}
+        onConfirm={() => {
+          if (!modalEliminarDenunciaTicket) return;
+          const ticket = modalEliminarDenunciaTicket;
+          setModalEliminarDenunciaTicket(null);
+          router.post(route('denuncias.eliminar', { ticket }), {}, {
+            preserveScroll: true,
+            onSuccess: () => {
+              toast.success(`Denuncia ${ticket} eliminada`);
+            },
+            onError: () => toast.error('Error al eliminar denuncia'),
+          });
+        }}
+        title="¿Eliminar denuncia?"
+        message="Esta denuncia se ocultará del sistema. Los datos se conservarán para auditoría."
+        confirmText="Sí, eliminar"
         cancelText="Cancelar"
       />
     </AppLayout>

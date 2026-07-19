@@ -3,6 +3,7 @@ import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/Components/ui/dialog';
+import { Input } from '@/Components/ui/input';
 import { Label } from '@/Components/ui/label';
 import { Textarea } from '@/Components/ui/textarea';
 import { Button } from '@/Components/ui/button';
@@ -15,11 +16,13 @@ interface ModalResponderSolicitudProps {
 
 export default function ModalResponderSolicitud({ solicitudId, open, onOpenChange }: ModalResponderSolicitudProps) {
   const [respuesta, setRespuesta] = useState('');
+  const [fechaRespuesta, setFechaRespuesta] = useState(new Date().toISOString().split('T')[0]);
   const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
     if (open) {
       setRespuesta('');
+      setFechaRespuesta(new Date().toISOString().split('T')[0]);
     }
   }, [open]);
 
@@ -30,7 +33,7 @@ export default function ModalResponderSolicitud({ solicitudId, open, onOpenChang
     setProcessing(true);
     router.post(
       route('denuncias.solicitudes.responder', { id: solicitudId }),
-      { respuesta },
+      { respuesta, fecha_respuesta: fechaRespuesta },
       {
         preserveScroll: true,
         onSuccess: () => {
@@ -57,6 +60,20 @@ export default function ModalResponderSolicitud({ solicitudId, open, onOpenChang
         </DialogHeader>
 
         <div className="space-y-4 py-2">
+          <div className="space-y-2">
+            <Label htmlFor="fecha-respuesta-solicitud">
+              Fecha de respuesta
+              <span className="text-[10px] text-muted-foreground ml-1 font-normal">(opcional)</span>
+            </Label>
+            <Input
+              id="fecha-respuesta-solicitud"
+              type="date"
+              value={fechaRespuesta}
+              onChange={(e) => setFechaRespuesta(e.target.value)}
+              max={new Date().toISOString().split('T')[0]}
+            />
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="respuesta-solicitud" className="after:content-['*'] after:text-destructive after:ml-0.5">
               Respuesta recibida

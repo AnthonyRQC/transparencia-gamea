@@ -75,12 +75,13 @@ class SolicitudData
     //  ACCIONES
     // ──────────────────────────────────────────────
 
-    public static function add(string $ticket, string $unidadDestino, string $detalle, int $plazoDias = 10): int
+    public static function add(string $ticket, string $unidadDestino, string $detalle, int $plazoDias = 10, ?string $fechaEnvio = null): int
     {
         $id = self::nextId();
         $now = Carbon::now();
         $plazo = max(1, min(45, $plazoDias));
         $detalle = Str::upper($detalle);
+        $fechaEnvioCarbon = $fechaEnvio ? Carbon::parse($fechaEnvio) : $now;
 
         $solicitud = [
             'id' => $id,
@@ -88,8 +89,8 @@ class SolicitudData
             'unidad_destino' => $unidadDestino,
             'detalle' => $detalle,
             'plazo_dias' => $plazo,
-            'fecha_envio' => $now->toDateTimeString(),
-            'fecha_vencimiento' => DiasHabiles::agregarDiasFin($plazo, $now),
+            'fecha_envio' => $fechaEnvioCarbon->toDateTimeString(),
+            'fecha_vencimiento' => DiasHabiles::agregarDiasFin($plazo, $fechaEnvioCarbon),
             'fecha_respuesta' => null,
             'respuesta' => null,
             'archivos' => [],
@@ -109,7 +110,7 @@ class SolicitudData
         return $id;
     }
 
-    public static function responder(int $id, string $respuesta, array $archivos = []): bool
+    public static function responder(int $id, string $respuesta, array $archivos = [], ?string $fechaRespuesta = null): bool
     {
         $respuesta = Str::upper($respuesta);
         $items = self::getAll();
@@ -117,7 +118,7 @@ class SolicitudData
             if (($s['id'] ?? 0) === $id) {
                 $items[$i]['estado'] = 'respondida';
                 $items[$i]['respuesta'] = $respuesta;
-                $items[$i]['fecha_respuesta'] = Carbon::now()->toDateTimeString();
+                $items[$i]['fecha_respuesta'] = $fechaRespuesta ? Carbon::parse($fechaRespuesta)->toDateTimeString() : Carbon::now()->toDateTimeString();
                 $items[$i]['archivos'] = $archivos;
                 session()->put(self::SESSION_KEY, $items);
                 return true;

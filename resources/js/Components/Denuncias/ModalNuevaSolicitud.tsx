@@ -52,6 +52,7 @@ export default function ModalNuevaSolicitud({ ticket, open, onOpenChange, solici
   const [unidadDestino, setUnidadDestino] = useState('');
   const [unidadLibre, setUnidadLibre] = useState('');
   const [plazoDias, setPlazoDias] = useState(10);
+  const [fechaEnvio, setFechaEnvio] = useState(new Date().toISOString().split('T')[0]);
   const [detalle, setDetalle] = useState('');
   const [processing, setProcessing] = useState(false);
 
@@ -70,6 +71,7 @@ export default function ModalNuevaSolicitud({ ticket, open, onOpenChange, solici
         setUnidadDestino('');
         setUnidadLibre('');
         setPlazoDias(10);
+        setFechaEnvio(new Date().toISOString().split('T')[0]);
         setDetalle('');
       }
     }
@@ -88,6 +90,7 @@ export default function ModalNuevaSolicitud({ ticket, open, onOpenChange, solici
     const payload = {
       unidad_destino: destinoValue,
       plazo_dias: plazoDias,
+      fecha_envio: fechaEnvio,
       detalle,
     };
 
@@ -194,8 +197,22 @@ export default function ModalNuevaSolicitud({ ticket, open, onOpenChange, solici
               onChange={(e) => setPlazoDias(Math.min(45, Math.max(1, parseInt(e.target.value) || 1)))}
             />
             <p className="text-[11px] text-muted-foreground">
-              Plazo legal referencial:               10 días hábiles. Ajuste según urgencia o complejidad (1-45 días hábiles).
+              Plazo legal referencial: 10 días hábiles. Ajuste según urgencia o complejidad (1-45 días hábiles).
             </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="fecha-envio">
+              Fecha de envío
+              <span className="text-[10px] text-muted-foreground ml-1 font-normal">(opcional)</span>
+            </Label>
+            <Input
+              id="fecha-envio"
+              type="date"
+              value={fechaEnvio}
+              onChange={(e) => setFechaEnvio(e.target.value)}
+              max={new Date().toISOString().split('T')[0]}
+            />
           </div>
 
           <div className="space-y-2">

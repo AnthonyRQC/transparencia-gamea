@@ -3,17 +3,10 @@ import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/Components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
 import { Label } from '@/Components/ui/label';
+import { Input } from '@/Components/ui/input';
 import { Button } from '@/Components/ui/button';
 import { Bell } from 'lucide-react';
-
-const MEDIOS: Record<string, string> = {
-  personal: 'Notificación Personal',
-  cedula: 'Cédula de Notificación',
-  email: 'Correo Electrónico',
-  otro: 'Otro Medio',
-};
 
 interface ModalNotificarDescargoProps {
   descargoId: number | null;
@@ -92,16 +85,15 @@ export default function ModalNotificarDescargo({ descargoId, open, onOpenChange 
               <Label htmlFor="medio-notificacion" className="after:content-['*'] after:text-destructive after:ml-0.5">
                 Medio de notificación
               </Label>
-              <Select value={medio} onValueChange={setMedio}>
-                <SelectTrigger id="medio-notificacion">
-                  <SelectValue placeholder="Seleccionar medio..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(MEDIOS).map(([key, label]) => (
-                    <SelectItem key={key} value={key}>{label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Input
+                id="medio-notificacion"
+                placeholder="Ej: PRESENCIAL, WHATSAPP, CÉDULA, CARTA NOTARIADA, ETC."
+                value={medio}
+                onChange={(e) => setMedio(e.target.value)}
+                maxLength={200}
+                style={{ textTransform: 'uppercase' }}
+              />
+              <p className="text-[10px] text-muted-foreground">Se guardará en MAYÚSCULAS</p>
             </div>
             
             <div className="space-y-2">

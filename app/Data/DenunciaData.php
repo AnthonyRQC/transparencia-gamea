@@ -30,19 +30,27 @@ class DenunciaData
         return session()->get(self::SESSION_KEY, []);
     }
 
+    public static function getAllActivos(): array
+    {
+        return array_values(array_filter(
+            session()->get(self::SESSION_KEY, []),
+            fn($d) => empty($d['eliminado'])
+        ));
+    }
+
     public static function getByEstado(string $estado): array
     {
-        return array_values(array_filter(self::getAll(), fn($d) => ($d['estado'] ?? '') === $estado));
+        return array_values(array_filter(self::getAllActivos(), fn($d) => ($d['estado'] ?? '') === $estado));
     }
 
     public static function getByTecnico(string $tecnicoId): array
     {
-        return array_values(array_filter(self::getAll(), fn($d) => ($d['tecnico'] ?? '') === $tecnicoId));
+        return array_values(array_filter(self::getAllActivos(), fn($d) => ($d['tecnico'] ?? '') === $tecnicoId));
     }
 
     public static function find(string $ticket): ?array
     {
-        foreach (self::getAll() as $d) {
+        foreach (self::getAllActivos() as $d) {
             if (($d['ticket'] ?? '') === $ticket) return $d;
         }
         return null;
@@ -141,6 +149,56 @@ class DenunciaData
         return $ticket;
     }
 
+    public static function editar(string $ticket, array $data, string $usuarioId = 'sistema'): bool
+    {
+        $denuncias = self::getAll();
+        foreach ($denuncias as $i => $d) {
+            if (($d['ticket'] ?? '') === $ticket && ($d['estado'] ?? '') === 'ingresada') {
+                $camposEditables = ['escenario', 'denunciante', 'denunciados', 'detalles', 'hechos', 'pruebas'];
+                foreach ($camposEditables as $campo) {
+                    if (array_key_exists($campo, $data)) {
+                        $denuncias[$i][$campo] = $data[$campo];
+                    }
+                }
+                if (isset($denuncias[$i]['hechos'])) {
+                    $denuncias[$i]['hechos'] = Str::upper($denuncias[$i]['hechos']);
+                }
+                if (isset($denuncias[$i]['denunciante']['nombres'])) {
+                    $denuncias[$i]['denunciante']['nombres'] = Str::upper($denuncias[$i]['denunciante']['nombres']);
+                }
+                if (isset($denuncias[$i]['detalles']['lugar'])) {
+                    $denuncias[$i]['detalles']['lugar'] = Str::upper($denuncias[$i]['detalles']['lugar']);
+                }
+                if (isset($denuncias[$i]['denunciados']) && is_array($denuncias[$i]['denunciados'])) {
+                    foreach ($denuncias[$i]['denunciados'] as $k => $dd) {
+                        if (isset($dd['nombres'])) $denuncias[$i]['denunciados'][$k]['nombres'] = Str::upper($dd['nombres']);
+                        if (isset($dd['dependencia'])) $denuncias[$i]['denunciados'][$k]['dependencia'] = Str::upper($dd['dependencia']);
+                        if (isset($dd['descripcion'])) $denuncias[$i]['denunciados'][$k]['descripcion'] = Str::upper($dd['descripcion']);
+                    }
+                }
+                self::addBitacoraEntry($denuncias, $i, 'editada', "Denuncia editada", $usuarioId);
+                session()->put(self::SESSION_KEY, $denuncias);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static function eliminar(string $ticket, string $usuarioId = 'sistema'): bool
+    {
+        $denuncias = self::getAll();
+        foreach ($denuncias as $i => $d) {
+            if (($d['ticket'] ?? '') === $ticket && ($d['estado'] ?? '') === 'ingresada') {
+                $denuncias[$i]['eliminado'] = true;
+                $denuncias[$i]['fecha_eliminacion'] = now()->toDateTimeString();
+                self::addBitacoraEntry($denuncias, $i, 'eliminada', "Denuncia eliminada (soft delete)", $usuarioId);
+                session()->put(self::SESSION_KEY, $denuncias);
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static function generateTicket(): string
     {
         $year = now()->year;
@@ -157,7 +215,7 @@ class DenunciaData
 
     public static function findByTicketAndToken(string $ticket, string $token): ?array
     {
-        foreach (self::getAll() as $d) {
+        foreach (self::getAllActivos() as $d) {
             if (($d['ticket'] ?? '') === $ticket && ($d['token_consulta'] ?? '') === $token) {
                 return $d;
             }
@@ -309,7 +367,7 @@ class DenunciaData
 
     public static function getCargaTecnicos(): array
     {
-        $denuncias = self::getAll();
+        $denuncias = self::getAllActivos();
         $carga = [];
 
         foreach (self::TECNICOS_MOCK as $id => $info) {
@@ -678,7 +736,7 @@ class DenunciaData
             'ingresada' => 0, 'evaluacion_tecnica' => 0, 'admitida' => 0, 'asignada' => 0,
             'investigacion' => 0, 'informe' => 0, 'cerrada' => 0, 'rechazada' => 0,
         ];
-        foreach (self::getAll() as $d) {
+        foreach (self::getAllActivos() as $d) {
             $e = $d['estado'] ?? '';
             if (isset($contadores[$e])) $contadores[$e]++;
         }
@@ -789,6 +847,50 @@ class DenunciaData
             self::addBitacoraEntry($items, $i, 'ampliacion_plazo', "Plazo ampliado {$dias} días (ampliación #{$numAmpliacion}). Justificación: {$justificacion}", 'sistema');
             session()->put(self::SESSION_KEY, $items);
             return $items[$i];
+        }
+        return false;
+    }
+
+    public static function conciliarFechas(string $ticket, array $fechas, string $justificacion, string $usuarioId = 'sistema'): bool
+    {
+        $justificacion = Str::upper($justificacion);
+        $denuncias = self::getAll();
+        $camposFechas = ['created_at', 'fecha_admitida', 'fecha_asignada', 'fecha_rechazada'];
+        $updated = [];
+
+        foreach ($denuncias as $i => $d) {
+            if (($d['ticket'] ?? '') === $ticket) {
+                foreach ($camposFechas as $campo) {
+                    if (array_key_exists($campo, $fechas) && $fechas[$campo] !== null) {
+                        $nuevaFecha = Carbon::parse($fechas[$campo])->toDateTimeString();
+                        $anterior = $denuncias[$i][$campo] ?? null;
+                        $denuncias[$i][$campo] = $nuevaFecha;
+                        $updated[] = "{$campo}: '" . ($anterior ?? '—') . "' → '{$nuevaFecha}'";
+                    }
+                }
+
+                if (!empty($updated)) {
+                    $detalle = "Fechas conciliadas. Justificación: {$justificacion}. Cambios: " . implode('; ', $updated);
+                } else {
+                    $detalle = "Conciliación solicitada sin cambios de fechas. Justificación: {$justificacion}";
+                }
+
+                self::addBitacoraEntry($denuncias, $i, 'conciliacion_fechas', $detalle, $usuarioId);
+                session()->put(self::SESSION_KEY, $denuncias);
+
+                NotificacionData::crearParaUsuario(
+                    tipo: 'conciliacion_fechas',
+                    titulo: 'Fechas conciliadas',
+                    mensaje: "{$ticket} — El Jefe ajustó las fechas del caso",
+                    usuarioId: $denuncias[$i]['tecnico'] ?? 'jefe-1',
+                    ticket: $ticket,
+                    destinoUrl: route('denuncias.bandeja', ['destacar' => $ticket]),
+                    icono: 'CalendarArrowUp',
+                    color: 'warning',
+                );
+
+                return true;
+            }
         }
         return false;
     }

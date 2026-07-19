@@ -87,7 +87,7 @@ class MisCasosController extends Controller
         ));
 
         $denunciasByTicket = [];
-        foreach (DenunciaData::getAll() as $d) {
+        foreach (DenunciaData::getAllActivos() as $d) {
             $denunciasByTicket[$d['ticket']] = array_merge($d, [
                 'plazo' => DenunciaData::getPlazoInfo($d),
             ]);

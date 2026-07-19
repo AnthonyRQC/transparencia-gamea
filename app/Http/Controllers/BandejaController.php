@@ -34,7 +34,7 @@ class BandejaController extends Controller
 
         // Sprint 4 — Solicitudes y Descargos agrupados por ticket
         $allTickets = array_unique(array_merge(
-            array_column(DenunciaData::getAll(), 'ticket')
+            array_column(DenunciaData::getAllActivos(), 'ticket')
         ));
 
         $solicitudesByTicket = [];

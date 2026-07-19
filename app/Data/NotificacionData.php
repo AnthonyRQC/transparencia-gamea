@@ -51,7 +51,7 @@ class NotificacionData
 
         $derivadas = [];
         $now = Carbon::now();
-        $denuncias = DenunciaData::getAll();
+        $denuncias = DenunciaData::getAllActivos();
 
         foreach ($denuncias as $d) {
             $ticket = $d['ticket'] ?? '';
