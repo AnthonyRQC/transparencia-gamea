@@ -12,6 +12,7 @@ import {
     FileSearch,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Permiso } from '@/permissions';
 
 interface MenuItem {
     key: string;
@@ -20,6 +21,7 @@ interface MenuItem {
     routeName: string;
     icon: React.ReactNode;
     badge?: number;
+    permiso?: Permiso;
 }
 
 interface SidebarProps {
@@ -33,11 +35,16 @@ export default function Sidebar({
     isSidebarOpenMobile,
     onCloseSidebarMobile,
 }: SidebarProps) {
-    const sidebarProps = usePage().props as { logo_url?: string; notificaciones?: { no_leidas: number }; currentUser?: { rol: string }; usuarios?: Record<string, any> };
+    const sidebarProps = usePage().props as {
+        logo_url?: string;
+        notificaciones?: { no_leidas: number };
+        currentUser?: { rol: string };
+        usuarios?: Record<string, any>;
+        permisos?: Permiso[];
+    };
     const { logo_url } = sidebarProps;
     const noLeidas = sidebarProps.notificaciones?.no_leidas ?? 0;
-    const currentUser = sidebarProps.currentUser;
-    const rol = currentUser?.rol || 'registrador';
+    const permisos = sidebarProps.permisos ?? [];
 
     const todosLosItems: MenuItem[] = [
         {
@@ -46,6 +53,7 @@ export default function Sidebar({
             href: route('dashboard'),
             routeName: 'dashboard',
             icon: <LayoutDashboard className="w-5 h-5 shrink-0" />,
+            permiso: 'menu.dashboard',
         },
         {
             key: 'nueva-denuncia',
@@ -53,6 +61,7 @@ export default function Sidebar({
             href: route('denuncias.registrar'),
             routeName: 'denuncias.registrar',
             icon: <FilePlus2 className="w-5 h-5 shrink-0" />,
+            permiso: 'menu.registrar-denuncia',
         },
         {
             key: 'bandeja',
@@ -60,6 +69,7 @@ export default function Sidebar({
             href: route('denuncias.bandeja'),
             routeName: 'denuncias.bandeja',
             icon: <KanbanSquare className="w-5 h-5 shrink-0" />,
+            permiso: 'menu.bandeja',
         },
         {
             key: 'mis-casos',
@@ -67,6 +77,7 @@ export default function Sidebar({
             href: route('denuncias.mis-casos'),
             routeName: 'denuncias.mis-casos',
             icon: <ClipboardList className="w-5 h-5 shrink-0" />,
+            permiso: 'menu.mis-casos',
         },
         {
             key: 'mi-resumen',
@@ -74,6 +85,7 @@ export default function Sidebar({
             href: route('denuncias.mi-resumen'),
             routeName: 'denuncias.mi-resumen',
             icon: <BarChart3 className="w-5 h-5 shrink-0" />,
+            permiso: 'menu.mi-resumen',
         },
         {
             key: 'evaluaciones',
@@ -81,6 +93,7 @@ export default function Sidebar({
             href: route('denuncias.evaluaciones'),
             routeName: 'denuncias.evaluaciones',
             icon: <FileSearch className="w-5 h-5 shrink-0" />,
+            permiso: 'menu.evaluaciones',
         },
         {
             key: 'notificaciones',
@@ -89,6 +102,7 @@ export default function Sidebar({
             routeName: 'notificaciones.*',
             icon: <Bell className="w-5 h-5 shrink-0" />,
             badge: noLeidas,
+            permiso: 'menu.notificaciones',
         },
         {
             key: 'reportes',
@@ -96,6 +110,7 @@ export default function Sidebar({
             href: route('reportes.index'),
             routeName: 'reportes.index',
             icon: <BarChart3 className="w-5 h-5 shrink-0" />,
+            permiso: 'menu.reportes',
         },
         {
             key: 'feriados',
@@ -103,17 +118,14 @@ export default function Sidebar({
             href: route('admin.feriados'),
             routeName: 'admin.feriados',
             icon: <CalendarDays className="w-5 h-5 shrink-0" />,
+            permiso: 'menu.feriados',
         },
     ];
 
-    const filterByRol = (item: MenuItem): boolean => {
-        if (rol === 'jefe') return true;
-        if (rol === 'registrador') return ['inicio', 'nueva-denuncia', 'notificaciones'].includes(item.key);
-        if (rol === 'tecnico') return ['inicio', 'mis-casos', 'mi-resumen', 'notificaciones', 'evaluaciones'].includes(item.key);
-        return true;
-    };
-
-    const menuItems = todosLosItems.filter(filterByRol);
+    const menuItems = todosLosItems.filter((item) => {
+        if (!item.permiso) return true;
+        return permisos.includes(item.permiso);
+    });
 
     const isActive = (routeName: string) => {
         if (routeName === 'dashboard') {

@@ -101,10 +101,11 @@ export default function TraspasoModal({ ticket, open, tecnicos, onOpenChange }: 
               onChange={(e) => setJustificacion(e.target.value)}
               rows={3}
               maxLength={2000}
+              style={{ textTransform: 'uppercase' }}
             />
             <div className="flex items-center justify-between">
               <p className="text-[11px] text-muted-foreground">
-                {justificacion.length}/2000 caracteres
+                {justificacion.length}/2000 caracteres · MAYÚSCULAS
               </p>
               {justificacion.length > 0 && justificacion.trim().length < 5 && (
                 <p className="text-[11px] text-destructive font-medium">

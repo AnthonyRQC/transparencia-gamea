@@ -58,9 +58,10 @@ export default function ModalAdmision({ ticket, open, onOpenChange }: ModalAdmis
             onChange={(e) => setJustificacion(e.target.value)}
             rows={3}
             maxLength={500}
+            style={{ textTransform: 'uppercase' }}
           />
           <p className="text-[11px] text-muted-foreground">
-            {justificacion.length}/500 caracteres
+            {justificacion.length}/500 caracteres · Se guardará en MAYÚSCULAS
           </p>
         </div>
         <DialogFooter>

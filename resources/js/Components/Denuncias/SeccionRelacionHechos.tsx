@@ -10,7 +10,7 @@ interface SeccionRelacionHechosProps {
     error?: string;
 }
 
-const MAX_CHARS = 5000;
+const MAX_CHARS = 8000;
 
 export default function SeccionRelacionHechos({ value, onChange, error }: SeccionRelacionHechosProps) {
     const chars = value.length;
@@ -37,6 +37,7 @@ export default function SeccionRelacionHechos({ value, onChange, error }: Seccio
                         'resize-y min-h-[120px]',
                         error && 'border-destructive/50'
                     )}
+                    style={{ textTransform: 'uppercase' }}
                 />
                 <div className="absolute bottom-2 right-3">
                     <span
@@ -53,6 +54,7 @@ export default function SeccionRelacionHechos({ value, onChange, error }: Seccio
                     </div>
                 )}
             </div>
+            <p className="text-[10px] text-muted-foreground">Se guardará en MAYÚSCULAS</p>
         </div>
     );
 }

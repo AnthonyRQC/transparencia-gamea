@@ -346,9 +346,10 @@ function CierreForm({ ticket, cierre, tecnicoNombre, processing, setProcessing, 
                 rows={2}
                 maxLength={2000}
                 placeholder="Ej: Notificado por WhatsApp al 7XXXXXXX..."
+                style={{ textTransform: 'uppercase' }}
               />
               <div className="flex items-center justify-between">
-                <p className="text-[11px] text-muted-foreground">{notificacionDescripcion.length}/2000</p>
+                <p className="text-[11px] text-muted-foreground">{notificacionDescripcion.length}/2000 · MAYÚSCULAS</p>
                 {notificacionDescripcion.length > 0 && notificacionDescripcion.trim().length < 5 && (
                   <p className="text-[11px] text-destructive font-medium">Mínimo 5 caracteres</p>
                 )}
@@ -366,8 +367,9 @@ function CierreForm({ ticket, cierre, tecnicoNombre, processing, setProcessing, 
                 rows={2}
                 maxLength={500}
                 placeholder="Ej: Denunciante anónimo sin datos de contacto..."
+                style={{ textTransform: 'uppercase' }}
               />
-              <p className="text-[11px] text-muted-foreground">{noNotificadoMotivo.length}/500</p>
+              <p className="text-[11px] text-muted-foreground">{noNotificadoMotivo.length}/500 · MAYÚSCULAS</p>
             </div>
           </div>
         )}
@@ -382,6 +384,7 @@ function CierreForm({ ticket, cierre, tecnicoNombre, processing, setProcessing, 
           value={concluidoPor}
           onChange={(e) => setConcluidoPor(e.target.value)}
           placeholder="Nombre del responsable"
+          style={{ textTransform: 'uppercase' }}
         />
       </div>
 
@@ -394,9 +397,10 @@ function CierreForm({ ticket, cierre, tecnicoNombre, processing, setProcessing, 
           rows={4}
           maxLength={5000}
           placeholder="Explique los detalles del cierre del caso..."
+          style={{ textTransform: 'uppercase' }}
         />
         <div className="flex items-center justify-between">
-          <p className="text-[11px] text-muted-foreground">{descripcion.length}/5000</p>
+          <p className="text-[11px] text-muted-foreground">{descripcion.length}/5000 · MAYÚSCULAS</p>
           {descripcion.length > 0 && descripcion.trim().length < 20 && (
             <p className="text-[11px] text-destructive font-medium">Mínimo 20 caracteres</p>
           )}

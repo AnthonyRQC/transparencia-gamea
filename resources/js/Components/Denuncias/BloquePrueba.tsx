@@ -161,6 +161,7 @@ export default function BloquePrueba({ items, onChange, errors }: BloquePruebaPr
                                             value={item.descripcion}
                                             onChange={(e) => updateItem(item.id, { descripcion: e.target.value })}
                                             className={cn(getError(index, 'descripcion') && 'border-destructive/50 pr-8')}
+                                            style={{ textTransform: 'uppercase' }}
                                         />
                                         {getError(index, 'descripcion') && (
                                             <div className="absolute right-2.5 top-1.5">
@@ -221,6 +222,7 @@ export default function BloquePrueba({ items, onChange, errors }: BloquePruebaPr
                                         value={item.descripcion}
                                         onChange={(e) => updateItem(item.id, { descripcion: e.target.value })}
                                         className={cn(getError(index, 'descripcion') && 'border-destructive/50 pr-8')}
+                                        style={{ textTransform: 'uppercase' }}
                                     />
                                     {getError(index, 'descripcion') && (
                                         <div className="absolute right-2.5 top-1.5">
@@ -245,6 +247,7 @@ export default function BloquePrueba({ items, onChange, errors }: BloquePruebaPr
                                             value={item.descripcion}
                                             onChange={(e) => updateItem(item.id, { descripcion: e.target.value })}
                                             className={cn(getError(index, 'descripcion') && 'border-destructive/50 pr-8')}
+                                            style={{ textTransform: 'uppercase' }}
                                         />
                                         {getError(index, 'descripcion') && (
                                             <div className="absolute right-2.5 top-1.5">
@@ -265,6 +268,7 @@ export default function BloquePrueba({ items, onChange, errors }: BloquePruebaPr
                                                 value={item.testigo_nombre}
                                                 onChange={(e) => updateItem(item.id, { testigo_nombre: e.target.value })}
                                                 className={cn(getError(index, 'testigo_nombre') && 'border-destructive/50 pr-8')}
+                                                style={{ textTransform: 'uppercase' }}
                                             />
                                             {getError(index, 'testigo_nombre') && (
                                                 <div className="absolute right-2.5 top-1/2 -translate-y-1/2">

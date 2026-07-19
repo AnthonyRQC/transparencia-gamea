@@ -301,6 +301,7 @@ function InformeForm({ ticket, informe, tecnicoNombre, processing, setProcessing
           value={concluidoPor}
           onChange={(e) => setConcluidoPor(e.target.value)}
           placeholder="Nombre del responsable"
+          style={{ textTransform: 'uppercase' }}
         />
       </div>
 
@@ -329,9 +330,10 @@ function InformeForm({ ticket, informe, tecnicoNombre, processing, setProcessing
           rows={4}
           maxLength={5000}
           placeholder="Explique los fundamentos del informe final..."
+          style={{ textTransform: 'uppercase' }}
         />
         <div className="flex items-center justify-between">
-          <p className="text-[11px] text-muted-foreground">{justificacion.length}/5000</p>
+          <p className="text-[11px] text-muted-foreground">{justificacion.length}/5000 · MAYÚSCULAS</p>
           {justificacion.length > 0 && justificacion.trim().length < 20 && (
             <p className="text-[11px] text-destructive font-medium">Mínimo 20 caracteres</p>
           )}

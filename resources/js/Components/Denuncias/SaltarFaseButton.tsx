@@ -95,9 +95,10 @@ export default function SaltarFaseButton({ ticket, solicitudesPendientes = 0, de
                 onChange={(e) => setJustificacion(e.target.value)}
                 rows={4}
                 maxLength={2000}
+                style={{ textTransform: 'uppercase' }}
               />
               <div className="flex items-center justify-between">
-                <p className="text-[11px] text-muted-foreground">{justificacion.length}/2000</p>
+                <p className="text-[11px] text-muted-foreground">{justificacion.length}/2000 · MAYÚSCULAS</p>
                 {justificacion.length > 0 && justificacion.trim().length < 10 && (
                   <p className="text-[11px] text-destructive font-medium">Mínimo 10 caracteres</p>
                 )}

@@ -19,8 +19,6 @@ import SeccionDetalles from '@/Components/Denuncias/SeccionDetalles';
 import SeccionRelacionHechos from '@/Components/Denuncias/SeccionRelacionHechos';
 import BloquePrueba, { createPruebaItem } from '@/Components/Denuncias/BloquePrueba';
 import PieFormulario from '@/Components/Denuncias/PieFormulario';
-import FormularioAcompaniamiento from '@/Components/Denuncias/FormularioAcompaniamiento';
-import FormularioIntervencion from '@/Components/Denuncias/FormularioIntervencion';
 import ModalExito from '@/Components/Denuncias/ModalExito';
 import ProgressBar from '@/Components/Denuncias/ProgressBar';
 import StickyFooter from '@/Components/Denuncias/StickyFooter';
@@ -231,54 +229,6 @@ export default function RegistroDenuncia() {
         toast.info('Formulario de Negación de Información cargado con datos de demostración');
     };
 
-    const fillAcompaniamiento = () => {
-        setErrors({});
-        setForm({
-            tipo: 'acompaniamiento',
-            escenario: 'revelada',
-            denunciante: { ...initialDenunciante },
-            denunciados: [createDenunciadoItem()],
-            detalles: { ...initialDetalles },
-            hechos: '',
-            pruebas: [],
-            declaracion_jurada: true,
-            nombres: 'Carlos Condori Ticona',
-            ci: '8765432',
-            dependencia_funcionario: 'Secretaría de Movilidad Urbana - Técnico Evaluador de Líneas',
-            motivo: 'El ciudadano manifiesta que lleva esperando más de 3 meses por la homologación de su ruta de transporte sindical, siendo que el trámite cuenta con todos los informes técnicos favorables y se encuentra estancado sin justificación.',
-            resolucion: 'Se realizó la mediación presencial. El técnico se comprometió a remitir la carpeta para firma del Secretario en el plazo máximo de 48 horas bajo acta de compromiso suscrita.',
-            dependencia_observada: '',
-            referencia_nota: '',
-            archivo: '',
-            archivo_data: '',
-        });
-        toast.info('Formulario de Acompañamiento cargado con datos de demostración');
-    };
-
-    const fillIntervencion = () => {
-        setErrors({});
-        setForm({
-            tipo: 'intervencion',
-            escenario: 'revelada',
-            denunciante: { ...initialDenunciante },
-            denunciados: [createDenunciadoItem()],
-            detalles: { ...initialDetalles },
-            hechos: '',
-            pruebas: [],
-            declaracion_jurada: true,
-            nombres: '',
-            ci: '',
-            dependencia_funcionario: '',
-            motivo: 'Se evidencia que de forma sistemática se está solicitando a los contribuyentes fotocopias de documentos de identidad vigentes de gestiones pasadas que ya constan digitalizados en la base de datos de Ruat, contraviniendo el principio de desburocratización y simplificación de trámites.',
-            resolucion: '',
-            dependencia_observada: 'Dirección de Recaudaciones - Sección Patentes',
-            referencia_nota: 'REF: NOTA-UTLCC-2026-042',
-            archivo: 'informe_inspeccion_patentes.pdf',
-            archivo_data: 'data:application/pdf;base64,MOCK_PDF_DATA',
-        });
-        toast.info('Formulario de Intervención cargado con datos de demostración');
-    };
-
     const isComplejo = form.tipo === 'corrupcion' || form.tipo === 'negacion';
 
     const updateField = useCallback((section: string, field: string, value: unknown) => {
@@ -326,24 +276,6 @@ export default function RegistroDenuncia() {
 
     const progressFields = useMemo(() => {
         if (!isComplejo) {
-            if (form.tipo === 'acompaniamiento') {
-                const total = 5;
-                let completed = 0;
-                if (form.nombres.length >= 2) completed += 1;
-                if (form.dependencia_funcionario.length >= 2) completed += 1;
-                if (form.motivo.length >= 20) completed += 1;
-                if (form.resolucion.length >= 10) completed += 1;
-                if (form.declaracion_jurada) completed += 1;
-                return { total, completed };
-            }
-            if (form.tipo === 'intervencion') {
-                const total = 3;
-                let completed = 0;
-                if (form.dependencia_observada.length >= 2) completed += 1;
-                if (form.motivo.length >= 20) completed += 1;
-                if (form.declaracion_jurada) completed += 1;
-                return { total, completed };
-            }
             return { total: 0, completed: 0 };
         }
 
@@ -453,20 +385,6 @@ export default function RegistroDenuncia() {
                             >
                                 ⚡ Negación
                             </button>
-                            <button
-                                type="button"
-                                onClick={fillAcompaniamiento}
-                                className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-amber-500/20 text-amber-700 dark:text-amber-300 hover:bg-amber-500/30 transition-all duration-200 cursor-pointer shadow-2xs"
-                            >
-                                ⚡ Acompañamiento
-                            </button>
-                            <button
-                                type="button"
-                                onClick={fillIntervencion}
-                                className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-amber-500/20 text-amber-700 dark:text-amber-300 hover:bg-amber-500/30 transition-all duration-200 cursor-pointer shadow-2xs"
-                            >
-                                ⚡ Intervención
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -491,8 +409,6 @@ export default function RegistroDenuncia() {
                                     <SelectContent>
                                         <SelectItem value="corrupcion">Corrupción (hasta 45 días)</SelectItem>
                                         <SelectItem value="negacion">Negación de Información (hasta 20 días)</SelectItem>
-                                        <SelectItem value="acompaniamiento">Acompañamiento (resolución en el momento)</SelectItem>
-                                        <SelectItem value="intervencion">Intervención / Medida Correctiva</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -504,8 +420,7 @@ export default function RegistroDenuncia() {
                         {/* Info plazos */}
                         {!form.tipo && (
                             <div className="text-xs text-muted-foreground bg-muted/30 rounded-lg px-3 py-2 leading-relaxed">
-                                <strong>Plazos según Ley 974:</strong> Corrupción: hasta 45 días · Negación: hasta 20 días ·
-                                Acompañamiento: resolución en el momento · Intervención: según evaluación
+                                <strong>Plazos según Ley 974:</strong> Corrupción: hasta 45 días · Negación: hasta 20 días
                             </div>
                         )}
                     </div>
@@ -587,60 +502,6 @@ export default function RegistroDenuncia() {
                                     error={errors.declaracion_jurada}
                                 />
                             </div>
-                        </div>
-                    )}
-
-                    {/* Formulario Acompañamiento */}
-                    {form.tipo === 'acompaniamiento' && (
-                        <div className="space-y-4">
-                            <div className={sectionClasses}>
-                                <FormularioAcompaniamiento
-                                    data={{
-                                        nombres: form.nombres,
-                                        ci: form.ci,
-                                        dependencia_funcionario: form.dependencia_funcionario,
-                                        motivo: form.motivo,
-                                        resolucion: form.resolucion,
-                                    }}
-                                    onChange={(f, v) => setForm((prev) => ({ ...prev, [f]: v }))}
-                                    errors={errors}
-                                />
-                            </div>
-                            <Separator />
-                            <PieFormulario
-                                declaracionJurada={form.declaracion_jurada}
-                                onDeclaracionChange={(v) => setForm((prev) => ({ ...prev, declaracion_jurada: v }))}
-                                onSubmit={handleSubmit}
-                                submitDisabled={!form.tipo || !form.declaracion_jurada}
-                                submitting={submitting}
-                            />
-                        </div>
-                    )}
-
-                    {/* Formulario Intervención */}
-                    {form.tipo === 'intervencion' && (
-                        <div className="space-y-4">
-                            <div className={sectionClasses}>
-                                <FormularioIntervencion
-                                    data={{
-                                        dependencia_observada: form.dependencia_observada,
-                                        referencia_nota: form.referencia_nota,
-                                        motivo: form.motivo,
-                                        archivo: form.archivo,
-                                        archivo_data: form.archivo_data,
-                                    }}
-                                    onChange={(f, v) => setForm((prev) => ({ ...prev, [f]: v }))}
-                                    errors={errors}
-                                />
-                            </div>
-                            <Separator />
-                            <PieFormulario
-                                declaracionJurada={form.declaracion_jurada}
-                                onDeclaracionChange={(v) => setForm((prev) => ({ ...prev, declaracion_jurada: v }))}
-                                onSubmit={handleSubmit}
-                                submitDisabled={!form.tipo || !form.declaracion_jurada}
-                                submitting={submitting}
-                            />
                         </div>
                     )}
                 </div>

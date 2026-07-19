@@ -4,6 +4,7 @@ namespace App\Data;
 
 use App\Helpers\DiasHabiles;
 use Carbon\Carbon;
+use Illuminate\Support\Str;
 
 class DescargoData
 {
@@ -80,6 +81,8 @@ class DescargoData
     public static function add(string $ticket, int $denunciadoIdx, string $nombres, string $dependencia = ''): int
     {
         $id = self::nextId();
+        $nombres = Str::upper($nombres);
+        $dependencia = $dependencia !== '' ? Str::upper($dependencia) : $dependencia;
 
         $descargo = [
             'id' => $id,
@@ -110,6 +113,7 @@ class DescargoData
 
     public static function notificar(int $id, string $fechaNotificacion, string $medio, ?array $respaldo = null, int $plazoDias = 10): bool
     {
+        $medio = Str::upper($medio);
         $items = self::getAll();
         foreach ($items as $i => $d) {
             if (($d['id'] ?? 0) === $id) {
@@ -128,6 +132,7 @@ class DescargoData
 
     public static function responder(int $id, string $resumen, array $documentos = []): bool
     {
+        $resumen = Str::upper($resumen);
         $items = self::getAll();
         foreach ($items as $i => $d) {
             if (($d['id'] ?? 0) === $id) {
@@ -144,6 +149,7 @@ class DescargoData
 
     public static function cancelar(int $id, string $motivo): bool
     {
+        $motivo = Str::upper($motivo);
         $items = self::getAll();
         foreach ($items as $i => $d) {
             if (($d['id'] ?? 0) === $id) {
@@ -160,6 +166,7 @@ class DescargoData
 
     public static function ampliar(int $id, int $dias, string $justificacion): bool
     {
+        $justificacion = Str::upper($justificacion);
         $items = self::getAll();
         foreach ($items as $i => $d) {
             if (($d['id'] ?? 0) === $id) {
@@ -180,6 +187,12 @@ class DescargoData
 
     public static function editar(int $id, array $cambios): bool
     {
+        if (isset($cambios['nombres_denunciado']) && is_string($cambios['nombres_denunciado'])) {
+            $cambios['nombres_denunciado'] = Str::upper($cambios['nombres_denunciado']);
+        }
+        if (isset($cambios['dependencia_denunciado']) && is_string($cambios['dependencia_denunciado'])) {
+            $cambios['dependencia_denunciado'] = Str::upper($cambios['dependencia_denunciado']);
+        }
         $items = self::getAll();
         foreach ($items as $i => $d) {
             if (($d['id'] ?? 0) === $id) {

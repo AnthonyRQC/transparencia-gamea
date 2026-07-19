@@ -117,10 +117,11 @@ export default function ReabrirModal({ ticket, open, onOpenChange }: ReabrirModa
               onChange={(e) => setJustificacion(e.target.value)}
               rows={4}
               maxLength={2000}
+              style={{ textTransform: 'uppercase' }}
             />
             <div className="flex items-center justify-between">
               <p className="text-[11px] text-muted-foreground">
-                {justificacion.length}/2000 caracteres
+                {justificacion.length}/2000 caracteres · MAYÚSCULAS
               </p>
               {justificacion.length > 0 && justificacion.trim().length < 20 && (
                 <p className="text-[11px] text-destructive font-medium">

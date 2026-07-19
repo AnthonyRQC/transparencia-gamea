@@ -3,7 +3,9 @@
 namespace App\Data;
 
 use App\Helpers\DiasHabiles;
+use App\Helpers\UppercaseText;
 use Carbon\Carbon;
+use Illuminate\Support\Str;
 use App\Data\EvaluacionData;
 use App\Data\SolicitudData;
 use App\Data\DescargoData;
@@ -75,6 +77,30 @@ class DenunciaData
         $data['token_consulta'] = self::generateToken();
         $data['sitpreco_rechazo'] = null;
 
+        // MAYÚSCULAS — textos libres del registro
+        if (isset($data['denunciante']['nombres'])) {
+            $data['denunciante']['nombres'] = Str::upper($data['denunciante']['nombres']);
+        }
+        if (isset($data['detalles']['lugar'])) {
+            $data['detalles']['lugar'] = Str::upper($data['detalles']['lugar']);
+        }
+        if (isset($data['hechos'])) {
+            $data['hechos'] = Str::upper($data['hechos']);
+        }
+        if (isset($data['denunciados']) && is_array($data['denunciados'])) {
+            foreach ($data['denunciados'] as $k => $d) {
+                if (isset($d['nombres'])) $data['denunciados'][$k]['nombres'] = Str::upper($d['nombres']);
+                if (isset($d['dependencia'])) $data['denunciados'][$k]['dependencia'] = Str::upper($d['dependencia']);
+                if (isset($d['descripcion'])) $data['denunciados'][$k]['descripcion'] = Str::upper($d['descripcion']);
+            }
+        }
+        if (isset($data['pruebas']) && is_array($data['pruebas'])) {
+            foreach ($data['pruebas'] as $k => $p) {
+                if (isset($p['descripcion'])) $data['pruebas'][$k]['descripcion'] = Str::upper($p['descripcion']);
+                if (isset($p['testigo_nombre'])) $data['pruebas'][$k]['testigo_nombre'] = Str::upper($p['testigo_nombre']);
+            }
+        }
+
         // Sprint 7 — Evaluación Técnica Previa
         $data['evaluacion_tecnica_tecnico_id'] = null;
         $data['evaluacion_tecnica_tecnico_nombre'] = null;
@@ -141,6 +167,7 @@ class DenunciaData
 
     public static function admitir(string $ticket, ?string $justificacion): bool
     {
+        $justificacion = $justificacion !== null ? Str::upper($justificacion) : null;
         $denuncias = self::getAll();
         foreach ($denuncias as $i => $d) {
             if (($d['ticket'] ?? '') === $ticket) {
@@ -164,6 +191,8 @@ class DenunciaData
 
     public static function rechazar(string $ticket, string $justificacion, ?string $resumenRechazo = null, ?string $sitpreco = null): bool
     {
+        $justificacion = Str::upper($justificacion);
+        $resumenRechazo = $resumenRechazo !== null ? Str::upper($resumenRechazo) : null;
         $denuncias = self::getAll();
         foreach ($denuncias as $i => $d) {
             if (($d['ticket'] ?? '') === $ticket) {
@@ -224,6 +253,7 @@ class DenunciaData
 
     public static function traspasar(string $ticket, string $nuevoTecnicoId, string $justificacion, string $usuarioId = 'sistema'): bool
     {
+        $justificacion = Str::upper($justificacion);
         $denuncias = self::getAll();
         foreach ($denuncias as $i => $d) {
             if (($d['ticket'] ?? '') === $ticket && in_array($d['estado'] ?? '', ['asignada', 'investigacion', 'informe'])) {
@@ -243,6 +273,7 @@ class DenunciaData
 
     public static function reabrir(string $ticket, string $justificacion, string $nuevaFechaLimite, string $usuarioId = 'sistema'): bool
     {
+        $justificacion = Str::upper($justificacion);
         $denuncias = self::getAll();
         foreach ($denuncias as $i => $d) {
             if (($d['ticket'] ?? '') === $ticket && in_array($d['estado'] ?? '', ['rechazada', 'cerrada'])) {
@@ -325,6 +356,7 @@ class DenunciaData
 
     public static function delegarEvaluacion(string $ticket, string $tecnicoId, ?string $justificacion, string $usuarioId = 'sistema'): bool
     {
+        $justificacion = $justificacion !== null ? Str::upper($justificacion) : null;
         $denuncias = self::getAll();
         foreach ($denuncias as $i => $d) {
             if (($d['ticket'] ?? '') === $ticket && ($d['estado'] ?? '') === 'ingresada') {
@@ -360,6 +392,7 @@ class DenunciaData
 
     public static function devolverEvaluacion(int $evaluacionId, string $texto, string $recomendacion, string $usuarioId = 'sistema'): bool
     {
+        $texto = $texto !== '' ? Str::upper($texto) : $texto;
         $evaluacion = EvaluacionData::find($evaluacionId);
         if (!$evaluacion || ($evaluacion['estado'] ?? '') !== 'pendiente') return false;
 
@@ -428,6 +461,7 @@ class DenunciaData
 
     public static function saltarFase(string $ticket, string $justificacion, string $usuarioId = 'sistema'): bool
     {
+        $justificacion = Str::upper($justificacion);
         $denuncias = self::getAll();
         foreach ($denuncias as $i => $d) {
             if (($d['ticket'] ?? '') === $ticket && ($d['estado'] ?? '') === 'investigacion') {
@@ -464,10 +498,10 @@ class DenunciaData
             if (($d['ticket'] ?? '') === $ticket && in_array($d['estado'] ?? '', ['informe', 'cerrada'])) {
                 $denuncias[$i]['informe_clasificacion'] = $data['clasificacion'];
                 $denuncias[$i]['informe_fojas'] = $data['fojas'];
-                $denuncias[$i]['informe_justificacion'] = $data['justificacion'] ?? null;
+                $denuncias[$i]['informe_justificacion'] = isset($data['justificacion']) ? Str::upper($data['justificacion']) : null;
                 $denuncias[$i]['informe_archivos'] = $data['archivos'] ?? [];
                 $denuncias[$i]['informe_redactado_at'] = now()->toDateTimeString();
-                $denuncias[$i]['informe_concluido_por'] = $data['concluido_por'];
+                $denuncias[$i]['informe_concluido_por'] = isset($data['concluido_por']) ? Str::upper($data['concluido_por']) : $data['concluido_por'];
                 $denuncias[$i]['informe_sitpreco'] = $data['sitpreco'] ?? null;
                 $denuncias[$i]['informe_eliminado'] = false;
                 $denuncias[$i]['informe_fecha_eliminacion'] = null;
@@ -497,6 +531,9 @@ class DenunciaData
                     if (array_key_exists($campo, $data)) {
                         $anterior = $denuncias[$i][$key] ?? null;
                         $nuevo = $data[$campo];
+                        if (in_array($campo, ['justificacion', 'concluido_por']) && is_string($nuevo)) {
+                            $nuevo = Str::upper($nuevo);
+                        }
                         if ($anterior !== $nuevo && $campo !== 'archivos') {
                             $cambios[] = "{$campo}: '{$anterior}' → '{$nuevo}'";
                         }
@@ -542,10 +579,10 @@ class DenunciaData
                 $denuncias[$i]['cierre_notificado_denunciante'] = $data['notificado_denunciante'] ?? false;
                 $denuncias[$i]['cierre_notificacion_medio'] = $data['notificacion_medio'] ?? null;
                 $denuncias[$i]['cierre_notificacion_fecha'] = $data['notificacion_fecha'] ?? null;
-                $denuncias[$i]['cierre_notificacion_descripcion'] = $data['notificacion_descripcion'] ?? null;
-                $denuncias[$i]['cierre_no_notificado_motivo'] = $data['no_notificado_motivo'] ?? null;
-                $denuncias[$i]['cierre_concluido_por'] = $data['concluido_por'];
-                $denuncias[$i]['cierre_descripcion'] = $data['descripcion'];
+                $denuncias[$i]['cierre_notificacion_descripcion'] = isset($data['notificacion_descripcion']) ? Str::upper($data['notificacion_descripcion']) : null;
+                $denuncias[$i]['cierre_no_notificado_motivo'] = isset($data['no_notificado_motivo']) ? Str::upper($data['no_notificado_motivo']) : null;
+                $denuncias[$i]['cierre_concluido_por'] = isset($data['concluido_por']) ? Str::upper($data['concluido_por']) : $data['concluido_por'];
+                $denuncias[$i]['cierre_descripcion'] = isset($data['descripcion']) ? Str::upper($data['descripcion']) : $data['descripcion'];
                 $denuncias[$i]['cierre_archivos'] = $data['archivos'] ?? [];
                 $denuncias[$i]['cierre_cerrado_at'] = now()->toDateTimeString();
                 $denuncias[$i]['cierre_eliminado'] = false;
@@ -575,10 +612,14 @@ class DenunciaData
                     'descripcion' => 'cierre_descripcion',
                     'archivos' => 'cierre_archivos',
                 ];
+                $camposUpper = ['notificacion_descripcion', 'no_notificado_motivo', 'concluido_por', 'descripcion'];
                 foreach ($map as $campo => $key) {
                     if (array_key_exists($campo, $data)) {
                         $anterior = $denuncias[$i][$key] ?? null;
                         $nuevo = $data[$campo];
+                        if (in_array($campo, $camposUpper) && is_string($nuevo)) {
+                            $nuevo = Str::upper($nuevo);
+                        }
                         if ($anterior !== $nuevo && $campo !== 'archivos') {
                             $cambios[] = "{$campo}: '" . (is_string($anterior) ? $anterior : json_encode($anterior)) . "' → '" . (is_string($nuevo) ? $nuevo : json_encode($nuevo)) . "'";
                         }
@@ -720,6 +761,8 @@ class DenunciaData
 
     public static function aprobarAmpliacion(string $ticket, int $dias, string $justificacion, ?string $solicitadoPor = null): array|false
     {
+        $justificacion = Str::upper($justificacion);
+        $solicitadoPor = $solicitadoPor !== null ? Str::upper($solicitadoPor) : null;
         $items = session(self::SESSION_KEY, []);
         foreach ($items as $i => $d) {
             if (($d['ticket'] ?? '') !== $ticket) continue;

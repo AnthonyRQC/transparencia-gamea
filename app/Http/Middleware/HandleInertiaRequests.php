@@ -45,6 +45,7 @@ class HandleInertiaRequests extends Middleware
             'token' => session('token'),
             'currentUser' => $currentUser,
             'usuarios' => SesionUsuarioData::getAll(),
+            'permisos' => SesionUsuarioData::getPermisos(),
         ];
 
         NotificacionData::generarParaUsuario($currentUser['id']);

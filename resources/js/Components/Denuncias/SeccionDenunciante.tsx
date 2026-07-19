@@ -100,6 +100,7 @@ export default function SeccionDenunciante({ escenario, data, onChange, errors }
                             value={data.nombres}
                             onChange={(e) => onChange('nombres', e.target.value)}
                             className={cn(errors['denunciante.nombres'] && 'border-destructive/50 pr-8')}
+                            style={{ textTransform: 'uppercase' }}
                         />
                         {errors['denunciante.nombres'] && (
                             <div className="absolute right-2.5 top-1/2 -translate-y-1/2">
@@ -107,6 +108,7 @@ export default function SeccionDenunciante({ escenario, data, onChange, errors }
                             </div>
                         )}
                     </div>
+                    <p className="text-[10px] text-muted-foreground">Se guardará en MAYÚSCULAS</p>
                 </div>
                 <div className="space-y-1.5">
                     <div className="flex items-center gap-1.5">

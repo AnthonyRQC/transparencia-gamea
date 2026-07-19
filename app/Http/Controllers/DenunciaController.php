@@ -21,7 +21,7 @@ class DenunciaController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'tipo' => 'required|in:corrupcion,negacion,acompaniamiento,intervencion',
+            'tipo' => 'required|in:corrupcion,negacion',
             'escenario' => 'required|in:revelada,reservada,anonimo',
             'declaracion_jurada' => 'required|boolean|accepted',
         ];
@@ -53,32 +53,13 @@ class DenunciaController extends Controller
                 'detalles.hora' => 'nullable',
                 'detalles.lugar' => 'required|string|max:200',
 
-                'hechos' => 'required|string|min:10|max:5000',
+                'hechos' => 'required|string|min:10|max:8000',
 
                 'pruebas' => 'nullable|array',
                 'pruebas.*.tipo' => 'required_with:pruebas.*|in:archivo,fisica,testigo',
                 'pruebas.*.descripcion' => 'nullable|string',
                 'pruebas.*.testigo_nombre' => 'required_if:pruebas.*.tipo,testigo|nullable|string|max:100',
                 'pruebas.*.testigo_telefono' => 'required_if:pruebas.*.tipo,testigo|nullable|digits:8',
-            ]);
-        }
-
-        if ($request->tipo === 'acompaniamiento') {
-            $rules = array_merge($rules, [
-                'nombres' => 'required|string|min:2|max:100',
-                'ci' => 'nullable|digits_between:6,9',
-                'dependencia_funcionario' => 'required|string|max:200',
-                'motivo' => 'required|string|min:20|max:5000',
-                'resolucion' => 'required|string|min:10|max:5000',
-            ]);
-        }
-
-        if ($request->tipo === 'intervencion') {
-            $rules = array_merge($rules, [
-                'dependencia_observada' => 'required|string|max:200',
-                'motivo' => 'required|string|min:20|max:5000',
-                'archivo' => 'nullable',
-                'referencia_nota' => 'nullable|string|max:200',
             ]);
         }
 

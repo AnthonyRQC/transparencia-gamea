@@ -60,6 +60,12 @@ class SesionUsuarioData
         return self::USUARIOS[$userId] ?? self::USUARIOS['jefe-1'];
     }
 
+    public static function getPermisos(): array
+    {
+        $current = self::getCurrent();
+        return PermisosCatalogo::permisosPorRol($current['rol'] ?? '');
+    }
+
     public static function switchTo(string $userId): bool
     {
         if (!isset(self::USUARIOS[$userId])) {

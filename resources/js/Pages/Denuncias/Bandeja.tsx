@@ -271,8 +271,6 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
               <SelectItem value="all">Todos</SelectItem>
               <SelectItem value="corrupcion">Corrupción</SelectItem>
               <SelectItem value="negacion">Negación</SelectItem>
-              <SelectItem value="acompaniamiento">Acompañamiento</SelectItem>
-              <SelectItem value="intervencion">Intervención</SelectItem>
             </SelectContent>
           </Select>
           <Select value={sortBy} onValueChange={setSortBy}>

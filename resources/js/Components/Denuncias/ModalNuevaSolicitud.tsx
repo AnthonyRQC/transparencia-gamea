@@ -162,6 +162,7 @@ export default function ModalNuevaSolicitud({ ticket, open, onOpenChange, solici
                 value={unidadLibre}
                 onChange={(e) => setUnidadLibre(e.target.value)}
                 maxLength={200}
+                style={{ textTransform: 'uppercase' }}
               />
             ) : (
               <Select value={unidadDestino} onValueChange={setUnidadDestino}>
@@ -208,9 +209,10 @@ export default function ModalNuevaSolicitud({ ticket, open, onOpenChange, solici
               onChange={(e) => setDetalle(e.target.value)}
               rows={4}
               maxLength={2000}
+              style={{ textTransform: 'uppercase' }}
             />
             <div className="flex items-center justify-between">
-              <p className="text-[11px] text-muted-foreground">{detalle.length}/2000</p>
+              <p className="text-[11px] text-muted-foreground">{detalle.length}/2000 · MAYÚSCULAS</p>
               {detalle.length > 0 && detalle.trim().length < 5 && (
                 <p className="text-[11px] text-destructive font-medium">Mínimo 5 caracteres</p>
               )}

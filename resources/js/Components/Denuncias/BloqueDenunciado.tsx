@@ -115,6 +115,7 @@ export default function BloqueDenunciado({ items, onChange, errors }: BloqueDenu
                                             value={item.nombres}
                                             onChange={(e) => updateItem(item.id, 'nombres', e.target.value)}
                                             className={cn(getError(index, 'nombres') && 'border-destructive/50 pr-8')}
+                                            style={{ textTransform: 'uppercase' }}
                                         />
                                         {getError(index, 'nombres') && (
                                             <div className="absolute right-2.5 top-1/2 -translate-y-1/2">
@@ -133,6 +134,7 @@ export default function BloqueDenunciado({ items, onChange, errors }: BloqueDenu
                                             value={item.dependencia}
                                             onChange={(e) => updateItem(item.id, 'dependencia', e.target.value)}
                                             className={cn(getError(index, 'dependencia') && 'border-destructive/50 pr-8')}
+                                            style={{ textTransform: 'uppercase' }}
                                         />
                                         {getError(index, 'dependencia') && (
                                             <div className="absolute right-2.5 top-1/2 -translate-y-1/2">
@@ -157,6 +159,7 @@ export default function BloqueDenunciado({ items, onChange, errors }: BloqueDenu
                                         value={item.descripcion}
                                         onChange={(e) => updateItem(item.id, 'descripcion', e.target.value)}
                                         className={cn(getError(index, 'descripcion') && 'border-destructive/50 pr-8')}
+                                        style={{ textTransform: 'uppercase' }}
                                     />
                                     {getError(index, 'descripcion') && (
                                         <div className="absolute right-2.5 top-3">
@@ -164,6 +167,7 @@ export default function BloqueDenunciado({ items, onChange, errors }: BloqueDenu
                                         </div>
                                     )}
                                 </div>
+                                <p className="text-[10px] text-muted-foreground">Se guardará en MAYÚSCULAS</p>
                             </div>
                         )}
                     </div>

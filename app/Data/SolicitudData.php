@@ -4,6 +4,7 @@ namespace App\Data;
 
 use App\Helpers\DiasHabiles;
 use Carbon\Carbon;
+use Illuminate\Support\Str;
 
 class SolicitudData
 {
@@ -79,6 +80,7 @@ class SolicitudData
         $id = self::nextId();
         $now = Carbon::now();
         $plazo = max(1, min(45, $plazoDias));
+        $detalle = Str::upper($detalle);
 
         $solicitud = [
             'id' => $id,
@@ -109,6 +111,7 @@ class SolicitudData
 
     public static function responder(int $id, string $respuesta, array $archivos = []): bool
     {
+        $respuesta = Str::upper($respuesta);
         $items = self::getAll();
         foreach ($items as $i => $s) {
             if (($s['id'] ?? 0) === $id) {
@@ -125,6 +128,7 @@ class SolicitudData
 
     public static function cancelar(int $id, string $motivo): bool
     {
+        $motivo = Str::upper($motivo);
         $items = self::getAll();
         foreach ($items as $i => $s) {
             if (($s['id'] ?? 0) === $id && in_array($s['estado'] ?? '', ['pendiente', 'ampliada'])) {
@@ -140,6 +144,7 @@ class SolicitudData
 
     public static function ampliar(int $id, int $dias, string $justificacion, ?array $archivo = null): bool
     {
+        $justificacion = Str::upper($justificacion);
         $items = self::getAll();
         foreach ($items as $i => $s) {
             if (($s['id'] ?? 0) === $id) {
@@ -161,6 +166,9 @@ class SolicitudData
 
     public static function editar(int $id, array $cambios): bool
     {
+        if (isset($cambios['detalle']) && is_string($cambios['detalle'])) {
+            $cambios['detalle'] = Str::upper($cambios['detalle']);
+        }
         $items = self::getAll();
         foreach ($items as $i => $s) {
             if (($s['id'] ?? 0) === $id) {

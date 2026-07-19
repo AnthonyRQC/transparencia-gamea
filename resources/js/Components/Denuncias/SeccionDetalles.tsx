@@ -124,6 +124,7 @@ export default function SeccionDetalles({ data, onChange, categorias, errors }: 
                             value={data.lugar}
                             onChange={(e) => onChange('lugar', e.target.value)}
                             className={cn(errors['detalles.lugar'] && 'border-destructive/50 pr-8')}
+                            style={{ textTransform: 'uppercase' }}
                         />
                         {errors['detalles.lugar'] && (
                             <div className="absolute right-2.5 top-1/2 -translate-y-1/2">
@@ -131,6 +132,7 @@ export default function SeccionDetalles({ data, onChange, categorias, errors }: 
                             </div>
                         )}
                     </div>
+                    <p className="text-[10px] text-muted-foreground">Se guardará en MAYÚSCULAS</p>
                 </div>
             </div>
         </div>

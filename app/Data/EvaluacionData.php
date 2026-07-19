@@ -2,6 +2,8 @@
 
 namespace App\Data;
 
+use Illuminate\Support\Str;
+
 class EvaluacionData
 {
     private const SESSION_KEY = 'evaluaciones_mock';
@@ -64,6 +66,7 @@ class EvaluacionData
 
     public static function marcarDevuelta(int $id, string $texto, string $recomendacion, string $usuarioId): bool
     {
+        $texto = $texto !== '' ? Str::upper($texto) : $texto;
         $items = self::getAll();
         foreach ($items as $i => $e) {
             if (($e['id'] ?? 0) === $id) {

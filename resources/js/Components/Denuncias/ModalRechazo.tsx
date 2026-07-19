@@ -76,10 +76,11 @@ export default function ModalRechazo({ ticket, open, onOpenChange }: ModalRechaz
               onChange={(e) => setJustificacion(e.target.value)}
               rows={4}
               maxLength={2000}
+              style={{ textTransform: 'uppercase' }}
             />
             <div className="flex items-center justify-between">
               <p className="text-[11px] text-muted-foreground">
-                {justificacion.length}/2000 caracteres
+                {justificacion.length}/2000 · MAYÚSCULAS
               </p>
               {!canSubmit && justificacion.length > 0 && (
                 <p className="text-[11px] text-destructive font-medium">
@@ -118,10 +119,11 @@ export default function ModalRechazo({ ticket, open, onOpenChange }: ModalRechaz
               onChange={(e) => setResumenRechazo(e.target.value)}
               rows={2}
               maxLength={200}
+              style={{ textTransform: 'uppercase' }}
             />
             <div className="flex items-center justify-between">
               <p className="text-[11px] text-muted-foreground">
-                {resumenRechazo.length}/200 caracteres
+                {resumenRechazo.length}/200 · MAYÚSCULAS
               </p>
             </div>
           </div>

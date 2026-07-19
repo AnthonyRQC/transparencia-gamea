@@ -98,8 +98,9 @@ export default function ModalDelegarEvaluacion({ ticket, open, tecnicos: _tecnic
               rows={3}
               maxLength={500}
               disabled={processing}
+              style={{ textTransform: 'uppercase' }}
             />
-            <p className="text-[11px] text-muted-foreground">{justificacion.length}/500</p>
+            <p className="text-[11px] text-muted-foreground">{justificacion.length}/500 · MAYÚSCULAS</p>
           </div>
         </div>
 

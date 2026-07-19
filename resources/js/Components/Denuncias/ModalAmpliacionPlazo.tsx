@@ -214,11 +214,12 @@ export default function ModalAmpliacionPlazo({ denuncia, open, onOpenChange, tec
               rows={3}
               maxLength={500}
               disabled={processing}
+              style={{ textTransform: 'uppercase' }}
             />
             <p className="text-[11px] text-muted-foreground">
               {justificacion.length < 10
-                ? `Mínimo 10 caracteres (${justificacion.length}/500)`
-                : `${justificacion.length}/500 caracteres`}
+                ? `Mínimo 10 caracteres (${justificacion.length}/500) · MAYÚSCULAS`
+                : `${justificacion.length}/500 caracteres · MAYÚSCULAS`}
             </p>
           </div>
 
