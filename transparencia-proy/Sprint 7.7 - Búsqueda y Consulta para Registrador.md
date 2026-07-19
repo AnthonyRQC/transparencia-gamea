@@ -1,13 +1,15 @@
 #transparencia
-# Sprint 7.7 — Búsqueda y Consulta para Registrador (NUEVO — Julio 2026) ⏳ URGENTE
+# Sprint 7.7 — Búsqueda y Consulta para Registrador (Julio 2026) ✅ CERRADO
 
-**Objetivo:** Nueva página `/denuncias/consultar` solo accesible para rol Registrador. Permite buscar casos con 7 filtros esenciales, ver el detalle (read-only) y consultar el código (ticket + PIN) cuando un denunciante lo solicita presencialmente. Sin bitácora para la consulta de código (decisión del cliente).
+**Objetivo:** Nueva página `/denuncias/consultar` solo accesible para rol Registrador. 7 filtros esenciales, detalle read-only, consulta de código (ticket + PIN concatenado). Sin bitácora.
 
-**Origen:** Pedido del cliente Julio 2026 — los denunciantes vienen presencialmente a preguntar el estado de su caso y a veces olvidan el código. El Registrador necesita ver y consultar.
+**Estado:** ✅ Completado — implementado y probado.
 
-**Estimación:** 2-3 días.
+**Origen:** Pedido del cliente Julio 2026 — denunciantes olvidan el código presencialmente.
 
-**Dependencias:** Sprint 7.5 cerrado (para el catálogo de permisos).
+**Estimación real:** ~2 días.
+
+**Dependencias:** Sprint 7.5 cerrado (catálogo de permisos).
 
 ---
 

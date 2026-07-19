@@ -20,12 +20,15 @@ Tailwind v3 · shadcn/ui (New York) · Laragon (Windows local)
 **Sprint 6** (Seguimiento Público) — Cerrado ✅ (Junio 2026)
 **Sprint 6.5** (Simulación Multi-Rol para Demo) — Cerrado ✅ (Julio 2026)
 **Sprint 7** (Evaluación Técnica Previa) — Cerrado ✅ (Julio 2026)
-**Sprint 7.A** (Cierre SITPRECO en rechazo) — Pendiente ⏳
+**Sprint 7.A** (Cierre SITPRECO en rechazo) — Cerrado ✅ (Julio 2026)
+**Sprint 7.5** (Ajustes UX Urgentes pre-cliente) — Cerrado ✅ (Julio 2026)
+**Sprint 7.6** (Repositorio de Archivos del Caso) — Cerrado ✅ (Julio 2026)
+**Sprint 7.7** (Búsqueda y Consulta para Registrador) — Cerrado ✅ (Julio 2026)
 **Sprint 8** (Ampliaciones Múltiples) — Cerrado ✅ (Julio 2026)
 **Sprint 9** (Notificaciones Push + Historial) — Cerrado ✅ (Julio 2026)
 
-Sprints urgentes próximos (pre-cliente): **7.A**, **7.5**, **7.6**, **7.7**.
-Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (7.A, 7.5, 7.6, 7.7, 10–21).
+Sprints pendientes: **10**, **11**, **12**, **13**, **14**, **15+** (BD real).
+Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (10–21).
 
 ## Roles (post sesión con cliente, Junio 2026)
 - **Registrador** (antes "Recepcionista")
@@ -43,8 +46,8 @@ Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (7.A, 
 1. **Siempre al iniciar:** Lee este `AI-CONTEXT.md` completo (~100 líneas).
 2. **Para ver roadmap completo:** Lee `Plan de Desarrollo.md` (alto nivel).
 3. **Para trabajar en un sprint específico:**
-   - **Sprint cerrado (0-6):** Lee `Sprint X - [Nombre].md` solo si es necesario detalle histórico.
-   - **Sprint pendiente (7, 10-19):** Lee SOLO la sección correspondiente en `Sprints Pendientes - Contexto.md`. **No leas otras secciones** (lazy load).
+   - **Sprint cerrado (0-9):** Lee `Sprint X - [Nombre].md` solo si es necesario detalle histórico.
+   - **Sprint pendiente (10+):** Lee SOLO la sección correspondiente en `Sprints Pendientes - Contexto.md`. **No leas otras secciones** (lazy load).
 4. **Para entender el sistema completo:** Lee `Proyecto - Resumen General del Sistema.md` solo si es necesario.
 5. **NO LEER por defecto:**
    - `Proyecto - Prototipo y Estrategia de Diseño.md`
@@ -55,7 +58,7 @@ Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (7.A, 
 ## Documentación Esencial (LEER SIEMPRE)
 1. `transparencia-proy/AI-CONTEXT.md` (este archivo) — Snapshot del estado actual
 2. `transparencia-proy/Plan de Desarrollo.md` — Hoja de ruta, sprints, decisiones
-3. `transparencia-proy/Sprints Pendientes - Contexto.md` — Contexto de sprints 7.A, 7.5, 7.6, 7.7, 10-21 (lazy load)
+3. `transparencia-proy/Sprints Pendientes - Contexto.md` — Contexto de sprints pendientes 10-21 (lazy load)
 4. `transparencia-proy/RESUMEN LEY 974.md` — Marco legal
 
 ## Documentación de Referencia (LEER SOLO SI NECESARIO)
@@ -111,6 +114,8 @@ Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (7.A, 
 - **Filosofía "minimizar tablas":** en BD real (Sprint 14), las 4 tablas puramente históricas de ediciones se fusionan como **campos JSON** en su tabla padre (`solicitudes_ediciones` → JSON en `solicitudes_informacion`, etc.). Stack fijo: MySQL con `JSON` + Eloquent cast `array`, portable a `JSONB` (Postgres) si en el futuro se requiere.
 - **Frontend por permisos, no por roles.** Catálogo de permisos y utilidad `useCan()` introducidos en Sprint 7.5. Sprint 15 formaliza con BD, Gates y Policies.
 - **Archivos del caso (Sprint 7.6):** En Fase 0 (mock) Jefe y Técnico ven completo (subir/eliminar). En Sprint 15 se restringirá: **Jefe solo `archivo.ver`** (lectura), **Técnico mantiene `archivo.subir` y `archivo.eliminar`** (CRUD completo). No implementar la restricción antes de Sprint 15 para mantener simplicidad en Fase 0.
+- **MAYÚSCULAS sin helpers redundantes:** Se eliminaron los textos "Se guardará en MAYÚSCULAS" y "· MAYÚSCULAS" de todos los inputs (22 archivos). El usuario ve el texto en mayúsculas vía `text-transform: uppercase`, no necesita texto adicional.
+- **Botón copiar con fallback robusto:** `ModalExito` y `ModalConsultarCodigo` usan `navigator.clipboard.writeText()` con fallback a `document.execCommand('copy')` para entornos HTTP. El código se muestra como un solo string `TICKET-PIN` concatenado.
 
 ## Notas / Pendientes
 
@@ -174,16 +179,14 @@ Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (7.A, 
 - `php artisan serve` — Laravel server
 - `php artisan migrate:fresh --seed` — Reset DB
 
-## Próximo Sprint
-**Sprint 7.A — Cierre SITPRECO Sprint 7** (urgente, pre-cliente)
-- Agregar input SITPRECO **opcional** en `ModalRechazo.tsx`
-- Backend `DenunciaController@rechazar` y `DenunciaData::rechazar` aceptan `sitpreco_rechazo`
-- Eliminar toda referencia a "SITPRECO obligatorio al admitir" y "SITPRECO heredado en cierre"
-- Ver `Sprint 7.A - Cierre SITPRECO Sprint 7.md`
+## Próximo Sprint (por definir en planificación)
 
-Tras cerrar 7.A, el orden de sprints urgentes pre-cliente es:
-1. **Sprint 7.5** — Ajustes UX Urgentes (CRUD, MAYÚSCULAS, medio libre, solicitud calendario, eliminar acomp/intervención, hechos 8000, **catálogo de permisos**)
-2. **Sprint 7.6** — Repositorio de Archivos del Caso
-3. **Sprint 7.7** — Búsqueda y Consulta para Registrador
+Los sprints urgentes pre-cliente **7.A → 7.5 → 7.6 → 7.7** están completos. Los próximos sprints en el roadmap son:
+
+1. **Sprint 10** — Panel Administración Catálogos + Subcategorías
+2. **Sprint 11** — Dashboard + KPIs + Reportes PDF/Excel
+3. **Sprint 12** — Tablero Público Cerrados
+4. **Sprint 13** — Tiempos entre Fases
+5. **Sprint 14+** — Base de datos real, Roles, Auditoría, etc.
 
 Ver detalle en `Sprints Pendientes - Contexto.md`.

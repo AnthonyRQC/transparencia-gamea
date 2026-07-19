@@ -41,6 +41,10 @@
 - ✅ Sprint 6: Seguimiento Público (búsqueda por ticket+token, input plano, stepper visual, resumen_rechazo en ModalRechazo, modal éxito token, tokens determinísticos seed)
 - ✅ Sprint 6.5: Simulación Multi-Rol (SesionUsuarioData, SelectorUsuarioController, SelectorUsuarioDemo, sidebar por rol)
 - ✅ Sprint 7: Evaluación Técnica Previa (EvaluacionData, EvaluacionController@devolver, ModalDelegarEvaluacion, ModalDevolverEvaluacion, TabEvaluacionPrevia, Pages/Denuncias/Evaluaciones, DenunciaData: sub-estado evaluacion_tecnica + 7 campos, Bandeja: botón delegar/reasumir, MisCasos: tab evaluaciones delegadas)
+- ✅ Sprint 7.A: Cierre SITPRECO Sprint 7 (sitpreco_rechazo opcional en ModalRechazo, backend acepta nullable, NO tocar ModalAdmision/FormCierre)
+- ✅ Sprint 7.5: Ajustes UX Urgentes pre-cliente (7 bloques: catálogo de permisos, MAYÚSCULAS 100%, CRUD denuncia raíz, medio libre descargos, date picker solicitudes, eliminar acomp/intervención, hechos 8000, conciliación de fechas)
+- ✅ Sprint 7.6: Repositorio de Archivos del Caso (ArchivoData, ArchivosCasoController, ModalArchivosDelCaso, TablaArchivosCaso, soft delete, botón en Sheet)
+- ✅ Sprint 7.7: Búsqueda y Consulta para Registrador (ConsultaCasosController, 7 filtros, ConsultarCasos.tsx, ModalConsultarCodigo, masking denunciante, sidebar item)
 - ✅ Sprint 8: Ampliaciones Múltiples (ModalAmpliacionPlazo, aprobarAmpliacion, límite legal, ampliaciones[] en DenunciaData)
 - ✅ Sprint 9: Notificaciones Push (CampanaNotificaciones, PanelNotificaciones, ItemNotificacion, NotificacionData con generación derivada, página /notificaciones con paginación)
 

@@ -1,11 +1,13 @@
 #transparencia
-# Sprint 7.6 — Repositorio de Archivos del Caso (NUEVO — Julio 2026) ⏳ URGENTE
+# Sprint 7.6 — Repositorio de Archivos del Caso (Julio 2026) ✅ CERRADO
 
-**Objetivo:** Crear un repositorio unificado de archivos por denuncia. Los archivos se suben al final de la investigación (no por paso) y también pueden adjuntarse en cualquier momento. Soft delete: archivo "eliminado" desaparece de UI pero archivo físico se preserva para auditoría.
+**Objetivo:** Repositorio unificado de archivos por denuncia. Los archivos se suben en cualquier momento. Soft delete: archivo "eliminado" desaparece de UI pero archivo físico se preserva para auditoría.
 
-**Origen:** Decisión del cliente Julio 2026 — el cliente pidió evitar pedir archivos en cada paso del flujo de investigación; prefiere una subida al final consolidada con listado para evitar duplicidades.
+**Estado:** ✅ Completado — implementado y probado con mock data.
 
-**Estimación:** 2-3 días.
+**Origen:** Decisión del cliente Julio 2026 — evitar pedir archivos en cada paso del flujo de investigación.
+
+**Estimación real:** ~2 días.
 
 **Dependencias:** Sprint 7.5 cerrado.
 

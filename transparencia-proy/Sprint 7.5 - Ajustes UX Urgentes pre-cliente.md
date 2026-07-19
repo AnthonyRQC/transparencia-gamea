@@ -1,11 +1,13 @@
 #transparencia
-# Sprint 7.5 — Ajustes UX Urgentes pre-cliente (NUEVO — Julio 2026) ⏳ URGENTE
+# Sprint 7.5 — Ajustes UX Urgentes pre-cliente (Julio 2026) ✅ CERRADO
 
-**Objetivo:** Ajustes urgentes solicitados por el cliente para antes de la próxima reunión. Cubre 6 áreas de ajustes UX más 1 refactor arquitectónico (catálogo de permisos).
+**Objetivo:** Ajustes urgentes solicitados por el cliente. Cubre 7 bloques: catálogo de permisos, MAYÚSCULAS, CRUD denuncia raíz, medio libre descargos, date picker solicitudes, eliminar acomp/intervención, hechos 8000, conciliación de fechas.
+
+**Estado:** ✅ Completado — todos los bloques implementados y probados.
 
 **Origen:** Múltiples pedidos del cliente en reunión Julio 2026.
 
-**Estimación:** 3-4 días.
+**Estimación real:** ~5 días (incluye refactor de permisos y 7 bloques).
 
 **Dependencias:** Sprint 7.A cerrado.
 
