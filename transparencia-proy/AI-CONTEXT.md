@@ -77,6 +77,13 @@ Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (10–
 - `transparencia-proy/Proyecto - Vistas y Prototipo de Interfaz.md` — Prototipos de vistas
 - `transparencia-proy/Preguntas para el cliente.md` — Estado de preguntas pendientes
 
+## Esquemas de Base de Datos (LEER SOLO SI NECESARIO)
+> Organizados en 3 archivos para no abrumar:
+
+- `transparencia-proy/Esquema BD - Negocio.md` — 22 tablas del dominio (denuncias, solicitudes, descargos, etc.)
+- `transparencia-proy/Esquema BD - Catálogos.md` — 4 tablas pequeñas de referencia (categorías, unidades, feriados, config)
+- `transparencia-proy/Esquema BD - Librerías.md` — 4-6 tablas generadas por paquetes (Breeze + Auditing)
+
 ## Convenciones Vigentes
 - Colores institucionales: morado `#690bb2` + gold `#fecd2a` (CSS vars OKLCH)
 - Font: Outfit (sans) + Fira Code (mono)

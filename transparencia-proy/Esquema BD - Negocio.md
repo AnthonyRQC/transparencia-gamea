@@ -1,77 +1,43 @@
-# Esquema de Base de Datos — Sistema de Gestión de Denuncias (UTLCC)
+# Esquema BD — Negocio (Sistema de Gestión de Denuncias UTLCC)
 
-Para soportar todas las funcionalidades implementadas en los Sprints 0–9 de la Fase 0 (registro de denuncias, bandeja de admisión, asignación/traspaso/reapertura, investigación con solicitudes y descargos, informe final, cierre, seguimiento público, simulación multi-rol, ampliaciones múltiples, notificaciones y evaluación técnica previa), la base de datos está estructurada de forma relacional bajo el marco legal de la **Ley 974** (Bolivia).
+> 📝 **Tablas del dominio del proyecto.** Ver también:
+> - `Esquema BD - Librerías.md` — Tablas de Breeze (auth) + Auditing (generadas por paquetes)
+> - `Esquema BD - Catálogos.md` — Tablas pequeñas de referencia (categorías, unidades, feriados, config)
 
-> 📝 **Actualización Julio 2026:** Se incorporaron los cambios urgentes acordados para los nuevos sprints 7.A, 7.5, 7.6, 7.7, más las decisiones diferidas (Sprint 22, 23, 24). Cambios principales:
-> - Eliminados `acompaniamiento` e `intervencion` del enum `denuncias.tipo` (diferidos a Sprint 22 v2)
-> - `descargos.medio` pasa de ENUM a texto libre
-> - Nueva tabla `denuncias_archivos` (repositorio unificado, Sprint 7.6)
-> - Fusión de 4 tablas de ediciones en **campos JSON** (filosofía "minimizar tablas", Sprint 14)
-> - MAYÚSCULAS obligatorias en textos libres (Sprint 7.5)
-> - Nuevos campos de conciliación de fechas (Sprint 7.5)
-> - Quitada acción `consulta_codigo` de `bitacora` (Sprint 7.7 — sin log)
-> - Campos para casos legacy y configuración de numeración (Sprint 23, diferido)
->
-> Stack fijo: **MySQL** (Laragon) + Eloquent con cast JSON. Portable a `JSONB` (Postgres) si en el futuro se migra.
-
-A continuación se detalla el diseño propuesto con sus tablas, columnas y relaciones.
-
----
+**Stack fijo:** MySQL (Laragon) + Eloquent con cast JSON. Portable a JSONB (Postgres).
 
 ## 📌 Convenciones
 
-- Todos los plazos se manejan en **días hábiles** (Lun–Vie, excluyendo feriados).
-- Soft delete (`eliminado` / `deleted_at`) donde aplique para preservar trazabilidad y auditoría.
-- Timestamps Laravel (`created_at`, `updated_at`) implícitos en todas las tablas (no listados explícitamente salvo donde tengan significado de negocio).
-- Las llaves foráneas usan `ON DELETE RESTRICT` por defecto (protección referencial).
-- **MAYÚSCULAS en textos libres** (Sprint 7.5): todos los campos de texto libre se almacenan en MAYÚSCULAS por convención institucional. Se aplica en backend con `Str::upper()` antes del `save()` y en frontend con `text-transform: uppercase` en inputs. Ver lista completa de campos afectados al final de este documento.
-- **Filosofía "minimizar tablas"** (Sprint 14): las tablas puramente históricas (sin CRUD, solo información derivada) se fusionan como **campos JSON** en su tabla padre. En MySQL se usa tipo `JSON` + Eloquent cast `array`. Portable a `JSONB` (Postgres) si en el futuro se requiere.
-- **Archivos físicos:** los archivos "eliminados" vía soft delete NO se borran físicamente del disco. Solo se mueven a `archivos_eliminados/` con timestamp. La DB mantiene el registro con `eliminado: true` para auditoría forense.
+- **Días hábiles** en todos los plazos (Lun–Vie, sin Sáb/Dom/feriados).
+- **Soft delete** (`eliminado` / `deleted_at`) para preservar trazabilidad.
+- **MAYÚSCULAS** en textos libres (backend: `Str::upper()`, frontend: `text-transform: uppercase`).
+- **Filosofía "minimizar tablas"**: historial de ediciones como campos **JSON**, no tablas separadas.
+- **Archivos físicos**: no se borran en soft delete, se mueven a `archivos_eliminados/`.
+- Timestamps Laravel implícitos en todas las tablas.
+
+## 📐 Diagrama ER
+
+```mermaid
+erDiagram
+    DENUNCIAS ||--|| DENUNCIANTES : ""
+    DENUNCIAS ||--o{ DENUNCIADOS : ""
+    DENUNCIAS ||--o{ PRUEBAS : ""
+    DENUNCIAS ||--o{ EVALUACIONES_TECNICAS : ""
+    DENUNCIAS ||--o{ SOLICITUDES_INFORMACION : ""
+    SOLICITUDES_INFORMACION ||--o{ SOLICITUDES_AMPLIACIONES : ""
+    DENUNCIAS ||--o{ DESCARGOS : ""
+    DESCARGOS ||--o{ DESCARGOS_AMPLIACIONES : ""
+    DENUNCIAS ||--o{ AMPLIACIONES_PLAZO : ""
+    DENUNCIAS ||--o| INFORMES_FINALES : ""
+    DENUNCIAS ||--o| CIERRES : ""
+    DENUNCIAS ||--o{ DENUNCIAS_ARCHIVOS : ""
+    DENUNCIAS ||--o{ BITACORA : ""
+    DENUNCIAS ||--o{ NOTIFICACIONES : ""
+```
 
 ---
 
-### 1. Tabla: `usuarios`
-*Control de acceso, auditoría de acciones y asignación de roles del sistema UTLCC.*
-
-- **`id`**: Entero, Llave Primaria (Autoincremental).
-- **`nombre`**: Texto, Obligatorio (ej. "Carlos Quispe", "Pedro Mamani").
-- **`email`**: Texto, Único, Obligatorio.
-- **`password`**: Texto, Obligatorio (hash bcrypt, gestionado por Laravel Breeze).
-- **`rol`**: Enum(`'registrador'`, `'jefe'`, `'tecnico'`), Obligatorio. Define los permisos y vistas accesibles.
-  - `registrador`: Solo registra denuncias (`/denuncias/registrar`).
-  - `jefe`: Bandeja de admisión, asignación, reportes, administración de feriados.
-  - `tecnico`: Mis Casos, Mi Resumen, investigación, solicitudes, descargos, informe y cierre.
-- **`iniciales`**: Texto(2), Obligatorio (ej. "CQ", "PM"). Utilizado en avatares y badges del sistema.
-- **`color`**: Texto, Obligatorio (ej. "bg-blue-500"). Clase CSS del avatar/badge del usuario.
-- **`activo`**: Booleano, por defecto `true`. Permite desactivar usuarios sin eliminar historial.
-- **`remember_token`**: Texto, Nullable (gestionado por Laravel).
-
----
-
-### 2. Tabla: `categorias_denuncia`
-*Catálogo de categorías/subcategorías de los hechos denunciados, tipificados según la Ley 974.*
-
-- **`id`**: Entero, Llave Primaria (Autoincremental).
-- **`clave`**: Texto, Único, Obligatorio (ej. `'cohecho'`, `'peculado'`, `'malversacion'`, `'concusion'`, `'enriquecimiento'`, `'trafico'`, `'negociaciones'`, `'omision'`, `'incumplimiento'`, `'otro'`).
-- **`nombre`**: Texto, Obligatorio (ej. "Cohecho (Soborno)", "Peculado").
-- **`descripcion`**: Texto, Nullable. Descripción ampliada o referencia legal.
-- **`activa`**: Booleano, por defecto `true`. El panel administrativo podrá gestionar estas categorías (Sprint 15+).
-
-> **Nota:** Las subcategorías por tipo de denuncia (decisión del cliente, Junio 2026) se agregarán como registros hijos con un campo `parent_id` autorreferencial cuando se defina el panel administrativo.
-
----
-
-### 3. Tabla: `unidades_externas`
-*Catálogo de las unidades/dependencias del GAMEA y entidades externas a las que la UTLCC puede dirigir solicitudes de información durante la investigación (Art. 25 Ley 974).*
-
-- **`id`**: Entero, Llave Primaria (Autoincremental).
-- **`clave`**: Texto, Único, Obligatorio (ej. `'contrataciones'`, `'recursos-humanos'`, `'ministerio-justicia'`).
-- **`nombre`**: Texto, Obligatorio (ej. "Unidad de Contrataciones", "Dirección de Recursos Humanos", "Ministerio de Justicia y Transparencia Institucional").
-- **`activa`**: Booleano, por defecto `true`.
-
----
-
-### 4. Tabla: `denuncias`
+### 1. Tabla: `denuncias`
 *Registro central de denuncias ciudadanas. Entidad raíz del sistema que gobierna todo el flujo procesal desde la recepción hasta el cierre o archivo.*
 
 - **`id`**: Entero, Llave Primaria (Autoincremental).
@@ -119,7 +85,7 @@ A continuación se detalla el diseño propuesto con sus tablas, columnas y relac
 
 ---
 
-### 5. Tabla: `denunciantes`
+### 2. Tabla: `denunciantes`
 *Datos del ciudadano que presenta la denuncia. Separado de `denuncias` para proteger la reserva de identidad (Art. 24, 29 Ley 974).*
 
 - **`id`**: Entero, Llave Primaria (Autoincremental).
@@ -131,7 +97,7 @@ A continuación se detalla el diseño propuesto con sus tablas, columnas y relac
 
 ---
 
-### 6. Tabla: `denunciados`
+### 3. Tabla: `denunciados`
 *Personas señaladas en la denuncia. Una denuncia puede tener múltiples denunciados (bloques dinámicos en el formulario).*
 
 - **`id`**: Entero, Llave Primaria (Autoincremental).
@@ -144,7 +110,7 @@ A continuación se detalla el diseño propuesto con sus tablas, columnas y relac
 
 ---
 
-### 7. Tabla: `pruebas`
+### 4. Tabla: `pruebas`
 *Evidencias adjuntas a la denuncia: archivos, pruebas físicas o datos de testigos. Una denuncia puede tener múltiples pruebas (bloques dinámicos).*
 
 - **`id`**: Entero, Llave Primaria (Autoincremental).
@@ -181,7 +147,7 @@ A continuación se detalla el diseño propuesto con sus tablas, columnas y relac
 
 ---
 
-### 8. Tabla: `evaluaciones_tecnicas`
+### 5. Tabla: `evaluaciones_tecnicas`
 *Evaluaciones técnicas previas delegadas por el Jefe de Unidad a un técnico antes de admitir o rechazar la denuncia (Sprint 7). El plazo de 5 días de admisión (Art. 23) NO se pausa durante esta evaluación.*
 
 - **`id`**: Entero, Llave Primaria (Autoincremental).
@@ -198,7 +164,7 @@ A continuación se detalla el diseño propuesto con sus tablas, columnas y relac
 
 ---
 
-### 9. Tabla: `solicitudes_informacion`
+### 6. Tabla: `solicitudes_informacion`
 *Solicitudes de documentación dirigidas a unidades/dependencias externas durante la investigación de la denuncia (Art. 25 §I y §III Ley 974). Plazo legal: 10 días hábiles, ampliable hasta 5 días adicionales.*
 
 - **`id`**: Entero, Llave Primaria (Autoincremental).
@@ -219,7 +185,7 @@ A continuación se detalla el diseño propuesto con sus tablas, columnas y relac
 
 ---
 
-### 10. Tabla: `solicitudes_archivos`
+### 7. Tabla: `solicitudes_archivos`
 *Archivos adjuntos a las respuestas de solicitudes de información.*
 
 - **`id`**: Entero, Llave Primaria (Autoincremental).
@@ -231,7 +197,7 @@ A continuación se detalla el diseño propuesto con sus tablas, columnas y relac
 
 ---
 
-### 11. Tabla: `solicitudes_ampliaciones`
+### 8. Tabla: `solicitudes_ampliaciones`
 *Registro de ampliaciones de plazo concedidas a solicitudes de información (máximo 5 días adicionales).*
 
 - **`id`**: Entero, Llave Primaria (Autoincremental).
@@ -242,7 +208,7 @@ A continuación se detalla el diseño propuesto con sus tablas, columnas y relac
 
 ---
 
-### 12. Tabla: `solicitudes_ediciones`
+### 9. Tabla: `solicitudes_ediciones`
 *Historial de cambios realizados a solicitudes de información. Auditoría inmutable de cada modificación.*
 
 - **`id`**: Entero, Llave Primaria (Autoincremental).
@@ -255,7 +221,7 @@ A continuación se detalla el diseño propuesto con sus tablas, columnas y relac
 
 ---
 
-### 13. Tabla: `descargos`
+### 10. Tabla: `descargos`
 *Descargos de los denunciados: notificación, recepción de descargo y documentación de respaldo (Art. 25 §IV Ley 974). Plazo legal: 10 días hábiles + 5 de prórroga.*
 
 - **`id`**: Entero, Llave Primaria (Autoincremental).
@@ -278,7 +244,7 @@ A continuación se detalla el diseño propuesto con sus tablas, columnas y relac
 
 ---
 
-### 14. Tabla: `descargos_documentos`
+### 11. Tabla: `descargos_documentos`
 *Documentos de respaldo adjuntados por el denunciado en su descargo.*
 
 - **`id`**: Entero, Llave Primaria (Autoincremental).
@@ -290,7 +256,7 @@ A continuación se detalla el diseño propuesto con sus tablas, columnas y relac
 
 ---
 
-### 15. Tabla: `descargos_ampliaciones`
+### 12. Tabla: `descargos_ampliaciones`
 *Registro de ampliaciones de plazo concedidas a descargos (máximo 5 días adicionales, Art. 25 §IV).*
 
 - **`id`**: Entero, Llave Primaria (Autoincremental).
@@ -301,7 +267,7 @@ A continuación se detalla el diseño propuesto con sus tablas, columnas y relac
 
 ---
 
-### 16. Tabla: `descargos_ediciones`
+### 13. Tabla: `descargos_ediciones`
 *Historial de cambios en descargos para auditoría.*
 
 - **`id`**: Entero, Llave Primaria (Autoincremental).
@@ -314,7 +280,7 @@ A continuación se detalla el diseño propuesto con sus tablas, columnas y relac
 
 ---
 
-### 17. Tabla: `ampliaciones_plazo`
+### 14. Tabla: `ampliaciones_plazo`
 *Ampliaciones del plazo total de la denuncia aprobadas por el Jefe de Unidad (Sprint 8). Se permiten múltiples ampliaciones parciales hasta el máximo legal (corrupción: +45 días, negación: +10 días).*
 
 - **`id`**: Entero, Llave Primaria (Autoincremental).
@@ -329,7 +295,7 @@ A continuación se detalla el diseño propuesto con sus tablas, columnas y relac
 
 ---
 
-### 18. Tabla: `informes_finales`
+### 15. Tabla: `informes_finales`
 *Informe Final emitido por el técnico al concluir la investigación, dirigido a la Máxima Autoridad Institucional (Art. 26 Ley 974). Relación 1:1 con la denuncia. Soporta ediciones y soft delete.*
 
 - **`id`**: Entero, Llave Primaria (Autoincremental).
@@ -351,7 +317,7 @@ A continuación se detalla el diseño propuesto con sus tablas, columnas y relac
 
 ---
 
-### 19. Tabla: `informes_archivos`
+### 16. Tabla: `informes_archivos`
 *Archivos adjuntos al Informe Final.*
 
 - **`id`**: Entero, Llave Primaria (Autoincremental).
@@ -363,7 +329,7 @@ A continuación se detalla el diseño propuesto con sus tablas, columnas y relac
 
 ---
 
-### 20. Tabla: `informes_ediciones`
+### 17. Tabla: `informes_ediciones`
 *Historial de ediciones del Informe Final para auditoría y trazabilidad.*
 
 - **`id`**: Entero, Llave Primaria (Autoincremental).
@@ -374,7 +340,7 @@ A continuación se detalla el diseño propuesto con sus tablas, columnas y relac
 
 ---
 
-### 21. Tabla: `cierres`
+### 18. Tabla: `cierres`
 *Cierre formal de la denuncia. Relación 1:1 con la denuncia. Incluye datos de notificación al denunciante y SITPRECO heredado del informe. Soporta ediciones y soft delete.*
 
 - **`id`**: Entero, Llave Primaria (Autoincremental).
@@ -393,7 +359,7 @@ A continuación se detalla el diseño propuesto con sus tablas, columnas y relac
 
 ---
 
-### 22. Tabla: `cierres_archivos`
+### 19. Tabla: `cierres_archivos`
 *Archivos adjuntos al acta de cierre (ej. acta_cierre_0011.pdf).*
 
 - **`id`**: Entero, Llave Primaria (Autoincremental).
@@ -405,7 +371,7 @@ A continuación se detalla el diseño propuesto con sus tablas, columnas y relac
 
 ---
 
-### 23. Tabla: `cierres_ediciones`
+### 20. Tabla: `cierres_ediciones`
 *Historial de ediciones del cierre para auditoría.*
 
 - **`id`**: Entero, Llave Primaria (Autoincremental).
@@ -416,7 +382,7 @@ A continuación se detalla el diseño propuesto con sus tablas, columnas y relac
 
 ---
 
-### 24. Tabla: `bitacora`
+### 21. Tabla: `bitacora`
 *Bitácora inmutable de todas las acciones realizadas sobre una denuncia. Cada entrada registra un evento del ciclo de vida para auditoría legal completa.*
 
 - **`id`**: Entero, Llave Primaria (Autoincremental).
@@ -429,7 +395,7 @@ A continuación se detalla el diseño propuesto con sus tablas, columnas y relac
 
 ---
 
-### 25. Tabla: `notificaciones`
+### 22. Tabla: `notificaciones`
 *Notificaciones push internas del sistema, mostradas en la campana del navbar y en la página de historial (Sprint 9). Generadas por derivación de eventos del sistema y persistidas al ser leídas.*
 
 - **`id`**: Entero, Llave Primaria (Autoincremental).
@@ -447,75 +413,29 @@ A continuación se detalla el diseño propuesto con sus tablas, columnas y relac
 
 ---
 
-### 26. Tabla: `feriados`
-*Catálogo de días feriados para el cálculo de plazos en días hábiles (Sprint 18 / Panel administrativo del Jefe). Excluidos del cómputo junto con sábados y domingos.*
-
-- **`id`**: Entero, Llave Primaria (Autoincremental).
-- **`fecha`**: Fecha, Única, Obligatorio.
-- **`nombre`**: Texto, Obligatorio (ej. "Día del Estado Plurinacional", "Año Nuevo Aymara"). **Texto libre → MAYÚSCULAS** (Sprint 7.5).
-- **`recurrente`**: Booleano, por defecto `false`. Si se repite cada año (solo se guarda día y mes).
-
----
-
-### 27. Tabla: `configuracion_sistema` (NUEVA — Sprint 23, diferido)
-*Configuración general del sistema. Inicialmente solo para configurar el número de inicio de tickets por año (continuación de casos legacy).*
-
-- **`id`**: Entero, Llave Primaria (Autoincremental).
-- **`clave`**: Texto, Único, Obligatorio (ej. `'siguiente_numero_ticket'`, `'anio_vigente'`).
-- **`valor`**: Texto, Obligatorio.
-- **`descripcion`**: Texto, Nullable. Descripción del parámetro. **Texto libre → MAYÚSCULAS** (Sprint 7.5).
-- **`actualizado_por_id`**: Entero, **Llave Foránea** → `usuarios(id)`, Nullable.
-- **`actualizado_at`**: Timestamp, Nullable.
-
-> **Nota Sprint 23 (diferido):** La UTLCC tiene actualmente 46 denuncias físicas. El sistema debe permitir configurar que el primer ticket de 2026 sea `DEN-2026-0047` (continuación), no `DEN-2026-0001`. Esto se logra con la clave `siguiente_numero_ticket` en esta tabla. **Solo Jefe puede modificar.**
-
----
-
 ## 📊 Diagrama de Relaciones (Resumen Visual)
 
 ```mermaid
 erDiagram
-    usuarios ||--o{ denuncias : "técnico asignado"
-    usuarios ||--o{ evaluaciones_tecnicas : "evalúa"
-    usuarios ||--o{ bitacora : "autor"
-    usuarios ||--o{ notificaciones : "destinatario"
-    usuarios ||--o{ denuncias_archivos : "sube archivo"
-
-    denuncias ||--|| denunciantes : "tiene"
-    denuncias ||--o{ denunciados : "contra"
-    denuncias ||--o{ pruebas : "adjunta"
-    denuncias ||--o{ denuncias_archivos : "repositorio unificado"
-    denuncias ||--o{ evaluaciones_tecnicas : "recibe evaluación"
-    denuncias ||--o{ solicitudes_informacion : "genera"
-    denuncias ||--o{ descargos : "genera"
-    denuncias ||--o{ ampliaciones_plazo : "recibe"
-    denuncias ||--o| informes_finales : "concluye con"
-    denuncias ||--o| cierres : "se cierra con"
-    denuncias ||--o{ bitacora : "registra eventos"
-    denuncias }o--|| categorias_denuncia : "clasificada como"
-
-    solicitudes_informacion }o--|| unidades_externas : "dirigida a"
-    solicitudes_informacion ||--o{ solicitudes_archivos : "adjunta"
-    solicitudes_informacion ||--o{ solicitudes_ampliaciones : "ampliada"
-    solicitudes_informacion ||--|| solicitudes_informacion : "historial_ediciones (JSON)"
-
-    descargos }o--|| denunciados : "notifica a"
-    descargos ||--o{ descargos_documentos : "adjunta"
-    descargos ||--o{ descargos_ampliaciones : "ampliado"
-    descargos ||--|| descargos : "historial_ediciones (JSON)"
-
-    informes_finales ||--o{ informes_archivos : "adjunta"
-    informes_finales ||--|| informes_finales : "historial_ediciones (JSON)"
-
-    cierres ||--o{ cierres_archivos : "adjunta"
-    cierres ||--|| cierres : "historial_ediciones (JSON)"
+    denuncias ||--|| denunciantes : "1:1"
+    denuncias ||--o{ denunciados : "1:N"
+    denuncias ||--o{ pruebas : "1:N"
+    denuncias ||--o{ evaluaciones_tecnicas : "1:N"
+    denuncias ||--o{ solicitudes_informacion : "1:N"
+    solicitudes_informacion ||--o{ solicitudes_ampliaciones : "1:N"
+    denuncias ||--o{ descargos : "1:N"
+    descargos ||--o{ descargos_ampliaciones : "1:N"
+    denuncias ||--o{ ampliaciones_plazo : "1:N"
+    denuncias ||--o| informes_finales : "1:1"
+    denuncias ||--o| cierres : "1:1"
+    denuncias ||--o{ denuncias_archivos : "1:N"
+    denuncias ||--o{ bitacora : "1:N"
+    denuncias ||--o{ notificaciones : "1:N"
 ```
 
-> 🆕 **Actualizaciones Julio 2026:**
-> - Eliminadas las relaciones con tablas `*_ediciones` (ahora son campos JSON en sus tablas padre).
-> - Nueva relación `denuncias ||--o{ denuncias_archivos` (repositorio unificado, Sprint 7.6).
-> - `usuarios ||--o{ denuncias_archivos` (usuario que subió el archivo).
-> - Las auto-relaciones de cada tabla representan el campo JSON `historial_ediciones`.
+> **Nota:** Las relaciones con `users` (FKs: técnico, autor, quien sube, etc.) están en `Esquema BD - Librerías.md`.
+> Las relaciones con catálogos (`categorias_denuncia`, `unidades_externas`, `feriados`) están en `Esquema BD - Catálogos.md`.
+> Las tablas `*_ediciones` fueron fusionadas a campos JSON en sus tablas padre.
 
 ---
 
