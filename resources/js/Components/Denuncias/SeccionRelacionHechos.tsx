@@ -54,7 +54,7 @@ export default function SeccionRelacionHechos({ value, onChange, error }: Seccio
                     </div>
                 )}
             </div>
-            <p className="text-[10px] text-muted-foreground">Se guardará en MAYÚSCULAS</p>
+
         </div>
     );
 }

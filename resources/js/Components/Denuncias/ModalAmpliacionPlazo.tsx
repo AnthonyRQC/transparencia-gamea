@@ -218,8 +218,8 @@ export default function ModalAmpliacionPlazo({ denuncia, open, onOpenChange, tec
             />
             <p className="text-[11px] text-muted-foreground">
               {justificacion.length < 10
-                ? `Mínimo 10 caracteres (${justificacion.length}/500) · MAYÚSCULAS`
-                : `${justificacion.length}/500 caracteres · MAYÚSCULAS`}
+                ? `Mínimo 10 caracteres (${justificacion.length}/500)`
+                : `${justificacion.length}/500 caracteres`}
             </p>
           </div>
 

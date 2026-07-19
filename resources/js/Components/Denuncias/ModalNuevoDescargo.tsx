@@ -163,7 +163,6 @@ export default function ModalNuevoDescargo({ ticket, denunciados, open, onOpenCh
                   maxLength={200}
                   style={{ textTransform: 'uppercase' }}
                 />
-                <p className="text-[10px] text-muted-foreground">Se guardará en MAYÚSCULAS</p>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="dependencia-externo">Cargo / Dependencia (opcional)</Label>
@@ -175,7 +174,6 @@ export default function ModalNuevoDescargo({ ticket, denunciados, open, onOpenCh
                   maxLength={200}
                   style={{ textTransform: 'uppercase' }}
                 />
-                <p className="text-[10px] text-muted-foreground">Se guardará en MAYÚSCULAS</p>
               </div>
             </>
           ) : (

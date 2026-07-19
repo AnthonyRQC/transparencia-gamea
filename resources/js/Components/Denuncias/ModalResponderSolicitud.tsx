@@ -88,7 +88,7 @@ export default function ModalResponderSolicitud({ solicitudId, open, onOpenChang
               style={{ textTransform: 'uppercase' }}
             />
             <div className="flex items-center justify-between">
-              <p className="text-[11px] text-muted-foreground">{respuesta.length}/5000 · MAYÚSCULAS</p>
+              <p className="text-[11px] text-muted-foreground">{respuesta.length}/5000</p>
               {respuesta.length > 0 && respuesta.trim().length < 5 && (
                 <p className="text-[11px] text-destructive font-medium">Mínimo 5 caracteres</p>
               )}

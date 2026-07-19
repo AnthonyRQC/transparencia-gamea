@@ -149,7 +149,7 @@ export default function ModalConciliarFechas({ ticket, denuncia, open, onOpenCha
               <p className="text-[11px] text-muted-foreground">
                 {justificacion.length < 20
                   ? `Mínimo 20 caracteres (${justificacion.length}/2000)`
-                  : `${justificacion.length}/2000 · MAYÚSCULAS`}
+                  : `${justificacion.length}/2000`}
               </p>
             </div>
           </div>

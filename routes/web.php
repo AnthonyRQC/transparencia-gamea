@@ -12,6 +12,7 @@ use App\Http\Controllers\NotificacionController;
 use App\Http\Controllers\DemoNotificacionController;
 use App\Http\Controllers\EvaluacionController;
 use App\Http\Controllers\ArchivosCasoController;
+use App\Http\Controllers\ConsultaCasosController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -106,6 +107,9 @@ Route::prefix('denuncias')->name('denuncias.')->group(function () {
 
     // Sprint 7.5 — Conciliación de Fechas
     Route::post('/{ticket}/conciliar-fechas', [DenunciaController::class, 'conciliarFechas'])->name('conciliar-fechas');
+
+    // Sprint 7.7 — Consulta de Casos (Registrador)
+    Route::get('/consultar', [ConsultaCasosController::class, 'index'])->name('consultar');
 
     // Sprint 7.6 — Archivos del caso
     Route::get('/{ticket}/archivos', [ArchivosCasoController::class, 'listar'])->name('archivos.listar');

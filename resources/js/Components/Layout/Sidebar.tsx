@@ -10,6 +10,7 @@ import {
     CalendarDays,
     Bell,
     FileSearch,
+    Search,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Permiso } from '@/permissions';
@@ -94,6 +95,14 @@ export default function Sidebar({
             routeName: 'denuncias.evaluaciones',
             icon: <FileSearch className="w-5 h-5 shrink-0" />,
             permiso: 'menu.evaluaciones',
+        },
+        {
+            key: 'consultar-casos',
+            label: 'Consultar Casos',
+            href: route('denuncias.consultar'),
+            routeName: 'denuncias.consultar',
+            icon: <Search className="w-5 h-5 shrink-0" />,
+            permiso: 'menu.consultar-casos',
         },
         {
             key: 'notificaciones',

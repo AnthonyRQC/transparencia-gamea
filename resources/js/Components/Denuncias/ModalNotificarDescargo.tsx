@@ -93,7 +93,7 @@ export default function ModalNotificarDescargo({ descargoId, open, onOpenChange 
                 maxLength={200}
                 style={{ textTransform: 'uppercase' }}
               />
-              <p className="text-[10px] text-muted-foreground">Se guardará en MAYÚSCULAS</p>
+
             </div>
             
             <div className="space-y-2">

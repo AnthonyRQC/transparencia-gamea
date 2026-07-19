@@ -132,7 +132,7 @@ export default function ModalDevolverEvaluacion({ evaluacion, denuncia, open, on
               disabled={processing}
               style={{ textTransform: 'uppercase' }}
             />
-            <p className="text-[11px] text-muted-foreground">{texto.length}/2000 · MAYÚSCULAS</p>
+            <p className="text-[11px] text-muted-foreground">{texto.length}/2000</p>
           </div>
         </div>
 

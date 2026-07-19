@@ -132,7 +132,6 @@ export default function SeccionDetalles({ data, onChange, categorias, errors }: 
                             </div>
                         )}
                     </div>
-                    <p className="text-[10px] text-muted-foreground">Se guardará en MAYÚSCULAS</p>
                 </div>
             </div>
         </div>

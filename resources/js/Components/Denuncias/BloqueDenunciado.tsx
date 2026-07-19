@@ -167,7 +167,6 @@ export default function BloqueDenunciado({ items, onChange, errors }: BloqueDenu
                                         </div>
                                     )}
                                 </div>
-                                <p className="text-[10px] text-muted-foreground">Se guardará en MAYÚSCULAS</p>
                             </div>
                         )}
                     </div>

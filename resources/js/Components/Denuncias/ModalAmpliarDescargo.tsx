@@ -90,7 +90,7 @@ export default function ModalAmpliarDescargo({ descargoId, open, onOpenChange }:
               style={{ textTransform: 'uppercase' }}
             />
             <div className="flex items-center justify-between">
-              <p className="text-[11px] text-muted-foreground">{justificacion.length}/2000 · MAYÚSCULAS</p>
+              <p className="text-[11px] text-muted-foreground">{justificacion.length}/2000</p>
               {justificacion.length > 0 && justificacion.trim().length < 10 && (
                 <p className="text-[11px] text-destructive font-medium">Mínimo 10 caracteres</p>
               )}

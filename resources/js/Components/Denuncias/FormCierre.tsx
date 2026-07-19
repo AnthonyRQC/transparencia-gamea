@@ -349,7 +349,7 @@ function CierreForm({ ticket, cierre, tecnicoNombre, processing, setProcessing, 
                 style={{ textTransform: 'uppercase' }}
               />
               <div className="flex items-center justify-between">
-                <p className="text-[11px] text-muted-foreground">{notificacionDescripcion.length}/2000 · MAYÚSCULAS</p>
+                <p className="text-[11px] text-muted-foreground">{notificacionDescripcion.length}/2000</p>
                 {notificacionDescripcion.length > 0 && notificacionDescripcion.trim().length < 5 && (
                   <p className="text-[11px] text-destructive font-medium">Mínimo 5 caracteres</p>
                 )}
@@ -369,7 +369,7 @@ function CierreForm({ ticket, cierre, tecnicoNombre, processing, setProcessing, 
                 placeholder="Ej: Denunciante anónimo sin datos de contacto..."
                 style={{ textTransform: 'uppercase' }}
               />
-              <p className="text-[11px] text-muted-foreground">{noNotificadoMotivo.length}/500 · MAYÚSCULAS</p>
+              <p className="text-[11px] text-muted-foreground">{noNotificadoMotivo.length}/500</p>
             </div>
           </div>
         )}
@@ -400,7 +400,7 @@ function CierreForm({ ticket, cierre, tecnicoNombre, processing, setProcessing, 
           style={{ textTransform: 'uppercase' }}
         />
         <div className="flex items-center justify-between">
-          <p className="text-[11px] text-muted-foreground">{descripcion.length}/5000 · MAYÚSCULAS</p>
+          <p className="text-[11px] text-muted-foreground">{descripcion.length}/5000</p>
           {descripcion.length > 0 && descripcion.trim().length < 20 && (
             <p className="text-[11px] text-destructive font-medium">Mínimo 20 caracteres</p>
           )}

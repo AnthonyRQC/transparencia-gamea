@@ -108,7 +108,6 @@ export default function SeccionDenunciante({ escenario, data, onChange, errors }
                             </div>
                         )}
                     </div>
-                    <p className="text-[10px] text-muted-foreground">Se guardará en MAYÚSCULAS</p>
                 </div>
                 <div className="space-y-1.5">
                     <div className="flex items-center gap-1.5">

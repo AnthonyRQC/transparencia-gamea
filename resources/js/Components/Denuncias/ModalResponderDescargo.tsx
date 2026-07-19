@@ -71,7 +71,7 @@ export default function ModalResponderDescargo({ descargoId, open, onOpenChange 
               style={{ textTransform: 'uppercase' }}
             />
             <div className="flex items-center justify-between">
-              <p className="text-[11px] text-muted-foreground">{resumen.length}/5000 · MAYÚSCULAS</p>
+              <p className="text-[11px] text-muted-foreground">{resumen.length}/5000</p>
               {resumen.length > 0 && resumen.trim().length < 5 && (
                 <p className="text-[11px] text-destructive font-medium">Mínimo 5 caracteres</p>
               )}

@@ -1,5 +1,7 @@
-import { X, CheckCircle } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { useState } from 'react';
+import { CheckCircle, Copy, Check } from 'lucide-react';
+import { Input } from '@/Components/ui/input';
+import { Button } from '@/Components/ui/button';
 
 interface ModalExitoProps {
     ticket: string;
@@ -8,6 +10,33 @@ interface ModalExitoProps {
 }
 
 export default function ModalExito({ ticket, token, onClose }: ModalExitoProps) {
+    const [copied, setCopied] = useState(false);
+
+    const fullCode = token ? `${ticket}-${token}` : ticket;
+
+    const handleCopy = async () => {
+        try {
+            if (navigator.clipboard && window.isSecureContext) {
+                await navigator.clipboard.writeText(fullCode);
+            } else {
+                const textArea = document.createElement('textarea');
+                textArea.value = fullCode;
+                textArea.style.position = 'fixed';
+                textArea.style.opacity = '0';
+                textArea.style.pointerEvents = 'none';
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+            }
+        } catch (e) {
+            console.warn('Clipboard fallback failed:', e);
+        }
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
+
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" role="dialog" aria-modal="true" aria-labelledby="modal-exito-title" onClick={onClose}>
             <div
@@ -24,32 +53,20 @@ export default function ModalExito({ ticket, token, onClose }: ModalExitoProps) 
                             Su denuncia ha sido recibida exitosamente.
                         </p>
                     </div>
-                    <div className="bg-muted/50 rounded-xl px-5 py-4 border border-border/60 space-y-3">
-                        <div>
-                            <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide mb-1">
-                                N° de Denuncia
-                            </p>
-                            <p className="text-2xl font-bold text-primary tracking-wider font-mono">
-                                {ticket}
-                            </p>
+                    <div className="bg-muted/50 rounded-xl px-5 py-4 border border-border/60 space-y-2 text-left">
+                        <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wide text-center">
+                            Código para seguimiento
+                        </p>
+                        <div className="flex items-center gap-2">
+                            <Input value={fullCode} readOnly className="font-mono font-bold text-center text-lg tracking-wider flex-1" />
+                            <Button variant="outline" size="sm" onClick={handleCopy} className="shrink-0">
+                                {copied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
+                            </Button>
                         </div>
-                        {token && (
-                            <>
-                                <div className="border-t border-border/40" />
-                                <div>
-                                    <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide mb-1">
-                                        Código de Seguridad
-                                    </p>
-                                    <p className="text-lg font-extrabold text-secondary-foreground tracking-widest font-mono">
-                                        {token}
-                                    </p>
-                                </div>
-                            </>
-                        )}
                     </div>
                     <p className="text-[11px] text-muted-foreground leading-relaxed">
-                        Guarde este número y código para dar seguimiento a su denuncia.
-                        Puede consultar el estado ingresando ambos en la página de seguimiento.
+                        Guarde este código para dar seguimiento a su denuncia.
+                        Puede ingresarlo en la página de seguimiento para consultar el estado.
                     </p>
                 </div>
                 <div className="flex justify-center px-8 pb-6">

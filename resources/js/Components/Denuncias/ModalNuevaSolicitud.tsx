@@ -229,7 +229,7 @@ export default function ModalNuevaSolicitud({ ticket, open, onOpenChange, solici
               style={{ textTransform: 'uppercase' }}
             />
             <div className="flex items-center justify-between">
-              <p className="text-[11px] text-muted-foreground">{detalle.length}/2000 · MAYÚSCULAS</p>
+              <p className="text-[11px] text-muted-foreground">{detalle.length}/2000</p>
               {detalle.length > 0 && detalle.trim().length < 5 && (
                 <p className="text-[11px] text-destructive font-medium">Mínimo 5 caracteres</p>
               )}

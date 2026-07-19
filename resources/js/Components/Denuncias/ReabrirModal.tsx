@@ -121,7 +121,7 @@ export default function ReabrirModal({ ticket, open, onOpenChange }: ReabrirModa
             />
             <div className="flex items-center justify-between">
               <p className="text-[11px] text-muted-foreground">
-                {justificacion.length}/2000 caracteres · MAYÚSCULAS
+                {justificacion.length}/2000 caracteres
               </p>
               {justificacion.length > 0 && justificacion.trim().length < 20 && (
                 <p className="text-[11px] text-destructive font-medium">
