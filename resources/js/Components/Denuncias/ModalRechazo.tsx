@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/Components/ui/dialog';
 import { Label } from '@/Components/ui/label';
 import { Textarea } from '@/Components/ui/textarea';
+import { Input } from '@/Components/ui/input';
 import { Button } from '@/Components/ui/button';
 import { Separator } from '@/Components/ui/separator';
 
@@ -16,6 +17,7 @@ interface ModalRechazoProps {
 
 export default function ModalRechazo({ ticket, open, onOpenChange }: ModalRechazoProps) {
   const [justificacion, setJustificacion] = useState('');
+  const [sitpreco, setSitpreco] = useState('');
   const [resumenRechazo, setResumenRechazo] = useState('');
   const [processing, setProcessing] = useState(false);
 
@@ -28,6 +30,7 @@ export default function ModalRechazo({ ticket, open, onOpenChange }: ModalRechaz
       route('denuncias.rechazar', { ticket }),
       {
         justificacion,
+        sitpreco: sitpreco.trim() || null,
         resumen_rechazo: resumenRechazo.trim() || null,
       },
       {
@@ -35,6 +38,7 @@ export default function ModalRechazo({ ticket, open, onOpenChange }: ModalRechaz
         onSuccess: () => {
           toast.success(`Denuncia ${ticket} rechazada`);
           setJustificacion('');
+          setSitpreco('');
           setResumenRechazo('');
           onOpenChange(false);
         },
@@ -83,6 +87,19 @@ export default function ModalRechazo({ ticket, open, onOpenChange }: ModalRechaz
                 </p>
               )}
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="sitpreco-rechazo">
+              SITPRECO
+            </Label>
+            <Input
+              id="sitpreco-rechazo"
+              placeholder=""
+              value={sitpreco}
+              onChange={(e) => setSitpreco(e.target.value)}
+              maxLength={50}
+            />
           </div>
 
           <Separator />

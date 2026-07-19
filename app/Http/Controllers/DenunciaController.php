@@ -115,6 +115,7 @@ class DenunciaController extends Controller
     {
         $validated = $request->validate([
             'justificacion' => 'required|string|min:5|max:2000',
+            'sitpreco' => 'nullable|string|max:50',
             'resumen_rechazo' => 'nullable|string|max:200',
         ]);
 
@@ -123,7 +124,12 @@ class DenunciaController extends Controller
             return redirect()->back()->with('error', 'No se puede rechazar esta denuncia.');
         }
 
-        DenunciaData::rechazar($ticket, $validated['justificacion'], $validated['resumen_rechazo'] ?? null);
+        DenunciaData::rechazar(
+            $ticket,
+            $validated['justificacion'],
+            $validated['resumen_rechazo'] ?? null,
+            $validated['sitpreco'] ?? null
+        );
 
         return redirect()->back()->with('success', "Denuncia {$ticket} rechazada.");
     }

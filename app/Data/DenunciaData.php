@@ -73,6 +73,7 @@ class DenunciaData
         $data['ampliaciones'] = [];
         $data['bitacora'] = [];
         $data['token_consulta'] = self::generateToken();
+        $data['sitpreco_rechazo'] = null;
 
         // Sprint 7 — Evaluación Técnica Previa
         $data['evaluacion_tecnica_tecnico_id'] = null;
@@ -161,7 +162,7 @@ class DenunciaData
         return false;
     }
 
-    public static function rechazar(string $ticket, string $justificacion, ?string $resumenRechazo = null): bool
+    public static function rechazar(string $ticket, string $justificacion, ?string $resumenRechazo = null, ?string $sitpreco = null): bool
     {
         $denuncias = self::getAll();
         foreach ($denuncias as $i => $d) {
@@ -170,6 +171,7 @@ class DenunciaData
                 $denuncias[$i]['fecha_rechazada'] = now()->toDateTimeString();
                 $denuncias[$i]['justificacion_rechazo'] = $justificacion;
                 $denuncias[$i]['resumen_rechazo'] = $resumenRechazo;
+                $denuncias[$i]['sitpreco_rechazo'] = $sitpreco;
                 $denuncias[$i]['evaluacion_tecnica_tecnico_id'] = null;
                 $denuncias[$i]['evaluacion_tecnica_tecnico_nombre'] = null;
                 $denuncias[$i]['evaluacion_tecnica_delegada_at'] = null;
