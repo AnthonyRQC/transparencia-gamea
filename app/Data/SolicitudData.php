@@ -255,10 +255,7 @@ class SolicitudData
                 'fecha_vencimiento' => DiasHabiles::agregarDiasFin(5),
                 'fecha_respuesta' => (clone $now)->subDay()->toDateTimeString(),
                 'respuesta' => 'Se adjuntan los comprobantes de pago solicitados. Los desembolsos fueron autorizados por la Dirección de Hacienda según memorándum DHA-2026-045. Se envió copia de los 3 desembolsos realizados al proveedor.',
-                'archivos' => [
-                    ['nombre' => 'comprobantes_pago_ambulancias.pdf', 'tamano' => '2.4 MB', 'fecha_subida' => (clone $now)->subDay()->toDateTimeString()],
-                    ['nombre' => 'memorandum_DHA-2026-045.pdf', 'tamano' => '0.8 MB', 'fecha_subida' => (clone $now)->subDay()->toDateTimeString()],
-                ],
+            'archivos' => [],
                 'estado' => 'respondida',
                 'ampliaciones' => [],
                 'ediciones' => [],

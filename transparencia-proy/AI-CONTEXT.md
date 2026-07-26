@@ -26,18 +26,19 @@ Tailwind v3 · shadcn/ui (New York) · Laragon (Windows local)
 **Sprint 7.7** (Búsqueda y Consulta para Registrador) — Cerrado ✅ (Julio 2026)
 **Sprint 8** (Ampliaciones Múltiples) — Cerrado ✅ (Julio 2026)
 **Sprint 9** (Notificaciones Push + Historial) — Cerrado ✅ (Julio 2026)
+**Sprint 9.1** (Simplificación UI Archivos + Mock alineado) — Cerrado ✅ (Julio 2026)
 
-Sprints pendientes: **10**, **11**, **12**, **13**, **14**, **15+** (BD real).
-Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (10–21).
+Sprints pendientes: **11**, **12**, **13**, **14**, **15**, **16+**.
+Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (11–25).
 
 ## Roles (post sesión con cliente, Junio 2026)
 - **Registrador** (antes "Recepcionista")
 - **Jefe de Unidad**
 - **Técnicos**
 
-(Implementación formal de roles será en Sprint 15, una vez la BD esté operativa).
+(Implementación formal de roles será en Sprint 16, una vez la BD esté operativa).
 
-> 🆕 **Importante (Julio 2026):** Aunque los roles aún no están formalizados en BD, el **frontend debe gestionar permisos (no roles)** siguiendo buenas prácticas. El catálogo de permisos y la utilidad `useCan()`/`@can` se introducen en **Sprint 7.5**. Esto desacopla la UI de los nombres de roles y prepara el terreno para Sprint 15.
+> 🆕 **Importante (Julio 2026):** Aunque los roles aún no están formalizados en BD, el **frontend debe gestionar permisos (no roles)** siguiendo buenas prácticas. El catálogo de permisos y la utilidad `useCan()`/`@can` se introducen en **Sprint 7.5**. Esto desacopla la UI de los nombres de roles y prepara el terreno para Sprint 16.
 
 ## Convenciones de lectura para IAs
 
@@ -58,7 +59,7 @@ Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (10–
 ## Documentación Esencial (LEER SIEMPRE)
 1. `transparencia-proy/AI-CONTEXT.md` (este archivo) — Snapshot del estado actual
 2. `transparencia-proy/Plan de Desarrollo.md` — Hoja de ruta, sprints, decisiones
-3. `transparencia-proy/Sprints Pendientes - Contexto.md` — Contexto de sprints pendientes 10-21 (lazy load)
+3. `transparencia-proy/Sprints Pendientes - Contexto.md` — Contexto de sprints pendientes 11-25 (lazy load)
 4. `transparencia-proy/RESUMEN LEY 974.md` — Marco legal
 
 ## Documentación de Referencia (LEER SOLO SI NECESARIO)
@@ -89,7 +90,7 @@ Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (10–
 - Font: Outfit (sans) + Fira Code (mono)
 - Modo oscuro: clase `.dark` en `<html>`, persistido en localStorage
 - **MAYÚSCULAS obligatorias en todos los campos de texto libre** (convención institucional). Aplica en frontend con `text-transform: uppercase` en inputs/textareas y en backend con `Str::upper()` antes del `save()`. Ver lista completa en `Sprint 7.5`.
-- **Frontend por permisos, no por roles** (buenas prácticas). El catálogo de permisos y la utilidad `useCan()` se introducen en Sprint 7.5. Los roles formales (BD) llegan en Sprint 15.
+- **Frontend por permisos, no por roles** (buenas prácticas). El catálogo de permisos y la utilidad `useCan()` se introducen en Sprint 7.5. Los roles formales (BD) llegan en Sprint 16.
 - Rutas via Ziggy `route()`
 - Subdirectorio URL: `/transparencia/public/`
 - **Stack fijo:** MySQL (Laragon), Eloquent con cast JSON. Sin migración a Postgres.
@@ -118,14 +119,18 @@ Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (10–
 - **Consulta de código (ticket + PIN) por Registrador sin bitácora** (Sprint 7.7). Sin restricción, sin log: el responsable de la información es el Registrador.
 - **Repositorio unificado de archivos del caso** (Sprint 7.6): nueva tabla `denuncias_archivos` conviviendo con archivos por fase. Soft delete: archivo "eliminado" desaparece de UI pero archivo físico se preserva.
 - **Hechos del registro:** 5000 → **8000 caracteres** (Sprint 7.5).
-- **Filosofía "minimizar tablas":** en BD real (Sprint 14), se aplican 3 estrategias: (1) historiales de ediciones como **campos JSON** en tabla padre (4 tablas eliminadas), (2) archivos por fase unificados en `denuncias_archivos` con contexto polimórfico (4 tablas eliminadas), (3) ampliaciones unificadas en tabla polimórfica `ampliaciones` (3 tablas eliminadas). Total: de 31 a 23 tablas. Stack fijo: MySQL con `JSON` + Eloquent cast `array`, portable a `JSONB` (Postgres) si en el futuro se requiere.
-- **Frontend por permisos, no por roles.** Catálogo de permisos y utilidad `useCan()` introducidos en Sprint 7.5. Sprint 15 formaliza con BD, Gates y Policies.
-- **Archivos del caso (Sprint 7.6):** En Fase 0 (mock) Jefe y Técnico ven completo (subir/eliminar). En Sprint 15 se restringirá: **Jefe solo `archivo.ver`** (lectura), **Técnico mantiene `archivo.subir` y `archivo.eliminar`** (CRUD completo). No implementar la restricción antes de Sprint 15 para mantener simplicidad en Fase 0.
+- **Filosofía "minimizar tablas":** en BD real (Sprint 9.2), se aplican 3 estrategias: (1) historiales de ediciones como **campos JSON** en tabla padre (4 tablas eliminadas), (2) archivos por fase unificados en `denuncias_archivos` con contexto polimórfico (4 tablas eliminadas), (3) ampliaciones unificadas en tabla polimórfica `ampliaciones` (3 tablas eliminadas). Total: de 31 a 23 tablas. Stack fijo: MySQL con `JSON` + Eloquent cast `array`, portable a `JSONB` (Postgres) si en el futuro se requiere.
+- **Frontend por permisos, no por roles.** Catálogo de permisos y utilidad `useCan()` introducidos en Sprint 7.5. Sprint 16 formaliza con BD, Gates y Policies.
+- **Archivos del caso (Sprint 7.6):** En Fase 0 (mock) Jefe y Técnico ven completo (subir/eliminar). En Sprint 16 se restringirá: **Jefe solo `archivo.ver`** (lectura), **Técnico mantiene `archivo.subir` y `archivo.eliminar`** (CRUD completo). No implementar la restricción antes de Sprint 16 para mantener simplicidad en Fase 0.
 - **MAYÚSCULAS sin helpers redundantes:** Se eliminaron los textos "Se guardará en MAYÚSCULAS" y "· MAYÚSCULAS" de todos los inputs (22 archivos). El usuario ve el texto en mayúsculas vía `text-transform: uppercase`, no necesita texto adicional.
 - **Botón copiar con fallback robusto:** `ModalExito` y `ModalConsultarCodigo` usan `navigator.clipboard.writeText()` con fallback a `document.execCommand('copy')` para entornos HTTP. El código se muestra como un solo string `TICKET-PIN` concatenado.
 - **Soft delete de denuncias solo por Jefe de Unidad:** El Registrador no puede eliminar, solo editar. Si se elimina una denuncia, su número de ticket se reusa para la siguiente (numeración continua). La eliminación queda registrada en `audits` (librería de auditoría).
 - **`denuncias_archivos.eliminado` eliminado:** Se usa solo `fecha_eliminacion` (NULL = activo, !NULL = eliminado). Sin booleano redundante.
 - **`ampliaciones` polimórfica:** Tabla unificada con `tipo` enum(`solicitud|descargo|denuncia`). Campos `aprobado_por_id`, `numero`, `solicitado_por` solo aplican para `tipo='denuncia'`.
+- **`pruebas` simplificada (Sprint 9.1):** Se eliminó el tipo `archivo` de `pruebas`. Las pruebas de tipo archivo ahora se suben directamente a `denuncias_archivos` con `contexto='registro'`. `pruebas` solo maneja `fisica` y `testigo`.
+- **UI de archivos simplificada (Sprint 9.1):** Se eliminaron los campos de subida simulada de `FormInformeFinal` y `FormCierre`. Todo archivo se sube vía `ModalArchivosDelCaso` con dropdown de contexto ampliado a 6 valores (`registro|general|solicitud|descargo|informe|cierre`) y soporte para `contexto_id`.
+- **Sprint 10 = Catálogos globales / Sprint 18 = Preferencias usuario:** Sprint 10 (renumerado a 11 en nuevo roadmap) maneja configuraciones GLOBALES (Jefe edita: dropdowns, tipos, subcategorías, feriados). Sprint 18 (era 17) maneja preferencias INDIVIDUALES de cada usuario.
+- **Renumeración de sprints (Julio 2026):** Sprint 9.2 (BD real, era 14) desplazó la numeración: antiguo 10→11, 11→12, ..., 24→25. El roadmap completo está en `Sprints Pendientes - Contexto.md`.
 
 ## Notas / Pendientes
 
@@ -139,9 +144,9 @@ Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (10–
 > - C8: Reglas del plazo al reabrir una denuncia
 
 > ⏸️ **Funcionalidades diferidas a v2 (no implementar en Fase 1):**
-> - Acompañamiento/Intervención → **Sprint 22**
-> - Permisos personalizados por usuario (granulares) → **Sprint 24**
-> - Migración de casos legacy → **Sprint 23** (detalle cuando se implemente BD)
+> - Acompañamiento/Intervención → **Sprint 23** (era 22)
+> - Permisos personalizados por usuario (granulares) → **Sprint 25** (era 24)
+> - Migración de casos legacy → **Sprint 24** (era 23, detalle cuando se implemente BD)
 
 ## Arquitectura Clave
 - `app/Data/DenunciaData.php` — Mock data estática (sesión, no DB)
@@ -189,14 +194,14 @@ Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (10–
 - `php artisan serve` — Laravel server
 - `php artisan migrate:fresh --seed` — Reset DB
 
-## Próximo Sprint (por definir en planificación)
+## Próximo Sprint
 
-Los sprints urgentes pre-cliente **7.A → 7.5 → 7.6 → 7.7** están completos. Los próximos sprints en el roadmap son:
+Los sprints 7.6, 7.7, 8, 9 y 9.1 están completos. El roadmap con numeración actualizada:
 
-1. **Sprint 10** — Panel Administración Catálogos + Subcategorías
-2. **Sprint 11** — Dashboard + KPIs + Reportes PDF/Excel
-3. **Sprint 12** — Tablero Público Cerrados
-4. **Sprint 13** — Tiempos entre Fases
-5. **Sprint 14+** — Base de datos real, Roles, Auditoría, etc.
+1. **Sprint 11** (era 10) — Panel Administración Catálogos + Subcategorías
+2. **Sprint 12** (era 11) — Dashboard + KPIs + Reportes PDF/Excel
+3. **Sprint 13** (era 12) — Tablero Público Cerrados
+4. **Sprint 14** (era 13) — Tiempos entre Fases
+5. **Sprint 15** (era 14 → 9.2) — Base de datos real, Roles, Auditoría, etc.
 
-Ver detalle en `Sprints Pendientes - Contexto.md`.
+Ver detalle completo en `Sprints Pendientes - Contexto.md`.

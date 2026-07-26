@@ -71,7 +71,7 @@ erDiagram
 - **`es_legacy`**: Booleano, por defecto `false`. Sprint 23 (diferido): marca casos migrados del sistema legacy (sin historial automático).
 - **`deleted_at`**: Timestamp, Nullable. Soft delete: solo el Jefe de Unidad puede eliminar denuncias (el Registrador solo edita). La eliminación no afecta la numeración de tickets (se reusa el número).
 
-> **JSON — Datos históricos (Sprint 14: fusión):** Campos que antes eran columnas separadas, ahora agrupados en JSON para reducir la tabla. Se leen siempre juntos y no se consultan individualmente.
+> **JSON — Datos históricos (Sprint 9.2: fusión):** Campos que antes eran columnas separadas, ahora agrupados en JSON para reducir la tabla. Se leen siempre juntos y no se consultan individualmente.
 > - **`traspaso_json`**: JSON, Nullable. `{ fecha: timestamp, justificacion: string }`. Datos del último traspaso entre técnicos.
 > - **`reapertura_json`**: JSON, Nullable. `{ fecha: timestamp, justificacion: string, plazo: date }`. Datos de la reapertura del caso.
 > - **`conciliacion_json`**: JSON, Nullable. `{ conciliado_por_id: int, motivo: string, fecha: timestamp, fecha_cierre_real: date }`. Datos de conciliación de fechas por el Jefe.
@@ -104,18 +104,14 @@ erDiagram
 ---
 
 ### 4. Tabla: `pruebas`
-*Evidencias adjuntas a la denuncia: archivos, pruebas físicas o datos de testigos. Una denuncia puede tener múltiples pruebas (bloques dinámicos).*
+*Evidencias adjuntas a la denuncia en el registro inicial. Solo incluye pruebas físicas y datos de testigos. Los archivos digitales se suben directamente a `denuncias_archivos` con `contexto='registro'`.*
 
 - **`id`**: Entero, Llave Primaria (Autoincremental).
 - **`denuncia_id`**: Entero, **Llave Foránea** → `denuncias(id)`. Relación N:1.
-- **`tipo`**: Enum(`'archivo'`, `'fisica'`, `'testigo'`), Obligatorio.
-  - `archivo`: Evidencia digital con upload.
+- **`tipo`**: Enum(`'fisica'`, `'testigo'`), Obligatorio.
   - `fisica`: Prueba física descrita textualmente (sin upload).
   - `testigo`: Datos de contacto del testigo.
 - **`descripcion`**: Texto, Obligatorio. Descripción de la prueba o testimonio. **Texto libre → MAYÚSCULAS** (Sprint 7.5).
-- **`archivo_nombre`**: Texto, Nullable. Nombre del archivo subido (solo si `tipo = 'archivo'`).
-- **`archivo_path`**: Texto, Nullable. Ruta de almacenamiento del archivo en disco/S3.
-- **`archivo_tamano`**: Texto, Nullable. Tamaño legible (ej. "2.4 MB").
 - **`testigo_nombre`**: Texto, Nullable. Nombre del testigo (solo si `tipo = 'testigo'`).
 - **`testigo_telefono`**: Texto, Nullable. Teléfono de contacto del testigo.
 
@@ -137,7 +133,7 @@ erDiagram
 - **`fecha_eliminacion`**: Timestamp, Nullable. Soft delete: si no es NULL, el archivo está eliminado (se usa como flag, sin columna `eliminado` adicional).
 - **`fecha_subida`**: Timestamp, Obligatorio.
 
-> **Comportamiento del soft delete (Sprint 14):** No hay columna `eliminado` separada. Si `fecha_eliminacion` es NULL → archivo activo. Si tiene valor → archivo eliminado (el archivo físico se preserva en `archivos_eliminados/`).
+> **Comportamiento del soft delete (Sprint 9.2):** No hay columna `eliminado` separada. Si `fecha_eliminacion` es NULL → archivo activo. Si tiene valor → archivo eliminado (el archivo físico se preserva en `archivos_eliminados/`).
 
 ---
 
@@ -175,7 +171,7 @@ erDiagram
 - **`fecha_cancelacion`**: Timestamp, Nullable.
 - **`eliminado`**: Booleano, por defecto `false`. Soft delete para preservar auditoría.
 - **`fecha_eliminacion`**: Timestamp, Nullable.
-- **`historial_ediciones`**: JSON, Nullable. **(Sprint 14: fusión de la antigua tabla `solicitudes_ediciones`).** Almacena array con `{fecha, campo, anterior, nuevo, usuario_id}` por cada edición. Eloquent cast `array`. Portable a `JSONB` (Postgres) si en el futuro se migra.
+- **`historial_ediciones`**: JSON, Nullable. **(Sprint 9.2: fusión de la antigua tabla `solicitudes_ediciones`).** Almacena array con `{fecha, campo, anterior, nuevo, usuario_id}` por cada edición. Eloquent cast `array`. Portable a `JSONB` (Postgres) si en el futuro se migra.
 
 ---
 
@@ -198,11 +194,11 @@ erDiagram
 - **`fecha_cancelacion`**: Timestamp, Nullable.
 - **`eliminado`**: Booleano, por defecto `false`. Soft delete.
 - **`fecha_eliminacion`**: Timestamp, Nullable.
-- **`historial_ediciones`**: JSON, Nullable. **(Sprint 14: fusión de la antigua tabla `descargos_ediciones`).** Almacena array con `{fecha, campo, anterior, nuevo, usuario_id}` por cada edición. Eloquent cast `array`. Portable a `JSONB` (Postgres) si en el futuro se migra.
+- **`historial_ediciones`**: JSON, Nullable. **(Sprint 9.2: fusión de la antigua tabla `descargos_ediciones`).** Almacena array con `{fecha, campo, anterior, nuevo, usuario_id}` por cada edición. Eloquent cast `array`. Portable a `JSONB` (Postgres) si en el futuro se migra.
 
 ---
 
-### 9. Tabla: `ampliaciones` (Sprint 14, fusión)
+### 9. Tabla: `ampliaciones` (Sprint 9.2, fusión)
 *Registro unificado de ampliaciones de plazo para cualquier entidad del sistema. Reemplaza las antiguas tablas `solicitudes_ampliaciones`, `descargos_ampliaciones` y `ampliaciones_plazo`. Usa relación polimórfica para flexibilidad.*
 
 - **`id`**: Entero, Llave Primaria (Autoincremental).
@@ -238,7 +234,7 @@ erDiagram
 - **`redactado_at`**: Timestamp, Obligatorio.
 - **`eliminado`**: Booleano, por defecto `false`. Soft delete.
 - **`fecha_eliminacion`**: Timestamp, Nullable.
-- **`historial_ediciones`**: JSON, Nullable. **(Sprint 14: fusión de la antigua tabla `informes_ediciones`).** Almacena array con `{cambios, usuario_id, fecha}` por cada edición. Eloquent cast `array`. Portable a `JSONB` (Postgres).
+- **`historial_ediciones`**: JSON, Nullable. **(Sprint 9.2: fusión de la antigua tabla `informes_ediciones`).** Almacena array con `{cambios, usuario_id, fecha}` por cada edición. Eloquent cast `array`. Portable a `JSONB` (Postgres).
 
 ---
 
@@ -257,7 +253,7 @@ erDiagram
 - **`cerrado_at`**: Timestamp, Obligatorio. Momento del cierre.
 - **`eliminado`**: Booleano, por defecto `false`. Soft delete (si se elimina, la denuncia vuelve a estado `informe`).
 - **`fecha_eliminacion`**: Timestamp, Nullable.
-- **`historial_ediciones`**: JSON, Nullable. **(Sprint 14: fusión de la antigua tabla `cierres_ediciones`).** Almacena array con `{cambios, usuario_id, fecha}` por cada edición. Eloquent cast `array`. Portable a `JSONB` (Postgres).
+- **`historial_ediciones`**: JSON, Nullable. **(Sprint 9.2: fusión de la antigua tabla `cierres_ediciones`).** Almacena array con `{cambios, usuario_id, fecha}` por cada edición. Eloquent cast `array`. Portable a `JSONB` (Postgres).
 
 ---
 
@@ -333,7 +329,7 @@ La arquitectura actual de `app/Data/` (clases estáticas con sesión) fue diseñ
 | `session('denuncias_mock')`        | Eloquent ORM / MySQL                    |
 | `session('permisos_demo')`         | (Sprint 15) `Auth::user()->can('x')` + `spatie/laravel-permission` si se requiere granularidad |
 
-### Filosofía "minimizar tablas" (Sprint 14)
+### Filosofía "minimizar tablas" (Sprint 9.2)
 Se aplican tres estrategias para reducir la cantidad de tablas: historiales de ediciones como **JSON**, archivos por fase unificados, y ampliaciones polimórficas. Esto reduce la BD de **31 a 23 tablas** y simplifica queries de lectura.
 
 | Tabla antigua (Fase 0) | Campo nuevo (Fase 1) | Estrategia |
@@ -428,33 +424,33 @@ Todos los campos de texto libre se almacenan en MAYÚSCULAS por convención inst
 
 ---
 
-## 🆕 Resumen de cambios — Julio 2026 / Sprint 14
+## 🆕 Resumen de cambios — Julio 2026 / Sprint 9.2
 
 ### Tablas
 - **Nueva (Sprint 7.6):** `denuncias_archivos` — repositorio unificado de archivos (reemplaza 4 tablas)
-- **Nueva (Sprint 14):** `ampliaciones` — tabla polimórfica (reemplaza 3 tablas)
+- **Nueva (Sprint 9.2):** `ampliaciones` — tabla polimórfica (reemplaza 3 tablas)
 - **Nueva (Sprint 23, diferido):** `configuracion_sistema` — parámetros clave-valor
-- **Fusionadas a JSON (Sprint 14):** `solicitudes_ediciones`, `descargos_ediciones`, `informes_ediciones`, `cierres_ediciones` → campos `historial_ediciones` JSON en sus tablas padre
-- **Columnas a JSON (Sprint 14):** `fecha_traspaso`, `justificacion_traspaso`, `fecha_reapertura`, `justificacion_reapertura`, `plazo_reapertura`, `conciliado_por_id`, `conciliacion_motivo`, `conciliacion_at`, `fecha_cierre_real` → JSON en `denuncias`
+- **Fusionadas a JSON (Sprint 9.2):** `solicitudes_ediciones`, `descargos_ediciones`, `informes_ediciones`, `cierres_ediciones` → campos `historial_ediciones` JSON en sus tablas padre
+- **Columnas a JSON (Sprint 9.2):** `fecha_traspaso`, `justificacion_traspaso`, `fecha_reapertura`, `justificacion_reapertura`, `plazo_reapertura`, `conciliado_por_id`, `conciliacion_motivo`, `conciliacion_at`, `fecha_cierre_real` → JSON en `denuncias`
 
 ### Enums modificados
 - `denuncias.tipo`: ❌ eliminados `acompaniamiento`, `intervencion` (Sprint 22 v2)
 - `descargos.medio`: ❌ eliminados valores del ENUM → ahora texto libre (Sprint 7.5)
 - `bitacora.accion`: ❌ eliminada `consulta_codigo` (Sprint 7.7)
 - `bitacora.accion`: ➕ agregada `conciliacion_fechas` (Sprint 7.5)
-- `denuncias_archivos.contexto`: expandido a `'registro' | 'general' | 'solicitud' | 'descargo' | 'informe' | 'cierre'` (Sprint 14)
+- `denuncias_archivos.contexto`: expandido a `'registro' | 'general' | 'solicitud' | 'descargo' | 'informe' | 'cierre'` (Sprint 9.2)
 
 ### Campos nuevos
 - `denuncias.sitpreco_rechazo` (Sprint 7.A)
 - `denuncias.es_legacy` (Sprint 23, diferido)
-- `denuncias.traspaso_json`, `reapertura_json`, `conciliacion_json` (Sprint 14)
-- `denuncias.deleted_at` (Sprint 14 — soft delete solo por Jefe)
-- `ampliaciones.tipo`, `entidad_id`, `dias`, `justificacion`, `numero`, `aprobado_por_id`, `solicitado_por`, `archivo_respaldo`, `fecha` (Sprint 14)
-- `users.preferencias` JSON (Sprint 14)
-- `solicitudes_informacion.historial_ediciones` JSON (Sprint 14)
-- `descargos.historial_ediciones` JSON (Sprint 14)
-- `informes_finales.historial_ediciones` JSON (Sprint 14)
-- `cierres.historial_ediciones` JSON (Sprint 14)
+- `denuncias.traspaso_json`, `reapertura_json`, `conciliacion_json` (Sprint 9.2)
+- `denuncias.deleted_at` (Sprint 9.2 — soft delete solo por Jefe)
+- `ampliaciones.tipo`, `entidad_id`, `dias`, `justificacion`, `numero`, `aprobado_por_id`, `solicitado_por`, `archivo_respaldo`, `fecha` (Sprint 9.2)
+- `users.preferencias` JSON (Sprint 9.2)
+- `solicitudes_informacion.historial_ediciones` JSON (Sprint 9.2)
+- `descargos.historial_ediciones` JSON (Sprint 9.2)
+- `informes_finales.historial_ediciones` JSON (Sprint 9.2)
+- `cierres.historial_ediciones` JSON (Sprint 9.2)
 - `descargos.medio`: ENUM → TEXT(200) (Sprint 7.5)
 
 ### Campos eliminados (movidos a JSON)

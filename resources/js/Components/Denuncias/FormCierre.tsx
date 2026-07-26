@@ -9,8 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/Components/ui/checkbox';
 import { Button } from '@/Components/ui/button';
 import { Separator } from '@/Components/ui/separator';
-import { AlertTriangle, ChevronDown, ChevronRight, History, Archive, Trash2 } from 'lucide-react';
-import ArchivoAdjunto from './ArchivoAdjunto';
+import { AlertTriangle, ChevronDown, ChevronRight, History, Archive, Upload } from 'lucide-react';
 
 const mediosNotificacion = [
   { value: 'whatsapp', label: 'WhatsApp' },
@@ -18,12 +17,6 @@ const mediosNotificacion = [
   { value: 'presencial', label: 'Presencial' },
   { value: 'otro', label: 'Otro' },
 ];
-
-interface ArchivoSimulado {
-  nombre: string;
-  tamano?: string;
-  fecha_subida?: string;
-}
 
 interface CierreData {
   notificado_denunciante: boolean | null;
@@ -33,7 +26,6 @@ interface CierreData {
   no_notificado_motivo: string | null;
   concluido_por: string | null;
   descripcion: string | null;
-  archivos: ArchivoSimulado[];
   cerrado_at: string | null;
   ediciones: Array<{ fecha: string; cambios: string[]; usuario: string }>;
   eliminado: boolean;
@@ -196,16 +188,7 @@ function CierrePreview({ cierre, canAct, onEdit, onDelete }: {
         </div>
       )}
 
-      {cierre.archivos && cierre.archivos.length > 0 && (
-        <div>
-          <h5 className="text-xs font-semibold text-muted-foreground mb-1">Archivos adjuntos ({cierre.archivos.length})</h5>
-          <div className="space-y-1">
-            {cierre.archivos.map((a, i) => (
-              <ArchivoAdjunto key={i} nombre={a.nombre} tamano={a.tamano} />
-            ))}
-          </div>
-        </div>
-      )}
+
     </div>
   );
 }
@@ -226,8 +209,6 @@ function CierreForm({ ticket, cierre, tecnicoNombre, processing, setProcessing, 
   const [noNotificadoMotivo, setNoNotificadoMotivo] = useState(cierre?.no_notificado_motivo || '');
   const [concluidoPor, setConcluidoPor] = useState(cierre?.concluido_por || tecnicoNombre);
   const [descripcion, setDescripcion] = useState(cierre?.descripcion || '');
-  const [archivos, setArchivos] = useState<ArchivoSimulado[]>(cierre?.archivos || []);
-
   useEffect(() => {
     if (cierre) {
       setNotificadoDenunciante(cierre.notificado_denunciante ?? true);
@@ -237,7 +218,6 @@ function CierreForm({ ticket, cierre, tecnicoNombre, processing, setProcessing, 
       setNoNotificadoMotivo(cierre.no_notificado_motivo || '');
       setConcluidoPor(cierre.concluido_por || tecnicoNombre);
       setDescripcion(cierre.descripcion || '');
-      setArchivos(cierre.archivos || []);
     } else {
       setNotificadoDenunciante(true);
       setNotificacionMedio('');
@@ -246,7 +226,6 @@ function CierreForm({ ticket, cierre, tecnicoNombre, processing, setProcessing, 
       setNoNotificadoMotivo('');
       setConcluidoPor(tecnicoNombre);
       setDescripcion('');
-      setArchivos([]);
     }
   }, [cierre, tecnicoNombre]);
 
@@ -270,7 +249,6 @@ function CierreForm({ ticket, cierre, tecnicoNombre, processing, setProcessing, 
         no_notificado_motivo: notificadoDenunciante ? null : noNotificadoMotivo || null,
         concluido_por: concluidoPor,
         descripcion,
-        archivos,
       },
       {
         preserveScroll: true,
@@ -407,25 +385,13 @@ function CierreForm({ ticket, cierre, tecnicoNombre, processing, setProcessing, 
         </div>
       </div>
 
-      <div className="space-y-2">
-        <Label>Archivos adjuntos</Label>
-        <p className="text-[11px] text-muted-foreground">Los archivos se simulan en esta maqueta.</p>
-        {archivos.map((a, i) => (
-          <ArchivoAdjunto
-            key={i}
-            nombre={a.nombre}
-            tamano={a.tamano}
-            onEliminar={() => setArchivos(archivos.filter((_, j) => j !== i))}
-          />
-        ))}
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => setArchivos([...archivos, { nombre: `cierre_${archivos.length + 1}.pdf`, tamano: '1.2 MB', fecha_subida: new Date().toISOString() }])}
-        >
-          + Agregar archivo
-        </Button>
+      <div className="space-y-2 rounded-lg border border-border/60 bg-muted/20 p-4">
+        <p className="text-xs text-muted-foreground">
+          Los archivos adjuntos al cierre se gestionan desde el repositorio de archivos del caso.
+        </p>
+        <p className="text-xs text-muted-foreground">
+          Use el botón <strong>"Archivos del caso"</strong> en el detalle de la denuncia para subir archivos con contexto <strong>"Cierre"</strong>.
+        </p>
       </div>
 
       <div className="flex gap-2">

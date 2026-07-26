@@ -4,9 +4,9 @@
 > **Solo leer la sección del sprint en el que se está trabajando actualmente.**
 > No leer las secciones de sprints futuros para evitar cargar contexto innecesario.
 
-**Sprints pendientes:** 10 → 11 → 12 → 13 → 14+ (BD real).
-**Sprints diferidos a v2:** 22 (Acompañamiento/Intervención), 24 (Permisos Personalizados).
-**Sprint diferido (detalle a definir en Sprint 14):** 23 (Migración Casos Legacy).
+**Sprints pendientes:** 11 → 12 → 13 → 14 → 15+ (BD real en Sprint 9.2).
+**Sprints diferidos a v2:** 23 (Acompañamiento/Intervención, era 22), 25 (Permisos Personalizados, era 24).
+**Sprint diferido (detalle a definir en Sprint 9.2):** 24 (Migración Casos Legacy, era 23).
 
 ---
 
@@ -67,10 +67,10 @@ Las notificaciones se filtran automáticamente según el rol y los casos asignad
 - Solicitud info: 2 días antes
 - Descargo: 2 días antes
 
-> Estos defaults serán configurables en Sprint 10 (Panel Admin → Preferencias de alerta).
+> Estos defaults serán configurables en Sprint 11 (Panel Admin → Preferencias de alerta).
 
 ### Patrón de reusabilidad para Sprint 15
-Cuando se implementen roles reales (Sprint 15):
+Cuando se implementen roles reales (Sprint 16):
 1. El dropdown se **elimina** del Header
 2. `SesionUsuarioData` se **reemplaza** por `Auth::user()`
 3. El Sidebar **no cambia** — solo cambia la fuente de datos del `user.rol`
@@ -173,7 +173,7 @@ $diasRestantes = $plazoTotal - $diasTranscurridos;
 - Ninguna externa (reusa shadcn `dialog`, `input`, `textarea`, `button`, `select`, `checkbox`, `badge`)
 - Compatible con Sprint 7 (estado `evaluacion_tecnica`)
 - Marco para Sprint 9 (notificaciones de ampliación)
-- Prepárate para Sprint 18 (días hábiles)
+- Prepárate para Sprint 20 (días hábiles, era 19)
 
 ### Detalle completo
 Ver `Sprint 8 - Ampliaciones Múltiples.md`.
@@ -214,7 +214,7 @@ Sistema de notificaciones push vía **campana superior** en el navbar, con histo
 - `resources/js/Components/Layout/Header.tsx` (+integrar campana)
 
 ### Nota — Julio 2026
-**Las preferencias de alerta (días antes de notificar) se implementan en Sprint 10, no aquí.** Sprint 9 es solo el motor de notificaciones. Sprint 10 agrega el panel `/admin/preferencias` donde cada usuario configura:
+**Las preferencias de alerta (días antes de notificar) se implementan en Sprint 11 (era 10), no aquí.** Sprint 9 es solo el motor de notificaciones. Sprint 11 agrega el panel `/admin/preferencias` donde cada usuario configura:
 - Días antes del plazo total para alertar (default: 3)
 - Días antes del informe final (default: 3)
 - Días antes de solicitud (default: 2)
@@ -222,9 +222,30 @@ Sistema de notificaciones push vía **campana superior** en el navbar, con histo
 
 ---
 
-## Sprint 7.6 — Repositorio de Archivos del Caso ⏳ URGENTE (Julio 2026)
+## Sprint 9.1 — Simplificación UI Archivos + Mock alineado ✅ CERRADO (Julio 2026)
 
-**Estado:** Pendiente. Urgente pre-cliente.
+**Estado:** Cerrado — implementado.
+**Origen:** Decisión de diseño para alinear el mock con la nueva arquitectura simplificada (Sprint 9.2).
+
+### Resumen
+Simplificación de la UI de archivos y alineación del mock data con el nuevo esquema de BD reducido. Se centralizó toda la subida de archivos en `ModalArchivosDelCaso` y se eliminaron los campos de archivos de formularios específicos.
+
+### Cambios principales
+- **`ModalArchivosDelCaso.tsx`**: Ampliado dropdown de contexto a 6 valores + `contexto_id`.
+- **`FormInformeFinal.tsx` y `FormCierre.tsx`**: Eliminado bloque de archivos simulados. Botón "Abrir repositorio".
+- **`BloquePrueba.tsx`**: Eliminado `tipo='archivo'`. Solo `fisica` y `testigo`.
+- **`ArchivosCasoController.php`**: Validación 6 contextos + `contexto_id`.
+- **Archivos embebidos eliminados de seed**: `SolicitudData`, `DescargoData`, `DenunciaData` (informe_archivos, cierre_archivos).
+
+### Dependencias
+- Sprint 7.6 (Repositorio de Archivos) — cerrado
+- Prepara el mock para Sprint 9.2 (BD real)
+
+---
+
+## Sprint 7.6 — Repositorio de Archivos del Caso ✅ CERRADO (Julio 2026, refinado en Sprint 9.1)
+
+**Estado:** Cerrado — implementado y refinado en Sprint 9.1.
 **Origen:** Decisión del cliente Julio 2026 — evitar pedir archivos en cada paso del flujo de investigación; preferir subida al final consolidada con listado para evitar duplicidades.
 
 ### Resumen
@@ -239,7 +260,7 @@ Crear un **repositorio unificado de archivos por denuncia** que convive con los 
 
 ### Convivencia
 - `solicitudes_archivos`, `descargos_documentos`, `informes_archivos`, `cierres_archivos` se mantienen (adjuntos formales por fase)
-- `denuncias_archivos` (nuevo, Sprint 14) será el repositorio libre
+- `denuncias_archivos` (nuevo, Sprint 9.2) será el repositorio libre
 - En Fase 0 (mock), conviven en `app/Data/ArchivoData.php` (nuevo) con clave de sesión `archivos_mock`
 
 ### Archivos a crear
@@ -253,7 +274,7 @@ Crear un **repositorio unificado de archivos por denuncia** que convive con los 
 - `resources/js/Pages/Denuncias/Bandeja.tsx` (sin cambios visibles, hereda Sheet)
 - `resources/js/Pages/Denuncias/MisCasos.tsx` (sin cambios visibles, hereda Sheet)
 
-### BD (Sprint 14)
+### BD (Sprint 9.2)
 - Nueva tabla `denuncias_archivos` con campos: `id`, `denuncia_id`, `usuario_id`, `nombre`, `path`, `tamano`, `mime_type`, `descripcion` (MAYÚSCULAS), `contexto` (ENUM: 'registro'|'general'|'informe'|'cierre'), `contexto_id` (nullable), `eliminado`, `fecha_eliminacion`, `fecha_subida`
 
 ### Comportamiento del soft delete
@@ -270,9 +291,9 @@ Ver `Sprint 7.6 - Repositorio de Archivos del Caso.md`.
 
 ---
 
-## Sprint 7.7 — Búsqueda y Consulta para Registrador ⏳ URGENTE (Julio 2026)
+## Sprint 7.7 — Búsqueda y Consulta para Registrador ✅ CERRADO (Julio 2026)
 
-**Estado:** Pendiente. Urgente pre-cliente.
+**Estado:** Cerrado — implementado.
 **Origen:** Pedido del cliente Julio 2026 — los denunciantes vienen presencialmente a preguntar el estado de su caso y a veces olvidan el código. El Registrador necesita ver y consultar.
 
 ### Resumen
@@ -321,7 +342,7 @@ Ver `Sprint 7.7 - Búsqueda y Consulta para Registrador.md`.
 
 ---
 
-## Sprint 10 — Panel Administración Catálogos + Subcategorías
+## Sprint 11 (era 10) — Panel Administración Catálogos + Subcategorías
 
 **Estado:** Pendiente.
 **Origen:** Respuesta del cliente #18.
@@ -346,7 +367,7 @@ Cada usuario (Jefe y Técnicos) podrá configurar los días de anticipación par
 - Solicitud de información: default 2 días
 - Descargo de denunciados: default 2 días
 
-**UI:** Sliders/inputs numéricos con preview de simulación. Persistencia en sesión (mock) luego en BD (Sprint 14).
+**UI:** Sliders/inputs numéricos con preview de simulación. Persistencia en sesión (mock) luego en BD (Sprint 9.2).
 
 **Archivo adicional:**
 - `resources/js/Pages/Admin/PreferenciasAlertas.tsx` (nuevo)
@@ -368,14 +389,14 @@ Cada usuario (Jefe y Técnicos) podrá configurar los días de anticipación par
 - `resources/js/Pages/Denuncias/RegistroDenuncia.tsx` (cargar subcategorías del catálogo)
 
 ### Nota — Julio 2026
-**Feriados ahora también se administran aquí.** Aunque Sprint 18 formaliza el helper `DiasHabiles`, la **UI de administración de feriados** (cuadrícula calendario anual) vive en este panel. El Jefe de Unidad marca/desmarca feriados desde aquí. Esto adelanta parte del Sprint 18 a este sprint.
+**Feriados ahora también se administran aquí.** Aunque Sprint 20 (era 19) formaliza el helper `DiasHabiles`, la **UI de administración de feriados** (cuadrícula calendario anual) vive en este panel. El Jefe de Unidad marca/desmarca feriados desde aquí. Esto adelanta parte del Sprint 20 a este sprint.
 
 **Archivo adicional:**
 - `resources/js/Pages/Admin/Feriados.tsx` (creado, ver Sprint 0 — ya existe como placeholder)
 
 ---
 
-## Sprint 11 — Dashboard + KPIs + Reportes PDF/Excel
+## Sprint 12 (era 11) — Dashboard + KPIs + Reportes PDF/Excel
 
 **Estado:** Pendiente (será uno de los últimos sprints a reestructurar).
 **Origen:** Respuestas del cliente #15, #16, #17, #21.
@@ -423,7 +444,7 @@ Dashboard con **KPIs** y **gráficos**, más página de **reportes** con tabla +
 
 ---
 
-## Sprint 12 — Tablero Público Cerrados
+## Sprint 13 (era 12) — Tablero Público Cerrados
 
 **Estado:** Pendiente.
 **Origen:** Respuesta del cliente #27.
@@ -451,7 +472,7 @@ Baja. Solo vista + endpoint. Se puede hacer tempranamente.
 
 ---
 
-## Sprint 13 — Tiempos entre Fases
+## Sprint 14 (era 13) — Tiempos entre Fases
 
 **Estado:** Pendiente.
 **Origen:** Respuesta del cliente #19.
@@ -477,7 +498,7 @@ Baja si los timestamps están en mock data. Sería solo una vista tabular sin gr
 
 ---
 
-## Sprint 14 — Base de datos real (MySQL)
+## Sprint 9.2 (era 14) — Base de datos real (MySQL)
 
 **Estado:** Pendiente (al final del proyecto).
 **Origen:** Respuestas del cliente #24, #29.
@@ -497,17 +518,17 @@ Migrar de mocks a base de datos MySQL real con migraciones, modelos Eloquent y s
 denuncias, denunciantes, denunciados, solicitudes, descargos, evaluaciones, informes, cierres, bitácora, usuarios, feriados, notificaciones, catálogos, ampliaciones, subcategorías
 
 ### Dependencias
-Sprint 15 (Roles) y siguientes dependen de este sprint.
+Sprint 16 (Roles) y siguientes dependen de este sprint.
 
 ---
 
-## Sprint 15 — Roles y Permisos (Registrador / Jefe / Técnico)
+## Sprint 16 (era 15) — Roles y Permisos (Registrador / Jefe / Técnico)
 
 **Estado:** Pendiente (casi al final del proyecto).
 **Origen:** Respuesta del cliente #23.
 
 ### Resumen
-Implementar sistema de roles y permisos usando Laravel middleware y policies. Solo se implementa **una vez que la BD esté operativa** (Sprint 14).
+Implementar sistema de roles y permisos usando Laravel middleware y policies. Solo se implementa **una vez que la BD esté operativa** (Sprint 9.2).
 
 ### Roles
 - **Registrador** (antes "Recepcionista"): registra denuncias
@@ -528,11 +549,11 @@ Implementar sistema de roles y permisos usando Laravel middleware y policies. So
 4. Cero código desechable — el patrón de Sprint 6.5 fue diseñado para esto
 
 ### Dependencias
-Requiere Sprint 14 (BD).
+Requiere Sprint 9.2 (BD).
 
 ---
 
-## Sprint 16 — Auditoría Backend Detallada
+## Sprint 17 (era 16) — Auditoría Backend Detallada
 
 **Estado:** Pendiente (al final del proyecto).
 **Origen:** Respuesta del cliente #26.
@@ -550,11 +571,11 @@ Auditoría automática de todos los cambios usando **`owen-it/laravel-auditing`*
 Denuncia, Solicitud, Descargo, Evaluación, Informe, Cierre
 
 ### Dependencias
-Requiere Sprint 14 (BD).
+Requiere Sprint 9.2 (BD).
 
 ---
 
-## Sprint 17 — Panel de Usuario (Perfil + Seguridad + Preferencias + Apariencia) (NUEVO — Julio 2026)
+## Sprint 18 (era 17) — Panel de Usuario (Perfil + Seguridad + Preferencias + Apariencia) (Julio 2026)
 
 **Estado:** Pendiente (post-Sprint 16).
 **Origen:** Decisión #40 (reunión Julio 2026).
@@ -562,7 +583,7 @@ Requiere Sprint 14 (BD).
 ### Resumen
 Panel completo de usuario con secciones de perfil, seguridad, preferencias de notificación y apariencia. Estilo Laravel Breeze pero en mock (sin BD real, usando sesión).
 
-Se implementa después de tener la BD (Sprint 14), los roles (Sprint 15) y la auditoría (Sprint 16) — porque depende de ellos para persistencia real.
+Se implementa después de tener la BD (Sprint 9.2), los roles (Sprint 16) y la auditoría (Sprint 17) — porque depende de ellos para persistencia real.
 
 ### Secciones
 
@@ -613,13 +634,13 @@ Se implementa después de tener la BD (Sprint 14), los roles (Sprint 15) y la au
 - `resources/js/Components/Layout/Header.tsx` (avatar → link al panel)
 
 ### Dependencias
-- Sprint 14 (BD) para persistencia real
-- Sprint 15 (Roles) para asociar preferencias a usuarios
+- Sprint 9.2 (BD) para persistencia real
+- Sprint 16 (Roles) para asociar preferencias a usuarios
 - Sprint 16 (Auditoría) para registrar cambios
 
 ---
 
-## Sprint 18 — Lógica de Mora Explícita
+## Sprint 19 (era 18) — Lógica de Mora Explícita
 
 **Estado:** Pendiente.
 **Origen:** Respuesta del cliente #7.
@@ -636,11 +657,11 @@ Implementar lógica explícita de **mora** para fechas vencidas: texto "+Xd de r
 - Filtro de "casos morosos" en Bandeja y MisCasos
 
 ### Dependencias
-Sprint 14 (BD) si se persiste, opcional si solo se calcula on-the-fly.
+Sprint 9.2 (BD) si se persiste, opcional si solo se calcula on-the-fly.
 
 ---
 
-## Sprint 19 — Calendario Feriados + Días Hábiles
+## Sprint 20 (era 19) — Calendario Feriados + Días Hábiles
 
 **Estado:** Pendiente (sprint formal de cierre del sistema de plazos).
 **Origen:** Pregunta #6 (C1) — **decisión tomada en Julio 2026**.
@@ -648,7 +669,7 @@ Sprint 14 (BD) si se persiste, opcional si solo se calcula on-the-fly.
 ### ⚠️ Decisión: Días hábiles UNIVERSAL
 La reunión de Julio 2026 resolvió definitivamente la pregunta #6:
 - **Todos los plazos del sistema en días hábiles** (lunes a viernes, sin sábados, domingos ni feriados)
-- El Jefe de Unidad administra los feriados desde el panel (UI adelantada a Sprint 10)
+- El Jefe de Unidad administra los feriados desde el panel (UI adelantada a Sprint 11)
 - No hay pausa por recesos institucionales (enero, carnaval) — si son feriados oficiales, se marcan en el calendario
 - Aplica a TODOS los plazos: admisión, solicitudes, descargos, plazo total, ampliaciones
 
@@ -701,13 +722,13 @@ function agregarDiasHabiles(Carbon $fecha, int $dias, array $feriados): Carbon
 - `resources/js/Components/Denuncias/PlazoProgress.tsx` (integrar helper backend)
 
 ### Dependencias
-- Sprint 10 (Feriados UI — ya adelantada la interfaz)
+- Sprint 11 (Feriados UI — ya adelantada la interfaz)
 - No requiere BD para mock (feriados en sesión igual que otras Data classes)
-- Sprint 14 (BD) para persistencia formal
+- Sprint 9.2 (BD) para persistencia formal
 
 ---
 
-## Sprint 20 — Cierre Fase 1 / Ajustes Finales
+## Sprint 21 (era 20) — Cierre Fase 1 / Ajustes Finales
 
 **Estado:** Pendiente (último sprint de Fase 1).
 **Origen:** Decisión general de cierre.
@@ -737,7 +758,7 @@ Requiere Sprints 14-19 completos.
 
 ---
 
-## Sprint 21 — Archivos Grandes + Conectividad Inestable (NUEVO — Julio 2026)
+## Sprint 22 (era 21) — Archivos Grandes + Conectividad Inestable (Julio 2026)
 
 **Estado:** Post-Fase 1 (sprint de diseño/planificación, NO se implementa en Fase 0 ni Fase 1).
 **Origen:** Reunión con cliente Julio 2026 — preocupación por subida de archivos de 1000+ páginas en entornos con internet inestable.
@@ -767,9 +788,9 @@ Los archivos pueden tener hasta **1000+ páginas escaneadas** (>100MB), lo que h
 No se implementa. Solo se simula una barra de progreso visual + retry animado como placeholder en formularios de subida. Sin chunking real hasta Fase 1.
 
 ### Dependencias
-- Sprint 14 (BD) para persistencia de referencias a archivos
-- Sprint 15 (Auth) para asociar subidas a usuarios
-- Sprint 19 (Cierre) completado antes de empezar
+- Sprint 9.2 (BD) para persistencia de referencias a archivos
+- Sprint 16 (Auth) para asociar subidas a usuarios
+- Sprint 21 (Cierre, era 20) completado antes de empezar
 
 ### Fuera de alcance
 - Subida WebSocket en tiempo real
@@ -778,7 +799,7 @@ No se implementa. Solo se simula una barra de progreso visual + retry animado co
 
 ---
 
-## Sprint 22 — Acompañamiento e Intervención (v2) ⏸️ DIFERIDO
+## Sprint 23 (era 22) — Acompañamiento e Intervención (v2) ⏸️ DIFERIDO
 
 **Estado:** ⏸️ **Diferido a v2.** NO se implementa en Fase 0/1.
 
@@ -791,7 +812,7 @@ No se implementa. Solo se simula una barra de progreso visual + retry animado co
 ### Estado actual (Fase 0)
 - El dropdown selector de tipo (`RegistroDenuncia.tsx`) actualmente tiene 2 opciones (corrupción, negación). En v2 se reagregan 2 opciones.
 - Los archivos `FormularioAcompaniamiento.tsx` y `FormularioIntervencion.tsx` se eliminan en Sprint 7.5.
-- El enum `denuncias.tipo` en BD (Sprint 14) actualmente solo tiene `corrupcion`, `negacion`. En v2 se agregan `acompaniamiento`, `intervencion`.
+- El enum `denuncias.tipo` en BD (Sprint 9.2) actualmente solo tiene `corrupcion`, `negacion`. En v2 se agregan `acompaniamiento`, `intervencion`.
 
 ### Cambios en v2 (cuando se reactive)
 - Reactivar las 2 opciones en el dropdown
@@ -808,13 +829,13 @@ Ver `Sprint 22 - Acompañamiento e Intervención v2 (diferido).md`.
 
 ---
 
-## Sprint 23 — Migración de Casos Legacy ⏸️ DIFERIDO
+## Sprint 24 (era 23) — Migración de Casos Legacy ⏸️ DIFERIDO
 
-**Estado:** ⏸️ **Diferido.** Detalle a definir en Sprint 14 (BD real). Anotación temprana para no perder el requerimiento.
+**Estado:** ⏸️ **Diferido.** Detalle a definir en Sprint 9.2 (BD real). Anotación temprana para no perder el requerimiento.
 
 **Origen:** Duda del cliente Julio 2026 — la UTLCC tiene actualmente **46 denuncias físicas** que necesitan migrarse al sistema nuevo. Casos legacy no tendrán historial (bitácora) pero sí opción de digitalizar archivos.
 
-### Funcionalidades planificadas (a detalle en Sprint 14)
+### Funcionalidades planificadas (a detalle en Sprint 9.2)
 - **Panel administrativo** para configurar número de inicio de tickets por año (ej. "Comenzar DEN-2026 desde 0047", continuando los 46 legacy).
 - **Vista de "Importación legacy"** con carga masiva (CSV/Excel).
 - Cada caso legacy tiene flag `es_legacy: true`, sin historial completo, sin plazos automáticos.
@@ -827,8 +848,8 @@ Ver `Sprint 22 - Acompañamiento e Intervención v2 (diferido).md`.
 - ¿Se permite editar legacy o son read-only?
 
 ### Dependencias
-- Sprint 14 (BD) para crear tabla y campo
-- Sprint 10 (Panel Admin) para configurar `siguiente_numero`
+- Sprint 9.2 (BD) para crear tabla y campo
+- Sprint 11 (Panel Admin) para configurar `siguiente_numero`
 
 ### Estimación (referencia)
 2-3 días. A refinar cuando se defina Sprint 14.
@@ -838,7 +859,7 @@ Ver `Sprint 23 - Migración de Casos Legacy (diferido).md`.
 
 ---
 
-## Sprint 24 — Permisos Personalizados (v2) ⏸️ DIFERIDO
+## Sprint 25 (era 24) — Permisos Personalizados (v2) ⏸️ DIFERIDO
 
 **Estado:** ⏸️ **Diferido a v2.** NO se implementa en Fase 0/1.
 

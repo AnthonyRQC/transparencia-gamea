@@ -25,7 +25,8 @@ class ArchivosCasoController extends Controller
         $validated = $request->validate([
             'nombre' => 'required|string|min:1|max:200',
             'descripcion' => 'nullable|string|max:500',
-            'contexto' => 'required|in:general,informe,cierre',
+            'contexto' => 'required|in:registro,general,solicitud,descargo,informe,cierre',
+            'contexto_id' => 'nullable|integer|min:1',
         ]);
 
         $denuncia = DenunciaData::find($ticket);
@@ -37,7 +38,9 @@ class ArchivosCasoController extends Controller
             $ticket,
             $validated['nombre'],
             $validated['descripcion'] ?? '',
-            $validated['contexto']
+            $validated['contexto'],
+            null,
+            $validated['contexto_id'] ?? null
         );
 
         return redirect()->back()->with('success', "Archivo '{$validated['nombre']}' subido correctamente.");

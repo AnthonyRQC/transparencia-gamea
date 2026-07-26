@@ -8,10 +8,8 @@ import { Textarea } from '@/Components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
 import { Button } from '@/Components/ui/button';
 import { Separator } from '@/Components/ui/separator';
-import { AlertTriangle, ChevronDown, ChevronRight, History, FileText, Trash2 } from 'lucide-react';
+import { AlertTriangle, ChevronDown, ChevronRight, History, FileText, Upload } from 'lucide-react';
 import ClasificacionBadge from './ClasificacionBadge';
-import ArchivoAdjunto from './ArchivoAdjunto';
-
 const clasificaciones = [
   { value: 'penal', label: 'Penal' },
   { value: 'civil', label: 'Civil' },
@@ -21,17 +19,10 @@ const clasificaciones = [
   { value: 'archivado', label: 'Archivado' },
 ];
 
-interface ArchivoSimulado {
-  nombre: string;
-  tamano?: string;
-  fecha_subida?: string;
-}
-
 interface InformeData {
   clasificacion: string | null;
   fojas: number | null;
   justificacion: string | null;
-  archivos: ArchivoSimulado[];
   redactado_at: string | null;
   concluido_por: string | null;
   sitpreco: string | null;
@@ -178,16 +169,6 @@ function InformePreview({ informe, canAct, onEdit, onDelete }: {
         </div>
       )}
 
-      {informe.archivos && informe.archivos.length > 0 && (
-        <div>
-          <h5 className="text-xs font-semibold text-muted-foreground mb-1">Archivos adjuntos ({informe.archivos.length})</h5>
-          <div className="space-y-1">
-            {informe.archivos.map((a, i) => (
-              <ArchivoAdjunto key={i} nombre={a.nombre} tamano={a.tamano} />
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
@@ -206,8 +187,6 @@ function InformeForm({ ticket, informe, tecnicoNombre, processing, setProcessing
   const [justificacion, setJustificacion] = useState(informe?.justificacion || '');
   const [concluidoPor, setConcluidoPor] = useState(informe?.concluido_por || tecnicoNombre);
   const [sitpreco, setSitpreco] = useState(informe?.sitpreco || '');
-  const [archivos, setArchivos] = useState<ArchivoSimulado[]>(informe?.archivos || []);
-
   useEffect(() => {
     if (informe) {
       setClasificacion(informe.clasificacion || '');
@@ -215,14 +194,12 @@ function InformeForm({ ticket, informe, tecnicoNombre, processing, setProcessing
       setJustificacion(informe.justificacion || '');
       setConcluidoPor(informe.concluido_por || tecnicoNombre);
       setSitpreco(informe.sitpreco || '');
-      setArchivos(informe.archivos || []);
     } else {
       setClasificacion('');
       setFojas('');
       setJustificacion('');
       setConcluidoPor(tecnicoNombre);
       setSitpreco('');
-      setArchivos([]);
     }
   }, [informe, tecnicoNombre]);
 
@@ -241,7 +218,6 @@ function InformeForm({ ticket, informe, tecnicoNombre, processing, setProcessing
         justificacion,
         concluido_por: concluidoPor,
         sitpreco: sitpreco || null,
-        archivos,
       },
       {
         preserveScroll: true,
@@ -340,25 +316,13 @@ function InformeForm({ ticket, informe, tecnicoNombre, processing, setProcessing
         </div>
       </div>
 
-      <div className="space-y-2">
-        <Label>Archivos adjuntos</Label>
-        <p className="text-[11px] text-muted-foreground">Los archivos se simulan en esta maqueta.</p>
-        {archivos.map((a, i) => (
-          <ArchivoAdjunto
-            key={i}
-            nombre={a.nombre}
-            tamano={a.tamano}
-            onEliminar={() => setArchivos(archivos.filter((_, j) => j !== i))}
-          />
-        ))}
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => setArchivos([...archivos, { nombre: `documento_${archivos.length + 1}.pdf`, tamano: '1.2 MB', fecha_subida: new Date().toISOString() }])}
-        >
-          + Agregar archivo
-        </Button>
+      <div className="space-y-2 rounded-lg border border-border/60 bg-muted/20 p-4">
+        <p className="text-xs text-muted-foreground">
+          Los archivos adjuntos al informe se gestionan desde el repositorio de archivos del caso.
+        </p>
+        <p className="text-xs text-muted-foreground">
+          Use el botón <strong>"Archivos del caso"</strong> en el detalle de la denuncia para subir archivos con contexto <strong>"Informe Final"</strong>.
+        </p>
       </div>
 
       <div className="flex gap-2">

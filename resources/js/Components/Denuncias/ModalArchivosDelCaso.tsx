@@ -27,9 +27,11 @@ interface ModalArchivosDelCasoProps {
   ticket: string | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  contextoInicial?: string;
+  contextoIdInicial?: number | null;
 }
 
-export default function ModalArchivosDelCaso({ ticket, open, onOpenChange }: ModalArchivosDelCasoProps) {
+export default function ModalArchivosDelCaso({ ticket, open, onOpenChange, contextoInicial, contextoIdInicial }: ModalArchivosDelCasoProps) {
   const [archivos, setArchivos] = useState<ArchivoItem[]>([]);
   const [search, setSearch] = useState('');
   const [nombre, setNombre] = useState('');
@@ -43,10 +45,10 @@ export default function ModalArchivosDelCaso({ ticket, open, onOpenChange }: Mod
       setSearch('');
       setNombre('');
       setDescripcion('');
-      setContexto('general');
+      setContexto(contextoInicial || 'general');
       cargarArchivos(ticket);
     }
-  }, [open, ticket]);
+  }, [open, ticket, contextoInicial]);
 
   const cargarArchivos = (t: string) => {
     setLoading(true);
@@ -68,6 +70,7 @@ export default function ModalArchivosDelCaso({ ticket, open, onOpenChange }: Mod
         nombre: nombre.trim(),
         descripcion: descripcion.trim() || null,
         contexto,
+        contexto_id: contextoIdInicial ?? undefined,
       },
       {
         preserveScroll: true,
@@ -142,7 +145,10 @@ export default function ModalArchivosDelCaso({ ticket, open, onOpenChange }: Mod
               <Select value={contexto} onValueChange={setContexto} disabled={processing}>
                 <SelectTrigger id="archivo-contexto"><SelectValue /></SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="registro">Registro</SelectItem>
                   <SelectItem value="general">General</SelectItem>
+                  <SelectItem value="solicitud">Solicitud</SelectItem>
+                  <SelectItem value="descargo">Descargo</SelectItem>
                   <SelectItem value="informe">Informe Final</SelectItem>
                   <SelectItem value="cierre">Cierre</SelectItem>
                 </SelectContent>

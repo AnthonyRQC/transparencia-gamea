@@ -249,4 +249,41 @@ Al cerrar Sprint 7.6:
 **Siguiente sprint urgente:** Sprint 7.7 — Búsqueda y Consulta para Registrador.
 
 ---
-*Documento creado: Julio 2026. Sprint 7.6 — Repositorio de Archivos del Caso.*
+
+## 13. Refinamientos en Sprint 9.1
+
+### Contexto ampliado a 6 valores
+El enum `denuncias_archivos.contexto` se expandió de 4 a 6 valores:
+- `registro` — archivos del registro inicial de la denuncia (antes `pruebas.tipo='archivo'`)
+- `general` — repositorio libre (default)
+- `solicitud` — archivos de respuestas a solicitudes de información
+- `descargo` — documentos de respaldo de descargos
+- `informe` — archivos adjuntos al Informe Final
+- `cierre` — archivos adjuntos al acta de cierre
+
+### Eliminación de `eliminado` booleano
+Se eliminó la columna `eliminado` (booleano) de la tabla `denuncias_archivos`. Ahora solo se usa `fecha_eliminacion`:
+- `fecha_eliminacion IS NULL` → archivo activo
+- `fecha_eliminacion IS NOT NULL` → archivo eliminado
+
+### Vinculación polimórfica con `contexto_id`
+Se agregó el campo `contexto_id` (nullable FK polimórfica lógica). Cuando se sube un archivo desde un formulario específico (solicitud, descargo, informe, cierre), el `contexto_id` se llena automáticamente con el ID de la entidad relacionada.
+
+### UI simplificada
+Se eliminaron los campos de subida de archivos de `FormInformeFinal` y `FormCierre`. Todo archivo se sube exclusivamente vía `ModalArchivosDelCaso` con dropdown de contexto.
+
+### `pruebas.tipo='archivo'` eliminado
+Las pruebas de tipo `archivo` en el registro inicial ahora se suben directamente a `denuncias_archivos` con `contexto='registro'`. La tabla `pruebas` solo maneja `fisica` y `testigo`.
+
+### Tablas antiguas completamente reemplazadas
+Las tablas que originalmente "convivían" con `denuncias_archivos` ahora han sido eliminadas del esquema:
+- `solicitudes_archivos` → `denuncias_archivos` con `contexto='solicitud'`
+- `descargos_documentos` → `denuncias_archivos` con `contexto='descargo'`
+- `informes_archivos` → `denuncias_archivos` con `contexto='informe'`
+- `cierres_archivos` → `denuncias_archivos` con `contexto='cierre'`
+
+### Dependencias
+- Sprint 9.1 se implementó después de Sprint 7.6, alineando el mock con el diseño final de BD (Sprint 9.2).
+
+---
+*Documento actualizado: Julio 2026. Sprint 7.6 refinado en Sprint 9.1.*
