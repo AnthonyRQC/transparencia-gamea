@@ -23,10 +23,11 @@
 | `remember_token` | varchar(100) nullable | Laravel auth |
 | `created_at` / `updated_at` | timestamp | |
 
-**Campos personalizados a agregar (Sprint 14/15):**
+**Campos personalizados a agregar (Sprint 10):**
 
 | Columna | Tipo | Notas |
 |---------|------|-------|
+| `username` | varchar(50) UNIQUE | Login principal (posteriormente se puede agregar email como alternativa) |
 | `rol` | enum('registrador','jefe','tecnico') | Permisos base del sistema |
 | `iniciales` | varchar(2) | Para avatares (ej: "CQ") |
 | `color` | varchar(20) | Clase CSS del avatar (ej: "bg-blue-500") |
@@ -95,4 +96,4 @@
 
 ---
 
-> **Nota:** No hay que diseñar ni migrar estas tablas manualmente. Los paquetes generan sus propias migraciones al ejecutar `php artisan migrate`. En Sprint 14 se extiende la tabla `users` con una migración adicional para agregar `rol`, `iniciales`, `color` y `activo`.
+> **Nota:** No hay que diseñar ni migrar estas tablas manualmente. Los paquetes generan sus propias migraciones al ejecutar `php artisan migrate`. **En Sprint 10** se extiende la tabla `users` con una migración adicional para agregar `username`, `rol`, `iniciales`, `color`, `activo`, `telefono` y `preferencias`.

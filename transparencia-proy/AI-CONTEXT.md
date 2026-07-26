@@ -198,10 +198,10 @@ Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (11–
 
 Los sprints 7.6, 7.7, 8, 9 y 9.1 están completos. El roadmap con numeración actualizada:
 
-1. **Sprint 11** (era 10) — Panel Administración Catálogos + Subcategorías
-2. **Sprint 12** (era 11) — Dashboard + KPIs + Reportes PDF/Excel
-3. **Sprint 13** (era 12) — Tablero Público Cerrados
-4. **Sprint 14** (era 13) — Tiempos entre Fases
-5. **Sprint 15** (era 14 → 9.2) — Base de datos real, Roles, Auditoría, etc.
+1. **Sprint 10** (era 14 → 9.2) — Base de datos real (MySQL + Eloquent) → **EN PROGRESO**
+2. **Sprint 11** (era 10) — Panel Administración Catálogos + Subcategorías
+3. **Sprint 12** (era 11) — Dashboard + KPIs + Reportes PDF/Excel
+4. **Sprint 13** (era 12) — Tablero Público Cerrados
+5. **Sprint 14** (era 13) — Tiempos entre Fases
 
 Ver detalle completo en `Sprints Pendientes - Contexto.md`.

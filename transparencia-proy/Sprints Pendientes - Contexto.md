@@ -498,24 +498,31 @@ Baja si los timestamps están en mock data. Sería solo una vista tabular sin gr
 
 ---
 
-## Sprint 9.2 (era 14) — Base de datos real (MySQL)
+## Sprint 10 (era 9.2, antigua 14) — Base de datos real (MySQL + Eloquent) ⏳ EN PROGRESO
 
-**Estado:** Pendiente (al final del proyecto).
-**Origen:** Respuestas del cliente #24, #29.
+**Estado:** EN PROGRESO. Documentación preparada en `Sprint 10 - Base de Datos Real (Eloquent + MySQL).md`.
+**Origen:** Respuestas del cliente #24, #29. Esquema BD diseñado y aprobado en Sprint 9.1.
 
-### Resumen
-Migrar de mocks a base de datos MySQL real con migraciones, modelos Eloquent y seeders.
+### Documentos de referencia
+- **`Sprint 10 - Base de Datos Real (Eloquent + MySQL).md`** — Plan detallado, fases, migraciones
+- **`Sprint 10 - Convenciones de Modelos Eloquent.md`** — Convenciones, relaciones, casts
+- **`Sprint 10 - Mapa de Migración Mock a BD.md`** — Mapa mock→BD por cada entidad
+- **`Sprint 10 - Seeders Iniciales.md`** — Datos demo (usuarios, catálogos, denuncias)
 
-### Actividades
-- Diseñar esquema de BD
-- Crear migraciones
-- Crear modelos Eloquent con relaciones
-- Crear seeders (migrar seeds mock)
-- Refactorizar controllers (reemplazar `*Data.php` por queries Eloquent)
-- Configurar `.env` con MySQL de Laragon
+### Decisiones técnicas
+- **Auth:** Breeze con `username` (5 usuarios: jefe, registrador, tecnico1/2/3, pasword: `demo123`)
+- **Polimorfismo:** `morphTo()` en `Ampliacion` (entidad) y `DenunciaArchivo` (contexto_entidad)
+- **Soft delete:** Solo `Denuncia` usa `SoftDeletes`. Resto usa `fecha_eliminacion`
+- **Storage:** Local `storage/app/archivos/`
+- **Auditoría:** Diferida a Sprint 17
+- **Estrategia migración:** Reemplazo total de `app/Data/*` por Eloquent (sin legacy adapter)
 
-### Tablas principales
-denuncias, denunciantes, denunciados, solicitudes, descargos, evaluaciones, informes, cierres, bitácora, usuarios, feriados, notificaciones, catálogos, ampliaciones, subcategorías
+### Fases
+1. **Fase 1 — Cimientos** (2-3 días): Migraciones + modelos base + seeders catálogos
+2. **Fase 2 — Entidades núcleo** (3-4 días): Denuncia, Solicitud, Descargo, Informe, Cierre
+3. **Fase 3 — Polimórficas** (2 días): Ampliacion + DenunciaArchivo + storage
+4. **Fase 4 — Auth y refactor** (2-3 días): Breeze con username, refactor de controllers
+5. **Fase 5 — Testing** (2 días): Feature tests completos con `RefreshDatabase`
 
 ### Dependencias
 Sprint 16 (Roles) y siguientes dependen de este sprint.
