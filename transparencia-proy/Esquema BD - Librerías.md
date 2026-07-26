@@ -32,6 +32,7 @@
 | `color` | varchar(20) | Clase CSS del avatar (ej: "bg-blue-500") |
 | `activo` | boolean default true | Desactivar usuarios sin eliminar historial |
 | `telefono` | varchar(20) nullable | Contacto |
+| `preferencias` | JSON nullable | Preferencias de usuario (días de notificación, UI, etc.). Eloquent cast `array`. |
 
 ### Tabla: `password_reset_tokens`
 

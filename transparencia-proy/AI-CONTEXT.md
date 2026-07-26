@@ -118,11 +118,14 @@ Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (10–
 - **Consulta de código (ticket + PIN) por Registrador sin bitácora** (Sprint 7.7). Sin restricción, sin log: el responsable de la información es el Registrador.
 - **Repositorio unificado de archivos del caso** (Sprint 7.6): nueva tabla `denuncias_archivos` conviviendo con archivos por fase. Soft delete: archivo "eliminado" desaparece de UI pero archivo físico se preserva.
 - **Hechos del registro:** 5000 → **8000 caracteres** (Sprint 7.5).
-- **Filosofía "minimizar tablas":** en BD real (Sprint 14), las 4 tablas puramente históricas de ediciones se fusionan como **campos JSON** en su tabla padre (`solicitudes_ediciones` → JSON en `solicitudes_informacion`, etc.). Stack fijo: MySQL con `JSON` + Eloquent cast `array`, portable a `JSONB` (Postgres) si en el futuro se requiere.
+- **Filosofía "minimizar tablas":** en BD real (Sprint 14), se aplican 3 estrategias: (1) historiales de ediciones como **campos JSON** en tabla padre (4 tablas eliminadas), (2) archivos por fase unificados en `denuncias_archivos` con contexto polimórfico (4 tablas eliminadas), (3) ampliaciones unificadas en tabla polimórfica `ampliaciones` (3 tablas eliminadas). Total: de 31 a 23 tablas. Stack fijo: MySQL con `JSON` + Eloquent cast `array`, portable a `JSONB` (Postgres) si en el futuro se requiere.
 - **Frontend por permisos, no por roles.** Catálogo de permisos y utilidad `useCan()` introducidos en Sprint 7.5. Sprint 15 formaliza con BD, Gates y Policies.
 - **Archivos del caso (Sprint 7.6):** En Fase 0 (mock) Jefe y Técnico ven completo (subir/eliminar). En Sprint 15 se restringirá: **Jefe solo `archivo.ver`** (lectura), **Técnico mantiene `archivo.subir` y `archivo.eliminar`** (CRUD completo). No implementar la restricción antes de Sprint 15 para mantener simplicidad en Fase 0.
 - **MAYÚSCULAS sin helpers redundantes:** Se eliminaron los textos "Se guardará en MAYÚSCULAS" y "· MAYÚSCULAS" de todos los inputs (22 archivos). El usuario ve el texto en mayúsculas vía `text-transform: uppercase`, no necesita texto adicional.
 - **Botón copiar con fallback robusto:** `ModalExito` y `ModalConsultarCodigo` usan `navigator.clipboard.writeText()` con fallback a `document.execCommand('copy')` para entornos HTTP. El código se muestra como un solo string `TICKET-PIN` concatenado.
+- **Soft delete de denuncias solo por Jefe de Unidad:** El Registrador no puede eliminar, solo editar. Si se elimina una denuncia, su número de ticket se reusa para la siguiente (numeración continua). La eliminación queda registrada en `audits` (librería de auditoría).
+- **`denuncias_archivos.eliminado` eliminado:** Se usa solo `fecha_eliminacion` (NULL = activo, !NULL = eliminado). Sin booleano redundante.
+- **`ampliaciones` polimórfica:** Tabla unificada con `tipo` enum(`solicitud|descargo|denuncia`). Campos `aprobado_por_id`, `numero`, `solicitado_por` solo aplican para `tipo='denuncia'`.
 
 ## Notas / Pendientes
 

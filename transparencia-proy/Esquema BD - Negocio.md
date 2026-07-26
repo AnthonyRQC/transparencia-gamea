@@ -24,10 +24,10 @@ erDiagram
     DENUNCIAS ||--o{ PRUEBAS : ""
     DENUNCIAS ||--o{ EVALUACIONES_TECNICAS : ""
     DENUNCIAS ||--o{ SOLICITUDES_INFORMACION : ""
-    SOLICITUDES_INFORMACION ||--o{ SOLICITUDES_AMPLIACIONES : ""
     DENUNCIAS ||--o{ DESCARGOS : ""
-    DESCARGOS ||--o{ DESCARGOS_AMPLIACIONES : ""
-    DENUNCIAS ||--o{ AMPLIACIONES_PLAZO : ""
+    DENUNCIAS ||--o{ AMPLIACIONES : ""
+    SOLICITUDES_INFORMACION ||--o{ AMPLIACIONES : ""
+    DESCARGOS ||--o{ AMPLIACIONES : ""
     DENUNCIAS ||--o| INFORMES_FINALES : ""
     DENUNCIAS ||--o| CIERRES : ""
     DENUNCIAS ||--o{ DENUNCIAS_ARCHIVOS : ""
@@ -38,12 +38,12 @@ erDiagram
 ---
 
 ### 1. Tabla: `denuncias`
-*Registro central de denuncias ciudadanas. Entidad raíz del sistema que gobierna todo el flujo procesal desde la recepción hasta el cierre o archivo.*
+*Registro central de denuncias ciudadanas. Entidad raíz del sistema que gobierna todo el flujo procesal desde la recepción hasta el cierre o archivo. Los datos históricos de traspaso, reapertura y conciliación se almacenan como campos JSON para reducir columnas sin perder trazabilidad.*
 
 - **`id`**: Entero, Llave Primaria (Autoincremental).
-- **`ticket`**: Texto, Único, Obligatorio (formato `DEN-YYYY-NNNN`, ej. "DEN-2026-0001"). Generado secuencialmente al registrar.
+- **`ticket`**: Texto, Único, Obligatorio (formato `DEN-YYYY-NNNN`, ej. "DEN-2026-0001"). Generado secuencialmente al registrar. Si se elimina una denuncia (soft delete por Jefe), su número se reusa para mantener numeración continua. El registro eliminado se preserva en auditoría.
 - **`token_consulta`**: Texto(4), Obligatorio (PIN numérico de 4 dígitos, ej. "1001"). Generado aleatoriamente al registrar. Usado junto con `ticket` como par de autenticación para el seguimiento público (Sprint 6).
-- **`tipo`**: Enum(`'corrupcion'`, `'negacion'`), Obligatorio. **(Actualizado Julio 2026: se eliminaron `acompaniamiento` e `intervencion` del MVP, diferidos a Sprint 22 v2).**
+- **`tipo`**: Enum(`'corrupcion'`, `'negacion'`), Obligatorio.
   - `corrupcion`: Plazo legal hasta 45 días hábiles + 45 de ampliación (Art. 30).
   - `negacion`: Plazo legal hasta 20 días hábiles + 10 de ampliación.
 - **`escenario`**: Enum(`'revelada'`, `'anonimo'`, `'reservada'`), por defecto `'revelada'`.
@@ -66,22 +66,15 @@ erDiagram
 - **`justificacion_rechazo`**: Texto, Nullable. Motivo interno/legal del rechazo (Art. 23 §II).
 - **`resumen_rechazo`**: Texto(200), Nullable. Resumen breve para el denunciante visible en seguimiento público.
 - **`fecha_asignada`**: Timestamp, Nullable. Momento de asignación de técnico.
-- **`fecha_traspaso`**: Timestamp, Nullable. Momento del último traspaso entre técnicos.
-- **`justificacion_traspaso`**: Texto, Nullable. Motivo del traspaso (mín. 10 caracteres).
-- **`fecha_reapertura`**: Timestamp, Nullable. Momento de reapertura (desde `rechazada` o `cerrada` → `ingresada`).
-- **`justificacion_reapertura`**: Texto, Nullable. Motivo de la reapertura (mín. 20 caracteres).
-- **`plazo_reapertura`**: Fecha, Nullable. Nueva fecha límite manual definida por el Jefe al reabrir.
 - **`registrado_por_id`**: Entero, **Llave Foránea** → `usuarios(id)`, Nullable. Usuario registrador que ingresó la denuncia.
+- **`sitpreco_rechazo`**: Texto(50), Nullable. SITPRECO opcional capturado al rechazar la denuncia (no se pide al admitir).
+- **`es_legacy`**: Booleano, por defecto `false`. Sprint 23 (diferido): marca casos migrados del sistema legacy (sin historial automático).
+- **`deleted_at`**: Timestamp, Nullable. Soft delete: solo el Jefe de Unidad puede eliminar denuncias (el Registrador solo edita). La eliminación no afecta la numeración de tickets (se reusa el número).
 
-> 🆕 **Campos Sprint 7.5 (conciliación de fechas):**
-> - **`sitpreco_rechazo`**: Texto(50), Nullable. SITPRECO opcional capturado al rechazar la denuncia (no se pide al admitir).
-> - **`conciliado_por_id`**: Entero, **Llave Foránea** → `usuarios(id)`, Nullable. Jefe que realizó la conciliación.
-> - **`conciliacion_motivo`**: Texto, Nullable. Motivo de la conciliación (mín. 20 caracteres).
-> - **`conciliacion_at`**: Timestamp, Nullable. Momento de la conciliación.
-> - **`fecha_cierre_real`**: Fecha, Nullable. Fecha real de cierre del caso (puede diferir de la fecha de cierre del sistema por conciliación).
-> - **`es_legacy`**: Booleano, por defecto `false`. Sprint 23 (diferido): marca casos migrados del sistema legacy (sin historial automático).
-
-> ~~**Nota sobre tipos especiales:** Para `acompaniamiento` e `intervencion`, los campos de hechos y plazo no aplican de la misma forma.~~ **(Eliminada Julio 2026: acomp/intervención se difirieron a Sprint 22 v2, no requieren tabla especial).**
+> **JSON — Datos históricos (Sprint 14: fusión):** Campos que antes eran columnas separadas, ahora agrupados en JSON para reducir la tabla. Se leen siempre juntos y no se consultan individualmente.
+> - **`traspaso_json`**: JSON, Nullable. `{ fecha: timestamp, justificacion: string }`. Datos del último traspaso entre técnicos.
+> - **`reapertura_json`**: JSON, Nullable. `{ fecha: timestamp, justificacion: string, plazo: date }`. Datos de la reapertura del caso.
+> - **`conciliacion_json`**: JSON, Nullable. `{ conciliado_por_id: int, motivo: string, fecha: timestamp, fecha_cierre_real: date }`. Datos de conciliación de fechas por el Jefe.
 
 ---
 
@@ -126,8 +119,10 @@ erDiagram
 - **`testigo_nombre`**: Texto, Nullable. Nombre del testigo (solo si `tipo = 'testigo'`).
 - **`testigo_telefono`**: Texto, Nullable. Teléfono de contacto del testigo.
 
-### 7.5 Tabla: `denuncias_archivos` (NUEVA — Sprint 7.6)
-*Repositorio unificado de archivos del caso (Sprint 7.6). Permite subir archivos en cualquier momento del caso, no solo al final. Convive con los archivos específicos por fase (`solicitudes_archivos`, `descargos_documentos`, `informes_archivos`, `cierres_archivos`).*
+---
+
+### 5. Tabla: `denuncias_archivos` (Sprint 7.6)
+*Repositorio unificado de archivos del caso. Reemplaza las antiguas tablas `solicitudes_archivos`, `descargos_documentos`, `informes_archivos` y `cierres_archivos`. Usa el campo `contexto` + `contexto_id` para relación polimórfica con cualquier entidad.*
 
 - **`id`**: Entero, Llave Primaria (Autoincremental).
 - **`denuncia_id`**: Entero, **Llave Foránea** → `denuncias(id)`. Relación N:1.
@@ -137,17 +132,16 @@ erDiagram
 - **`tamano`**: Texto, Nullable (ej. "2.4 MB").
 - **`mime_type`**: Texto, Nullable (ej. "application/pdf").
 - **`descripcion`**: Texto, Nullable. Descripción del archivo. **Texto libre → MAYÚSCULAS** (Sprint 7.5).
-- **`contexto`**: Enum(`'registro'`, `'general'`, `'informe'`, `'cierre'`), por defecto `'general'`. Indica el contexto del archivo.
-- **`contexto_id`**: Entero, Nullable. ID de la entidad relacionada (solicitud, descargo, informe, cierre) si aplica. FK polimórfica lógica.
-- **`eliminado`**: Booleano, por defecto `false`. Soft delete (archivo físico se preserva en `archivos_eliminados/`).
-- **`fecha_eliminacion`**: Timestamp, Nullable.
+- **`contexto`**: Enum(`'registro'`, `'general'`, `'solicitud'`, `'descargo'`, `'informe'`, `'cierre'`), por defecto `'general'`. Indica el contexto del archivo.
+- **`contexto_id`**: Entero, Nullable. ID de la entidad relacionada según `contexto` (solicitud, descargo, informe, cierre). FK polimórfica lógica.
+- **`fecha_eliminacion`**: Timestamp, Nullable. Soft delete: si no es NULL, el archivo está eliminado (se usa como flag, sin columna `eliminado` adicional).
 - **`fecha_subida`**: Timestamp, Obligatorio.
 
-> **Comportamiento del soft delete (Sprint 7.6):** El archivo "eliminado" desaparece de la UI pero el archivo físico se preserva en disco (movido a `archivos_eliminados/` con timestamp). La DB mantiene el registro con `eliminado: true` para auditoría forense.
+> **Comportamiento del soft delete (Sprint 14):** No hay columna `eliminado` separada. Si `fecha_eliminacion` es NULL → archivo activo. Si tiene valor → archivo eliminado (el archivo físico se preserva en `archivos_eliminados/`).
 
 ---
 
-### 5. Tabla: `evaluaciones_tecnicas`
+### 6. Tabla: `evaluaciones_tecnicas`
 *Evaluaciones técnicas previas delegadas por el Jefe de Unidad a un técnico antes de admitir o rechazar la denuncia (Sprint 7). El plazo de 5 días de admisión (Art. 23) NO se pausa durante esta evaluación.*
 
 - **`id`**: Entero, Llave Primaria (Autoincremental).
@@ -164,7 +158,7 @@ erDiagram
 
 ---
 
-### 6. Tabla: `solicitudes_informacion`
+### 7. Tabla: `solicitudes_informacion`
 *Solicitudes de documentación dirigidas a unidades/dependencias externas durante la investigación de la denuncia (Art. 25 §I y §III Ley 974). Plazo legal: 10 días hábiles, ampliable hasta 5 días adicionales.*
 
 - **`id`**: Entero, Llave Primaria (Autoincremental).
@@ -185,43 +179,7 @@ erDiagram
 
 ---
 
-### 7. Tabla: `solicitudes_archivos`
-*Archivos adjuntos a las respuestas de solicitudes de información.*
-
-- **`id`**: Entero, Llave Primaria (Autoincremental).
-- **`solicitud_id`**: Entero, **Llave Foránea** → `solicitudes_informacion(id)`.
-- **`nombre`**: Texto, Obligatorio (ej. "comprobantes_pago_ambulancias.pdf").
-- **`path`**: Texto, Obligatorio. Ruta de almacenamiento.
-- **`tamano`**: Texto, Nullable (ej. "2.4 MB").
-- **`fecha_subida`**: Timestamp, Obligatorio.
-
----
-
-### 8. Tabla: `solicitudes_ampliaciones`
-*Registro de ampliaciones de plazo concedidas a solicitudes de información (máximo 5 días adicionales).*
-
-- **`id`**: Entero, Llave Primaria (Autoincremental).
-- **`solicitud_id`**: Entero, **Llave Foránea** → `solicitudes_informacion(id)`.
-- **`dias`**: Entero, Obligatorio (máx. 5).
-- **`justificacion`**: Texto, Obligatorio (mín. 10 caracteres).
-- **`fecha`**: Timestamp, Obligatorio.
-
----
-
-### 9. Tabla: `solicitudes_ediciones`
-*Historial de cambios realizados a solicitudes de información. Auditoría inmutable de cada modificación.*
-
-- **`id`**: Entero, Llave Primaria (Autoincremental).
-- **`solicitud_id`**: Entero, **Llave Foránea** → `solicitudes_informacion(id)`.
-- **`campo`**: Texto, Obligatorio (ej. `'unidad_destino'`, `'detalle'`, `'plazo_dias'`).
-- **`valor_anterior`**: Texto, Nullable.
-- **`valor_nuevo`**: Texto, Obligatorio.
-- **`usuario_id`**: Entero, **Llave Foránea** → `usuarios(id)`. Autor de la edición.
-- **`fecha`**: Timestamp, Obligatorio.
-
----
-
-### 10. Tabla: `descargos`
+### 8. Tabla: `descargos`
 *Descargos de los denunciados: notificación, recepción de descargo y documentación de respaldo (Art. 25 §IV Ley 974). Plazo legal: 10 días hábiles + 5 de prórroga.*
 
 - **`id`**: Entero, Llave Primaria (Autoincremental).
@@ -244,58 +202,25 @@ erDiagram
 
 ---
 
-### 11. Tabla: `descargos_documentos`
-*Documentos de respaldo adjuntados por el denunciado en su descargo.*
+### 9. Tabla: `ampliaciones` (Sprint 14, fusión)
+*Registro unificado de ampliaciones de plazo para cualquier entidad del sistema. Reemplaza las antiguas tablas `solicitudes_ampliaciones`, `descargos_ampliaciones` y `ampliaciones_plazo`. Usa relación polimórfica para flexibilidad.*
 
 - **`id`**: Entero, Llave Primaria (Autoincremental).
-- **`descargo_id`**: Entero, **Llave Foránea** → `descargos(id)`.
-- **`nombre`**: Texto, Obligatorio.
-- **`path`**: Texto, Obligatorio.
-- **`tamano`**: Texto, Nullable.
-- **`fecha_subida`**: Timestamp, Obligatorio.
-
----
-
-### 12. Tabla: `descargos_ampliaciones`
-*Registro de ampliaciones de plazo concedidas a descargos (máximo 5 días adicionales, Art. 25 §IV).*
-
-- **`id`**: Entero, Llave Primaria (Autoincremental).
-- **`descargo_id`**: Entero, **Llave Foránea** → `descargos(id)`.
-- **`dias`**: Entero, Obligatorio (máx. 5).
-- **`justificacion`**: Texto, Obligatorio (mín. 10 caracteres).
-- **`fecha`**: Timestamp, Obligatorio.
-
----
-
-### 13. Tabla: `descargos_ediciones`
-*Historial de cambios en descargos para auditoría.*
-
-- **`id`**: Entero, Llave Primaria (Autoincremental).
-- **`descargo_id`**: Entero, **Llave Foránea** → `descargos(id)`.
-- **`campo`**: Texto, Obligatorio (ej. `'nombres_denunciado'`, `'dependencia_denunciado'`).
-- **`valor_anterior`**: Texto, Nullable.
-- **`valor_nuevo`**: Texto, Obligatorio.
-- **`usuario_id`**: Entero, **Llave Foránea** → `usuarios(id)`.
-- **`fecha`**: Timestamp, Obligatorio.
-
----
-
-### 14. Tabla: `ampliaciones_plazo`
-*Ampliaciones del plazo total de la denuncia aprobadas por el Jefe de Unidad (Sprint 8). Se permiten múltiples ampliaciones parciales hasta el máximo legal (corrupción: +45 días, negación: +10 días).*
-
-- **`id`**: Entero, Llave Primaria (Autoincremental).
-- **`denuncia_id`**: Entero, **Llave Foránea** → `denuncias(id)`. Relación N:1.
-- **`numero`**: Entero, Obligatorio. Número secuencial de la ampliación (1, 2, 3...).
-- **`dias`**: Entero, Obligatorio. Días hábiles concedidos en esta ampliación.
-- **`justificacion`**: Texto, Obligatorio.
-- **`aprobado_por_id`**: Entero, **Llave Foránea** → `usuarios(id)`. Jefe que aprobó.
-- **`solicitado_por`**: Texto, Nullable. Nombre o referencia de quien solicitó la ampliación (ej. "Técnico Carlos Quispe").
+- **`tipo`**: Enum(`'solicitud'`, `'descargo'`, `'denuncia'`), Obligatorio. Tipo de entidad que recibe la ampliación.
+- **`entidad_id`**: Entero, Obligatorio. ID de la entidad relacionada (`solicitudes_informacion.id`, `descargos.id` o `denuncias.id` según `tipo`). FK polimórfica lógica.
+- **`dias`**: Entero, Obligatorio. Días hábiles concedidos (sin máximo rígido en BD, validado por aplicación según contexto legal).
+- **`justificacion`**: Texto, Obligatorio (mín. 10 caracteres). **Texto libre → MAYÚSCULAS** (Sprint 7.5).
+- **`numero`**: Entero, Nullable. Número secuencial de la ampliación (1, 2, 3...) — solo aplica cuando `tipo = 'denuncia'`.
+- **`aprobado_por_id`**: Entero, **Llave Foránea** → `usuarios(id)`, Nullable. Jefe que aprobó la ampliación — solo aplica cuando `tipo = 'denuncia'`.
+- **`solicitado_por`**: Texto, Nullable. Nombre o referencia de quien solicitó la ampliación (ej. "Técnico Carlos Quispe") — solo aplica cuando `tipo = 'denuncia'`.
 - **`archivo_respaldo`**: Texto, Nullable. Ruta del archivo de respaldo si aplica.
 - **`fecha`**: Timestamp, Obligatorio.
 
+> **Nota:** Los campos `numero`, `aprobado_por_id` y `solicitado_por` solo se llenan cuando `tipo = 'denuncia'`. Para `tipo = 'solicitud'` y `tipo = 'descargo'`, solo se usan `dias`, `justificacion` y `fecha`.
+
 ---
 
-### 15. Tabla: `informes_finales`
+### 10. Tabla: `informes_finales`
 *Informe Final emitido por el técnico al concluir la investigación, dirigido a la Máxima Autoridad Institucional (Art. 26 Ley 974). Relación 1:1 con la denuncia. Soporta ediciones y soft delete.*
 
 - **`id`**: Entero, Llave Primaria (Autoincremental).
@@ -317,30 +242,7 @@ erDiagram
 
 ---
 
-### 16. Tabla: `informes_archivos`
-*Archivos adjuntos al Informe Final.*
-
-- **`id`**: Entero, Llave Primaria (Autoincremental).
-- **`informe_id`**: Entero, **Llave Foránea** → `informes_finales(id)`.
-- **`nombre`**: Texto, Obligatorio.
-- **`path`**: Texto, Obligatorio.
-- **`tamano`**: Texto, Nullable.
-- **`fecha_subida`**: Timestamp, Obligatorio.
-
----
-
-### 17. Tabla: `informes_ediciones`
-*Historial de ediciones del Informe Final para auditoría y trazabilidad.*
-
-- **`id`**: Entero, Llave Primaria (Autoincremental).
-- **`informe_id`**: Entero, **Llave Foránea** → `informes_finales(id)`.
-- **`cambios`**: JSON, Obligatorio. Array de strings describiendo los campos modificados (ej. `["clasificacion: 'civil' → 'penal'", "fojas: '12' → '15'"]`).
-- **`usuario_id`**: Entero, **Llave Foránea** → `usuarios(id)`. Autor de la edición.
-- **`fecha`**: Timestamp, Obligatorio.
-
----
-
-### 18. Tabla: `cierres`
+### 11. Tabla: `cierres`
 *Cierre formal de la denuncia. Relación 1:1 con la denuncia. Incluye datos de notificación al denunciante y SITPRECO heredado del informe. Soporta ediciones y soft delete.*
 
 - **`id`**: Entero, Llave Primaria (Autoincremental).
@@ -359,30 +261,7 @@ erDiagram
 
 ---
 
-### 19. Tabla: `cierres_archivos`
-*Archivos adjuntos al acta de cierre (ej. acta_cierre_0011.pdf).*
-
-- **`id`**: Entero, Llave Primaria (Autoincremental).
-- **`cierre_id`**: Entero, **Llave Foránea** → `cierres(id)`.
-- **`nombre`**: Texto, Obligatorio.
-- **`path`**: Texto, Obligatorio.
-- **`tamano`**: Texto, Nullable.
-- **`fecha_subida`**: Timestamp, Obligatorio.
-
----
-
-### 20. Tabla: `cierres_ediciones`
-*Historial de ediciones del cierre para auditoría.*
-
-- **`id`**: Entero, Llave Primaria (Autoincremental).
-- **`cierre_id`**: Entero, **Llave Foránea** → `cierres(id)`.
-- **`cambios`**: JSON, Obligatorio. Array de strings con los campos modificados.
-- **`usuario_id`**: Entero, **Llave Foránea** → `usuarios(id)`.
-- **`fecha`**: Timestamp, Obligatorio.
-
----
-
-### 21. Tabla: `bitacora`
+### 12. Tabla: `bitacora`
 *Bitácora inmutable de todas las acciones realizadas sobre una denuncia. Cada entrada registra un evento del ciclo de vida para auditoría legal completa.*
 
 - **`id`**: Entero, Llave Primaria (Autoincremental).
@@ -395,7 +274,7 @@ erDiagram
 
 ---
 
-### 22. Tabla: `notificaciones`
+### 13. Tabla: `notificaciones`
 *Notificaciones push internas del sistema, mostradas en la campana del navbar y en la página de historial (Sprint 9). Generadas por derivación de eventos del sistema y persistidas al ser leídas.*
 
 - **`id`**: Entero, Llave Primaria (Autoincremental).
@@ -422,10 +301,10 @@ erDiagram
     denuncias ||--o{ pruebas : "1:N"
     denuncias ||--o{ evaluaciones_tecnicas : "1:N"
     denuncias ||--o{ solicitudes_informacion : "1:N"
-    solicitudes_informacion ||--o{ solicitudes_ampliaciones : "1:N"
     denuncias ||--o{ descargos : "1:N"
-    descargos ||--o{ descargos_ampliaciones : "1:N"
-    denuncias ||--o{ ampliaciones_plazo : "1:N"
+    denuncias ||--o{ ampliaciones : "1:N"
+    solicitudes_informacion ||--o{ ampliaciones : "1:N"
+    descargos ||--o{ ampliaciones : "1:N"
     denuncias ||--o| informes_finales : "1:1"
     denuncias ||--o| cierres : "1:1"
     denuncias ||--o{ denuncias_archivos : "1:N"
@@ -436,6 +315,8 @@ erDiagram
 > **Nota:** Las relaciones con `users` (FKs: técnico, autor, quien sube, etc.) están en `Esquema BD - Librerías.md`.
 > Las relaciones con catálogos (`categorias_denuncia`, `unidades_externas`, `feriados`) están en `Esquema BD - Catálogos.md`.
 > Las tablas `*_ediciones` fueron fusionadas a campos JSON en sus tablas padre.
+> Las tablas de archivos por fase (`*_archivos`, `*_documentos`) fueron unificadas en `denuncias_archivos` con contexto polimórfico.
+> Las tablas de ampliaciones (`*_ampliaciones`, `ampliaciones_plazo`) fueron unificadas en `ampliaciones` con tipo polimórfico.
 
 ---
 
@@ -453,14 +334,24 @@ La arquitectura actual de `app/Data/` (clases estáticas con sesión) fue diseñ
 | `session('permisos_demo')`         | (Sprint 15) `Auth::user()->can('x')` + `spatie/laravel-permission` si se requiere granularidad |
 
 ### Filosofía "minimizar tablas" (Sprint 14)
-Tablas puramente históricas (sin CRUD, solo información derivada) se fusionan como **campos JSON** en su tabla padre. Esto reduce la BD de 26 a 22 tablas y simplifica queries de lectura.
+Se aplican tres estrategias para reducir la cantidad de tablas: historiales de ediciones como **JSON**, archivos por fase unificados, y ampliaciones polimórficas. Esto reduce la BD de **31 a 23 tablas** y simplifica queries de lectura.
 
-| Tabla antigua (Fase 0) | Campo nuevo (Fase 1) | Razón |
+| Tabla antigua (Fase 0) | Campo nuevo (Fase 1) | Estrategia |
 |---|---|---|
-| `solicitudes_ediciones` | `solicitudes_informacion.historial_ediciones` (JSON) | Sin CRUD; solo historial |
-| `descargos_ediciones` | `descargos.historial_ediciones` (JSON) | Sin CRUD; solo historial |
-| `informes_ediciones` | `informes_finales.historial_ediciones` (JSON) | Sin CRUD; solo historial |
-| `cierres_ediciones` | `cierres.historial_ediciones` (JSON) | Sin CRUD; solo historial |
+| `solicitudes_ediciones` | `solicitudes_informacion.historial_ediciones` (JSON) | Historial en JSON |
+| `descargos_ediciones` | `descargos.historial_ediciones` (JSON) | Historial en JSON |
+| `informes_ediciones` | `informes_finales.historial_ediciones` (JSON) | Historial en JSON |
+| `cierres_ediciones` | `cierres.historial_ediciones` (JSON) | Historial en JSON |
+| `fecha_traspaso`, `justificacion_traspaso` | `denuncias.traspaso_json` (JSON) | Historial en JSON |
+| `fecha_reapertura`, `justificacion_reapertura`, `plazo_reapertura` | `denuncias.reapertura_json` (JSON) | Historial en JSON |
+| `conciliado_por_id`, `conciliacion_motivo`, `conciliacion_at`, `fecha_cierre_real` | `denuncias.conciliacion_json` (JSON) | Historial en JSON |
+| `solicitudes_archivos` | `denuncias_archivos.contexto='solicitud'` | Unificación de archivos |
+| `descargos_documentos` | `denuncias_archivos.contexto='descargo'` | Unificación de archivos |
+| `informes_archivos` | `denuncias_archivos.contexto='informe'` | Unificación de archivos |
+| `cierres_archivos` | `denuncias_archivos.contexto='cierre'` | Unificación de archivos |
+| `solicitudes_ampliaciones` | `ampliaciones.tipo='solicitud'` | Ampliación polimórfica |
+| `descargos_ampliaciones` | `ampliaciones.tipo='descargo'` | Ampliación polimórfica |
+| `ampliaciones_plazo` | `ampliaciones.tipo='denuncia'` | Ampliación polimórfica |
 
 **Tipo de dato en MySQL:** `JSON` nativo. Eloquent cast: `protected $casts = ['historial_ediciones' => 'array']`.
 **Portable a Postgres:** cambiar a `JSONB` con índice GIN si en el futuro se requiere búsqueda eficiente dentro del JSON.
@@ -479,13 +370,11 @@ Todos los campos de texto libre se almacenan en MAYÚSCULAS por convención inst
 | `denunciantes` | `nombres`, `ci` |
 | `denunciados` | `nombres`, `dependencia`, `descripcion` |
 | `pruebas` | `descripcion` |
-| `denuncias` | `lugar_hechos`, `hechos`, `justificacion_*`, `resumen_rechazo`, `conciliacion_motivo` |
+| `denuncias` | `lugar_hechos`, `hechos`, `justificacion_*`, `resumen_rechazo` |
 | `denuncias_archivos` | `descripcion` |
 | `solicitudes_informacion` | `detalle`, `respuesta`, `motivo_cancelacion` |
-| `solicitudes_ampliaciones` | `justificacion` |
 | `descargos` | `medio`, `resumen_descargo`, `motivo_cancelacion` |
-| `descargos_ampliaciones` | `justificacion` |
-| `ampliaciones_plazo` | `justificacion`, `solicitado_por` |
+| `ampliaciones` | `justificacion`, `solicitado_por` |
 | `informes_finales` | `justificacion`, `concluido_por` |
 | `cierres` | `descripcion`, `notificacion_medio`, `notificacion_descripcion`, `no_notificado_motivo`, `concluido_por` |
 | `bitacora` | `detalle` |
@@ -510,7 +399,8 @@ Todos los campos de texto libre se almacenan en MAYÚSCULAS por convención inst
 - `bitacora`: Índice en `denuncia_id`. Índice en `fecha DESC`.
 - `notificaciones`: Índice compuesto en `(usuario_id, leida, fecha DESC)`.
 - `evaluaciones_tecnicas`: Índice en `(denuncia_id, estado)`.
-- `denuncias_archivos`: Índice en `(denuncia_id, eliminado)`. Índice en `contexto`.
+- `denuncias_archivos`: Índice en `(denuncia_id, fecha_eliminacion)`. Índice en `contexto`.
+- `ampliaciones`: Índice en `(tipo, entidad_id)`. Índice en `fecha`.
 - `feriados`: Índice único en `fecha`. Índice en `recurrente`.
 - `configuracion_sistema`: Índice único en `clave`.
 
@@ -538,31 +428,50 @@ Todos los campos de texto libre se almacenan en MAYÚSCULAS por convención inst
 
 ---
 
-## 🆕 Resumen de cambios Julio 2026
+## 🆕 Resumen de cambios — Julio 2026 / Sprint 14
 
 ### Tablas
-- **Nueva:** `denuncias_archivos` (repositorio unificado, Sprint 7.6)
-- **Nueva:** `configuracion_sistema` (Sprint 23, diferido)
+- **Nueva (Sprint 7.6):** `denuncias_archivos` — repositorio unificado de archivos (reemplaza 4 tablas)
+- **Nueva (Sprint 14):** `ampliaciones` — tabla polimórfica (reemplaza 3 tablas)
+- **Nueva (Sprint 23, diferido):** `configuracion_sistema` — parámetros clave-valor
 - **Fusionadas a JSON (Sprint 14):** `solicitudes_ediciones`, `descargos_ediciones`, `informes_ediciones`, `cierres_ediciones` → campos `historial_ediciones` JSON en sus tablas padre
+- **Columnas a JSON (Sprint 14):** `fecha_traspaso`, `justificacion_traspaso`, `fecha_reapertura`, `justificacion_reapertura`, `plazo_reapertura`, `conciliado_por_id`, `conciliacion_motivo`, `conciliacion_at`, `fecha_cierre_real` → JSON en `denuncias`
 
 ### Enums modificados
 - `denuncias.tipo`: ❌ eliminados `acompaniamiento`, `intervencion` (Sprint 22 v2)
 - `descargos.medio`: ❌ eliminados valores del ENUM → ahora texto libre (Sprint 7.5)
 - `bitacora.accion`: ❌ eliminada `consulta_codigo` (Sprint 7.7)
 - `bitacora.accion`: ➕ agregada `conciliacion_fechas` (Sprint 7.5)
-- `denuncias_archivos.contexto`: ➕ nuevo ENUM `'registro' | 'general' | 'informe' | 'cierre'` (Sprint 7.6)
+- `denuncias_archivos.contexto`: expandido a `'registro' | 'general' | 'solicitud' | 'descargo' | 'informe' | 'cierre'` (Sprint 14)
 
 ### Campos nuevos
 - `denuncias.sitpreco_rechazo` (Sprint 7.A)
-- `denuncias.conciliado_por_id`, `conciliacion_motivo`, `conciliacion_at`, `fecha_cierre_real` (Sprint 7.5)
 - `denuncias.es_legacy` (Sprint 23, diferido)
-- `solicitudes_informacion.historial_ediciones` JSON (Sprint 14, reemplaza tabla)
-- `descargos.historial_ediciones` JSON (Sprint 14, reemplaza tabla)
+- `denuncias.traspaso_json`, `reapertura_json`, `conciliacion_json` (Sprint 14)
+- `denuncias.deleted_at` (Sprint 14 — soft delete solo por Jefe)
+- `ampliaciones.tipo`, `entidad_id`, `dias`, `justificacion`, `numero`, `aprobado_por_id`, `solicitado_por`, `archivo_respaldo`, `fecha` (Sprint 14)
+- `users.preferencias` JSON (Sprint 14)
+- `solicitudes_informacion.historial_ediciones` JSON (Sprint 14)
+- `descargos.historial_ediciones` JSON (Sprint 14)
+- `informes_finales.historial_ediciones` JSON (Sprint 14)
+- `cierres.historial_ediciones` JSON (Sprint 14)
 - `descargos.medio`: ENUM → TEXT(200) (Sprint 7.5)
-- `informes_finales.historial_ediciones` JSON (Sprint 14, reemplaza tabla)
-- `cierres.historial_ediciones` JSON (Sprint 14, reemplaza tabla)
+
+### Campos eliminados (movidos a JSON)
+- `denuncias.fecha_traspaso`, `justificacion_traspaso` → `traspaso_json`
+- `denuncias.fecha_reapertura`, `justificacion_reapertura`, `plazo_reapertura` → `reapertura_json`
+- `denuncias.conciliado_por_id`, `conciliacion_motivo`, `conciliacion_at`, `fecha_cierre_real` → `conciliacion_json`
+- `denuncias_archivos.eliminado` (booleano redundante, usar `fecha_eliminacion`)
+
+### Tablas eliminadas
+- `solicitudes_archivos`, `descargos_documentos`, `informes_archivos`, `cierres_archivos` → unificadas en `denuncias_archivos`
+- `solicitudes_ampliaciones`, `descargos_ampliaciones`, `ampliaciones_plazo` → unificadas en `ampliaciones`
+- `solicitudes_ediciones`, `descargos_ediciones`, `informes_ediciones`, `cierres_ediciones` → campos JSON
 
 ### Comportamiento
 - MAYÚSCULAS obligatorias en textos libres (Sprint 7.5)
 - Archivos físicos no se borran en soft delete (Sprint 7.6)
 - Consulta de código no se registra en bitácora (Sprint 7.7)
+- Eliminación de denuncias solo por Jefe de Unidad (el Registrador solo edita)
+- Tickets reusados al eliminar denuncia (numeración continua)
+- Soft delete en `denuncias_archivos` usa solo `fecha_eliminacion` (sin booleano)
