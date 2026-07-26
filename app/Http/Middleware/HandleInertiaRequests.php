@@ -2,58 +2,51 @@
 
 namespace App\Http\Middleware;
 
-use App\Data\NotificacionData;
-use App\Data\SesionUsuarioData;
+use App\Data\PermisosCatalogo;
+use App\Models\Notificacion;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
 {
-    /**
-     * The root template that is loaded on the first page visit.
-     *
-     * @var string
-     */
     protected $rootView = 'app';
 
-    /**
-     * Determine the current asset version.
-     */
     public function version(Request $request): ?string
     {
         return parent::version($request);
     }
 
-    /**
-     * Define the props that are shared by default.
-     *
-     * @return array<string, mixed>
-     */
     public function share(Request $request): array
     {
-        $currentUser = SesionUsuarioData::getCurrent();
+        $user = $request->user();
 
         $share = [
             ...parent::share($request),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $user ? [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'username' => $user->username,
+                    'rol' => $user->rol,
+                    'iniciales' => $user->iniciales,
+                    'color' => $user->color,
+                    'preferencias' => $user->preferencias,
+                    'permisos' => PermisosCatalogo::permisosPorRol($user->rol),
+                ] : null,
             ],
             'logo_url' => asset('LOGO-OFICIAL-EL-ALTO.png'),
             'jacha_url' => asset('jacha.jpg'),
             'success' => session('success'),
             'ticket' => session('ticket'),
             'token' => session('token'),
-            'currentUser' => $currentUser,
-            'usuarios' => SesionUsuarioData::getAll(),
-            'permisos' => SesionUsuarioData::getPermisos(),
+            'notificaciones' => $user ? [
+                'no_leidas' => Notificacion::where('usuario_id', $user->id)->where('leida', false)->count(),
+                'recientes' => Notificacion::where('usuario_id', $user->id)->latest()->take(5)->get(),
+            ] : [
+                'no_leidas' => 0,
+                'recientes' => [],
+            ],
         ];
-
-        NotificacionData::generarParaUsuario($currentUser['id']);
-        $share['notificaciones'] = [
-            'no_leidas' => NotificacionData::getUnreadCount($currentUser['id']),
-            'recientes' => NotificacionData::getRecientes(5, $currentUser['id']),
-        ];
-        $share['demo_mode'] = session('demo_mode', false);
 
         return $share;
     }

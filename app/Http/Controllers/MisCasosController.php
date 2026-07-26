@@ -2,66 +2,54 @@
 
 namespace App\Http\Controllers;
 
-use App\Data\DenunciaData;
-use App\Data\EvaluacionData;
-use App\Data\SesionUsuarioData;
+use App\Models\Denuncia;
+use App\Models\EvaluacionTecnica;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class MisCasosController extends Controller
 {
     public function index()
     {
-        if (empty(DenunciaData::getAll())) {
-            DenunciaData::seedDemoData();
-        }
-
-        $currentUser = SesionUsuarioData::getCurrent();
-        if ($currentUser['rol'] !== 'tecnico') {
+        if (Auth::user()->rol !== 'tecnico') {
             return redirect()->route('dashboard')->with('error', 'Solo los técnicos pueden acceder a Mis Casos.');
         }
-        $tecnicoId = $currentUser['id'];
 
-        $denuncias = DenunciaData::getByTecnico($tecnicoId);
+        $tecnicoId = Auth::id();
+
+        $with = ['denunciante', 'denunciados', 'categoria', 'tecnico', 'informe', 'cierre'];
+
+        $denuncias = Denuncia::with($with)
+            ->where('tecnico_id', $tecnicoId)
+            ->whereNotIn('estado', ['rechazada', 'cerrada'])
+            ->latest()
+            ->get();
 
         $grouped = [];
         foreach ($denuncias as $d) {
-            $estado = $d['estado'] ?? '';
+            $estado = $d->estado;
             if (!isset($grouped[$estado])) $grouped[$estado] = [];
-            $grouped[$estado][] = array_merge($d, [
-                'plazo' => DenunciaData::getPlazoInfo($d),
-            ]);
+            $grouped[$estado][] = $d;
         }
 
-        // Sprint 4 — Solicitudes y Descargos agrupados por ticket
-        $allTickets = array_unique(array_merge(
-            array_column($denuncias, 'ticket')
-        ));
+        $evaluacionesDelegadas = EvaluacionTecnica::with('denuncia')
+            ->where('tecnico_id', $tecnicoId)
+            ->where('estado', 'pendiente')
+            ->get();
 
-        $solicitudesByTicket = [];
-        $descargosByTicket = [];
-        $evaluacionesByTicket = [];
-        foreach ($allTickets as $t) {
-            $sols = DenunciaData::getSolicitudes($t);
-            $descs = DenunciaData::getDescargos($t);
-            $evals = DenunciaData::getEvaluaciones($t);
-            if (!empty($sols)) $solicitudesByTicket[$t] = $sols;
-            if (!empty($descs)) $descargosByTicket[$t] = $descs;
-            if (!empty($evals)) $evaluacionesByTicket[$t] = $evals;
-        }
-
-        $evaluacionesDelegadas = EvaluacionData::getActivasPorTecnico($tecnicoId);
-        $evaluacionesDevueltas = array_values(array_filter(
-            EvaluacionData::getAll(),
-            fn($e) => ($e['tecnico_id'] ?? '') === $tecnicoId && ($e['estado'] ?? '') === 'devuelta'
-        ));
+        $evaluacionesDevueltas = EvaluacionTecnica::with('denuncia')
+            ->where('tecnico_id', $tecnicoId)
+            ->where('estado', 'devuelta')
+            ->get();
 
         return Inertia::render('Denuncias/MisCasos', [
             'grouped' => $grouped,
             'tecnicoActual' => $tecnicoId,
-            'tecnicos' => SesionUsuarioData::getAll(),
-            'solicitudesByTicket' => $solicitudesByTicket,
-            'descargosByTicket' => $descargosByTicket,
-            'evaluacionesByTicket' => $evaluacionesByTicket,
+            'tecnicos' => User::where('rol', 'tecnico')->where('activo', true)->get(),
+            'solicitudesByTicket' => [],
+            'descargosByTicket' => [],
+            'evaluacionesByTicket' => [],
             'evaluacionesDelegadas' => $evaluacionesDelegadas,
             'evaluacionesDevueltas' => $evaluacionesDevueltas,
             'canAct' => true,
@@ -70,35 +58,28 @@ class MisCasosController extends Controller
 
     public function evaluaciones()
     {
-        if (empty(DenunciaData::getAll())) {
-            DenunciaData::seedDemoData();
-        }
-
-        $currentUser = SesionUsuarioData::getCurrent();
-        if ($currentUser['rol'] !== 'tecnico') {
+        if (Auth::user()->rol !== 'tecnico') {
             return redirect()->route('dashboard')->with('error', 'Solo los técnicos pueden acceder a las evaluaciones.');
         }
-        $tecnicoId = $currentUser['id'];
 
-        $evaluacionesDelegadas = EvaluacionData::getActivasPorTecnico($tecnicoId);
-        $evaluacionesDevueltas = array_values(array_filter(
-            EvaluacionData::getAll(),
-            fn($e) => ($e['tecnico_id'] ?? '') === $tecnicoId && ($e['estado'] ?? '') === 'devuelta'
-        ));
+        $tecnicoId = Auth::id();
 
-        $denunciasByTicket = [];
-        foreach (DenunciaData::getAllActivos() as $d) {
-            $denunciasByTicket[$d['ticket']] = array_merge($d, [
-                'plazo' => DenunciaData::getPlazoInfo($d),
-            ]);
-        }
+        $evaluacionesDelegadas = EvaluacionTecnica::with('denuncia')
+            ->where('tecnico_id', $tecnicoId)
+            ->where('estado', 'pendiente')
+            ->get();
+
+        $evaluacionesDevueltas = EvaluacionTecnica::with('denuncia')
+            ->where('tecnico_id', $tecnicoId)
+            ->where('estado', 'devuelta')
+            ->get();
 
         return Inertia::render('Denuncias/Evaluaciones', [
             'evaluacionesDelegadas' => $evaluacionesDelegadas,
             'evaluacionesDevueltas' => $evaluacionesDevueltas,
-            'denunciasByTicket' => $denunciasByTicket,
+            'denunciasByTicket' => [],
             'tecnicoActual' => $tecnicoId,
-            'tecnicos' => SesionUsuarioData::getAll(),
+            'tecnicos' => User::where('rol', 'tecnico')->where('activo', true)->get(),
         ]);
     }
 }

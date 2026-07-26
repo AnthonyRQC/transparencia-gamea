@@ -4,7 +4,6 @@ import { route } from 'ziggy-js';
 import { Sun, Moon, LogOut, User, ChevronDown } from 'lucide-react';
 import InstitutionalLogo from './InstitutionalLogo';
 import CampanaNotificaciones from './CampanaNotificaciones';
-import SelectorUsuarioDemo from './SelectorUsuarioDemo';
 
 interface HeaderProps {
     isDarkMode: boolean;
@@ -22,10 +21,9 @@ export default function Header({
     isSidebarOpenMobile,
 }: HeaderProps) {
     const { props } = usePage();
-    const user = (props as any).auth?.user;
+    const auth = (props as any).auth;
+    const user = auth?.user;
     const notificaciones = (props as any).notificaciones;
-    const currentUser = (props as any).currentUser;
-    const usuarios = (props as any).usuarios;
     const noLeidas = notificaciones?.no_leidas ?? 0;
     const recientes = notificaciones?.recientes ?? [];
 
@@ -45,7 +43,6 @@ export default function Header({
     return (
         <header className="border-b border-sidebar-border bg-sidebar sticky top-0 z-50 px-3 py-3 sm:px-6 sm:py-4 flex items-center justify-between">
             <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-                {/* Sidebar Toggle Button */}
                 <button
                     onClick={onToggleSidebar}
                     className="p-1.5 sm:p-2 rounded-lg hover:bg-sidebar-muted transition-colors cursor-pointer text-sidebar-foreground shrink-0 focus:outline-none focus:ring-2 focus:ring-sidebar-ring/40"
@@ -74,7 +71,6 @@ export default function Header({
                     </svg>
                 </button>
 
-                {/* Logo + Title */}
                 <Link href={route('home')} className="flex items-center gap-2 sm:gap-3 min-w-0 group">
                     <InstitutionalLogo size="sm" className="hidden sm:block" />
                     <div className="min-w-0">
@@ -89,13 +85,8 @@ export default function Header({
             </div>
 
             <div className="flex items-center gap-2 shrink-0">
-                {/* Demo User Selector */}
-                {currentUser && usuarios && <SelectorUsuarioDemo currentUser={currentUser} usuarios={usuarios} />}
-
-                {/* Notifications Bell */}
                 <CampanaNotificaciones noLeidas={noLeidas} recientes={recientes} />
 
-                {/* Dark Mode Toggle */}
                 <button
                     onClick={onToggleDarkMode}
                     className="p-2 sm:px-3 sm:py-2 rounded-lg bg-sidebar-accent text-sidebar font-semibold text-xs sm:text-sm shadow hover:scale-105 active:scale-95 transition-all duration-200 flex items-center gap-2 cursor-pointer"
@@ -114,21 +105,23 @@ export default function Header({
                     )}
                 </button>
 
-                {/* User Dropdown */}
                 <div className="relative" ref={dropdownRef}>
                     <button
                         onClick={() => setDropdownOpen((o) => !o)}
                         className="flex items-center gap-2 p-1 sm:pl-2 sm:pr-2 rounded-lg hover:bg-sidebar-muted transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-sidebar-ring/40"
                     >
-                        <div className="w-8 h-8 rounded-full bg-sidebar-accent text-sidebar font-bold text-sm flex items-center justify-center shrink-0">
-                            {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                        <div
+                            className="w-8 h-8 rounded-full bg-sidebar-accent text-sidebar font-bold text-sm flex items-center justify-center shrink-0"
+                            style={user?.color ? { backgroundColor: user.color } : {}}
+                        >
+                            {user?.iniciales || (user?.name ? user.name.charAt(0).toUpperCase() : 'U')}
                         </div>
                         <div className="hidden lg:flex flex-col items-start min-w-0">
                             <span className="text-sm font-semibold text-sidebar-foreground truncate max-w-[140px]">
                                 {user?.name || 'Usuario'}
                             </span>
-                            <span className="text-[10px] text-sidebar-foreground/60 truncate max-w-[140px]">
-                                {user?.email || ''}
+                            <span className="text-[10px] text-sidebar-foreground/60 truncate max-w-[140px] capitalize">
+                                {user?.rol || ''}
                             </span>
                         </div>
                         <ChevronDown
@@ -144,8 +137,8 @@ export default function Header({
                                 <p className="text-sm font-semibold text-foreground truncate">
                                     {user?.name || 'Usuario'}
                                 </p>
-                                <p className="text-xs text-muted-foreground truncate">
-                                    {user?.email || ''}
+                                <p className="text-xs text-muted-foreground truncate capitalize">
+                                    {user?.rol || ''}
                                 </p>
                             </div>
                             <Link

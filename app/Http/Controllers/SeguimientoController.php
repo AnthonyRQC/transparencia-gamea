@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Data\DenunciaData;
-use App\Data\SolicitudData;
-use App\Data\DescargoData;
+use App\Models\Descargo;
+use App\Models\SolicitudInformacion;
+use App\Models\Denuncia;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -34,7 +34,10 @@ class SeguimientoController extends Controller
         $ticket = 'DEN-' . $parts[1] . '-' . $parts[2];
         $token = $parts[3];
 
-        $denuncia = DenunciaData::findByTicketAndToken($ticket, $token);
+        $denuncia = Denuncia::where('ticket', $ticket)
+            ->where('token_consulta', $token)
+            ->with(['informe', 'cierre'])
+            ->first();
 
         if (!$denuncia) {
             return Inertia::render('Seguimiento/Buscar', [
@@ -51,7 +54,7 @@ class SeguimientoController extends Controller
         ]);
     }
 
-    private static function mapPublicData(array $d): array
+    private static function mapPublicData(Denuncia $d): array
     {
         $estadoLegible = [
             'ingresada' => 'En evaluación inicial',
@@ -63,7 +66,7 @@ class SeguimientoController extends Controller
             'rechazada' => 'Rechazada',
         ];
 
-        $estado = $d['estado'] ?? '';
+        $estado = $d->estado ?? '';
 
         $pasos = [
             'recepcion' => false,
@@ -89,34 +92,29 @@ class SeguimientoController extends Controller
             }
         }
 
-        $plazoInfo = DenunciaData::getPlazoInfo($d);
-        $fechaEstimada = null;
-        $plazoTotal = null;
-        if ($plazoInfo) {
-            $fechaEstimada = $plazoInfo['fecha_vencimiento'] ?? null;
-            $plazoTotal = DenunciaData::getPlazoDias($d['tipo'] ?? '');
-        }
+        $tieneSolicitudes = $d->solicitudes()->whereNull('fecha_eliminacion')->count() > 0;
+        $tieneDescargos = $d->descargos()->whereNull('fecha_eliminacion')->whereIn('estado', ['notificado', 'respondido', 'ampliado'])->count() > 0;
 
         return [
-            'ticket' => $d['ticket'] ?? '',
-            'tipo' => $d['tipo'] ?? '',
-            'tipo_legible' => $d['tipo'] === 'corrupcion' ? 'Corrupción' : ($d['tipo'] === 'negacion' ? 'Negación de Información' : ($d['tipo'] ?? '')),
+            'ticket' => $d->ticket ?? '',
+            'tipo' => $d->tipo ?? '',
+            'tipo_legible' => $d->tipo === 'corrupcion' ? 'Corrupción' : ($d->tipo === 'negacion' ? 'Negación de Información' : ($d->tipo ?? '')),
             'estado' => $estado,
             'estado_legible' => $estadoLegible[$estado] ?? $estado,
-            'fecha_ingreso' => $d['created_at'] ?? null,
-            'fecha_vencimiento' => $fechaEstimada,
-            'plazo_total_dias' => $plazoTotal,
-            'mensaje_avance' => self::getMensajeAvance($d),
+            'fecha_ingreso' => $d->created_at?->toDateTimeString(),
+            'fecha_vencimiento' => null,
+            'plazo_total_dias' => $d->tipo === 'corrupcion' ? 45 : 20,
+            'mensaje_avance' => self::getMensajeAvance($d, $tieneSolicitudes, $tieneDescargos),
             'pasos' => $pasos,
-            'resumen_rechazo' => $d['resumen_rechazo'] ?? null,
-            'clasificacion' => $d['informe_clasificacion'] ?? null,
-            'fecha_cierre' => $d['cierre_cerrado_at'] ?? null,
+            'resumen_rechazo' => $d->resumen_rechazo ?? null,
+            'clasificacion' => $d->informe?->clasificacion ?? null,
+            'fecha_cierre' => $d->cierre?->cerrado_at?->toDateTimeString(),
         ];
     }
 
-    private static function getMensajeAvance(array $d): string
+    private static function getMensajeAvance(Denuncia $d, bool $tieneSolicitudes, bool $tieneDescargos): string
     {
-        $estado = $d['estado'] ?? '';
+        $estado = $d->estado ?? '';
 
         $mensajes = [
             'ingresada' => 'Su denuncia fue recibida y se encuentra en evaluación inicial. La UTLCC tiene un plazo máximo de 5 días hábiles para admitirla o rechazarla.',
@@ -130,17 +128,10 @@ class SeguimientoController extends Controller
         }
 
         if ($estado === 'investigacion') {
-            $ticket = $d['ticket'] ?? '';
-            $solicitudes = SolicitudData::getByTicket($ticket);
-            $descargos = DescargoData::getByTicket($ticket);
-
-            $tieneSolicitudes = collect($solicitudes)->filter(fn($s) => !($s['eliminado'] ?? false))->count() > 0;
-            $tieneDescargosNotificados = collect($descargos)->filter(fn($d2) => !($d2['eliminado'] ?? false) && in_array($d2['estado'] ?? '', ['notificado', 'respondido', 'ampliado']))->count() > 0;
-
             if ($tieneSolicitudes) {
                 return 'Su denuncia está siendo investigada. Se realizaron solicitudes de información a unidades externas.';
             }
-            if ($tieneDescargosNotificados) {
+            if ($tieneDescargos) {
                 return 'Su denuncia está siendo investigada. Se notificó a las personas denunciadas para que presenten sus descargos.';
             }
             return 'Su denuncia está siendo investigada por la UTLCC.';
@@ -155,14 +146,14 @@ class SeguimientoController extends Controller
                 'medida_correctiva' => 'Medida Correctiva',
                 'archivado' => 'Archivado',
             ];
-            $clasif = $d['informe_clasificacion'] ?? '';
+            $clasif = $d->informe?->clasificacion ?? '';
             $label = $clasificacionLabels[$clasif] ?? '';
             $clasifStr = $label ? " ({$label})" : '';
             return "Su denuncia ha sido cerrada{$clasifStr}. Para más información, acérquese a la oficina de la UTLCC.";
         }
 
         if ($estado === 'rechazada') {
-            $resumen = $d['resumen_rechazo'] ?? null;
+            $resumen = $d->resumen_rechazo ?? null;
             if ($resumen) {
                 return "Su denuncia no fue admitida. {$resumen}";
             }

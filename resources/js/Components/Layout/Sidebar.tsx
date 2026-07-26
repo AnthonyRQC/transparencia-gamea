@@ -36,16 +36,12 @@ export default function Sidebar({
     isSidebarOpenMobile,
     onCloseSidebarMobile,
 }: SidebarProps) {
-    const sidebarProps = usePage().props as {
-        logo_url?: string;
-        notificaciones?: { no_leidas: number };
-        currentUser?: { rol: string };
-        usuarios?: Record<string, any>;
-        permisos?: Permiso[];
-    };
+    const sidebarProps = usePage().props as Record<string, any>;
+    const auth = sidebarProps.auth as { user?: { rol: string; permisos?: Permiso[] } } | undefined;
+    const user = auth?.user;
     const { logo_url } = sidebarProps;
     const noLeidas = sidebarProps.notificaciones?.no_leidas ?? 0;
-    const permisos = sidebarProps.permisos ?? [];
+    const permisos = user?.permisos ?? [];
 
     const todosLosItems: MenuItem[] = [
         {

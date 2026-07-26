@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Data\NotificacionData;
+use App\Models\Notificacion;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class NotificacionController extends Controller
@@ -11,40 +12,56 @@ class NotificacionController extends Controller
     public function index(Request $request)
     {
         $page = (int) $request->input('page', 1);
-        $filtros = [
-            'tipo' => $request->input('tipo'),
-            'leida' => $request->input('leida'),
-            'fecha_desde' => $request->input('fecha_desde'),
-            'fecha_hasta' => $request->input('fecha_hasta'),
-        ];
 
-        $resultado = NotificacionData::getPaginated(
-            page: $page,
-            perPage: 10,
-            filtros: $filtros,
-        );
+        $query = Notificacion::where('usuario_id', Auth::id())->latest('fecha');
+
+        if ($tipo = $request->input('tipo')) {
+            $query->where('tipo', $tipo);
+        }
+        if ($leida = $request->input('leida')) {
+            $query->where('leida', $leida === 'true');
+        }
+        if ($fechaDesde = $request->input('fecha_desde')) {
+            $query->where('fecha', '>=', $fechaDesde);
+        }
+        if ($fechaHasta = $request->input('fecha_hasta')) {
+            $query->where('fecha', '<=', $fechaHasta . ' 23:59:59');
+        }
+
+        $notificaciones = $query->paginate(10, ['*'], 'page', $page);
 
         return Inertia::render('Notificaciones/Index', [
-            'notificaciones' => $resultado,
-            'filtros' => $filtros,
+            'notificaciones' => $notificaciones,
+            'filtros' => [
+                'tipo' => $request->input('tipo'),
+                'leida' => $request->input('leida'),
+                'fecha_desde' => $request->input('fecha_desde'),
+                'fecha_hasta' => $request->input('fecha_hasta'),
+            ],
         ]);
     }
 
-    public function marcarLeida(Request $request, int $id)
+    public function marcarLeida(int $id)
     {
-        NotificacionData::marcarLeida($id);
+        Notificacion::where('usuario_id', Auth::id())->where('id', $id)->update([
+            'leida' => true,
+            'fecha_leida' => now(),
+        ]);
         return redirect()->back();
     }
 
-    public function marcarTodasLeidas(Request $request)
+    public function marcarTodasLeidas()
     {
-        NotificacionData::marcarTodasLeidas();
+        Notificacion::where('usuario_id', Auth::id())->where('leida', false)->update([
+            'leida' => true,
+            'fecha_leida' => now(),
+        ]);
         return redirect()->back();
     }
 
     public function count()
     {
-        $count = NotificacionData::getUnreadCount();
+        $count = Notificacion::where('usuario_id', Auth::id())->where('leida', false)->count();
         return response()->json(['no_leidas' => $count]);
     }
 }

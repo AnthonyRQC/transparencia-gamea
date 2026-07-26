@@ -2,36 +2,48 @@
 
 namespace App\Http\Controllers;
 
-use App\Data\DenunciaData;
-use App\Data\SolicitudData;
-use App\Data\UnidadData;
+use App\Models\Ampliacion;
+use App\Models\Bitacora;
+use App\Models\Denuncia;
+use App\Models\SolicitudInformacion;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class SolicitudController extends Controller
 {
     public function store(string $ticket, Request $request)
     {
         $validated = $request->validate([
-            'unidad_destino' => 'required|string|min:2|max:200',
+            'unidad_destino_id' => 'required|integer|exists:unidades_externas,id',
             'detalle' => 'required|string|min:5|max:2000',
             'plazo_dias' => 'required|integer|min:1|max:45',
             'fecha_envio' => 'nullable|date|before_or_equal:today',
         ]);
 
-        $denuncia = DenunciaData::find($ticket);
-        if (!$denuncia) {
-            return redirect()->back()->with('error', 'Denuncia no encontrada.');
-        }
+        $denuncia = Denuncia::where('ticket', $ticket)->firstOrFail();
 
-        if (!in_array($denuncia['estado'] ?? '', ['asignada', 'investigacion', 'informe'])) {
+        if (!in_array($denuncia->estado, ['asignada', 'investigacion', 'informe'])) {
             return redirect()->back()->with('error', 'No se pueden crear solicitudes en el estado actual de la denuncia.');
         }
 
-        $id = SolicitudData::add($ticket, $validated['unidad_destino'], $validated['detalle'], (int) $validated['plazo_dias'], $validated['fecha_envio'] ?? null);
+        $solicitud = $denuncia->solicitudes()->create([
+            'unidad_destino_id' => $validated['unidad_destino_id'],
+            'detalle' => $validated['detalle'],
+            'plazo_dias' => (int) $validated['plazo_dias'],
+            'fecha_envio' => $validated['fecha_envio'] ?? now(),
+            'fecha_vencimiento' => now()->addDays((int) $validated['plazo_dias']),
+            'estado' => 'pendiente',
+        ]);
 
-        DenunciaData::registrarAccion($ticket, 'solicitud_creada', "Solicitud de información enviada a {$validated['unidad_destino']}: {$validated['detalle']}. Plazo: {$validated['plazo_dias']} días.", 'sistema');
+        Bitacora::create([
+            'denuncia_id' => $denuncia->id,
+            'accion' => 'solicitud_creada',
+            'detalle' => 'Solicitud de información creada. Plazo: ' . $validated['plazo_dias'] . ' días.',
+            'usuario_id' => Auth::id(),
+            'fecha' => now(),
+        ]);
 
-        return redirect()->back()->with('success', "Solicitud creada correctamente para {$validated['unidad_destino']}.");
+        return redirect()->back()->with('success', 'Solicitud creada correctamente.');
     }
 
     public function responder(int $id, Request $request)
@@ -41,18 +53,25 @@ class SolicitudController extends Controller
             'fecha_respuesta' => 'nullable|date|before_or_equal:today',
         ]);
 
-        $solicitud = SolicitudData::find($id);
-        if (!$solicitud) {
-            return redirect()->back()->with('error', 'Solicitud no encontrada.');
-        }
+        $solicitud = SolicitudInformacion::findOrFail($id);
 
-        if ($solicitud['estado'] === 'respondida') {
+        if ($solicitud->estado === 'respondida') {
             return redirect()->back()->with('error', 'Esta solicitud ya fue respondida.');
         }
 
-        SolicitudData::responder($id, $validated['respuesta'], [], $validated['fecha_respuesta'] ?? null);
+        $solicitud->update([
+            'respuesta' => $validated['respuesta'],
+            'fecha_respuesta' => $validated['fecha_respuesta'] ?? now(),
+            'estado' => 'respondida',
+        ]);
 
-        DenunciaData::registrarAccion($solicitud['ticket'], 'solicitud_respondida', "Respuesta recibida de {$solicitud['unidad_destino']}", 'sistema');
+        Bitacora::create([
+            'denuncia_id' => $solicitud->denuncia_id,
+            'accion' => 'solicitud_respondida',
+            'detalle' => 'Respuesta recibida para solicitud de información.',
+            'usuario_id' => Auth::id(),
+            'fecha' => now(),
+        ]);
 
         return redirect()->back()->with('success', 'Respuesta de solicitud registrada correctamente.');
     }
@@ -63,25 +82,27 @@ class SolicitudController extends Controller
             'motivo' => 'required|string|min:5|max:2000',
         ]);
 
-        $solicitud = SolicitudData::find($id);
-        if (!$solicitud) {
-            return redirect()->back()->with('error', 'Solicitud no encontrada.');
-        }
+        $solicitud = SolicitudInformacion::findOrFail($id);
 
-        if (!in_array($solicitud['estado'] ?? '', ['pendiente', 'ampliada'])) {
+        if (!in_array($solicitud->estado, ['pendiente', 'ampliada'])) {
             return redirect()->back()->with('error', 'No se puede cancelar esta solicitud porque ya fue respondida o cancelada.');
         }
 
-        SolicitudData::cancelar($id, $validated['motivo']);
+        $solicitud->update([
+            'motivo_cancelacion' => $validated['motivo'],
+            'fecha_cancelacion' => now(),
+            'estado' => 'cancelada',
+        ]);
 
-        DenunciaData::registrarAccion(
-            $solicitud['ticket'],
-            'solicitud_cancelada',
-            "Solicitud a {$solicitud['unidad_destino']} cancelada. Motivo: {$validated['motivo']}",
-            'sistema'
-        );
+        Bitacora::create([
+            'denuncia_id' => $solicitud->denuncia_id,
+            'accion' => 'solicitud_cancelada',
+            'detalle' => 'Solicitud cancelada. Motivo: ' . $validated['motivo'],
+            'usuario_id' => Auth::id(),
+            'fecha' => now(),
+        ]);
 
-        return redirect()->back()->with('success', "Solicitud a {$solicitud['unidad_destino']} cancelada.");
+        return redirect()->back()->with('success', 'Solicitud cancelada correctamente.');
     }
 
     public function ampliar(int $id, Request $request)
@@ -91,56 +112,73 @@ class SolicitudController extends Controller
             'justificacion' => 'required|string|min:10|max:2000',
         ]);
 
-        $solicitud = SolicitudData::find($id);
-        if (!$solicitud) {
-            return redirect()->back()->with('error', 'Solicitud no encontrada.');
-        }
+        $solicitud = SolicitudInformacion::findOrFail($id);
 
-        if (in_array($solicitud['estado'] ?? '', ['respondida', 'cancelada'])) {
+        if (in_array($solicitud->estado, ['respondida', 'cancelada'])) {
             return redirect()->back()->with('error', 'No se puede ampliar una solicitud ya respondida o cancelada.');
         }
 
-        SolicitudData::ampliar($id, $validated['dias'], $validated['justificacion']);
+        $numAmpliacion = $solicitud->ampliaciones()->count() + 1;
 
-        $numAmpliaciones = count($solicitud['ampliaciones']) + 1;
+        $solicitud->ampliaciones()->create([
+            'dias' => (int) $validated['dias'],
+            'justificacion' => $validated['justificacion'],
+            'fecha' => now(),
+        ]);
 
-        DenunciaData::registrarAccion(
-            $solicitud['ticket'],
-            'solicitud_ampliada',
-            "Plazo ampliado {$validated['dias']} días (ampliación #{$numAmpliaciones}) para solicitud a {$solicitud['unidad_destino']}. Justificación: {$validated['justificacion']}",
-            'sistema'
-        );
+        $solicitud->update([
+            'estado' => 'ampliada',
+            'fecha_vencimiento' => $solicitud->fecha_vencimiento->addDays((int) $validated['dias']),
+        ]);
 
-        return redirect()->back()->with('success', "Plazo ampliado {$validated['dias']} días correctamente (ampliación #{$numAmpliaciones}).");
+        Bitacora::create([
+            'denuncia_id' => $solicitud->denuncia_id,
+            'accion' => 'solicitud_ampliada',
+            'detalle' => 'Plazo ampliado ' . $validated['dias'] . ' días (ampliación #' . $numAmpliacion . ') para solicitud.',
+            'usuario_id' => Auth::id(),
+            'fecha' => now(),
+        ]);
+
+        return redirect()->back()->with('success', 'Plazo ampliado ' . $validated['dias'] . ' días correctamente (ampliación #' . $numAmpliacion . ').');
     }
 
     public function editar(int $id, Request $request)
     {
         $validated = $request->validate([
-            'unidad_destino' => 'required|string|min:2|max:200',
             'detalle' => 'required|string|min:5|max:2000',
             'plazo_dias' => 'required|integer|min:1|max:45',
         ]);
 
-        $solicitud = SolicitudData::find($id);
-        if (!$solicitud) {
-            return redirect()->back()->with('error', 'Solicitud no encontrada.');
-        }
+        $solicitud = SolicitudInformacion::findOrFail($id);
 
-        SolicitudData::editar($id, $validated);
+        $historial = $solicitud->historial_ediciones ?? [];
+        $historial[] = [
+            'fecha' => now()->toDateTimeString(),
+            'campo' => 'detalle, plazo_dias',
+            'anterior' => $solicitud->detalle,
+            'nuevo' => $validated['detalle'],
+            'usuario_id' => Auth::id(),
+        ];
 
-        return redirect()->back()->with('success', "Solicitud a {$validated['unidad_destino']} actualizada correctamente.");
+        $solicitud->update([
+            'detalle' => $validated['detalle'],
+            'plazo_dias' => (int) $validated['plazo_dias'],
+            'fecha_vencimiento' => $solicitud->fecha_envio->addDays((int) $validated['plazo_dias']),
+            'historial_ediciones' => $historial,
+        ]);
+
+        return redirect()->back()->with('success', 'Solicitud actualizada correctamente.');
     }
 
-    public function eliminar(int $id, Request $request)
+    public function eliminar(int $id)
     {
-        $solicitud = SolicitudData::find($id);
-        if (!$solicitud) {
-            return redirect()->back()->with('error', 'Solicitud no encontrada.');
-        }
+        $solicitud = SolicitudInformacion::findOrFail($id);
 
-        SolicitudData::eliminar($id);
+        $solicitud->update([
+            'eliminado' => true,
+            'fecha_eliminacion' => now(),
+        ]);
 
-        return redirect()->back()->with('success', "Solicitud a {$solicitud['unidad_destino']} eliminada correctamente.");
+        return redirect()->back()->with('success', 'Solicitud eliminada correctamente.');
     }
 }

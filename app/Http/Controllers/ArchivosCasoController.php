@@ -2,20 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Data\ArchivoData;
-use App\Data\DenunciaData;
+use App\Models\Denuncia;
+use App\Models\DenunciaArchivo;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class ArchivosCasoController extends Controller
 {
     public function listar(string $ticket)
     {
-        $denuncia = DenunciaData::find($ticket);
-        if (!$denuncia) {
-            return response()->json(['error' => 'Denuncia no encontrada.'], 404);
-        }
+        $denuncia = Denuncia::where('ticket', $ticket)->firstOrFail();
 
-        $archivos = ArchivoData::getByDenuncia($ticket);
+        $archivos = $denuncia->archivos()->activos()->latest('fecha_subida')->get();
 
         return response()->json($archivos);
     }
@@ -29,32 +28,40 @@ class ArchivosCasoController extends Controller
             'contexto_id' => 'nullable|integer|min:1',
         ]);
 
-        $denuncia = DenunciaData::find($ticket);
-        if (!$denuncia) {
-            return redirect()->back()->with('error', 'Denuncia no encontrada.');
-        }
+        $denuncia = Denuncia::where('ticket', $ticket)->firstOrFail();
 
-        ArchivoData::add(
-            $ticket,
-            $validated['nombre'],
-            $validated['descripcion'] ?? '',
-            $validated['contexto'],
-            null,
-            $validated['contexto_id'] ?? null
-        );
+        $archivo = $denuncia->archivos()->create([
+            'usuario_id' => Auth::id(),
+            'nombre' => $validated['nombre'],
+            'path' => 'archivos/demo/' . $ticket . '/' . $validated['nombre'],
+            'tamano' => null,
+            'mime_type' => null,
+            'descripcion' => $validated['descripcion'] ?? '',
+            'contexto' => $validated['contexto'],
+            'contexto_entidad_id' => $validated['contexto_id'] ?? null,
+            'fecha_subida' => now(),
+        ]);
 
         return redirect()->back()->with('success', "Archivo '{$validated['nombre']}' subido correctamente.");
     }
 
     public function eliminar(int $id)
     {
-        $archivo = ArchivoData::find($id);
-        if (!$archivo) {
-            return redirect()->back()->with('error', 'Archivo no encontrado.');
+        $archivo = DenunciaArchivo::findOrFail($id);
+
+        $archivo->update(['fecha_eliminacion' => now()]);
+
+        return redirect()->back()->with('success', "Archivo '{$archivo->nombre}' eliminado correctamente.");
+    }
+
+    public function download(int $id)
+    {
+        $archivo = DenunciaArchivo::activos()->findOrFail($id);
+
+        if (!Storage::disk('local')->exists($archivo->path)) {
+            return redirect()->back()->with('error', 'Archivo no encontrado en el almacenamiento.');
         }
 
-        ArchivoData::softDelete($id);
-
-        return redirect()->back()->with('success', "Archivo '{$archivo['nombre']}' eliminado correctamente.");
+        return Storage::disk('local')->download($archivo->path, $archivo->nombre);
     }
 }

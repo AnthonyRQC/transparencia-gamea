@@ -2,41 +2,46 @@
 
 namespace App\Http\Controllers;
 
-use App\Data\DenunciaData;
-use App\Data\EvaluacionData;
-use App\Data\NotificacionData;
-use App\Data\SesionUsuarioData;
+use App\Models\Bitacora;
+use App\Models\EvaluacionTecnica;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class EvaluacionController extends Controller
 {
-    public function devolver(Request $request, int $id)
+    public function devolver(int $id, Request $request)
     {
         $validated = $request->validate([
-            'texto_evaluacion' => 'nullable|string|max:2000',
+            'texto_evaluacion' => 'required|string|min:10|max:5000',
             'recomendacion' => 'required|in:admitir,rechazar',
         ]);
 
-        $evaluacion = EvaluacionData::find($id);
-        if (!$evaluacion || ($evaluacion['estado'] ?? '') !== 'pendiente') {
-            return redirect()->back()->with('error', 'Evaluación no encontrada o ya fue devuelta.');
+        $evaluacion = EvaluacionTecnica::findOrFail($id);
+
+        if ($evaluacion->estado !== 'pendiente') {
+            return redirect()->back()->with('error', 'Esta evaluación ya fue devuelta.');
         }
 
-        DenunciaData::devolverEvaluacion($id, $validated['texto_evaluacion'], $validated['recomendacion']);
+        if ($evaluacion->tecnico_id !== Auth::id()) {
+            return redirect()->back()->with('error', 'No eres el técnico asignado a esta evaluación.');
+        }
 
-        $currentUser = SesionUsuarioData::getCurrent();
-        $recomendacionLabel = $validated['recomendacion'] === 'admitir' ? 'Admitir' : 'Rechazar';
-        NotificacionData::crearParaUsuario(
-            tipo: 'evaluacion_devuelta',
-            titulo: 'Evaluación técnica devuelta',
-            mensaje: "{$evaluacion['ticket']} — Recomendación: {$recomendacionLabel}",
-            usuarioId: 'jefe-1',
-            ticket: $evaluacion['ticket'],
-            destinoUrl: route('denuncias.bandeja', ['destacar' => $evaluacion['ticket']]),
-            icono: 'FileSearch',
-            color: 'info',
-        );
+        $evaluacion->update([
+            'texto_evaluacion' => $validated['texto_evaluacion'],
+            'recomendacion' => $validated['recomendacion'],
+            'devuelta_at' => now(),
+            'devuelta_por_id' => Auth::id(),
+            'estado' => 'devuelta',
+        ]);
 
-        return redirect()->back()->with('success', "Evaluación devuelta para {$evaluacion['ticket']}.");
+        Bitacora::create([
+            'denuncia_id' => $evaluacion->denuncia_id,
+            'accion' => 'evaluacion_devuelta',
+            'detalle' => 'Evaluación técnica devuelta por ' . Auth::user()->name . '. Recomendación: ' . $validated['recomendacion'],
+            'usuario_id' => Auth::id(),
+            'fecha' => now(),
+        ]);
+
+        return redirect()->back()->with('success', 'Evaluación devuelta correctamente.');
     }
 }

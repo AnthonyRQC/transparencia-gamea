@@ -9,7 +9,6 @@ use App\Http\Controllers\SolicitudController;
 use App\Http\Controllers\DescargoController;
 use App\Http\Controllers\SeguimientoController;
 use App\Http\Controllers\NotificacionController;
-use App\Http\Controllers\DemoNotificacionController;
 use App\Http\Controllers\EvaluacionController;
 use App\Http\Controllers\ArchivosCasoController;
 use App\Http\Controllers\ConsultaCasosController;
@@ -32,7 +31,6 @@ use Inertia\Inertia;
 Route::get('/', function () {
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
     ]);
@@ -56,6 +54,8 @@ Route::get('/design-system', function () {
 // ============================================================
 
 // Dashboard / Inicio
+Route::middleware('auth')->group(function () {
+
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->name('dashboard');
@@ -158,19 +158,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
     })->name('feriados');
 });
 
-// Sprint 6.5 — Selector de usuario demo
-Route::post('/cambiar-usuario', [\App\Http\Controllers\SelectorUsuarioController::class, 'cambiar'])->name('cambiar-usuario');
-
-// Sprint 9 — Notificaciones (sin auth, usa demo session)
+// Sprint 9 — Notificaciones
 Route::prefix('notificaciones')->name('notificaciones.')->group(function () {
     Route::get('/', [NotificacionController::class, 'index'])->name('index');
     Route::post('/{id}/leer', [NotificacionController::class, 'marcarLeida'])->name('marcar-leida');
     Route::post('/leer-todas', [NotificacionController::class, 'marcarTodasLeidas'])->name('marcar-todas');
-
-    // Demo routes (simulación, solo en Fase 0)
-    Route::post('/demo/toggle', [DemoNotificacionController::class, 'toggle'])->name('demo.toggle');
-    Route::post('/demo/simular', [DemoNotificacionController::class, 'simular'])->name('demo.simular');
-    Route::post('/demo/reset', [DemoNotificacionController::class, 'reset'])->name('demo.reset');
 });
 
 // API — Endpoint ligero para polling futuro
@@ -181,5 +173,7 @@ Route::get('/api/notificaciones/count', [NotificacionController::class, 'count']
 Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
 Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
 Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+}); // end auth middleware group
 
 require __DIR__.'/auth.php';
