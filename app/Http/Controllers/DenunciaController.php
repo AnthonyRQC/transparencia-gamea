@@ -22,7 +22,7 @@ class DenunciaController extends Controller
     public function create()
     {
         return Inertia::render('Denuncias/RegistroDenuncia', [
-            'categorias' => CategoriaDenuncia::where('activa', true)->get(),
+            'categorias' => CategoriaDenuncia::where('activa', true)->pluck('nombre', 'clave'),
         ]);
     }
 
@@ -55,7 +55,7 @@ class DenunciaController extends Controller
                 'denunciados.*.nombres' => 'required_if:denunciados.*.conoce_identidad,true|nullable|string|max:100',
                 'denunciados.*.dependencia' => 'nullable|string|max:200',
                 'denunciados.*.descripcion' => 'required_if:denunciados.*.conoce_identidad,false|nullable|string',
-                'detalles.categoria' => 'required',
+                'detalles.categoria' => 'required|exists:categorias_denuncia,clave',
                 'detalles.fecha' => 'required|date|before_or_equal:today|after_or_equal:' . now()->subYears(5)->format('Y-m-d'),
                 'detalles.hora' => 'nullable',
                 'detalles.lugar' => 'required|string|max:200',
@@ -73,6 +73,7 @@ class DenunciaController extends Controller
         $denuncia = DB::transaction(function () use ($validated) {
             $ticket = Denuncia::generarSiguienteTicket();
             $token = Denuncia::generarToken();
+            $categoriaId = CategoriaDenuncia::where('clave', $validated['detalles']['categoria'])->value('id');
 
             $denuncia = Denuncia::create([
                 'ticket' => $ticket,
@@ -80,7 +81,7 @@ class DenunciaController extends Controller
                 'tipo' => $validated['tipo'],
                 'escenario' => $validated['escenario'],
                 'estado' => 'ingresada',
-                'categoria_id' => $validated['detalles']['categoria'],
+                'categoria_id' => $categoriaId,
                 'fecha_hechos' => $validated['detalles']['fecha'],
                 'hora_hechos' => $validated['detalles']['hora'] ?? null,
                 'lugar_hechos' => $validated['detalles']['lugar'],
@@ -790,7 +791,7 @@ class DenunciaController extends Controller
             'denunciados.*.nombres' => 'nullable|string|max:100',
             'denunciados.*.dependencia' => 'nullable|string|max:200',
             'denunciados.*.descripcion' => 'nullable|string',
-            'detalles.categoria' => 'required',
+            'detalles.categoria' => 'required|exists:categorias_denuncia,clave',
             'detalles.fecha' => 'required|date|before_or_equal:today|after_or_equal:' . now()->subYears(5)->format('Y-m-d'),
             'detalles.hora' => 'nullable',
             'detalles.lugar' => 'required|string|max:200',
@@ -799,11 +800,12 @@ class DenunciaController extends Controller
         ]);
 
         DB::transaction(function () use ($denuncia, $validated) {
+            $categoriaId = CategoriaDenuncia::where('clave', $validated['detalles']['categoria'])->value('id');
             $denuncia->update([
                 'escenario' => $validated['escenario'],
                 'hechos' => $validated['hechos'],
                 'lugar_hechos' => $validated['detalles']['lugar'],
-                'categoria_id' => $validated['detalles']['categoria'],
+                'categoria_id' => $categoriaId,
             ]);
 
             if ($denuncia->denunciante) {

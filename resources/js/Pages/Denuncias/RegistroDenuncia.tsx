@@ -84,11 +84,9 @@ const initialForm: FormState = {
 };
 
 const staticErrors: Record<string, string> = {};
-const staticCategorias: Record<string, string> = {};
 
 export default function RegistroDenuncia() {
-    const { categorias = staticCategorias, errors: serverErrors = staticErrors, success, ticket: successTicket, token: successToken } = usePage().props as unknown as {
-        categorias: Record<string, string>;
+    const { categorias = {} as Record<string, string>, errors: serverErrors = staticErrors, success, ticket: successTicket, token: successToken } = usePage().props as unknown as {
         errors: Record<string, string>;
         success?: boolean;
         ticket?: string;
@@ -197,7 +195,7 @@ export default function RegistroDenuncia() {
                 }
             ],
             detalles: {
-                categoria: 'incumplimiento',
+                categoria: 'negacion_info',
                 categoria_otro: '',
                 fecha: new Date().toISOString().split('T')[0],
                 hora: '14:15',

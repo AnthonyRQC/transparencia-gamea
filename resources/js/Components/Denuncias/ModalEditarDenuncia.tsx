@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { router } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/Components/ui/dialog';
@@ -11,13 +11,6 @@ import { Button } from '@/Components/ui/button';
 import { Separator } from '@/Components/ui/separator';
 import { Plus, Trash2, Save } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-const categorias: Record<string, string> = {
-  cohecho: 'Cohecho', concusion: 'Concusión', malversacion: 'Malversación',
-  negociaciones: 'Negociaciones incompatibles', enriquecimiento: 'Enriquecimiento ilícito',
-  trafico: 'Tráfico de influencias', peculado: 'Peculado',
-  omision: 'Omisión', incumplimiento: 'Incumplimiento', otro: 'Otro',
-};
 
 interface DenunciadoItem {
   conoce_identidad: boolean; nombres: string; dependencia: string; descripcion: string;
@@ -49,6 +42,7 @@ function emptyPrueba(): PruebaItem {
 }
 
 export default function ModalEditarDenuncia({ denuncia, open, onOpenChange }: ModalEditarDenunciaProps) {
+  const { categorias } = usePage().props as unknown as { categorias: Record<string, string> };
   const [escenario, setEscenario] = useState('revelada');
   const [denominante, setDenominante] = useState({ nombres: '', ci: '', email: '', telefono: '' });
   const [denunciados, setDenunciados] = useState<DenunciadoItem[]>([emptyDenunciado()]);

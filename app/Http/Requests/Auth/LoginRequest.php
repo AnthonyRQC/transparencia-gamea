@@ -29,11 +29,9 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        $username = Str::lower($this->username);
+        $user = User::where('username', $this->username)->where('activo', true)->first();
 
-        $user = User::where('username', $username)->where('activo', true)->first();
-
-        if (! $user || ! Auth::attempt(['username' => $username, 'password' => $this->password], $this->boolean('remember'))) {
+        if (! $user || ! Auth::attempt(['username' => $this->username, 'password' => $this->password], $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
@@ -64,6 +62,6 @@ class LoginRequest extends FormRequest
 
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('username')).'|'.$this->ip());
+        return Str::transliterate($this->string('username').'|'.$this->ip());
     }
 }

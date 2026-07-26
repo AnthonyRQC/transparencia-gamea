@@ -1,9 +1,10 @@
 # Sprint 10 — Base de Datos Real (Eloquent + MySQL)
 
-**Estado:** ⏳ Pendiente (documentación preparada para implementación).
+**Estado:** ✅ Cerrado (Julio 2026). Implementado en su totalidad.
 **Antes:** Sprint 9.2 (renumerado a Sprint 10 en Julio 2026).
-**Depende de:** Sprint 9.1 cerrado. Esquema BD documentado en `Esquema BD - Negocio.md`.
+**Depende de:** Sprint 9.1 cerrado.
 **Bloquea:** Sprint 11 (Catálogos), Sprint 16 (Roles), y todos los sprints posteriores.
+**Ver detalle de cierre:** `Notas Sprint 10 - Cierre.md`.
 
 ---
 

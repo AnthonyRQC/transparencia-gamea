@@ -1,5 +1,7 @@
 # Esquema BD — Librerías Externas (generadas por paquetes)
 
+> ✅ **Implementado en Sprint 10 (Julio 2026).** Breeze + Sanctum ya operativos.
+
 > Este archivo documenta las tablas **generadas automáticamente** por librerías de Laravel.
 > No requieren diseño manual. Se listan aquí para referencia y para separarlas del esquema de negocio.
 

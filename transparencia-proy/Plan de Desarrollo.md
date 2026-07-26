@@ -47,25 +47,27 @@
 - ✅ Sprint 7.7: Búsqueda y Consulta para Registrador (ConsultaCasosController, 7 filtros, ConsultarCasos.tsx, ModalConsultarCodigo, masking denunciante, sidebar item)
 - ✅ Sprint 8: Ampliaciones Múltiples (ModalAmpliacionPlazo, aprobarAmpliacion, límite legal, ampliaciones[] en DenunciaData)
 - ✅ Sprint 9: Notificaciones Push (CampanaNotificaciones, PanelNotificaciones, ItemNotificacion, NotificacionData con generación derivada, página /notificaciones con paginación)
+- ✅ Sprint 10: Base de Datos Real (MySQL + Eloquent). Migración completa de app/Data/*. 22 migraciones, 18 modelos, 11 controllers refactorizados, Breeze adaptado a username, tests aislados con SQLite :memory:. Ver `Notas Sprint 10 - Cierre.md`.
 
 ---
 
-## Estrategia de Datos (Fase 0)
+## Estrategia de Datos (Fase 1)
 
-**No hay base de datos.** Los controladores Laravel sirven datos mock (arrays PHP) directamente a React vía Inertia.
+**MySQL + Eloquent.** Sprint 10 completó la migración. Los `app/Data/*` fueron eliminados y reemplazados por modelos Eloquent y migraciones MySQL.
 
 ```
-PHP Controller (mock array) → Inertia → React Page (props)
-                                                ↓
-                                        Componentes hijos (props)
-                                                ↓
-                                  Acciones → router.post() → Controller (mock)
+Eloquent Model → Controller → Inertia → React Page (props)
+                                              ↓
+                                      Componentes hijos (props)
+                                              ↓
+                                Acciones → router.post() → Controller → Eloquent
 
-app/Data/          ← Clases estáticas con datos de prueba
-app/Helpers/       ← Funciones auxiliares (días hábiles)
+app/Models/        ← 18 modelos Eloquent con relations, casts, UppercaseText
+app/Helpers/       ← UppercaseText.php (trait), DiasHabiles.php
+app/Data/          ← ELIMINADO (antes: DenunciaData, SolicitudData, etc.)
 ```
 
-Los datos mock viven en `app/Data/` como clases con métodos estáticos que devuelven colecciones. Cuando se conecte la BD real (Fase 1), solo cambia la fuente de datos en los controladores; los componentes React no se modifican.
+Todos los datos persisten en MySQL. Los seeders cargan 12 denuncias demo, 5 usuarios, y catálogos completos. Los tests usan SQLite `:memory:` (aislados de la BD de desarrollo).
 
 ---
 

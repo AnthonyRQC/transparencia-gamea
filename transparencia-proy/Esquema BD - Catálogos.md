@@ -1,7 +1,9 @@
 # Esquema BD — Catálogos del Sistema
 
+> ✅ **Implementado en Sprint 10 (Julio 2026).** Datos cargados vía `CatalogoSeeder`.
+
 > Tablas pequeñas con datos de referencia (valores fijos, <50 registros cada una).
-> Se cargan vía seeders y se administran desde el Panel Administrativo (Sprint 10).
+> Se cargan vía seeders y se administran desde el Panel Administrativo (Sprint 11, era 10).
 
 ---
 

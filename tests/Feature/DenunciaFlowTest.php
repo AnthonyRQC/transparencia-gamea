@@ -70,7 +70,7 @@ class DenunciaFlowTest extends TestCase
                 ],
             ],
             'detalles' => [
-                'categoria' => 1,
+                'categoria' => 'cohecho',
                 'fecha' => now()->subDays(5)->format('Y-m-d'),
                 'hora' => '10:00',
                 'lugar' => 'OFICINA TEST',

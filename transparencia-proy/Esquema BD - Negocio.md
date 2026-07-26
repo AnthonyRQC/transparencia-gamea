@@ -1,5 +1,7 @@
 # Esquema BD — Negocio (Sistema de Gestión de Denuncias UTLCC)
 
+> ✅ **Implementado en Sprint 10 (Julio 2026).** Ver `Notas Sprint 10 - Cierre.md` para detalle.
+
 > 📝 **Tablas del dominio del proyecto.** Ver también:
 > - `Esquema BD - Librerías.md` — Tablas de Breeze (auth) + Auditing (generadas por paquetes)
 > - `Esquema BD - Catálogos.md` — Tablas pequeñas de referencia (categorías, unidades, feriados, config)

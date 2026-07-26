@@ -9,24 +9,19 @@ Cumple con la Ley 974.
 Laravel 11 · Inertia.js v2 · React 18 · TypeScript ·
 Tailwind v3 · shadcn/ui (New York) · Laragon (Windows local)
 
-## Estado Actual
+## Estado Actual (Julio 2026)
+
 **Fase 0 (Maqueta Frontend)** — Cerrada ✅
-**Sprint 0** (Sidebar/Header institucional) — Cerrado ✅
-**Sprint 1** (Registro de Denuncia, formulario complejo) — Cerrado ✅
-**Sprint 2** (Bandeja de Admisión + Mis Casos + Mi Resumen) — Cerrado ✅
-**Sprint 3** (Asignación de Técnico + Traspaso + Reapertura + Mejoras Detalle) — Cerrado ✅
-**Sprint 4** (Investigación: Solicitudes + Descargos + Saltar Fase + Mejoras) — Cerrado ✅
-**Sprint 5** (Informe Final + Cierre) — Cerrado ✅
-**Sprint 6** (Seguimiento Público) — Cerrado ✅ (Junio 2026)
-**Sprint 6.5** (Simulación Multi-Rol para Demo) — Cerrado ✅ (Julio 2026)
-**Sprint 7** (Evaluación Técnica Previa) — Cerrado ✅ (Julio 2026)
-**Sprint 7.A** (Cierre SITPRECO en rechazo) — Cerrado ✅ (Julio 2026)
-**Sprint 7.5** (Ajustes UX Urgentes pre-cliente) — Cerrado ✅ (Julio 2026)
-**Sprint 7.6** (Repositorio de Archivos del Caso) — Cerrado ✅ (Julio 2026)
-**Sprint 7.7** (Búsqueda y Consulta para Registrador) — Cerrado ✅ (Julio 2026)
-**Sprint 8** (Ampliaciones Múltiples) — Cerrado ✅ (Julio 2026)
-**Sprint 9** (Notificaciones Push + Historial) — Cerrado ✅ (Julio 2026)
-**Sprint 9.1** (Simplificación UI Archivos + Mock alineado) — Cerrado ✅ (Julio 2026)
+**Sprint 0 al 9.1** (funcionalidades frontend + mock data) — Cerrados ✅
+**Sprint 10 (Base de Datos Real)** — Cerrado ✅ (Julio 2026)
+
+> Sprint 10 completó la migración del sistema de mocks en sesión a MySQL + Eloquent.
+> Se crearon 22 migraciones, 18 modelos, 4 seeders, y se refactorizaron 11 controllers.
+> Login ahora usa `username` (case-sensitive), auto-registro y reset deshabilitados.
+> Categorías se comparten globalmente vía `HandleInertiaRequests` (fuente única de verdad).
+> Tests con SQLite `:memory:`, aislados de la BD de desarrollo.
+
+**Estado actual:** Corrección de bugs post-migración (Sprint 10). Muchos componentes frontend que funcionaban con mock data están siendo reconectados al backend real. Ver `Notas Sprint 10 - Cierre.md`.
 
 Sprints pendientes: **11**, **12**, **13**, **14**, **15**, **16+**.
 Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (11–25).
@@ -36,9 +31,7 @@ Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (11–
 - **Jefe de Unidad**
 - **Técnicos**
 
-(Implementación formal de roles será en Sprint 16, una vez la BD esté operativa).
-
-> 🆕 **Importante (Julio 2026):** Aunque los roles aún no están formalizados en BD, el **frontend debe gestionar permisos (no roles)** siguiendo buenas prácticas. El catálogo de permisos y la utilidad `useCan()`/`@can` se introducen en **Sprint 7.5**. Esto desacopla la UI de los nombres de roles y prepara el terreno para Sprint 16.
+(Implementación formal de roles será en Sprint 16, ver `Esquema BD - Librerías.md`).
 
 ## Convenciones de lectura para IAs
 
@@ -47,90 +40,110 @@ Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (11–
 1. **Siempre al iniciar:** Lee este `AI-CONTEXT.md` completo (~100 líneas).
 2. **Para ver roadmap completo:** Lee `Plan de Desarrollo.md` (alto nivel).
 3. **Para trabajar en un sprint específico:**
-   - **Sprint cerrado (0-9):** Lee `Sprint X - [Nombre].md` solo si es necesario detalle histórico.
-   - **Sprint pendiente (10+):** Lee SOLO la sección correspondiente en `Sprints Pendientes - Contexto.md`. **No leas otras secciones** (lazy load).
+   - **Sprint cerrado (0-10):** Lee `Sprint X - [Nombre].md` solo si es necesario detalle histórico.
+   - **Sprint pendiente (11+):** Lee SOLO la sección correspondiente en `Sprints Pendientes - Contexto.md`. **No leas otras secciones** (lazy load).
 4. **Para entender el sistema completo:** Lee `Proyecto - Resumen General del Sistema.md` solo si es necesario.
 5. **NO LEER por defecto:**
    - `Proyecto - Prototipo y Estrategia de Diseño.md`
    - `Proyecto - Transparencia Stack y Conceptos.md`
-   - `Proyecto - Vistas y Prototipo de Interfaz.md`
+   - `Proyecto - Vistas y Prototipo de Interface.md`
    - Documentos de sprints cerrados si no estás trabajando en ellos
+6. **Bitácora de cambios recientes:** Si necesitas el detalle de lo que cambió en Sprint 10, lee `Notas Sprint 10 - Cierre.md`.
 
 ## Documentación Esencial (LEER SIEMPRE)
 1. `transparencia-proy/AI-CONTEXT.md` (este archivo) — Snapshot del estado actual
 2. `transparencia-proy/Plan de Desarrollo.md` — Hoja de ruta, sprints, decisiones
 3. `transparencia-proy/Sprints Pendientes - Contexto.md` — Contexto de sprints pendientes 11-25 (lazy load)
 4. `transparencia-proy/RESUMEN LEY 974.md` — Marco legal
+5. `transparencia-proy/Notas Sprint 10 - Cierre.md` — Decisiones técnicas, bugs y estado de Sprint 10
 
 ## Documentación de Referencia (LEER SOLO SI NECESARIO)
 > ⚠️ NO leer por defecto. Contienen detalles extensos que saturan la memoria de contexto.
 
-- `transparencia-proy/Sprint 1 - Registro de Denuncia.md` — Detalle Sprint 1
-- `transparencia-proy/Sprint 2 - Bandeja de Admisión y Mis Casos.md` — Detalle Sprint 2
-- `transparencia-proy/Sprint 3 - Asignación, Traspaso y Reapertura.md` — Detalle Sprint 3
-- `transparencia-proy/Sprint 4 - Investigación (Solicitudes + Descargos).md` — Detalle Sprint 4
-- `transparencia-proy/Sprint 5 - Informe Final y Cierre.md` — Detalle Sprint 5
-- `transparencia-proy/Sprint 6 - Seguimiento Público.md` — Detalle Sprint 6
-- `transparencia-proy/Sprint 7 - Evaluación Técnica Previa.md` — Detalle Sprint 7 (próximo)
-- `transparencia-proy/Proyecto - Resumen General del Sistema.md` — Overview funcional completo
-- `transparencia-proy/Proyecto - Prototipo y Estrategia de Diseño.md` — Decisiones de diseño
-- `transparencia-proy/Proyecto - Transparencia Stack y Conceptos.md` — Conceptos del stack
-- `transparencia-proy/Proyecto - Vistas y Prototipo de Interfaz.md` — Prototipos de vistas
-- `transparencia-proy/Preguntas para el cliente.md` — Estado de preguntas pendientes
+- `transparencia-proy/Sprint 1 - Registro de Denuncia.md` al `Sprint 9.1 - Simplificación UI Archivos.md`
+- `transparencia-proy/Proyecto - Resumen General del Sistema.md`
+- `transparencia-proy/Proyecto - Prototipo y Estrategia de Diseño.md`
+- `transparencia-proy/Proyecto - Transparencia Stack y Conceptos.md`
+- `transparencia-proy/Proyecto - Vistas y Prototipo de Interfaz.md`
+- `transparencia-proy/Preguntas para el cliente.md`
 
 ## Esquemas de Base de Datos (LEER SOLO SI NECESARIO)
-> Organizados en 3 archivos para no abrumar:
+> Organizados en 3 archivos para no abrumar. Implementados en Sprint 10.
 
 - `transparencia-proy/Esquema BD - Negocio.md` — 22 tablas del dominio (denuncias, solicitudes, descargos, etc.)
 - `transparencia-proy/Esquema BD - Catálogos.md` — 4 tablas pequeñas de referencia (categorías, unidades, feriados, config)
 - `transparencia-proy/Esquema BD - Librerías.md` — 4-6 tablas generadas por paquetes (Breeze + Auditing)
 
-## Convenciones Vigentes
+## Convenciones Vigentes (Julio 2026)
 - Colores institucionales: morado `#690bb2` + gold `#fecd2a` (CSS vars OKLCH)
 - Font: Outfit (sans) + Fira Code (mono)
 - Modo oscuro: clase `.dark` en `<html>`, persistido en localStorage
-- **MAYÚSCULAS obligatorias en todos los campos de texto libre** (convención institucional). Aplica en frontend con `text-transform: uppercase` en inputs/textareas y en backend con `Str::upper()` antes del `save()`. Ver lista completa en `Sprint 7.5`.
-- **Frontend por permisos, no por roles** (buenas prácticas). El catálogo de permisos y la utilidad `useCan()` se introducen en Sprint 7.5. Los roles formales (BD) llegan en Sprint 16.
-- Rutas via Ziggy `route()`
-- Subdirectorio URL: `/transparencia/public/`
-- **Stack fijo:** MySQL (Laragon), Eloquent con cast JSON. Sin migración a Postgres.
+- **MAYÚSCULAS obligatorias en todos los textos libres** (convención institucional). Se aplica en backend vía trait `UppercaseText` (hook `saving` en modelos). Frontend usa `text-transform: uppercase`.
+- **Frontend por permisos, no por roles.** Catálogo `useCan()/Can` (Sprint 7.5). Los roles formales (BD) llegan en Sprint 16.
+- **Stack fijo:** MySQL (Laragon), Eloquent con cast JSON.
+- **Login:** username case-sensitive, password case-sensitive. Sin auto-registro ni password reset (Jefe lo hará desde Panel Admin en Sprint 11).
+- **Categorías:** fuente única de verdad = BD, compartidas globalmente vía `HandleInertiaRequests`.
+- **Tests:** SQLite `:memory:` aislados de BD de desarrollo (`phpunit.xml` configurado).
 
-## Decisiones clave recientes (Junio 2026)
-- **Recepcionista → Registrador** (cambio de nombre en toda la documentación)
-- **SITPRECO solo en informe final** (opcional — código del sistema nacional de Bolivia). Aplica también opcional al rechazo. NO se pide al admitir (corregido Julio 2026 para evitar burocracia).
-- **Múltiples ampliaciones permitidas** (no solo una)
-- **Traspaso incluye historial completo** del técnico anterior (nada privado)
-- **Reaperturas sin límite** (manejo manual)
-- **Permitir registro fuera de plazo** con marca visible de mora
-- **Mensajes genéricos en seguimiento público** (no mostrar nombres de unidades externas)
-- **Reserva de identidad:** visible para todos con acceso al caso
-- **Subcategorías por tipo de denuncia** (definidas en panel administrativo)
-- **Notificaciones push vía campana** con historial tipo Facebook
-- **Reportes:** PDF + Excel + pantalla, con rango de fechas libre
-- **Reportes internos solo para Jefe** (no público)
+## Arquitectura Clave (post Sprint 10)
 
-## Decisiones clave recientes (Julio 2026)
-- **Acompañamiento/Intervención eliminadas del MVP.** Diferidas a **Sprint 22 (v2)**. Se mantienen como apuntes en `Sprints Pendientes - Contexto.md`.
-- **MAYÚSCULAS obligatorias en todos los textos libres** (convención institucional, no configurable).
-- **`descargos.medio` pasa de ENUM a texto libre** (Sprint 7.5). La opción cerrada limitaba la realidad operativa.
-- **Solicitudes con date picker manual** de `fecha_envio` y `fecha_respuesta` (paridad con descargos, Sprint 7.5).
-- **Edición/eliminación libre de la denuncia raíz solo en estado `ingresada`** (Sprint 7.5). Después de admisión, solo acciones formales (traspaso, reapertura, ampliación, conciliación).
-- **Conciliación de fechas por el Jefe** (Sprint 7.5): puede ajustar fechas retroactivas en cualquier estado con justificación, registrado en `bitacora` con acción `conciliacion_fechas`. Notificación visible al técnico.
-- **Consulta de código (ticket + PIN) por Registrador sin bitácora** (Sprint 7.7). Sin restricción, sin log: el responsable de la información es el Registrador.
-- **Repositorio unificado de archivos del caso** (Sprint 7.6): nueva tabla `denuncias_archivos` conviviendo con archivos por fase. Soft delete: archivo "eliminado" desaparece de UI pero archivo físico se preserva.
-- **Hechos del registro:** 5000 → **8000 caracteres** (Sprint 7.5).
-- **Filosofía "minimizar tablas":** en BD real (Sprint 9.2), se aplican 3 estrategias: (1) historiales de ediciones como **campos JSON** en tabla padre (4 tablas eliminadas), (2) archivos por fase unificados en `denuncias_archivos` con contexto polimórfico (4 tablas eliminadas), (3) ampliaciones unificadas en tabla polimórfica `ampliaciones` (3 tablas eliminadas). Total: de 31 a 23 tablas. Stack fijo: MySQL con `JSON` + Eloquent cast `array`, portable a `JSONB` (Postgres) si en el futuro se requiere.
-- **Frontend por permisos, no por roles.** Catálogo de permisos y utilidad `useCan()` introducidos en Sprint 7.5. Sprint 16 formaliza con BD, Gates y Policies.
-- **Archivos del caso (Sprint 7.6):** En Fase 0 (mock) Jefe y Técnico ven completo (subir/eliminar). En Sprint 16 se restringirá: **Jefe solo `archivo.ver`** (lectura), **Técnico mantiene `archivo.subir` y `archivo.eliminar`** (CRUD completo). No implementar la restricción antes de Sprint 16 para mantener simplicidad en Fase 0.
-- **MAYÚSCULAS sin helpers redundantes:** Se eliminaron los textos "Se guardará en MAYÚSCULAS" y "· MAYÚSCULAS" de todos los inputs (22 archivos). El usuario ve el texto en mayúsculas vía `text-transform: uppercase`, no necesita texto adicional.
-- **Botón copiar con fallback robusto:** `ModalExito` y `ModalConsultarCodigo` usan `navigator.clipboard.writeText()` con fallback a `document.execCommand('copy')` para entornos HTTP. El código se muestra como un solo string `TICKET-PIN` concatenado.
-- **Soft delete de denuncias solo por Jefe de Unidad:** El Registrador no puede eliminar, solo editar. Si se elimina una denuncia, su número de ticket se reusa para la siguiente (numeración continua). La eliminación queda registrada en `audits` (librería de auditoría).
-- **`denuncias_archivos.eliminado` eliminado:** Se usa solo `fecha_eliminacion` (NULL = activo, !NULL = eliminado). Sin booleano redundante.
-- **`ampliaciones` polimórfica:** Tabla unificada con `tipo` enum(`solicitud|descargo|denuncia`). Campos `aprobado_por_id`, `numero`, `solicitado_por` solo aplican para `tipo='denuncia'`.
-- **`pruebas` simplificada (Sprint 9.1):** Se eliminó el tipo `archivo` de `pruebas`. Las pruebas de tipo archivo ahora se suben directamente a `denuncias_archivos` con `contexto='registro'`. `pruebas` solo maneja `fisica` y `testigo`.
-- **UI de archivos simplificada (Sprint 9.1):** Se eliminaron los campos de subida simulada de `FormInformeFinal` y `FormCierre`. Todo archivo se sube vía `ModalArchivosDelCaso` con dropdown de contexto ampliado a 6 valores (`registro|general|solicitud|descargo|informe|cierre`) y soporte para `contexto_id`.
-- **Sprint 10 = Catálogos globales / Sprint 18 = Preferencias usuario:** Sprint 10 (renumerado a 11 en nuevo roadmap) maneja configuraciones GLOBALES (Jefe edita: dropdowns, tipos, subcategorías, feriados). Sprint 18 (era 17) maneja preferencias INDIVIDUALES de cada usuario.
-- **Renumeración de sprints (Julio 2026):** Sprint 9.2 (BD real, era 14) desplazó la numeración: antiguo 10→11, 11→12, ..., 24→25. El roadmap completo está en `Sprints Pendientes - Contexto.md`.
+### Backend (MySQL + Eloquent)
+- `app/Models/` — 18 modelos Eloquent con relations, casts, UppercaseText
+  - Catálogos: `CategoriaDenuncia`, `UnidadExterna`, `Feriado`, `ConfiguracionSistema`
+  - Auth: `User` (extendido con username, rol, iniciales, color, activo, telefono, preferencias)
+  - Negocio: `Denuncia` (SoftDeletes), `Denunciante`, `Denunciado`, `Prueba`, `DenunciaArchivo` (polimórfico), `EvaluacionTecnica`, `SolicitudInformacion`, `Descargo`, `Ampliacion` (polimórfico), `InformeFinal`, `Cierre`, `Bitacora`, `Notificacion`
+- `app/Helpers/UppercaseText.php` — Trait que aplica `Str::upper()` en `saving` hook
+- `app/Helpers/DiasHabiles.php` — Helper de días hábiles (Sprint 4+)
+- `app/Data/PermisosCatalogo.php` — Catálogo de permisos (se mantiene, no depende de BD)
+- **NO existe** `app/Data/DenunciaData.php`, `SolicitudData.php`, `DescargoData.php`, etc. (eliminados en Sprint 10)
+
+### Controladores (11 refactorizados a Eloquent)
+- `DenunciaController` — CRUD + flujo completo (admitir/rechazar/asignar/traspasar/reabrir/saltarFase/informe×3/cierre×3/ampliar/delegarEvaluacion/reasumir/conciliar/editar/eliminar)
+- `SolicitudController` — CRUD solicitudes + ampliaciones polimórficas
+- `DescargoController` — CRUD descargos + ampliaciones polimórficas
+- `BandejaController` — Bandeja Jefe (solo lectura)
+- `MisCasosController` — Mis Casos (técnico, solo lectura)
+- `MiResumenController` — Contadores del técnico
+- `ArchivosCasoController` — CRUD archivos (storage local privado)
+- `NotificacionController` — CRUD notificaciones
+- `EvaluacionController` — Devolver evaluación
+- `ConsultaCasosController` — 7 filtros de búsqueda
+- `SeguimientoController` — Público (token + ticket)
+
+### Controladores eliminados
+- `SelectorUsuarioController` (era demo multi-rol)
+- `DemoNotificacionController` (era demo de notificaciones)
+
+### Frontend
+- `resources/js/Components/Layout/` — AppLayout, Header (sin SelectorUsuarioDemo), Sidebar (permisos por rol), CampanaNotificaciones, PanelNotificaciones, ItemNotificacion
+- `resources/js/Components/Denuncias/` — ~35 componentes (Card, Sheet, Badges, Modales, formularios, etc.)
+- `resources/js/Pages/` — Bandeja, MisCasos, MiResumen, RegistroDenuncia, ConsultarCasos, Evaluaciones, Notificaciones/Index, Perfil, Seguimiento/Buscar, Admin/Feriados, Reportes, Dashboard
+- `resources/js/permissions.ts` + `resources/js/hooks/useCan.ts` + `resources/js/Components/Can.tsx`
+- `resources/js/types/index.d.ts` — Tipos globales (User, PageProps con `categorias`)
+
+### Seeders
+- `CatalogoSeeder` — 12 categorías, 13 unidades, 15 feriados, 2 config
+- `UserSeeder` — 5 usuarios (jefe, registrador, tecnico1/2/3, todas `demo123`)
+- `DenunciaSeeder` — 12 denuncias demo (DEN-2026-0001 a 0012)
+- `NotificacionSeeder` — 5 notificaciones demo
+
+## Comandos
+- `npm run dev` / `npm run build` — Vite
+- `php artisan serve` — Laravel server
+- `php artisan migrate:fresh --seed` — Reset DB + seed (BD de desarrollo)
+- `php artisan test` — Tests aislados (SQLite :memory:)
+- `php artisan cache:clear` — Limpia configuración (necesario después de cambios en modelos/middleware)
+
+## Próximo Sprint
+
+1. **Sprint 11** (era 10) — Panel Administración Catálogos + Subcategorías
+2. **Sprint 12** (era 11) — Dashboard + KPIs + Reportes PDF/Excel
+3. **Sprint 13** (era 12) — Tablero Público Cerrados
+4. **Sprint 14** (era 13) — Tiempos entre Fases
+
+**Estado inmediato:** Corrección de bugs post-migración Sprint 10. Muchos componentes frontend requieren reconexión al backend real (categorías, notificaciones, archivos, etc.).
+
+Ver detalle completo en `Sprints Pendientes - Contexto.md`.
 
 ## Notas / Pendientes
 
@@ -142,66 +155,9 @@ Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (11–
 > ⏸️ **Otros pendientes con el cliente:**
 > - C7: Destino del expediente al remitirse al Ministerio
 > - C8: Reglas del plazo al reabrir una denuncia
+> - Panel de administración de usuarios (Jefe crea/edita/resetea passwords) → Sprint 11
 
 > ⏸️ **Funcionalidades diferidas a v2 (no implementar en Fase 1):**
-> - Acompañamiento/Intervención → **Sprint 23** (era 22)
-> - Permisos personalizados por usuario (granulares) → **Sprint 25** (era 24)
-> - Migración de casos legacy → **Sprint 24** (era 23, detalle cuando se implemente BD)
-
-## Arquitectura Clave
-- `app/Data/DenunciaData.php` — Mock data estática (sesión, no DB)
-- `app/Data/SolicitudData.php` — Solicitudes a unidades externas (Sprint 4)
-- `app/Data/DescargoData.php` — Descargos de denunciados (Sprint 4)
-- `app/Data/UnidadData.php` — Catálogo de unidades externas (Sprint 4)
-- `app/Data/SesionUsuarioData.php` — 5 usuarios mock con roles (Sprint 6.5)
-- `app/Data/NotificacionData.php` — Notificaciones generadas por derivación (Sprint 9)
-- `app/Data/EvaluacionData.php` — Evaluaciones técnicas previas (Sprint 7)
-- `app/Data/PermisosCatalogo.php` — Catálogo de permisos del sistema (Sprint 7.5)
-- `app/Helpers/UppercaseText.php` — Trait para transformar textos libres a MAYÚSCULAS (Sprint 7.5)
-- `app/Http/Controllers/DenunciaController.php` — Create + Store + admitir/rechazar/iniciar + saltarFase + aprobarAmpliacion + delegarEvaluacion + reasumirEvaluacion + conciliarFechas
-- `app/Http/Controllers/SolicitudController.php` — CRUD Solicitudes (Sprint 4)
-- `app/Http/Controllers/DescargoController.php` — CRUD Descargos (Sprint 4)
-- `app/Http/Controllers/BandejaController.php` — Bandeja de Admisión (Jefe, envia solicitudes/descargos read-only)
-- `app/Http/Controllers/MisCasosController.php` — Mis Casos (Técnico, filtrado por técnico + solicitudes/descargos con acciones)
-- `app/Http/Controllers/SeguimientoController.php` — Búsqueda pública por ticket (Sprint 6)
-- `app/Http/Controllers/SelectorUsuarioController.php` — Cambio de usuario demo (Sprint 6.5)
-- `app/Http/Controllers/NotificacionController.php` — CRUD notificaciones + paginación (Sprint 9)
-- `app/Http/Controllers/DemoNotificacionController.php` — Simulaciones demo de notificaciones (Sprint 9)
-- `app/Http/Controllers/EvaluacionController.php` — Devolver evaluación (Sprint 7)
-- `app/Http/Controllers/ConsultaCasosController.php` — Búsqueda de casos para Registrador (Sprint 7.7)
-- `app/Http/Controllers/ArchivosCasoController.php` — CRUD del repositorio de archivos del caso (Sprint 7.6)
-- `resources/js/Components/Layout/AppLayout.tsx` — Layout root
-- `resources/js/Components/Layout/SelectorUsuarioDemo.tsx` — Dropdown de simulación de usuario (Sprint 6.5)
-- `resources/js/Components/Layout/CampanaNotificaciones.tsx` — Campana con badge + Popover (Sprint 9)
-- `resources/js/Components/Layout/PanelNotificaciones.tsx` — Panel dropdown scrolleable (Sprint 9)
-- `resources/js/Components/Layout/ItemNotificacion.tsx` — Item individual con icono, timestamp, color (Sprint 9)
-- `resources/js/permissions.ts` — Catálogo de permisos TypeScript + tipos (Sprint 7.5)
-- `resources/js/hooks/useCan.ts` — Hook React para chequeo de permisos (Sprint 7.5)
-- `resources/js/Components/Can.tsx` — Componente para render condicional por permiso (Sprint 7.5)
-- `resources/js/Components/Denuncias/` — Componentes de denuncias (Card, Sheet, Badges, Modales, AsignacionModal, TraspasoModal, ReabrirModal, TecnicoCargaCard, TabSolicitudes, TabDescargos, SolicitudCard, DescargoCard, PlazoProgress, ArchivoAdjunto, SaltarFaseButton, modales solicitud/descargo, SolicitudDetailModal, DescargoDetailModal, ModalCancelarSolicitud, ModalNuevoDescargo, ModalConfirmarEliminar, ClasificacionBadge, FormInformeFinal, FormCierre, TabInformeCierre, InformeDetailModal, ModalAmpliacionPlazo, ModalDelegarEvaluacion, ModalDevolverEvaluacion, TabEvaluacionPrevia, ModalEditarDenuncia, ModalConciliarFechas, ModalArchivosDelCaso)
-- `resources/js/Pages/Denuncias/RegistroDenuncia.tsx` — Formulario de registro
-- `resources/js/Pages/Denuncias/Bandeja.tsx` — Bandeja del Jefe (5 tabs: Por admitir, Por asignar, En curso, Historial, Visión general)
-- `resources/js/Pages/Denuncias/MisCasos.tsx` — Mis Casos del Técnico (4 tabs)
-- `resources/js/Pages/Denuncias/MiResumen.tsx` — Resumen del Técnico (4 cards)
-- `resources/js/Pages/Denuncias/Evaluaciones.tsx` — Bandeja de evaluaciones delegadas para el técnico (Sprint 7)
-- `resources/js/Pages/Denuncias/ConsultarCasos.tsx` — Búsqueda y consulta de casos para Registrador (Sprint 7.7)
-- `resources/js/Pages/Notificaciones/Index.tsx` — Página completa de notificaciones con filtros + paginación (Sprint 9)
-- `resources/js/Components/Publico/` — Componentes públicos de seguimiento (BuscadorTicket, StepperProgreso, ResultadoSeguimiento, EstadoVacio, EstadoNoEncontrado, EsqueletoBusqueda) (Sprint 6)
-- `resources/js/Components/ui/` — shadcn components (tooltip, progress, scroll-area, popover, separator, table agregados)
-
-## Comandos
-- `npm run dev` / `npm run build` — Vite
-- `php artisan serve` — Laravel server
-- `php artisan migrate:fresh --seed` — Reset DB
-
-## Próximo Sprint
-
-Los sprints 7.6, 7.7, 8, 9 y 9.1 están completos. El roadmap con numeración actualizada:
-
-1. **Sprint 10** (era 14 → 9.2) — Base de datos real (MySQL + Eloquent) → **EN PROGRESO**
-2. **Sprint 11** (era 10) — Panel Administración Catálogos + Subcategorías
-3. **Sprint 12** (era 11) — Dashboard + KPIs + Reportes PDF/Excel
-4. **Sprint 13** (era 12) — Tablero Público Cerrados
-5. **Sprint 14** (era 13) — Tiempos entre Fases
-
-Ver detalle completo en `Sprints Pendientes - Contexto.md`.
+> - Acompañamiento/Intervención → Sprint 23
+> - Permisos personalizados por usuario (granulares) → Sprint 25
+> - Migración de casos legacy → Sprint 24

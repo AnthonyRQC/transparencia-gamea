@@ -19,4 +19,5 @@ export type PageProps<
     auth: {
         user: User;
     };
+    categorias: Record<string, string>;
 };

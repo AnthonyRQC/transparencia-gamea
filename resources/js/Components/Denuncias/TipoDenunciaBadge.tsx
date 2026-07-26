@@ -1,3 +1,4 @@
+import { usePage } from '@inertiajs/react';
 import { Badge } from '@/Components/ui/badge';
 import { cn } from '@/lib/utils';
 
@@ -19,18 +20,10 @@ const tipoConfig: Record<string, { label: string; color: string }> = {
   },
 };
 
-const categoriaLabel: Record<string, string> = {
-  cohecho: 'Cohecho',
-  concusion: 'Concusión',
-  incumplimiento: 'Incumplimiento',
-  malversacion: 'Malversación',
-  negociaciones: 'Negociaciones incompatibles',
-  omision: 'Omisión',
-  peculado: 'Peculado',
-  trafico: 'Tráfico de influencias',
-};
-
 export default function TipoDenunciaBadge({ tipo, categoria, categoriaOtro, className }: TipoDenunciaBadgeProps) {
+  const props = usePage().props as Record<string, any>;
+  const categorias = (props.categorias || {}) as Record<string, string>;
+
   const config = tipoConfig[tipo] ?? { label: tipo, color: 'bg-gray-100 text-gray-800 border-gray-300' };
 
   let catLabel: string | null = null;
@@ -38,7 +31,7 @@ export default function TipoDenunciaBadge({ tipo, categoria, categoriaOtro, clas
     if (categoria === 'otro') {
       catLabel = categoriaOtro || 'Otro';
     } else {
-      catLabel = categoriaLabel[categoria] || categoria;
+      catLabel = categorias[categoria] || categoria;
     }
   }
 

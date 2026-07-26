@@ -498,9 +498,14 @@ Baja si los timestamps están en mock data. Sería solo una vista tabular sin gr
 
 ---
 
-## Sprint 10 (era 9.2, antigua 14) — Base de datos real (MySQL + Eloquent) ⏳ EN PROGRESO
+## Sprint 10 (era 9.2, antigua 14) — Base de datos real (MySQL + Eloquent) ✅ CERRADO
 
-**Estado:** EN PROGRESO. Documentación preparada en `Sprint 10 - Base de Datos Real (Eloquent + MySQL).md`.
+**Estado:** ✅ Cerrado (Julio 2026). Implementado en su totalidad.
+**Aceptación:** `migrate:fresh --seed` corre sin errores, login con username funcional, 23 tests pasando.
+
+**Ver detalle de cierre:** `Notas Sprint 10 - Cierre.md` y `Sprint 10 - Base de Datos Real (Eloquent + MySQL).md`.
+
+**Resumen:** Sprint 10 migró el sistema de `app/Data/*` (mock en sesión) a MySQL + Eloquent. Se crearon 22 migraciones, 18 modelos, 4 seeders, y se refactorizaron 11 controllers. Las categorías se comparten globalmente vía middleware (fuente única de verdad).
 **Origen:** Respuestas del cliente #24, #29. Esquema BD diseñado y aprobado en Sprint 9.1.
 
 ### Documentos de referencia
