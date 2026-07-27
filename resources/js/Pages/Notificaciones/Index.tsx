@@ -1,14 +1,13 @@
 import React from 'react';
 import { Head, router, usePage } from '@inertiajs/react';
 import { route } from 'ziggy-js';
-import { Bell, CheckCheck, ChevronLeft, ChevronRight, SearchX, Wrench } from 'lucide-react';
+import { Bell, CheckCheck, ChevronLeft, ChevronRight, SearchX } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
 import { Input } from '@/Components/ui/input';
 import { Button } from '@/Components/ui/button';
 import AppLayout from '@/Components/Layout/AppLayout';
 import ItemNotificacion from '@/Components/Layout/ItemNotificacion';
-import PanelDemo from '@/Components/Notificaciones/PanelDemo';
 
 interface Notificacion {
   id: number;
@@ -40,20 +39,18 @@ interface PageProps {
     fecha_desde?: string;
     fecha_hasta?: string;
   };
-  demo_mode?: boolean;
 }
 
 const TIPOS_NOTIFICACION = [
   { value: '', label: 'Todos los tipos' },
-  { value: 'traspaso', label: 'Traspasos' },
-  { value: 'ampliacion', label: 'Ampliaciones' },
+  { value: 'nueva_denuncia', label: 'Nuevas denuncias' },
+  { value: 'evaluacion', label: 'Evaluaciones previas' },
+  { value: 'traspaso', label: 'Traspasos de caso' },
+  { value: 'ampliacion', label: 'Ampliaciones de plazo' },
   { value: 'denuncia_admitida', label: 'Denuncias admitidas' },
   { value: 'denuncia_rechazada', label: 'Denuncias rechazadas' },
-  { value: 'plazo_por_vencer', label: 'Plazos por vencer' },
-  { value: 'plazo_vencido', label: 'Plazos vencidos' },
-  { value: 'plazo_informe', label: 'Informes por vencer' },
-  { value: 'solicitud_vence', label: 'Solicitudes por vencer' },
-  { value: 'descargo_vence', label: 'Descargos por vencer' },
+  { value: 'solicitud', label: 'Solicitudes de información' },
+  { value: 'descargo', label: 'Descargos de imputados' },
   { value: 'sistema', label: 'Sistema' },
 ];
 
@@ -64,7 +61,7 @@ const ESTADOS_LECTURA = [
 ];
 
 export default function NotificacionesIndex() {
-  const { notificaciones, filtros: initialFiltros, demo_mode } = usePage().props as unknown as PageProps;
+  const { notificaciones, filtros: initialFiltros } = usePage().props as unknown as PageProps;
 
   const [filtroTipo, setFiltroTipo] = React.useState(initialFiltros.tipo ?? '');
   const [filtroLeida, setFiltroLeida] = React.useState(initialFiltros.leida ?? '');
@@ -106,12 +103,6 @@ export default function NotificacionesIndex() {
     aplicarFiltros(page);
   };
 
-  const toggleDemo = () => {
-    router.post(route('notificaciones.demo.toggle'), {
-      active: demo_mode ? false : true,
-    }, { preserveScroll: true });
-  };
-
   const { items, page, total_pages, total } = notificaciones;
 
   return (
@@ -129,17 +120,6 @@ export default function NotificacionesIndex() {
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <button
-              onClick={toggleDemo}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors cursor-pointer ${
-                demo_mode
-                  ? 'bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400'
-                  : 'border-border/60 text-muted-foreground hover:bg-muted'
-              }`}
-            >
-              <Wrench className="w-3.5 h-3.5" />
-              {demo_mode ? 'Modo demo activo' : 'Modo demo'}
-            </button>
             <Button
               variant="outline"
               size="sm"
@@ -147,7 +127,7 @@ export default function NotificacionesIndex() {
               className="flex items-center gap-1.5"
             >
               <CheckCheck className="w-4 h-4" />
-              Marcar todas
+              Marcar todas como leídas
             </Button>
           </div>
         </div>
@@ -280,8 +260,6 @@ export default function NotificacionesIndex() {
           </div>
         )}
 
-        {/* Panel Demo (solo visible en modo demo) */}
-        {demo_mode && <PanelDemo />}
       </div>
     </AppLayout>
   );

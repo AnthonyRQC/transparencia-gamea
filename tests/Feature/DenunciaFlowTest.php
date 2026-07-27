@@ -213,4 +213,25 @@ class DenunciaFlowTest extends TestCase
             ->has('denuncia')
         );
     }
+
+    public function test_ticket_recycling_on_deletion(): void
+    {
+        $this->actingAs($this->jefe);
+
+        $ticket1 = Denuncia::generarSiguienteTicket();
+        $denuncia = Denuncia::factory()->create([
+            'ticket' => $ticket1,
+            'token_consulta' => '1001',
+            'tipo' => 'corrupcion',
+            'estado' => 'ingresada',
+        ]);
+
+        $response = $this->post("/denuncias/{$ticket1}/eliminar");
+        $response->assertSessionHas('success');
+
+        $this->assertSoftDeleted('denuncias', ['id' => $denuncia->id]);
+
+        $nextTicket = Denuncia::generarSiguienteTicket();
+        $this::assertEquals($ticket1, $nextTicket);
+    }
 }

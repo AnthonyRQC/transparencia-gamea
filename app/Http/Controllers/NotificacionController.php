@@ -16,10 +16,26 @@ class NotificacionController extends Controller
         $query = Notificacion::where('usuario_id', Auth::id())->latest('fecha');
 
         if ($tipo = $request->input('tipo')) {
-            $query->where('tipo', $tipo);
+            if ($tipo === 'evaluacion') {
+                $query->whereIn('tipo', ['evaluacion_delegada', 'evaluacion_devuelta', 'evaluacion_reasumida']);
+            } elseif ($tipo === 'ampliacion') {
+                $query->whereIn('tipo', ['ampliacion', 'ampliacion_plazo', 'plazo_por_vencer', 'plazo_vencido']);
+            } elseif ($tipo === 'solicitud') {
+                $query->whereIn('tipo', ['solicitud_informacion', 'solicitud_vence']);
+            } elseif ($tipo === 'descargo') {
+                $query->whereIn('tipo', ['descargo_notificado', 'descargo_vence']);
+            } else {
+                $query->where('tipo', $tipo);
+            }
         }
-        if ($leida = $request->input('leida')) {
-            $query->where('leida', $leida === 'true');
+
+        if ($request->has('leida') && $request->input('leida') !== null && $request->input('leida') !== '') {
+            $val = (string) $request->input('leida');
+            if ($val === '1' || $val === 'true' || $val === 'leidas') {
+                $query->where('leida', true);
+            } elseif ($val === '0' || $val === 'false' || $val === 'no_leidas') {
+                $query->where('leida', false);
+            }
         }
         if ($fechaDesde = $request->input('fecha_desde')) {
             $query->where('fecha', '>=', $fechaDesde);

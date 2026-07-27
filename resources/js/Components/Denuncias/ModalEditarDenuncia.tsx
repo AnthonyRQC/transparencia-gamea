@@ -41,8 +41,24 @@ function emptyPrueba(): PruebaItem {
   return { tipo: 'archivo', descripcion: '', testigo_nombre: '', testigo_telefono: '', archivo_nombre: '' };
 }
 
+const DEFAULT_CATEGORIAS: Record<string, string> = {
+  cohecho: 'Cohecho / Soborno',
+  peculado: 'Peculado / Malversación de fondos',
+  enriquecimiento_ilicito: 'Enriquecimiento Ilícito',
+  uso_indebido_bienes: 'Uso Indebido de Bienes y Servicios Públicos',
+  negativa_informacion: 'Negativa Indebida de Información',
+  incumplimiento_deberes: 'Incumplimiento de Deberes',
+  trafico_influencias: 'Tráfico de Influencias',
+  falsedad_documental: 'Falsedad Documental / Uso de Instrumento Falsificado',
+  otro: 'Otro delito de corrupción',
+};
+
 export default function ModalEditarDenuncia({ denuncia, open, onOpenChange }: ModalEditarDenunciaProps) {
-  const { categorias } = usePage().props as unknown as { categorias: Record<string, string> };
+  const pageProps = usePage().props as unknown as { categorias?: Record<string, string> };
+  const categoriasMap = pageProps.categorias && Object.keys(pageProps.categorias).length > 0
+    ? pageProps.categorias
+    : DEFAULT_CATEGORIAS;
+
   const [escenario, setEscenario] = useState('revelada');
   const [denominante, setDenominante] = useState({ nombres: '', ci: '', email: '', telefono: '' });
   const [denunciados, setDenunciados] = useState<DenunciadoItem[]>([emptyDenunciado()]);
@@ -53,15 +69,47 @@ export default function ModalEditarDenuncia({ denuncia, open, onOpenChange }: Mo
 
   useEffect(() => {
     if (open && denuncia) {
-      setEscenario(denuncia.escenario || 'revelada');
-      setDenominante(denuncia.denunciante ? { ...{ nombres: '', ci: '', email: '', telefono: '' }, ...denuncia.denunciante } : { nombres: '', ci: '', email: '', telefono: '' });
-      setDenunciados(denuncia.denunciados && denuncia.denunciados.length > 0
-        ? cloneDeep(denuncia.denunciados)
+      const d = denuncia as any;
+      setEscenario(d.escenario || 'revelada');
+
+      setDenominante(d.denunciante ? {
+        nombres: d.denunciante.nombres || '',
+        ci: d.denunciante.ci || '',
+        email: d.denunciante.email || '',
+        telefono: d.denunciante.telefono || '',
+      } : { nombres: '', ci: '', email: '', telefono: '' });
+
+      setDenunciados(d.denunciados && d.denunciados.length > 0
+        ? cloneDeep(d.denunciados.map((item: any) => ({
+            conoce_identidad: item.conoce_identidad !== false,
+            nombres: item.nombres || '',
+            dependencia: item.dependencia || '',
+            descripcion: item.descripcion || '',
+          })))
         : [emptyDenunciado()]
       );
-      setDetalles(denuncia.detalles ? { ...{ categoria: '', fecha: '', hora: '', lugar: '' }, ...denuncia.detalles } : { categoria: '', fecha: '', hora: '', lugar: '' });
-      setHechos(denuncia.hechos || '');
-      setPruebas(denuncia.pruebas && denuncia.pruebas.length > 0 ? cloneDeep(denuncia.pruebas) : []);
+
+      const catClave = d.categoria?.clave || d.detalles?.categoria || (d.categoria_id ? String(d.categoria_id) : '');
+      const fechaVal = d.fecha_hechos ? String(d.fecha_hechos).substring(0, 10) : (d.detalles?.fecha || '');
+      const horaVal = d.hora_hechos ? String(d.hora_hechos).substring(0, 5) : (d.detalles?.hora || '');
+      const lugarVal = d.lugar_hechos || d.detalles?.lugar || '';
+
+      setDetalles({
+        categoria: catClave,
+        fecha: fechaVal,
+        hora: horaVal,
+        lugar: lugarVal,
+      });
+
+      setHechos(d.hechos || '');
+
+      setPruebas(d.pruebas && d.pruebas.length > 0 ? cloneDeep(d.pruebas.map((p: any) => ({
+        tipo: p.tipo || 'archivo',
+        descripcion: p.descripcion || '',
+        testigo_nombre: p.testigo_nombre || '',
+        testigo_telefono: p.testigo_telefono || '',
+        archivo_nombre: p.archivo_nombre || '',
+      }))) : []);
     }
   }, [open, denuncia]);
 
@@ -87,14 +135,15 @@ export default function ModalEditarDenuncia({ denuncia, open, onOpenChange }: Mo
         pruebas,
       } as any,
       {
-        preserveScroll: true,
+        preserveScroll: false,
         onSuccess: () => {
-          toast.success(`Denuncia ${denuncia.ticket} actualizada`);
+          toast.success(`Denuncia ${denuncia.ticket} actualizada correctamente`);
           onOpenChange(false);
+          router.reload();
         },
         onError: (errors) => {
           const keys = Object.keys(errors);
-          toast.error(keys.length > 0 ? errors[keys[0]] : 'Error al actualizar');
+          toast.error(keys.length > 0 ? errors[keys[0]] : 'Error al actualizar la denuncia');
         },
         onFinish: () => setProcessing(false),
       }
@@ -207,7 +256,7 @@ export default function ModalEditarDenuncia({ denuncia, open, onOpenChange }: Mo
                 <Select value={detalles.categoria} onValueChange={(v) => setDetalles(p => ({ ...p, categoria: v }))}>
                   <SelectTrigger><SelectValue placeholder="Seleccionar" /></SelectTrigger>
                   <SelectContent>
-                    {Object.entries(categorias).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}
+                    {Object.entries(categoriasMap).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>

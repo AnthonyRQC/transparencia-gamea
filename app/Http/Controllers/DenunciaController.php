@@ -780,17 +780,28 @@ class DenunciaController extends Controller
 
     public function aprobarAmpliacion(string $ticket, Request $request)
     {
-        $validated = $request->validate([
-            'dias' => 'required|integer|min:1|max:45',
-            'justificacion' => 'required|string|min:10|max:500',
-            'solicitado_por' => 'nullable|string|max:100',
-        ]);
-
         $denuncia = Denuncia::where('ticket', $ticket)->firstOrFail();
 
         if (!in_array($denuncia->estado, ['admitida', 'asignada', 'investigacion', 'informe'])) {
             return redirect()->back()->with('error', 'No se puede ampliar el plazo de esta denuncia.');
         }
+
+        $maxAmpliacionLegal = $denuncia->tipo === 'corrupcion' ? 45 : 10;
+        $maxTotalLegal = $denuncia->tipo === 'corrupcion' ? 90 : 30;
+        $ampliacionActual = (int) $denuncia->ampliaciones()->sum('dias');
+        $restantePermitido = max(0, $maxAmpliacionLegal - $ampliacionActual);
+
+        if ($restantePermitido <= 0) {
+            return redirect()->back()->with('error', "La denuncia ya alcanzó el límite legal máximo de ampliación ({$maxTotalLegal} días totales en el proceso).");
+        }
+
+        $validated = $request->validate([
+            'dias' => "required|integer|min:1|max:{$restantePermitido}",
+            'justificacion' => 'required|string|min:10|max:500',
+            'solicitado_por' => 'nullable|string|max:100',
+        ], [
+            'dias.max' => "No se puede ampliar más de {$restantePermitido} días. El límite legal acumulado es {$maxTotalLegal} días totales.",
+        ]);
 
         DB::transaction(function () use ($denuncia, $validated) {
             $numAmpliacion = $denuncia->ampliaciones()->count() + 1;
@@ -847,12 +858,21 @@ class DenunciaController extends Controller
             $denuncia->update([
                 'escenario' => $validated['escenario'],
                 'hechos' => $validated['hechos'],
+                'fecha_hechos' => $validated['detalles']['fecha'],
+                'hora_hechos' => $validated['detalles']['hora'] ?? null,
                 'lugar_hechos' => $validated['detalles']['lugar'],
                 'categoria_id' => $categoriaId,
             ]);
 
             if ($denuncia->denunciante) {
                 $denuncia->denunciante->update([
+                    'nombres' => $validated['denunciante']['nombres'] ?? null,
+                    'ci' => $validated['denunciante']['ci'] ?? null,
+                    'email' => $validated['denunciante']['email'] ?? null,
+                    'telefono' => $validated['denunciante']['telefono'] ?? null,
+                ]);
+            } elseif (isset($validated['denunciante']) && $validated['escenario'] !== 'anonimo') {
+                $denuncia->denunciante()->create([
                     'nombres' => $validated['denunciante']['nombres'] ?? null,
                     'ci' => $validated['denunciante']['ci'] ?? null,
                     'email' => $validated['denunciante']['email'] ?? null,
@@ -870,6 +890,13 @@ class DenunciaController extends Controller
                     'descripcion' => !($dd['conoce_identidad'] ?? false) ? ($dd['descripcion'] ?? '') : null,
                 ]);
             }
+
+            $denuncia->bitacora()->create([
+                'accion' => 'edicion',
+                'detalle' => 'DENUNCIA EDITADA POR ' . Auth::user()->name,
+                'usuario_id' => Auth::id(),
+                'fecha' => now(),
+            ]);
         });
 
         return redirect()->back()->with('success', "Denuncia {$ticket} actualizada correctamente.");
@@ -883,7 +910,28 @@ class DenunciaController extends Controller
             return redirect()->back()->with('error', 'Solo se puede eliminar una denuncia en estado Ingresada.');
         }
 
-        $denuncia->delete();
+        DB::transaction(function () use ($denuncia, $ticket) {
+            $baseDel = str_replace('DEN-', 'DEL-', $ticket);
+            $ticketEliminado = $baseDel;
+            $count = 1;
+            while (Denuncia::withTrashed()->where('ticket', $ticketEliminado)->where('id', '!=', $denuncia->id)->exists()) {
+                $ticketEliminado = $baseDel . '-' . $count;
+                $count++;
+            }
+
+            $denuncia->update(['ticket' => $ticketEliminado]);
+
+            $denuncia->bitacora()->create([
+                'accion' => 'eliminacion',
+                'detalle' => "DENUNCIA {$ticket} ELIMINADA POR " . Auth::user()->name . " (NUEVO TICKET INTERNO: {$ticketEliminado})",
+                'usuario_id' => Auth::id(),
+                'fecha' => now(),
+            ]);
+
+            $denuncia->delete();
+
+            Denuncia::reciclarTicketSiEsUltimo($ticket);
+        });
 
         return redirect()->back()->with('success', "Denuncia {$ticket} eliminada correctamente.");
     }

@@ -48,6 +48,8 @@ class Denuncia extends Model
         'conciliacion_json',
     ];
 
+    protected $appends = ['plazo'];
+
     protected array $uppercaseFields = [
         'lugar_hechos', 'hechos', 'justificacion_admision',
         'justificacion_rechazo', 'resumen_rechazo',
@@ -68,6 +70,55 @@ class Denuncia extends Model
         ];
     }
 
+    public function getPlazoAttribute(): ?array
+    {
+        if (in_array($this->estado, ['rechazada', 'cerrada'])) {
+            return null;
+        }
+
+        $baseFecha = $this->fecha_admitida 
+            ? Carbon::parse($this->fecha_admitida) 
+            : Carbon::parse($this->created_at);
+
+        if (in_array($this->estado, ['ingresada', 'evaluacion_tecnica'])) {
+            $diasBase = 5;
+        } else {
+            $diasBase = $this->tipo === 'corrupcion' ? 45 : 20;
+        }
+
+        $diasAmpliados = $this->relationLoaded('ampliaciones') 
+            ? $this->ampliaciones->sum('dias') 
+            : (int) $this->ampliaciones()->sum('dias');
+
+        $diasTotales = $diasBase + $diasAmpliados;
+
+        $fechaVencimiento = DiasHabiles::agregar($diasTotales, $baseFecha);
+
+        $now = Carbon::now()->startOfDay();
+        $venc = $fechaVencimiento->copy()->startOfDay();
+
+        if ($now->gt($venc)) {
+            $diasRestantes = -DiasHabiles::transcurridos($venc, $now);
+            if ($diasRestantes === 0) $diasRestantes = -1;
+        } else {
+            $diasRestantes = DiasHabiles::transcurridos($now, $venc);
+        }
+
+        if ($diasRestantes <= 3) {
+            $color = 'red';
+        } elseif ($diasRestantes <= 8) {
+            $color = 'yellow';
+        } else {
+            $color = 'green';
+        }
+
+        return [
+            'dias_restantes' => $diasRestantes,
+            'color' => $color,
+            'fecha_vencimiento' => $fechaVencimiento->format('Y-m-d'),
+        ];
+    }
+
     public static function generarSiguienteTicket(): string
     {
         return DB::transaction(function () {
@@ -85,6 +136,21 @@ class Denuncia extends Model
 
             return $ticket;
         });
+    }
+
+    public static function reciclarTicketSiEsUltimo(string $ticket): void
+    {
+        if (preg_match('/^DEN-(\d{4})-(\d{4})$/', $ticket, $matches)) {
+            $anioTicket = (int) $matches[1];
+            $numeroTicket = (int) $matches[2];
+
+            if ($anioTicket === now()->year) {
+                $config = ConfiguracionSistema::where('clave', 'siguiente_numero_ticket')->first();
+                if ($config && ((int) $config->valor === $numeroTicket + 1)) {
+                    $config->update(['valor' => (string) $numeroTicket]);
+                }
+            }
+        }
     }
 
     public static function generarToken(int $length = 4): string

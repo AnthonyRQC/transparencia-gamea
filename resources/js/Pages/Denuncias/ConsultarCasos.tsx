@@ -1,11 +1,14 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Head, router, usePage } from '@inertiajs/react';
-import { Search, Eye, Key, ChevronDown, ChevronUp } from 'lucide-react';
+import { Search, Eye, Key, ChevronDown, ChevronUp, Pencil, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
 import AppLayout from '@/Components/Layout/AppLayout';
 import DenunciaSheet from '@/Components/Denuncias/DenunciaSheet';
 import TipoDenunciaBadge from '@/Components/Denuncias/TipoDenunciaBadge';
 import PlazoBadge from '@/Components/Denuncias/PlazoBadge';
 import ModalConsultarCodigo from '@/Components/Denuncias/ModalConsultarCodigo';
+import ModalEditarDenuncia from '@/Components/Denuncias/ModalEditarDenuncia';
+import ModalConfirmarEliminar from '@/Components/Denuncias/ModalConfirmarEliminar';
 import Paginacion from '@/Components/Denuncias/Paginacion';
 import { Input } from '@/Components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
@@ -57,6 +60,28 @@ export default function ConsultarCasos({ denuncias, tecnicos, filters }: PagePro
 
   const [selectedDenuncia, setSelectedDenuncia] = useState<Denuncia | null>(null);
   const [codigoModal, setCodigoModal] = useState<{ ticket: string; token: string } | null>(null);
+  const [modalEditarDenuncia, setModalEditarDenuncia] = useState<Denuncia | null>(null);
+  const [modalEliminarDenuncia, setModalEliminarDenuncia] = useState<Denuncia | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  const handleEliminarDenuncia = () => {
+    if (!modalEliminarDenuncia) return;
+    setDeleting(true);
+    router.post(
+      route('denuncias.eliminar', { ticket: modalEliminarDenuncia.ticket }),
+      {},
+      {
+        preserveScroll: false,
+        onSuccess: () => {
+          toast.success(`Denuncia ${modalEliminarDenuncia.ticket} eliminada correctamente`);
+          setModalEliminarDenuncia(null);
+          router.reload();
+        },
+        onError: () => toast.error('Error al eliminar la denuncia'),
+        onFinish: () => setDeleting(false),
+      }
+    );
+  };
   const [filterBusqueda, setFilterBusqueda] = useState(filters.busqueda as string || '');
   const [filterTicket, setFilterTicket] = useState(filters.ticket as string || '');
   const [filterEstado, setFilterEstado] = useState<string[]>((filters.estado as string) ? (filters.estado as string).split(',') : []);
@@ -256,7 +281,7 @@ export default function ConsultarCasos({ denuncias, tecnicos, filters }: PagePro
                   </div>
                 </div>
 
-                <div className="flex items-center gap-1.5 shrink-0">
+                <div className="flex items-center gap-1.5 shrink-0 flex-wrap sm:flex-nowrap">
                   <button
                     onClick={() => setSelectedDenuncia(d)}
                     className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-sky-100 text-sky-700 text-xs font-semibold hover:bg-sky-200 transition-colors dark:bg-sky-900/30 dark:text-sky-300 cursor-pointer"
@@ -271,6 +296,17 @@ export default function ConsultarCasos({ denuncias, tecnicos, filters }: PagePro
                     <Key className="w-3.5 h-3.5" />
                     Código
                   </button>
+
+                  {d.estado === 'ingresada' && (
+                    <button
+                      onClick={() => setModalEditarDenuncia(d)}
+                      className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-100 text-slate-800 text-xs font-semibold hover:bg-slate-200 transition-colors dark:bg-slate-800 dark:text-slate-200 cursor-pointer"
+                      title="Editar denuncia"
+                    >
+                      <Pencil className="w-3.5 h-3.5" />
+                      Editar
+                    </button>
+                  )}
                 </div>
               </div>
             );
@@ -307,6 +343,15 @@ export default function ConsultarCasos({ denuncias, tecnicos, filters }: PagePro
           token={codigoModal.token}
           open={codigoModal !== null}
           onOpenChange={() => setCodigoModal(null)}
+        />
+      )}
+
+      {/* ModalEditarDenuncia */}
+      {modalEditarDenuncia && (
+        <ModalEditarDenuncia
+          denuncia={modalEditarDenuncia as any}
+          open={modalEditarDenuncia !== null}
+          onOpenChange={(open) => { if (!open) setModalEditarDenuncia(null); }}
         />
       )}
     </AppLayout>

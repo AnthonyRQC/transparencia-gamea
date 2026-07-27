@@ -89,12 +89,13 @@ export default function ModalAmpliacionPlazo({ denuncia, open, onOpenChange, tec
 
   const plazoBase = getPlazoBase(denuncia.tipo);
   const maxAmpliacion = getMaxAmpliacion(denuncia.tipo);
+  const maxTotalLegal = plazoBase + maxAmpliacion;
   const sumaActual = getTotalAmpliaciones(denuncia.ampliaciones);
-  const restante = maxAmpliacion - sumaActual;
+  const restante = Math.max(0, maxAmpliacion - sumaActual);
   const numAmpliaciones = (denuncia.ampliaciones || []).length;
   const diasNum = parseInt(dias, 10) || 0;
   const exceed = diasNum > restante;
-  const canSubmit = diasNum >= 1 && diasNum <= maxAmpliacion && justificacion.trim().length >= 10 && !exceed && !processing;
+  const canSubmit = diasNum >= 1 && diasNum <= restante && justificacion.trim().length >= 10 && !exceed && !processing;
 
   const warningClass = exceed
     ? 'text-destructive border-destructive/50 bg-destructive/10'
@@ -138,7 +139,7 @@ export default function ModalAmpliacionPlazo({ denuncia, open, onOpenChange, tec
         <DialogHeader>
           <DialogTitle>Ampliar plazo total</DialogTitle>
           <DialogDescription>
-            {denuncia.tipo === 'corrupcion' ? 'Corrupción' : 'Negación de Información'}
+            {denuncia.tipo === 'corrupcion' ? 'Corrupción (Máx. 90d totales)' : 'Negación de Información (Máx. 30d totales)'}
             {' · '}
             {denuncia.ticket}
             {' · '}
@@ -149,8 +150,8 @@ export default function ModalAmpliacionPlazo({ denuncia, open, onOpenChange, tec
         <div className="space-y-4 py-2">
           <div className="rounded-lg border bg-muted/30 px-4 py-3 space-y-1.5 text-sm">
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Plazo base:</span>
-              <span className="font-medium">{plazoBase} días</span>
+              <span className="text-muted-foreground">Plazo base legal:</span>
+              <span className="font-medium">{plazoBase} días hábiles</span>
             </div>
             {numAmpliaciones > 0 && (
               <div className="flex justify-between">
@@ -160,12 +161,12 @@ export default function ModalAmpliacionPlazo({ denuncia, open, onOpenChange, tec
             )}
             <Separator className="my-1.5" />
             <div className="flex justify-between font-semibold">
-              <span>Plazo efectivo:</span>
+              <span>Plazo total acumulado:</span>
               <span>{plazoBase + sumaActual} días</span>
             </div>
             {denuncia.plazo?.dias_restantes !== undefined && (
               <div className="flex justify-between text-xs">
-                <span className="text-muted-foreground">Días restantes:</span>
+                <span className="text-muted-foreground">Días restantes actuales:</span>
                 <span className={cn(
                   denuncia.plazo.dias_restantes > 5 ? 'text-green-600' :
                   denuncia.plazo.dias_restantes >= 1 ? 'text-amber-600' : 'text-destructive'
@@ -176,8 +177,8 @@ export default function ModalAmpliacionPlazo({ denuncia, open, onOpenChange, tec
             )}
             <Separator className="my-1.5" />
             <div className="flex justify-between text-xs text-muted-foreground">
-              <span>Máximo legal ampliable:</span>
-              <span className="font-medium">+{maxAmpliacion} días (total: {plazoBase + maxAmpliacion})</span>
+              <span>Techo legal máximo:</span>
+              <span className="font-semibold text-foreground">+{maxAmpliacion}d ampliables ({maxTotalLegal}d totales)</span>
             </div>
           </div>
 
@@ -187,19 +188,22 @@ export default function ModalAmpliacionPlazo({ denuncia, open, onOpenChange, tec
               id="dias-ampliar"
               type="number"
               min={1}
-              max={45}
-              placeholder="Ej: 15"
+              max={restante}
+              placeholder={restante > 0 ? `Ej: ${Math.min(15, restante)}` : '0'}
               value={dias}
               onChange={(e) => setDias(e.target.value)}
-              disabled={processing}
+              disabled={processing || restante <= 0}
             />
-            {diasNum > 0 && (
+            {restante <= 0 && (
+              <p className="text-xs px-2 py-1 rounded border text-destructive border-destructive/50 bg-destructive/10">
+                Límite legal de {maxTotalLegal} días totales alcanzado. No se pueden otorgar más ampliaciones.
+              </p>
+            )}
+            {diasNum > 0 && restante > 0 && (
               <p className={cn('text-xs px-2 py-1 rounded border', warningClass)}>
                 {exceed
-                  ? `Excede el máximo legal de ${maxAmpliacion} días adicionales (restan ${Math.max(0, restante)}).`
-                  : restante > 0
-                    ? `Puede ampliar hasta ${restante} días más (límite legal: ${maxAmpliacion}).`
-                    : 'Límite legal alcanzado.'}
+                  ? `Excede los ${restante} días restantes permitidos (Límite legal: ${maxTotalLegal} días totales).`
+                  : `Puede ampliar hasta ${restante} días más (límite legal máximo: ${maxTotalLegal} días).`}
               </p>
             )}
           </div>

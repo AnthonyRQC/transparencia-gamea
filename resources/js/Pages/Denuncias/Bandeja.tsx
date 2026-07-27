@@ -951,10 +951,12 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
           if (!modalEliminarDenunciaTicket) return;
           const ticket = modalEliminarDenunciaTicket;
           setModalEliminarDenunciaTicket(null);
+          setSelectedDenuncia(null);
           router.post(route('denuncias.eliminar', { ticket }), {}, {
-            preserveScroll: true,
+            preserveScroll: false,
             onSuccess: () => {
-              toast.success(`Denuncia ${ticket} eliminada`);
+              toast.success(`Denuncia ${ticket} eliminada correctamente`);
+              router.reload();
             },
             onError: () => toast.error('Error al eliminar denuncia'),
           });
