@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/Components/ui/sheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/Components/ui/tabs';
 import { Separator } from '@/Components/ui/separator';
@@ -8,7 +9,7 @@ import TabSolicitudes from './TabSolicitudes';
 import TabDescargos from './TabDescargos';
 import TabInformeCierre from './TabInformeCierre';
 import TabEvaluacionPrevia from './TabEvaluacionPrevia';
-import { CheckCircle2, History, UserPlus, ArrowRightLeft, RotateCcw, XCircle, X as XIcon, FileSearch, UserX, FileText, ScrollText, FolderOpen } from 'lucide-react';
+import { CheckCircle2, History, UserPlus, ArrowRightLeft, RotateCcw, XCircle, X as XIcon, FileSearch, UserX, FileText, ScrollText, FolderOpen, ChevronDown } from 'lucide-react';
 
 interface PlazoInfo {
   dias_restantes: number;
@@ -348,6 +349,8 @@ function SheetInfoContent({ denuncia, hechos, tecnicoInfo, tecnicoAnteriorInfo, 
   bitacora: BitacoraEntry[];
   formatDate: (d?: string) => string;
 }) {
+  const [historialOpen, setHistorialOpen] = useState(false);
+
   return (
     <>
       <section>
@@ -565,24 +568,56 @@ function SheetInfoContent({ denuncia, hechos, tecnicoInfo, tecnicoAnteriorInfo, 
         <>
           <Separator />
           <section>
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1.5">
-              <History className="w-3.5 h-3.5 text-muted-foreground" />
-              Historial del caso ({bitacora.length})
-            </h4>
-            <div className="space-y-2">
-              {bitacora.map((entry, i) => (
-                <div key={i} className="flex gap-2 text-sm">
-                  <div className="mt-0.5 shrink-0">
-                    {accionIcon[entry.accion] || <History className="w-3.5 h-3.5 text-muted-foreground" />}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs text-muted-foreground">
-                      {formatDate(entry.fecha)} {entry.usuario !== 'sistema' ? `— ${entry.usuario}` : ''}
-                    </p>
-                    <p className="text-sm">{entry.detalle}</p>
-                  </div>
+            <div className="border border-border/80 rounded-xl overflow-hidden bg-card transition-all shadow-xs">
+              <button
+                type="button"
+                onClick={() => setHistorialOpen(!historialOpen)}
+                className="w-full flex items-center justify-between p-3 bg-muted/30 hover:bg-muted/60 transition-colors text-left cursor-pointer"
+              >
+                <div className="flex items-center gap-2 min-w-0">
+                  <History className="w-4 h-4 text-primary shrink-0" />
+                  <span className="text-xs font-semibold uppercase tracking-wider text-foreground">
+                    Historial del caso
+                  </span>
+                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                    {bitacora.length}
+                  </span>
                 </div>
-              ))}
+                <div className="flex items-center gap-1.5 shrink-0 text-muted-foreground">
+                  <span className="text-[11px] hidden sm:inline font-medium">
+                    {historialOpen ? 'Ocultar' : 'Ver todo'}
+                  </span>
+                  <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${historialOpen ? 'rotate-180' : ''}`} />
+                </div>
+              </button>
+
+              {!historialOpen && bitacora[0] && (
+                <div className="px-3 py-2 border-t border-border/40 bg-muted/10 flex items-center gap-2 text-xs text-muted-foreground">
+                  <span className="font-semibold text-foreground shrink-0">Última acción:</span>
+                  <span className="truncate">{bitacora[0].detalle}</span>
+                  <span className="ml-auto text-[10px] shrink-0 text-muted-foreground/80">{formatDate(bitacora[0].fecha)}</span>
+                </div>
+              )}
+
+              {historialOpen && (
+                <div className="p-3 border-t border-border/60 space-y-3 bg-card animate-in fade-in duration-200">
+                  {bitacora.map((entry, i) => (
+                    <div key={i} className="flex gap-2.5 text-sm">
+                      <div className="mt-0.5 shrink-0">
+                        {accionIcon[entry.accion] || <History className="w-3.5 h-3.5 text-muted-foreground" />}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="text-xs text-muted-foreground font-medium">
+                            {formatDate(entry.fecha)} {entry.usuario !== 'sistema' ? `— ${entry.usuario}` : ''}
+                          </p>
+                        </div>
+                        <p className="text-sm font-normal text-foreground mt-0.5">{entry.detalle}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </section>
         </>

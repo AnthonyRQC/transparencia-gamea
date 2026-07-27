@@ -76,7 +76,8 @@ export default function NotificacionesIndex() {
   };
 
   const handleNavegar = (url: string) => {
-    router.get(url);
+    const cleanUrl = url ? url.replace('/denuncias/bandeja', '/denuncias') : '/denuncias';
+    router.get(cleanUrl);
   };
 
   const handleMarcarTodas = () => {

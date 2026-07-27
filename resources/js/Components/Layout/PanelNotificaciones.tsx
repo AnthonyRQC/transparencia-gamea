@@ -37,7 +37,8 @@ export default function PanelNotificaciones({ notificaciones, noLeidas = 0, onCe
 
   const handleNavegar = (url: string) => {
     onCerrar();
-    router.get(url);
+    const cleanUrl = url ? url.replace('/denuncias/bandeja', '/denuncias') : '/denuncias';
+    router.get(cleanUrl);
   };
 
   const handleMarcarTodas = () => {

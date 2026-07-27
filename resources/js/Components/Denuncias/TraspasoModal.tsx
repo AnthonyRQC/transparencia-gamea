@@ -10,20 +10,23 @@ import { Button } from '@/Components/ui/button';
 import { ArrowRightLeft } from 'lucide-react';
 
 interface TecnicoInfo {
-  id: string;
-  nombre: string;
-  iniciales: string;
-  color: string;
+  id: string | number;
+  nombre?: string;
+  name?: string;
+  iniciales?: string;
+  color?: string;
 }
 
 interface TraspasoModalProps {
   ticket: string | null;
+  tecnicoActualId?: string | number | null;
   open: boolean;
-  tecnicos?: Record<string, TecnicoInfo>;
+  tecnicos?: Record<string, TecnicoInfo> | TecnicoInfo[];
+  cargaTecnicos?: TecnicoInfo[];
   onOpenChange: (open: boolean) => void;
 }
 
-export default function TraspasoModal({ ticket, open, tecnicos, onOpenChange }: TraspasoModalProps) {
+export default function TraspasoModal({ ticket, tecnicoActualId, open, tecnicos, cargaTecnicos, onOpenChange }: TraspasoModalProps) {
   const [tecnicoId, setTecnicoId] = useState('');
   const [justificacion, setJustificacion] = useState('');
   const [processing, setProcessing] = useState(false);
@@ -36,7 +39,17 @@ export default function TraspasoModal({ ticket, open, tecnicos, onOpenChange }: 
   }, [open]);
 
   const canSubmit = tecnicoId && justificacion.trim().length >= 5 && ticket;
-  const tecnicosList = tecnicos ? Object.values(tecnicos) : [];
+
+  const rawList = cargaTecnicos && cargaTecnicos.length > 0
+    ? cargaTecnicos
+    : (tecnicos ? (Array.isArray(tecnicos) ? tecnicos : Object.values(tecnicos)) : []);
+
+  const tecnicosList = rawList
+    .map((t) => ({
+      id: String(t.id),
+      nombre: t.nombre || t.name || `Técnico #${t.id}`,
+    }))
+    .filter((t) => !tecnicoActualId || String(t.id) !== String(tecnicoActualId));
 
   const handleSubmit = () => {
     if (!canSubmit) return;

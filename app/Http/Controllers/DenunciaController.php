@@ -129,6 +129,21 @@ class DenunciaController extends Controller
                 'fecha' => now(),
             ]);
 
+            $jefes = User::where('rol', 'jefe')->where('activo', true)->get();
+            foreach ($jefes as $jefe) {
+                Notificacion::create([
+                    'usuario_id' => $jefe->id,
+                    'tipo' => 'nueva_denuncia',
+                    'titulo' => 'NUEVA DENUNCIA REGISTRADA',
+                    'mensaje' => "{$ticket} FUE REGISTRADA Y ESPERA ADMISIÓN",
+                    'ticket' => $ticket,
+                    'destino_url' => '/denuncias?destacar=' . $ticket,
+                    'icono' => 'FileText',
+                    'color' => 'info',
+                    'fecha' => now(),
+                ]);
+            }
+
             return $denuncia;
         });
 
@@ -288,10 +303,13 @@ class DenunciaController extends Controller
 
         DB::transaction(function () use ($denuncia, $validated) {
             $nuevoTecnico = User::findOrFail($validated['tecnico_id']);
+            $nuevoEstado = $denuncia->estado === 'admitida' ? 'asignada' : $denuncia->estado;
 
             $denuncia->update([
+                'estado' => $nuevoEstado,
                 'tecnico_anterior_id' => $denuncia->tecnico_id,
                 'tecnico_id' => $nuevoTecnico->id,
+                'fecha_asignada' => $denuncia->fecha_asignada ?? now()->toDateTimeString(),
                 'traspaso_json' => [
                     'fecha' => now()->toDateTimeString(),
                     'justificacion' => $validated['justificacion'],
@@ -311,7 +329,7 @@ class DenunciaController extends Controller
                 'titulo' => 'CASO TRASPASADO A TI',
                 'mensaje' => "{$denuncia->ticket} FUE TRASPASADO A TU BANDEJA",
                 'ticket' => $denuncia->ticket,
-                'destino_url' => '/denuncias',
+                'destino_url' => '/denuncias/mis-casos',
                 'icono' => 'ArrowRightLeft',
                 'color' => 'info',
                 'fecha' => now(),

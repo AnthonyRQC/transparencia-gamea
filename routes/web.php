@@ -140,11 +140,6 @@ Route::prefix('denuncias')->name('denuncias.')->group(function () {
 
     // Evaluaciones Delegadas — Bandeja del Técnico (Sprint 7)
     Route::get('/evaluaciones', [MisCasosController::class, 'evaluaciones'])->name('evaluaciones');
-
-    // Detalle de denuncia (placeholder — el detalle real se implementa con Sheet)
-    Route::get('/{id}', function ($id) {
-        return Inertia::render('Denuncias/DetalleDenuncia', ['id' => $id]);
-    })->name('detalle');
 });
 
 // ----- Reportes (Sprint 7) -----

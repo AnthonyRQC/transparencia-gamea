@@ -32,7 +32,7 @@ class MisCasosController extends Controller
         $evaluacionesByTicket = [];
 
         foreach ($denuncias as $d) {
-            $estado = $d->estado;
+            $estado = $d->estado === 'admitida' ? 'asignada' : $d->estado;
             if (!isset($grouped[$estado])) $grouped[$estado] = [];
             $grouped[$estado][] = $d;
 
@@ -87,10 +87,20 @@ class MisCasosController extends Controller
             ->where('estado', 'devuelta')
             ->get();
 
+        $with = ['denunciante', 'denunciados', 'pruebas', 'categoria', 'tecnico', 'informe', 'cierre', 'solicitudes.unidadDestino', 'solicitudes.ampliaciones', 'descargos.denunciado', 'descargos.ampliaciones', 'evaluaciones', 'bitacora.usuario'];
+
+        $denunciaIds = $evaluacionesDelegadas->pluck('denuncia_id')->concat($evaluacionesDevueltas->pluck('denuncia_id'))->filter()->unique();
+        $denuncias = Denuncia::with($with)->whereIn('id', $denunciaIds)->get();
+
+        $denunciasByTicket = [];
+        foreach ($denuncias as $d) {
+            $denunciasByTicket[$d->ticket] = $d;
+        }
+
         return Inertia::render('Denuncias/Evaluaciones', [
             'evaluacionesDelegadas' => $evaluacionesDelegadas,
             'evaluacionesDevueltas' => $evaluacionesDevueltas,
-            'denunciasByTicket' => [],
+            'denunciasByTicket' => $denunciasByTicket,
             'tecnicoActual' => $tecnicoId,
             'tecnicos' => User::where('rol', 'tecnico')->where('activo', true)->get(),
         ]);

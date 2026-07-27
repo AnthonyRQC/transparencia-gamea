@@ -3,8 +3,7 @@ import PlazoBadge from './PlazoBadge';
 import TipoDenunciaBadge from './TipoDenunciaBadge';
 import SubestadoBadge from './SubestadoBadge';
 import ClasificacionBadge from './ClasificacionBadge';
-import { User, Clock } from 'lucide-react';
-import { ArrowRightLeft } from 'lucide-react';
+import { User, Clock, ArrowRightLeft, FileSearch } from 'lucide-react';
 
 interface PlazoInfo {
   dias_restantes: number;
@@ -41,6 +40,8 @@ interface DenunciaData {
   fecha_reapertura?: string | null;
   plazo_reapertura?: string | null;
   ampliaciones?: AmpliacionItem[];
+  evaluacion_tecnica_recomendacion?: string | null;
+  evaluacion_tecnica_tecnico_nombre?: string | null;
   // Sprint 5
   informe_clasificacion?: string | null;
   informe_sitpreco?: string | null;
@@ -174,6 +175,17 @@ export default function DenunciaCard({ denuncia, plazo, tecnicos, onClick, class
             <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700 border border-indigo-300 dark:bg-indigo-900/30 dark:text-indigo-300">
               <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
               Ampliada +{totalAmpliacionesDias}d
+            </span>
+          )}
+          {denuncia.evaluacion_tecnica_recomendacion && (
+            <span className={cn(
+              "inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border shadow-2xs",
+              denuncia.evaluacion_tecnica_recomendacion === 'admitir'
+                ? "bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800/60"
+                : "bg-rose-100 text-rose-800 border-rose-300 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800/60"
+            )}>
+              <FileSearch className="w-3 h-3" />
+              Evaluada: {denuncia.evaluacion_tecnica_recomendacion === 'admitir' ? 'Recomienda Admitir' : 'Recomienda Rechazar'}
             </span>
           )}
         </div>

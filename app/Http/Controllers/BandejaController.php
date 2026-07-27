@@ -29,6 +29,14 @@ class BandejaController extends Controller
         
         $all = $ingresadas->concat($porAsignar)->concat($enCurso)->concat($historial);
         foreach ($all as $d) {
+            if (!$d->evaluacion_tecnica_recomendacion && $d->evaluaciones && $d->evaluaciones->count() > 0) {
+                $evalDev = $d->evaluaciones->where('estado', 'devuelta')->last();
+                if ($evalDev) {
+                    $d->evaluacion_tecnica_recomendacion = $evalDev->recomendacion;
+                    $d->evaluacion_tecnica_texto = $evalDev->texto_evaluacion;
+                    $d->evaluacion_tecnica_tecnico_nombre = $evalDev->tecnico?->name ?? 'técnico';
+                }
+            }
             $solicitudesByTicket[$d->ticket] = $d->solicitudes;
             $descargosByTicket[$d->ticket] = $d->descargos;
             $evaluacionesByTicket[$d->ticket] = $d->evaluaciones;

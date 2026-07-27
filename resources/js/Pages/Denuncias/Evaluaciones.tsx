@@ -86,8 +86,9 @@ export default function Evaluaciones() {
             }
             return (
               <div className="space-y-3">
-                {evaluacionesDelegadas.map((e) => {
-                  const denuncia = denunciasByTicket[e.ticket];
+                {evaluacionesDelegadas.map((e: any) => {
+                  const ticket = e.ticket || e.denuncia?.ticket;
+                  const denuncia = (ticket && denunciasByTicket ? denunciasByTicket[ticket] : null) || e.denuncia;
                   return (
                     <div
                       key={e.id}
@@ -95,7 +96,7 @@ export default function Evaluaciones() {
                       className="w-full bg-card border border-border rounded-xl px-4 py-3 space-y-2 cursor-pointer hover:shadow-md hover:border-primary/30 transition-all duration-200"
                     >
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-sm font-bold">{e.ticket}</span>
+                        <span className="font-mono text-sm font-bold">{ticket}</span>
                         <span className="text-xs text-muted-foreground">
                           {denuncia?.tipo === 'corrupcion' ? 'Corrupción' : 'Negación'}
                         </span>
@@ -135,8 +136,9 @@ export default function Evaluaciones() {
           }
           return (
             <div className="space-y-3">
-              {evaluacionesDevueltas.map((e) => {
-                const denuncia = denunciasByTicket[e.ticket];
+              {evaluacionesDevueltas.map((e: any) => {
+                const ticket = e.ticket || e.denuncia?.ticket;
+                const denuncia = (ticket && denunciasByTicket ? denunciasByTicket[ticket] : null) || e.denuncia;
                 return (
                   <div
                     key={e.id}
@@ -174,11 +176,12 @@ export default function Evaluaciones() {
 
       {selectedDenuncia && (
         <DenunciaSheet
-          denuncia={selectedDenuncia}
-          plazo={selectedDenuncia.plazo}
+          denuncia={selectedDenuncia as any}
+          plazo={(selectedDenuncia.plazo || null) as any}
           tecnicos={allTecnicos}
           open={selectedDenuncia !== null}
           onOpenChange={(v) => { if (!v) setSelectedDenuncia(null); }}
+          canAct={false}
         />
       )}
 

@@ -358,7 +358,7 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
                 <div className="space-y-3">
                   {paginated.map((d) => {
                     const enEvaluacion = d.estado === 'evaluacion_tecnica';
-                    const evaluacionDevuelta = d.estado === 'ingresada' && d.evaluacion_tecnica_texto;
+                    const evaluacionDevuelta = d.estado === 'ingresada' && (d.evaluacion_tecnica_recomendacion || d.evaluacion_tecnica_texto);
                     return (
                       <DenunciaCard
                         key={d.ticket}
@@ -794,8 +794,14 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
       />
       <TraspasoModal
         ticket={modalTraspasoTicket}
+        tecnicoActualId={(() => {
+          const found = modalTraspasoTicket ? [...denuncias, ...porAsignar, ...enCurso, ...historial].find(d => d.ticket === modalTraspasoTicket) : null;
+          if (!found) return null;
+          return (found as any).tecnico_id || (typeof (found as any).tecnico === 'object' ? (found as any).tecnico?.id : null);
+        })()}
         open={modalTraspasoTicket !== null}
         tecnicos={tecnicos}
+        cargaTecnicos={cargaTecnicos}
         onOpenChange={(v) => { if (!v) setModalTraspasoTicket(null); }}
       />
       <ReabrirModal
