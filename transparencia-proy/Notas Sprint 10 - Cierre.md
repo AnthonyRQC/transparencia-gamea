@@ -47,17 +47,21 @@ Sprint 10 migró el sistema de `app/Data/*` (mock en sesión) a MySQL + Eloquent
 | 1 | Login case-insensitive (usuario confundido por CSS `uppercase`) | Se aplicó `Str::lower()` en LoginRequest para normalizar | Revertido: ahora case-sensitive. Se quitó `uppercase` del input de Login. |
 | 2 | Pantalla en blanco en `/denuncias/registrar` al seleccionar tipo | Backend enviaba array de modelos CategoriaDenuncia, frontend esperaba `Record<string, string>` | `get()` → `pluck('nombre', 'clave')` en DenunciaController@create |
 | 3 | `SQLSTATE 1366: Incorrect integer value: 'cohecho' for column 'categoria_id'` | Frontend enviaba clave (string), BD esperaba integer | Agregada validación `exists:categorias_denuncia,clave` + lookup `clave→id` en store y editar |
-| 4 | Pantalla en blanco en `/notificaciones` | Frontend esperaba `{items, page, total_pages}` pero Laravel paginator devuelve `{data, current_page, last_page}` | (Pendiente de confirmación por el usuario) |
+| 4 | Pantalla en blanco en `/notificaciones` | Frontend esperaba `{items, page, total_pages}` pero Laravel paginator devuelve `{data, current_page, last_page}` | Paginador formateado en controlador + respuesta limpia en Inertia |
 | 5 | `ExampleTest` fallaba por tabla `categorias_denuncia` inexistente en SQLite | Middleware de categorías globales se ejecutaba antes de migraciones en tests sin `RefreshDatabase` | Agregado `use RefreshDatabase` a ExampleTest |
+| 6 | Badges de Plazo (días restantes) no aparecían | Mocks fueron removidos y no existía cálculo dinámico en modelo | Creado `$appends = ['plazo']` y `getPlazoAttribute()` en `Denuncia.php` con días hábiles y colores |
+| 7 | Exceso de ampliación de plazos permitía > 90 días | No se validaba la suma acumulada contra el techo legal | Frontend y Backend limitan a máx. 90d totales en Corrupción (+45d máx) y 30d totales en Negación (+10d máx) |
+| 8 | Error de Ziggy `notificaciones.demo.toggle` y filtro `leida` fallaba en `0` | Ruta demo eliminada; PHP interpretaba `'0'` como falsy en `if ($leida)` | Eliminado Modo Demo completo; corregido filtro con `$request->has('leida') && $request->input('leida') !== ''` |
+| 9 | Edición de denuncia no cargaba categoría/fecha/hora y no guardaba fecha en BD | Objeto frontend buscaba `detalles.categoria` inexistente; backend omitía `fecha_hechos`/`hora_hechos` | `ModalEditarDenuncia` extrae directo de modelo; backend actualiza campos en BD y registra en bitácora |
+| 10 | Error SQL `1062` al crear denuncia luego de eliminar la anterior | SoftDelete retenía la clave `DEN-2026-XXXX` en BD y chocaba con el índice `UNIQUE` | Muta ticket a `DEL-2026-XXXX` al eliminar + recicla correlativo si era el último ticket expedido |
+| 11 | Panel lateral `DenunciaSheet` no se cerraba tras eliminar denuncia | Falta de reseteo del estado `selectedDenuncia` tras eliminación | Invocado `setSelectedDenuncia(null)` y `router.reload()` |
+| 12 | Botón Eliminar presente para Registrador | La regla de negocio indica que solo el Jefe puede eliminar casos | Retirado botón Eliminar en `ConsultarCasos.tsx` (Registrador solo puede Editar denuncias `ingresadas`) |
 
 ---
 
-## 4. Bugs Pendientes / En Corrección
+## 4. Estado de Bugs Post-Migración
 
-Los siguientes bugs fueron reportados durante las pruebas manuales post-Sprint 10 y están pendientes de corrección:
-
-- [ ] Panel de notificaciones (Index.tsx) no carga: estructura del paginator incompatible
-- [ ] (Agregar aquí nuevos bugs encontrados durante las pruebas)
+Todos los bugs de reconexión post-migración reportados han sido corregidos con éxito. **24 / 24 tests automatizados pasados en PHPUnit (80 assertions).**
 
 ---
 

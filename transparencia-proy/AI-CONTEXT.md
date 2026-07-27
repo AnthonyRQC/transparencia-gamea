@@ -21,7 +21,7 @@ Tailwind v3 · shadcn/ui (New York) · Laragon (Windows local)
 > Categorías se comparten globalmente vía `HandleInertiaRequests` (fuente única de verdad).
 > Tests con SQLite `:memory:`, aislados de la BD de desarrollo.
 
-**Estado actual:** Corrección de bugs post-migración (Sprint 10). Muchos componentes frontend que funcionaban con mock data están siendo reconectados al backend real. Ver `Notas Sprint 10 - Cierre.md`.
+**Estado actual:** Corrección de bugs post-migración (Sprint 10) **Completada al 100%** ✅. Se restauraron los plazos/badges dinámicos, techos de ampliaciones (90d/30d), flujo de traspasos, evaluaciones delegadas con recomendaciones visuales, edición/eliminación con mutación de tickets `DEL-` y reciclaje de correlativo, y panel de notificaciones sin modo demo. Ver `Notas Sprint 10 - Cierre.md`.
 
 Sprints pendientes: **11**, **12**, **13**, **14**, **15**, **16+**.
 Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (11–25).
