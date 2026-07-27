@@ -158,16 +158,35 @@ export default function MisCasos({ grouped, tecnicoActual, tecnicos, solicitudes
   const [modalEliminarDesc, setModalEliminarDesc] = useState<{ id: number; nombre: string } | null>(null);
   const [processingEliminar, setProcessingEliminar] = useState(false);
 
+  const [activeTab, setActiveTab] = useState<string>('asignada');
+
   useEffect(() => {
-    if (destacar) {
+    const ticketToHighlight = destacar || (typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('destacar') : null);
+    if (ticketToHighlight) {
       const todas: Denuncia[] = Object.values(grouped).flatMap(g => g);
-      const found = todas.find((d) => d.ticket === destacar);
+      const found = todas.find((d) => d.ticket === ticketToHighlight);
       if (found) {
         setSelectedDenuncia(found);
+        if (found.estado && estadoOrden.includes(found.estado)) {
+          setActiveTab(found.estado);
+        }
         window.scrollTo({ top: 0, behavior: 'smooth' });
+        const timer = setTimeout(() => {
+          window.history.replaceState({}, '', route('denuncias.mis-casos'));
+        }, 100);
+        return () => clearTimeout(timer);
       }
     }
   }, [destacar, grouped]);
+
+  // Sincroniza la denuncia seleccionada con los datos frescos que llegan de Inertia
+  useEffect(() => {
+    if (selectedDenuncia) {
+      const todas: Denuncia[] = Object.values(grouped).flatMap(g => g as Denuncia[]);
+      const updated = todas.find((d) => d.ticket === selectedDenuncia.ticket);
+      if (updated) setSelectedDenuncia(updated);
+    }
+  }, [grouped]);
 
   const handleTecnicoChange = (value: string) => {
     router.get(route('denuncias.mis-casos'), { tecnico: value }, { preserveState: true, preserveScroll: true });
@@ -184,6 +203,20 @@ export default function MisCasos({ grouped, tecnicoActual, tecnicos, solicitudes
       },
       onError: () => {
         toast.error('Error al iniciar investigación');
+        setProcessingTicket(null);
+      },
+    });
+  };
+
+  const handleToggleArchivar = (ticket: string) => {
+    setProcessingTicket(ticket);
+    router.post(route('denuncias.archivar', { ticket }), {}, {
+      preserveScroll: true,
+      onSuccess: () => {
+        setProcessingTicket(null);
+      },
+      onError: () => {
+        toast.error('Error al cambiar estado de archivado');
         setProcessingTicket(null);
       },
     });
@@ -248,6 +281,20 @@ export default function MisCasos({ grouped, tecnicoActual, tecnicos, solicitudes
         </span>
       );
     }
+    if (denuncia.estado === 'cerrada') {
+      const isArchivada = denuncia.subestado === 'archivada';
+      return (
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); handleToggleArchivar(denuncia.ticket); }}
+          disabled={processingTicket === denuncia.ticket}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground text-xs font-semibold disabled:opacity-50 transition-colors"
+        >
+          <Archive className="w-3.5 h-3.5" />
+          {isArchivada ? 'Desarchivar caso' : 'Archivar caso'}
+        </button>
+      );
+    }
     return null;
   };
 
@@ -270,19 +317,6 @@ export default function MisCasos({ grouped, tecnicoActual, tecnicos, solicitudes
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <div className="flex items-center gap-2 flex-1 sm:flex-none">
-            <span className="text-xs text-muted-foreground font-medium hidden sm:inline">Ver como:</span>
-            <Select value={tecnicoActual} onValueChange={handleTecnicoChange}>
-              <SelectTrigger className="w-full sm:w-44 h-8 text-sm">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.entries(tecnicos).map(([id, t]) => (
-                  <SelectItem key={id} value={id}>{t.nombre}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="flex items-center gap-2 flex-1 sm:flex-none">
             <span className="text-xs text-muted-foreground font-medium hidden sm:inline">Ordenar:</span>
             <Select value={sortBy} onValueChange={setSortBy}>
               <SelectTrigger className="w-full sm:w-28 h-8 text-sm">
@@ -292,17 +326,16 @@ export default function MisCasos({ grouped, tecnicoActual, tecnicos, solicitudes
               <SelectContent>
                 <SelectItem value="plazo">Plazo</SelectItem>
                 <SelectItem value="fecha">Fecha</SelectItem>
-                <SelectItem value="tecnico">Técnico</SelectItem>
               </SelectContent>
             </Select>
           </div>
         </div>
       </div>
       <p className="text-muted-foreground mb-6">
-        Gestión de casos asignados. Use el selector para ver como otro técnico.
+        Gestión de sus casos asignados.
       </p>
 
-      <TabsDenuncias tabs={tabs}>
+      <TabsDenuncias tabs={tabs} value={activeTab} onValueChange={setActiveTab}>
         {(value) => {
           const items = grouped[value] || [];
           const isCierre = value === 'cerrada';
@@ -394,7 +427,11 @@ export default function MisCasos({ grouped, tecnicoActual, tecnicos, solicitudes
                           plazo={null}
                           tecnicos={tecnicos}
                           onClick={() => setSelectedDenuncia(d)}
-                        />
+                        >
+                          {renderActions(d) && (
+                            <div className="pt-1">{renderActions(d)}</div>
+                          )}
+                        </DenunciaCard>
                       ))}
                     </div>
                   )}
@@ -470,6 +507,17 @@ export default function MisCasos({ grouped, tecnicoActual, tecnicos, solicitudes
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
               Ampliar plazo
+            </button>
+          )}
+          {selectedDenuncia.estado === 'cerrada' && (
+            <button
+              type="button"
+              onClick={() => handleToggleArchivar(selectedDenuncia.ticket)}
+              disabled={processingTicket === selectedDenuncia.ticket}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-slate-100 text-slate-800 text-sm font-semibold hover:bg-slate-200 disabled:opacity-50 transition-colors dark:bg-slate-800 dark:text-slate-200"
+            >
+              <Archive className="w-4 h-4" />
+              {selectedDenuncia.subestado === 'archivada' ? 'Desarchivar expediente' : 'Archivar expediente'}
             </button>
           )}
         </DenunciaSheet>

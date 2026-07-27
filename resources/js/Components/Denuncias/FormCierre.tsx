@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/Components/ui/checkbox';
 import { Button } from '@/Components/ui/button';
 import { Separator } from '@/Components/ui/separator';
-import { AlertTriangle, ChevronDown, ChevronRight, History, Archive, Upload } from 'lucide-react';
+import { AlertTriangle, ChevronDown, ChevronRight, History, Archive, Upload, Trash2 } from 'lucide-react';
 
 const mediosNotificacion = [
   { value: 'whatsapp', label: 'WhatsApp' },
@@ -204,34 +204,35 @@ function CierreForm({ ticket, cierre, tecnicoNombre, processing, setProcessing, 
 }) {
   const [notificadoDenunciante, setNotificadoDenunciante] = useState(cierre?.notificado_denunciante ?? true);
   const [notificacionMedio, setNotificacionMedio] = useState(cierre?.notificacion_medio || '');
-  const [notificacionFecha, setNotificacionFecha] = useState(cierre?.notificacion_fecha || '');
+  const [notificacionFecha, setNotificacionFecha] = useState(cierre?.notificacion_fecha ? cierre.notificacion_fecha.split('T')[0] : '');
   const [notificacionDescripcion, setNotificacionDescripcion] = useState(cierre?.notificacion_descripcion || '');
   const [noNotificadoMotivo, setNoNotificadoMotivo] = useState(cierre?.no_notificado_motivo || '');
-  const [concluidoPor, setConcluidoPor] = useState(cierre?.concluido_por || tecnicoNombre);
+  const [concluidoPor, setConcluidoPor] = useState(cierre?.concluido_por || tecnicoNombre || '');
   const [descripcion, setDescripcion] = useState(cierre?.descripcion || '');
+
   useEffect(() => {
     if (cierre) {
-      setNotificadoDenunciante(cierre.notificado_denunciante ?? true);
+      setNotificadoDenunciante(cierre.notificado_denunciante ?? false);
       setNotificacionMedio(cierre.notificacion_medio || '');
-      setNotificacionFecha(cierre.notificacion_fecha || '');
+      setNotificacionFecha(cierre.notificacion_fecha ? cierre.notificacion_fecha.split('T')[0] : '');
       setNotificacionDescripcion(cierre.notificacion_descripcion || '');
       setNoNotificadoMotivo(cierre.no_notificado_motivo || '');
-      setConcluidoPor(cierre.concluido_por || tecnicoNombre);
+      setConcluidoPor(cierre.concluido_por || tecnicoNombre || '');
       setDescripcion(cierre.descripcion || '');
     } else {
-      setNotificadoDenunciante(true);
+      setNotificadoDenunciante(false);
       setNotificacionMedio('');
       setNotificacionFecha('');
       setNotificacionDescripcion('');
       setNoNotificadoMotivo('');
-      setConcluidoPor(tecnicoNombre);
+      setConcluidoPor(tecnicoNombre || '');
       setDescripcion('');
     }
   }, [cierre, tecnicoNombre]);
 
   const canSubmit = notificadoDenunciante
-    ? concluidoPor.trim().length >= 2 && descripcion.trim().length >= 20 && notificacionMedio && notificacionFecha && notificacionDescripcion.trim().length >= 5
-    : concluidoPor.trim().length >= 2 && descripcion.trim().length >= 20;
+    ? notificacionMedio && notificacionFecha && String(notificacionDescripcion || '').trim().length >= 10 && String(concluidoPor || '').trim().length >= 2 && String(descripcion || '').trim().length >= 20
+    : String(noNotificadoMotivo || '').trim().length >= 10 && String(concluidoPor || '').trim().length >= 2 && String(descripcion || '').trim().length >= 20;
 
   const isEdit = cierre && cierre.cerrado_at;
 
@@ -356,14 +357,17 @@ function CierreForm({ ticket, cierre, tecnicoNombre, processing, setProcessing, 
       <Separator />
 
       <div className="space-y-2">
-        <Label htmlFor="concluido-cierre" className="after:content-['*'] after:text-destructive after:ml-0.5">Concluido por</Label>
+        <Label htmlFor="concluido-por" className="after:content-['*'] after:text-destructive after:ml-0.5">Concluido por</Label>
         <Input
-          id="concluido-cierre"
-          value={concluidoPor}
+          id="concluido-por"
+          value={concluidoPor || ''}
           onChange={(e) => setConcluidoPor(e.target.value)}
           placeholder="Nombre del responsable"
           style={{ textTransform: 'uppercase' }}
+          disabled
+          readOnly
         />
+        <p className="text-[10px] text-muted-foreground">Este campo se asigna automáticamente al usuario actual.</p>
       </div>
 
       <div className="space-y-2">

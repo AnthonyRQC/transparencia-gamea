@@ -635,6 +635,31 @@ class DenunciaController extends Controller
         return redirect()->back()->with('success', "Cierre eliminado. Denuncia {$ticket} vuelve a Informe Final.");
     }
 
+    public function toggleArchivar(string $ticket)
+    {
+        $denuncia = Denuncia::where('ticket', $ticket)->firstOrFail();
+
+        if ($denuncia->estado !== 'cerrada') {
+            return redirect()->back()->with('error', 'Solo se pueden archivar denuncias cerradas.');
+        }
+
+        $nuevoSubestado = $denuncia->subestado === 'archivada' ? null : 'archivada';
+        $denuncia->update(['subestado' => $nuevoSubestado]);
+
+        $accion = $nuevoSubestado === 'archivada' ? 'denuncia_archivada' : 'denuncia_desarchivada';
+        $detalle = $nuevoSubestado === 'archivada' ? 'CASO ARCHIVADO EN CIERRE' : 'CASO DESARCHIVADO EN CIERRE';
+
+        $denuncia->bitacora()->create([
+            'accion' => $accion,
+            'detalle' => $detalle,
+            'usuario_id' => Auth::id(),
+            'fecha' => now(),
+        ]);
+
+        $msg = $nuevoSubestado === 'archivada' ? "Caso {$ticket} archivado correctamente." : "Caso {$ticket} desarchivado correctamente.";
+        return redirect()->back()->with('success', $msg);
+    }
+
     public function cargaTecnicos()
     {
         $tecnicos = User::where('rol', 'tecnico')->where('activo', true)->get()->map(fn($t) => [

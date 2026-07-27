@@ -65,7 +65,7 @@ class BandejaController extends Controller
             'solicitudesByTicket' => $solicitudesByTicket,
             'descargosByTicket' => $descargosByTicket,
             'evaluacionesByTicket' => $evaluacionesByTicket,
-            'canAct' => false,
+            'canAct' => true,
             'destacar' => $request->query('destacar'),
         ]);
     }

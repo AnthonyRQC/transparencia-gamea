@@ -204,18 +204,43 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
   const [filterTipo, setFilterTipo] = useState('all');
   const [sortBy, setSortBy] = useState('plazo');
 
+  const [activeTab, setActiveTab] = useState<string>('por-admitir');
+
   // Auto-abrir sheet si viene desde notificación
   useEffect(() => {
-    if (destacar) {
+    const ticketToHighlight = destacar || (typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('destacar') : null);
+    if (ticketToHighlight) {
       const todas = [...denuncias, ...porAsignar, ...enCurso, ...historial];
-      const found = todas.find((d) => d.ticket === destacar);
+      const found = todas.find((d) => d.ticket === ticketToHighlight);
       if (found) {
         setSelectedDenuncia(found);
+        if (['ingresada', 'evaluacion_tecnica'].includes(found.estado)) setActiveTab('por-admitir');
+        else if (found.estado === 'admitida') setActiveTab('por-asignar');
+        else if (['asignada', 'investigacion', 'informe'].includes(found.estado)) setActiveTab('en-curso');
+        else if (['rechazada', 'cerrada'].includes(found.estado)) setActiveTab('historial');
         const timer = setTimeout(() => {
           window.history.replaceState({}, '', route('denuncias.bandeja'));
         }, 100);
         return () => clearTimeout(timer);
       }
+    }
+  }, [destacar, denuncias, porAsignar, enCurso, historial]);
+
+  // Sincroniza la denuncia seleccionada con los datos frescos que llegan de Inertia
+  useEffect(() => {
+    if (selectedDenuncia) {
+      const todas = [...denuncias, ...porAsignar, ...enCurso, ...historial];
+      const updated = todas.find((d) => d.ticket === selectedDenuncia.ticket);
+      if (updated) setSelectedDenuncia(updated);
+    }
+  }, [denuncias, porAsignar, enCurso, historial]);
+
+  useEffect(() => {
+    if (destacar) {
+      const timer = setTimeout(() => {
+        window.history.replaceState({}, '', route('denuncias.bandeja'));
+      }, 100);
+      return () => clearTimeout(timer);
     }
   }, [destacar]);
 
@@ -296,7 +321,7 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
         </div>
       </div>
 
-      <TabsDenuncias tabs={tabs} defaultValue="por-admitir">
+      <TabsDenuncias tabs={tabs} value={activeTab} onValueChange={setActiveTab}>
         {(value) => {
           if (value === 'por-admitir') {
             const filtered = filterAndSort(denuncias);

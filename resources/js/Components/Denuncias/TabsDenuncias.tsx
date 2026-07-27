@@ -10,14 +10,22 @@ interface TabItem {
 interface TabsDenunciasProps {
   tabs: TabItem[];
   defaultValue?: string;
+  value?: string;
+  onValueChange?: (value: string) => void;
   children: React.ReactNode | ((value: string) => React.ReactNode);
 }
 
-export default function TabsDenuncias({ tabs, defaultValue, children }: TabsDenunciasProps) {
-  const [activeTab, setActiveTab] = React.useState(defaultValue ?? tabs[0]?.value ?? '');
+export default function TabsDenuncias({ tabs, defaultValue, value, onValueChange, children }: TabsDenunciasProps) {
+  const [internalActiveTab, setInternalActiveTab] = React.useState(defaultValue ?? tabs[0]?.value ?? '');
+  const activeTab = value !== undefined ? value : internalActiveTab;
+
+  const handleTabChange = (v: string) => {
+    if (onValueChange) onValueChange(v);
+    setInternalActiveTab(v);
+  };
 
   return (
-    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+    <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
       <div className="sticky top-0 z-10 bg-card pb-px">
         <div className="overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none'] border-b border-border">
           <TabsList className="w-full min-w-max justify-start h-auto gap-0 bg-transparent p-0 border-none rounded-none">

@@ -80,7 +80,7 @@ export default function TabInformeCierre({ denuncia, tecnicoNombre = '—', canA
   const [processingEliminar, setProcessingEliminar] = useState(false);
   const [eliminarTarget, setEliminarTarget] = useState<'informe' | 'cierre' | null>(null);
 
-  const informe: InformeData | null = denuncia.informe_clasificacion || denuncia.informe_redactado_at
+  const informe: InformeData | null = denuncia.informe ? denuncia.informe : (denuncia.informe_clasificacion || denuncia.informe_redactado_at
     ? {
         clasificacion: denuncia.informe_clasificacion ?? null,
         fojas: denuncia.informe_fojas ?? null,
@@ -93,9 +93,9 @@ export default function TabInformeCierre({ denuncia, tecnicoNombre = '—', canA
         eliminado: denuncia.informe_eliminado ?? false,
         fecha_eliminacion: denuncia.informe_fecha_eliminacion ?? null,
       }
-    : null;
+    : null);
 
-  const cierre: CierreData | null = denuncia.cierre_cerrado_at
+  const cierre: CierreData | null = denuncia.cierre ? denuncia.cierre : (denuncia.cierre_cerrado_at
     ? {
         notificado_denunciante: denuncia.cierre_notificado_denunciante ?? null,
         notificacion_medio: denuncia.cierre_notificacion_medio ?? null,
@@ -110,7 +110,7 @@ export default function TabInformeCierre({ denuncia, tecnicoNombre = '—', canA
         eliminado: denuncia.cierre_eliminado ?? false,
         fecha_eliminacion: denuncia.cierre_fecha_eliminacion ?? null,
       }
-    : null;
+    : null);
 
   const handleEliminarConfirm = () => {
     if (!eliminarTarget) return;
@@ -164,7 +164,7 @@ export default function TabInformeCierre({ denuncia, tecnicoNombre = '—', canA
             ticket={denuncia.ticket}
             informe={informe}
             tecnicoNombre={tecnicoNombre}
-            canAct={canAct && !denuncia.informe_eliminado}
+            canAct={canAct && (!informe || !informe.eliminado)}
             onEdit={() => {
               setSubTab('informe');
             }}
@@ -186,9 +186,9 @@ export default function TabInformeCierre({ denuncia, tecnicoNombre = '—', canA
           <FormCierre
             ticket={denuncia.ticket}
             cierre={cierre}
-            informeExiste={!denuncia.informe_eliminado && (denuncia.informe_clasificacion !== null || denuncia.informe_redactado_at !== null)}
+            informeExiste={informe !== null && !informe.eliminado && (informe.clasificacion !== null || informe.redactado_at !== null)}
             tecnicoNombre={tecnicoNombre}
-            canAct={canAct && !denuncia.cierre_eliminado}
+            canAct={canAct && (!cierre || !cierre.eliminado)}
             onEdit={() => {
               setSubTab('cierre');
             }}

@@ -22,7 +22,7 @@ class MisCasosController extends Controller
 
         $denuncias = Denuncia::with($with)
             ->where('tecnico_id', $tecnicoId)
-            ->whereNotIn('estado', ['rechazada', 'cerrada'])
+            ->where('estado', '!=', 'rechazada')
             ->latest()
             ->get();
 
@@ -65,6 +65,7 @@ class MisCasosController extends Controller
             'evaluacionesDelegadas' => $evaluacionesDelegadas,
             'evaluacionesDevueltas' => $evaluacionesDevueltas,
             'canAct' => true,
+            'destacar' => request()->query('destacar'),
         ]);
     }
 

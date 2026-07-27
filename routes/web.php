@@ -89,6 +89,7 @@ Route::prefix('denuncias')->name('denuncias.')->group(function () {
     Route::post('/{ticket}/cierre', [DenunciaController::class, 'guardarCierre'])->name('cierre.guardar');
     Route::post('/{ticket}/cierre/editar', [DenunciaController::class, 'editarCierre'])->name('cierre.editar');
     Route::post('/{ticket}/cierre/eliminar', [DenunciaController::class, 'eliminarCierre'])->name('cierre.eliminar');
+    Route::post('/{ticket}/archivar', [DenunciaController::class, 'toggleArchivar'])->name('archivar');
 
     // Carga de técnicos (Sprint 3)
     Route::get('/carga-tecnicos', [DenunciaController::class, 'cargaTecnicos'])->name('carga-tecnicos');

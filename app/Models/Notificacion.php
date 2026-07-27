@@ -38,6 +38,23 @@ class Notificacion extends Model
 
     public function getDestinoUrlAttribute($value)
     {
-        return $value ? url($value) : null;
+        if (!$value) return null;
+
+        $user = auth()->user();
+        $targetPath = $value;
+
+        if ($user && $user->rol === 'tecnico' && ($targetPath === '/denuncias' || str_starts_with($targetPath, '/denuncias?'))) {
+            $targetPath = '/denuncias/mis-casos';
+        } elseif ($user && $user->rol === 'jefe' && ($targetPath === '/denuncias/mis-casos' || str_starts_with($targetPath, '/denuncias/mis-casos?'))) {
+            $targetPath = '/denuncias';
+        }
+
+        $url = url($targetPath);
+        if ($this->ticket && !str_contains($url, 'destacar=')) {
+            $separator = str_contains($url, '?') ? '&' : '?';
+            $url .= "{$separator}destacar={$this->ticket}";
+        }
+
+        return $url;
     }
 }

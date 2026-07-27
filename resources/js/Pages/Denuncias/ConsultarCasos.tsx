@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Head, router, usePage } from '@inertiajs/react';
 import { Search, Eye, Key, ChevronDown, ChevronUp } from 'lucide-react';
 import AppLayout from '@/Components/Layout/AppLayout';
@@ -50,6 +50,10 @@ function formatDate(d?: string): string {
 }
 
 export default function ConsultarCasos({ denuncias, tecnicos, filters }: PageProps) {
+  const pageProps = usePage().props as unknown as any;
+  const solicitudesByTicket = pageProps.solicitudesByTicket || {};
+  const descargosByTicket = pageProps.descargosByTicket || {};
+
   const [selectedDenuncia, setSelectedDenuncia] = useState<Denuncia | null>(null);
   const [codigoModal, setCodigoModal] = useState<{ ticket: string; token: string } | null>(null);
   const [filterBusqueda, setFilterBusqueda] = useState(filters.busqueda as string || '');
@@ -63,6 +67,14 @@ export default function ConsultarCasos({ denuncias, tecnicos, filters }: PagePro
   const [showFilters, setShowFilters] = useState(false);
 
   const tecnicosList = useMemo(() => Object.values(tecnicos), [tecnicos]);
+
+  // Sincroniza la denuncia seleccionada con los datos frescos que llegan de Inertia
+  useEffect(() => {
+    if (selectedDenuncia) {
+      const updated = denuncias.find((d) => d.ticket === selectedDenuncia.ticket);
+      if (updated) setSelectedDenuncia(updated);
+    }
+  }, [denuncias]);
 
   const aplicarFiltros = () => {
     const params: Record<string, string> = {};
@@ -265,8 +277,8 @@ export default function ConsultarCasos({ denuncias, tecnicos, filters }: PagePro
           open={selectedDenuncia !== null}
           onOpenChange={(v) => { if (!v) setSelectedDenuncia(null); }}
           canAct={false}
-          solicitudes={((usePage().props as unknown as any).solicitudesByTicket?.[selectedDenuncia.ticket] || []) as any}
-          descargos={((usePage().props as unknown as any).descargosByTicket?.[selectedDenuncia.ticket] || []) as any}
+          solicitudes={(solicitudesByTicket[selectedDenuncia.ticket] || []) as any}
+          descargos={(descargosByTicket[selectedDenuncia.ticket] || []) as any}
         />
       )}
 

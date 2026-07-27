@@ -130,6 +130,8 @@ export default function DenunciaCard({ denuncia, plazo, tecnicos, onClick, class
     }
   };
 
+  const clasificacion = (denuncia as any).informe?.clasificacion || denuncia.informe_clasificacion;
+
   return (
     <div
       role="button"
@@ -153,6 +155,9 @@ export default function DenunciaCard({ denuncia, plazo, tecnicos, onClick, class
             categoria={denuncia.detalles?.categoria}
             categoriaOtro={denuncia.detalles?.categoria_otro}
           />
+          {clasificacion && (
+            <ClasificacionBadge clasificacion={clasificacion} />
+          )}
           <SubestadoBadge subestado={denuncia.subestado ?? null} />
           {isNew && (
             <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">

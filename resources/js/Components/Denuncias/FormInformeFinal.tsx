@@ -8,7 +8,7 @@ import { Textarea } from '@/Components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
 import { Button } from '@/Components/ui/button';
 import { Separator } from '@/Components/ui/separator';
-import { AlertTriangle, ChevronDown, ChevronRight, History, FileText, Upload } from 'lucide-react';
+import { AlertTriangle, ChevronDown, ChevronRight, History, FileText, Upload, Trash2 } from 'lucide-react';
 import ClasificacionBadge from './ClasificacionBadge';
 const clasificaciones = [
   { value: 'penal', label: 'Penal' },
