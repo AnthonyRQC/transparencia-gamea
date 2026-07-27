@@ -38,6 +38,14 @@ class BandejaController extends Controller
         }
 
         $contadores = [
+            'ingresada' => Denuncia::where('estado', 'ingresada')->count(),
+            'evaluacion_tecnica' => Denuncia::where('estado', 'evaluacion_tecnica')->count(),
+            'admitida' => Denuncia::where('estado', 'admitida')->count(),
+            'asignada' => Denuncia::where('estado', 'asignada')->count(),
+            'investigacion' => Denuncia::where('estado', 'investigacion')->count(),
+            'informe' => Denuncia::where('estado', 'informe')->count(),
+            'rechazada' => Denuncia::where('estado', 'rechazada')->count(),
+            'cerrada' => Denuncia::where('estado', 'cerrada')->count(),
             'ingresadas' => Denuncia::where('estado', 'ingresada')->count(),
             'porAdmitir' => Denuncia::whereIn('estado', ['ingresada', 'evaluacion_tecnica'])->count(),
             'porAsignar' => Denuncia::where('estado', 'admitida')->count(),

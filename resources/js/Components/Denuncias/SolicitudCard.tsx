@@ -1,6 +1,7 @@
 import { Building2, CircleCheck, Clock, RotateCcw, XCircle, Pencil, Trash2 } from 'lucide-react';
 import PlazoProgress from './PlazoProgress';
 import { Badge } from '@/Components/ui/badge';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/Components/ui/tooltip';
 
 interface SolicitudArchivo {
   nombre: string;
@@ -109,63 +110,105 @@ export default function SolicitudCard({ solicitud, canAct, onClick, onResponder,
           />
         )}
 
-        {canAct && !isCompletada && (
-          <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-            {onResponder && (
-              <button
-                type="button"
-                onClick={() => onResponder(solicitud.id)}
-                className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-green-100 text-green-700 text-[11px] font-semibold hover:bg-green-200 transition-colors dark:bg-green-900/30 dark:text-green-300"
-              >
-                <CircleCheck className="w-3 h-3" />
-                Responder
-              </button>
-            )}
-            {onAmpliar && (
-              <button
-                type="button"
-                onClick={() => onAmpliar(solicitud.id)}
-                className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-amber-100 text-amber-700 text-[11px] font-semibold hover:bg-amber-200 transition-colors dark:bg-amber-900/30 dark:text-amber-300"
-              >
-                <RotateCcw className="w-3 h-3" />
-                Ampliar
-              </button>
-            )}
-            {onCancelar && (
-              <button
-                type="button"
-                onClick={() => onCancelar(solicitud.id)}
-                className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-red-50 text-red-600 text-[11px] font-semibold hover:bg-red-100 transition-colors dark:bg-red-900/20 dark:text-red-400"
-              >
-                <XCircle className="w-3 h-3" />
-                Cancelar
-              </button>
-            )}
-          </div>
-        )}
       </div>
 
       {canAct && (
-        <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-          {onEditar && (
-            <button
-              type="button"
-              onClick={() => onEditar(solicitud.id)}
-              className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-blue-100 text-blue-700 text-[11px] font-semibold hover:bg-blue-200 transition-colors dark:bg-blue-900/30 dark:text-blue-300"
-            >
-              <Pencil className="w-3 h-3" />
-              Editar
-            </button>
+        <div className="pt-2.5 border-t border-border/50 space-y-2 text-xs" onClick={(e) => e.stopPropagation()}>
+          {!isCompletada && (onResponder || onAmpliar || onCancelar) && (
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="text-[10px] font-bold uppercase text-muted-foreground shrink-0">📋 Trámite:</span>
+              {onResponder && (
+                <TooltipProvider delayDuration={200}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        type="button"
+                        onClick={() => onResponder(solicitud.id)}
+                        className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-green-100 text-green-700 text-[11px] font-semibold hover:bg-green-200 transition-colors dark:bg-green-900/30 dark:text-green-300"
+                      >
+                        <CircleCheck className="w-3 h-3" />
+                        Responder
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top">Registrar la respuesta enviada por la unidad.</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+              {onAmpliar && (
+                <TooltipProvider delayDuration={200}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        type="button"
+                        onClick={() => onAmpliar(solicitud.id)}
+                        className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-amber-100 text-amber-700 text-[11px] font-semibold hover:bg-amber-200 transition-colors dark:bg-amber-900/30 dark:text-amber-300"
+                      >
+                        <RotateCcw className="w-3 h-3" />
+                        Ampliar
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top">Ampliar el plazo de respuesta de la solicitud.</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+              {onCancelar && (
+                <TooltipProvider delayDuration={200}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        type="button"
+                        onClick={() => onCancelar(solicitud.id)}
+                        className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-red-50 text-red-600 text-[11px] font-semibold hover:bg-red-100 transition-colors dark:bg-red-900/20 dark:text-red-400"
+                      >
+                        <XCircle className="w-3 h-3" />
+                        Cancelar
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top">Anular o dejar sin efecto esta solicitud.</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+            </div>
           )}
-          {onEliminar && (
-            <button
-              type="button"
-              onClick={() => onEliminar(solicitud.id)}
-              className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-red-50 text-red-600 text-[11px] font-semibold hover:bg-red-100 transition-colors dark:bg-red-900/20 dark:text-red-400"
-            >
-              <Trash2 className="w-3 h-3" />
-              Eliminar
-            </button>
+
+          {(onEditar || onEliminar) && (
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="text-[10px] font-bold uppercase text-muted-foreground shrink-0">⚙️ Gestión:</span>
+              {onEditar && (
+                <TooltipProvider delayDuration={200}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        type="button"
+                        onClick={() => onEditar(solicitud.id)}
+                        className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-blue-100 text-blue-700 text-[11px] font-semibold hover:bg-blue-200 transition-colors dark:bg-blue-900/30 dark:text-blue-300"
+                      >
+                        <Pencil className="w-3 h-3" />
+                        Editar
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top">Modificar datos de la solicitud.</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+              {onEliminar && (
+                <TooltipProvider delayDuration={200}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        type="button"
+                        onClick={() => onEliminar(solicitud.id)}
+                        className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-red-50 text-red-600 text-[11px] font-semibold hover:bg-red-100 transition-colors dark:bg-red-900/20 dark:text-red-400"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                        Eliminar
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top">Eliminar registro de solicitud.</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+            </div>
           )}
         </div>
       )}

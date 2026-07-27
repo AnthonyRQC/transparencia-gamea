@@ -23,7 +23,7 @@ export default function SaltarFaseButton({ ticket, solicitudesPendientes = 0, de
     if (open) setJustificacion('');
   }, [open]);
 
-  const canSubmit = justificacion.trim().length >= 10;
+  const canSubmit = justificacion.trim().length >= 20;
   const totalPendientes = solicitudesPendientes + descargosPendientes;
 
   const handleSubmit = () => {
@@ -98,9 +98,9 @@ export default function SaltarFaseButton({ ticket, solicitudesPendientes = 0, de
                 style={{ textTransform: 'uppercase' }}
               />
               <div className="flex items-center justify-between">
-                <p className="text-[11px] text-muted-foreground">{justificacion.length}/2000</p>
-                {justificacion.length > 0 && justificacion.trim().length < 10 && (
-                  <p className="text-[11px] text-destructive font-medium">Mínimo 10 caracteres</p>
+                <p className="text-[11px] text-muted-foreground">{justificacion.length}/2000 caracteres</p>
+                {justificacion.trim().length < 20 && (
+                  <p className="text-[11px] text-destructive font-medium">Mínimo 20 caracteres</p>
                 )}
               </div>
             </div>

@@ -1,7 +1,8 @@
-import { CircleCheck, Bell, RotateCcw, FileText, Pencil, Trash2 } from 'lucide-react';
+import { CircleCheck, Bell, RotateCcw, FileText, Pencil, Trash2, XCircle } from 'lucide-react';
 import PlazoProgress from './PlazoProgress';
 import { Badge } from '@/Components/ui/badge';
 import { Avatar, AvatarFallback } from '@/Components/ui/avatar';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/Components/ui/tooltip';
 
 interface DescargoDocumento {
   nombre: string;
@@ -124,73 +125,122 @@ export default function DescargoCard({ descargo, canAct, onClick, onNotificar, o
           <span className="text-[11px] text-muted-foreground italic">Pendiente de notificación</span>
         )}
 
-        {canAct && (
-          <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-            {descargo.estado === 'pendiente_notif' && onNotificar && (
-              <button
-                type="button"
-                onClick={() => onNotificar(descargo.id)}
-                className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-blue-100 text-blue-700 text-[11px] font-semibold hover:bg-blue-200 transition-colors dark:bg-blue-900/30 dark:text-blue-300"
-              >
-                <Bell className="w-3 h-3" />
-                Notificar
-              </button>
-            )}
-            {descargo.estado !== 'pendiente_notif' && descargo.estado !== 'respondido' && onResponder && (
-              <button
-                type="button"
-                onClick={() => onResponder(descargo.id)}
-                className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-green-100 text-green-700 text-[11px] font-semibold hover:bg-green-200 transition-colors dark:bg-green-900/30 dark:text-green-300"
-              >
-                <CircleCheck className="w-3 h-3" />
-                Responder
-              </button>
-            )}
-            {descargo.estado === 'notificado' && onAmpliar && (
-              <button
-                type="button"
-                onClick={() => onAmpliar(descargo.id)}
-                className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-amber-100 text-amber-700 text-[11px] font-semibold hover:bg-amber-200 transition-colors dark:bg-amber-900/30 dark:text-amber-300"
-              >
-                <RotateCcw className="w-3 h-3" />
-                Ampliar
-              </button>
-            )}
-            {descargo.estado !== 'respondido' && descargo.estado !== 'cancelado' && onCancelar && (
-              <button
-                type="button"
-                onClick={() => onCancelar(descargo.id)}
-                className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-red-100 text-red-700 text-[11px] font-semibold hover:bg-red-200 transition-colors dark:bg-red-900/30 dark:text-red-300"
-              >
-                <Trash2 className="w-3 h-3" />
-                Cancelar
-              </button>
-            )}
-          </div>
-        )}
       </div>
 
       {canAct && (
-        <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-          {onEditar && (
-            <button
-              type="button"
-              onClick={() => onEditar(descargo.id)}
-              className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-blue-100 text-blue-700 text-[11px] font-semibold hover:bg-blue-200 transition-colors dark:bg-blue-900/30 dark:text-blue-300"
-            >
-              <Pencil className="w-3 h-3" />
-              Editar
-            </button>
+        <div className="pt-2.5 border-t border-border/50 space-y-2 text-xs" onClick={(e) => e.stopPropagation()}>
+          {(onNotificar || onResponder || onAmpliar || onCancelar) && (
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="text-[10px] font-bold uppercase text-muted-foreground shrink-0">⚖️ Trámite:</span>
+              {descargo.estado === 'pendiente_notif' && onNotificar && (
+                <TooltipProvider delayDuration={200}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        type="button"
+                        onClick={() => onNotificar(descargo.id)}
+                        className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-blue-100 text-blue-700 text-[11px] font-semibold hover:bg-blue-200 transition-colors dark:bg-blue-900/30 dark:text-blue-300"
+                      >
+                        <Bell className="w-3 h-3" />
+                        Notificar
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top">Registrar la notificación realizada al denunciado.</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+              {descargo.estado !== 'pendiente_notif' && descargo.estado !== 'respondido' && onResponder && (
+                <TooltipProvider delayDuration={200}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        type="button"
+                        onClick={() => onResponder(descargo.id)}
+                        className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-green-100 text-green-700 text-[11px] font-semibold hover:bg-green-200 transition-colors dark:bg-green-900/30 dark:text-green-300"
+                      >
+                        <CircleCheck className="w-3 h-3" />
+                        Responder
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top">Registrar la recepción del descargo o justificativo presentado.</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+              {descargo.estado === 'notificado' && onAmpliar && (
+                <TooltipProvider delayDuration={200}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        type="button"
+                        onClick={() => onAmpliar(descargo.id)}
+                        className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-amber-100 text-amber-700 text-[11px] font-semibold hover:bg-amber-200 transition-colors dark:bg-amber-900/30 dark:text-amber-300"
+                      >
+                        <RotateCcw className="w-3 h-3" />
+                        Ampliar
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top">Ampliar el plazo legal para la presentación de descargos.</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+              {descargo.estado !== 'respondido' && descargo.estado !== 'cancelado' && onCancelar && (
+                <TooltipProvider delayDuration={200}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        type="button"
+                        onClick={() => onCancelar(descargo.id)}
+                        className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-red-100 text-red-700 text-[11px] font-semibold hover:bg-red-200 transition-colors dark:bg-red-900/30 dark:text-red-300"
+                      >
+                        <XCircle className="w-3 h-3" />
+                        Cancelar
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top">Anular o dejar sin efecto el trámite de descargo.</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+            </div>
           )}
-          {onEliminar && (
-            <button
-              type="button"
-              onClick={() => onEliminar(descargo.id)}
-              className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-red-50 text-red-600 text-[11px] font-semibold hover:bg-red-100 transition-colors dark:bg-red-900/20 dark:text-red-400"
-            >
-              <Trash2 className="w-3 h-3" />
-              Eliminar
-            </button>
+
+          {(onEditar || onEliminar) && (
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="text-[10px] font-bold uppercase text-muted-foreground shrink-0">⚙️ Gestión:</span>
+              {onEditar && (
+                <TooltipProvider delayDuration={200}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        type="button"
+                        onClick={() => onEditar(descargo.id)}
+                        className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-blue-100 text-blue-700 text-[11px] font-semibold hover:bg-blue-200 transition-colors dark:bg-blue-900/30 dark:text-blue-300"
+                      >
+                        <Pencil className="w-3 h-3" />
+                        Editar
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top">Modificar datos del descargo.</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+              {onEliminar && (
+                <TooltipProvider delayDuration={200}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        type="button"
+                        onClick={() => onEliminar(descargo.id)}
+                        className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-red-50 text-red-600 text-[11px] font-semibold hover:bg-red-100 transition-colors dark:bg-red-900/20 dark:text-red-400"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                        Eliminar
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top">Eliminar registro de descargo.</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+            </div>
           )}
         </div>
       )}

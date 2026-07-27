@@ -309,16 +309,29 @@ export default function DenunciaSheet({
           </div>
         )}
 
-        <div className="shrink-0 pt-4 border-t border-border flex items-center gap-2 flex-wrap">
+        <div className="shrink-0 pt-3 border-t border-border space-y-3">
           {onAbrirArchivos && (
-            <button
-              type="button"
-              onClick={() => onAbrirArchivos(denuncia.ticket)}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-100 text-slate-700 text-xs font-semibold hover:bg-slate-200 transition-colors dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
-            >
-              <FolderOpen className="w-3.5 h-3.5" />
-              Archivos del caso
-            </button>
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                <span>📁 Expediente del caso</span>
+                <TooltipProvider delayDuration={200}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="cursor-help text-muted-foreground/70 hover:text-foreground">ℹ️</span>
+                    </TooltipTrigger>
+                    <TooltipContent side="top">Archivos y respaldos digitales subidos para este caso.</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              <button
+                type="button"
+                onClick={() => onAbrirArchivos(denuncia.ticket)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 text-slate-700 text-xs font-semibold hover:bg-slate-200 transition-colors dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700"
+              >
+                <FolderOpen className="w-3.5 h-3.5" />
+                Archivos del caso
+              </button>
+            </div>
           )}
           {children}
         </div>
