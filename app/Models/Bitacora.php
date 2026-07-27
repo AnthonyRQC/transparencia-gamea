@@ -36,4 +36,11 @@ class Bitacora extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function toArray()
+    {
+        $array = parent::toArray();
+        $array['usuario'] = $this->usuario ? $this->usuario->name : 'sistema';
+        return $array;
+    }
 }

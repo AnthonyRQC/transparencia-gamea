@@ -23,6 +23,23 @@ class Descargo extends Model
         'medio', 'resumen_descargo', 'motivo_cancelacion',
     ];
 
+    protected $appends = ['nombres_denunciado', 'dependencia_denunciado', 'denunciado_idx'];
+
+    public function getNombresDenunciadoAttribute()
+    {
+        return $this->denunciado ? $this->denunciado->nombres : '';
+    }
+
+    public function getDependenciaDenunciadoAttribute()
+    {
+        return $this->denunciado ? $this->denunciado->dependencia : '';
+    }
+
+    public function getDenunciadoIdxAttribute()
+    {
+        return $this->denunciado ? $this->denunciado->orden : -1;
+    }
+
     protected function casts(): array
     {
         return [
@@ -54,5 +71,14 @@ class Descargo extends Model
     public function scopeActivos($query)
     {
         return $query->whereNull('fecha_eliminacion');
+    }
+
+    public function toArray()
+    {
+        $array = parent::toArray();
+        $array['nombres_denunciado'] = $this->nombres_denunciado;
+        $array['dependencia_denunciado'] = $this->dependencia_denunciado;
+        $array['denunciado_idx'] = $this->denunciado_idx;
+        return $array;
     }
 }

@@ -508,7 +508,7 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
           tecnicos={tecnicos}
           open={selectedDenuncia !== null}
           onOpenChange={(v) => { if (!v) setSelectedDenuncia(null); }}
-          tecnicoNombre={selectedDenuncia.tecnico && tecnicos[selectedDenuncia.tecnico]?.nombre || selectedDenuncia.tecnico || '—'}
+          tecnicoNombre={selectedDenuncia.tecnico?.name || '—'}
           solicitudes={solicitudesByTicket[selectedDenuncia.ticket] || []}
           descargos={descargosByTicket[selectedDenuncia.ticket] || []}
           evaluaciones={evaluacionesByTicket?.[selectedDenuncia.ticket] || []}

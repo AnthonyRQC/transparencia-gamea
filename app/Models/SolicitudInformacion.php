@@ -25,6 +25,18 @@ class SolicitudInformacion extends Model
         'detalle', 'respuesta', 'motivo_cancelacion',
     ];
 
+    protected $appends = ['unidad_destino'];
+
+    public function getUnidadDestinoAttribute()
+    {
+        if (array_key_exists('unidadDestino', $this->relations)) {
+            return $this->relations['unidadDestino'] ? $this->relations['unidadDestino']->nombre : '';
+        }
+        
+        $relacion = $this->unidadDestino()->first();
+        return $relacion ? $relacion->nombre : '';
+    }
+
     protected function casts(): array
     {
         return [
@@ -56,5 +68,12 @@ class SolicitudInformacion extends Model
     public function scopeActivos($query)
     {
         return $query->whereNull('fecha_eliminacion');
+    }
+
+    public function toArray()
+    {
+        $array = parent::toArray();
+        $array['unidad_destino'] = $this->unidad_destino;
+        return $array;
     }
 }

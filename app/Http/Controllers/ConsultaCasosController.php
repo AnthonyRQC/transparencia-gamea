@@ -17,7 +17,7 @@ class ConsultaCasosController extends Controller
             abort(403, 'Acceso denegado. Solo el Registrador puede consultar casos.');
         }
 
-        $query = Denuncia::with(['denunciante', 'denunciados', 'tecnico', 'categoria'])
+        $query = Denuncia::with(['denunciante', 'denunciados', 'tecnico', 'categoria', 'solicitudes.unidadDestino', 'solicitudes.ampliaciones', 'descargos.denunciado', 'descargos.ampliaciones', 'evaluaciones', 'bitacora.usuario'])
             ->whereNull('deleted_at');
 
         if ($busqueda = $request->input('busqueda')) {
@@ -63,7 +63,11 @@ class ConsultaCasosController extends Controller
 
         $denuncias = $query->latest()->get();
 
-        $denuncias = $denuncias->map(function ($d) {
+        $solicitudesByTicket = [];
+        $descargosByTicket = [];
+        $evaluacionesByTicket = [];
+
+        $denuncias = $denuncias->map(function ($d) use (&$solicitudesByTicket, &$descargosByTicket, &$evaluacionesByTicket) {
             $escenario = $d->escenario ?? 'revelada';
             if ($escenario !== 'revelada' && $d->denunciante) {
                 $nombres = $d->denunciante->nombres ?? '';
@@ -71,12 +75,23 @@ class ConsultaCasosController extends Controller
                     ? mb_substr($nombres, 0, 1) . '**** ' . mb_substr($nombres, -1)
                     : 'Confidencial');
             }
+
+            $solicitudesByTicket[$d->ticket] = $d->solicitudes;
+            $descargosByTicket[$d->ticket] = $d->descargos;
+            $evaluacionesByTicket[$d->ticket] = $d->evaluaciones;
+            unset($d->solicitudes);
+            unset($d->descargos);
+            unset($d->evaluaciones);
+
             return $d;
         });
 
         return Inertia::render('Denuncias/ConsultarCasos', [
             'denuncias' => $denuncias,
             'tecnicos' => User::where('rol', 'tecnico')->where('activo', true)->get(),
+            'solicitudesByTicket' => $solicitudesByTicket,
+            'descargosByTicket' => $descargosByTicket,
+            'evaluacionesByTicket' => $evaluacionesByTicket,
             'filters' => $request->only([
                 'busqueda', 'ticket', 'estado', 'tipo', 'escenario', 'fecha_desde', 'fecha_hasta', 'tecnico'
             ]),

@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Head, router } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import { Search, Eye, Key, ChevronDown, ChevronUp } from 'lucide-react';
 import AppLayout from '@/Components/Layout/AppLayout';
 import DenunciaSheet from '@/Components/Denuncias/DenunciaSheet';
@@ -265,8 +265,8 @@ export default function ConsultarCasos({ denuncias, tecnicos, filters }: PagePro
           open={selectedDenuncia !== null}
           onOpenChange={(v) => { if (!v) setSelectedDenuncia(null); }}
           canAct={false}
-          solicitudes={[]}
-          descargos={[]}
+          solicitudes={((usePage().props as unknown as any).solicitudesByTicket?.[selectedDenuncia.ticket] || []) as any}
+          descargos={((usePage().props as unknown as any).descargosByTicket?.[selectedDenuncia.ticket] || []) as any}
         />
       )}
 

@@ -110,7 +110,7 @@ export default function Dashboard() {
                                 {kpi.value}
                             </div>
                             <p className="text-[11px] text-muted-foreground">
-                                Se mostrará cuando se conecten los datos mock.
+                                Se conectará a la base de datos en el Sprint 7.
                             </p>
                         </div>
                     ))}

@@ -13,15 +13,33 @@ class DescargoController extends Controller
     public function store(string $ticket, Request $request)
     {
         $validated = $request->validate([
-            'denunciado_id' => 'required|integer|exists:denunciados,id',
+            'denunciado_idx' => 'required|integer|min:-1',
             'nombres' => 'required|string|max:200',
             'dependencia' => 'nullable|string|max:200',
         ]);
 
         $denuncia = Denuncia::where('ticket', $ticket)->firstOrFail();
 
+        $denunciadoId = null;
+        if ($validated['denunciado_idx'] >= 0) {
+            $denunciado = $denuncia->denunciados()->orderBy('orden')->get()->get($validated['denunciado_idx']);
+            if ($denunciado) {
+                $denunciadoId = $denunciado->id;
+            }
+        }
+
+        if (!$denunciadoId) {
+            $nuevoDenunciado = $denuncia->denunciados()->create([
+                'orden' => $denuncia->denunciados()->count(),
+                'conoce_identidad' => true,
+                'nombres' => $validated['nombres'],
+                'dependencia' => $validated['dependencia'],
+            ]);
+            $denunciadoId = $nuevoDenunciado->id;
+        }
+
         $descargo = $denuncia->descargos()->create([
-            'denunciado_id' => $validated['denunciado_id'],
+            'denunciado_id' => $denunciadoId,
             'estado' => 'pendiente_notif',
         ]);
 

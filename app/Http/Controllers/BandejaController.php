@@ -16,12 +16,26 @@ class BandejaController extends Controller
             return redirect()->route('dashboard')->with('error', 'Solo el Jefe de Unidad puede acceder a la Bandeja de Admisión.');
         }
 
-        $with = ['denunciante', 'denunciados', 'pruebas', 'categoria', 'tecnico', 'informe', 'cierre'];
+        $with = ['denunciante', 'denunciados', 'pruebas', 'categoria', 'tecnico', 'informe', 'cierre', 'solicitudes.unidadDestino', 'solicitudes.ampliaciones', 'descargos.denunciado', 'descargos.ampliaciones', 'evaluaciones', 'bitacora.usuario'];
 
         $ingresadas = Denuncia::with($with)->whereIn('estado', ['ingresada', 'evaluacion_tecnica'])->latest()->get();
         $porAsignar = Denuncia::with($with)->where('estado', 'admitida')->latest()->get();
         $enCurso = Denuncia::with($with)->whereIn('estado', ['asignada', 'investigacion', 'informe'])->latest()->get();
         $historial = Denuncia::with($with)->whereIn('estado', ['rechazada', 'cerrada'])->latest()->get();
+
+        $solicitudesByTicket = [];
+        $descargosByTicket = [];
+        $evaluacionesByTicket = [];
+        
+        $all = $ingresadas->concat($porAsignar)->concat($enCurso)->concat($historial);
+        foreach ($all as $d) {
+            $solicitudesByTicket[$d->ticket] = $d->solicitudes;
+            $descargosByTicket[$d->ticket] = $d->descargos;
+            $evaluacionesByTicket[$d->ticket] = $d->evaluaciones;
+            unset($d->solicitudes);
+            unset($d->descargos);
+            unset($d->evaluaciones);
+        }
 
         $contadores = [
             'ingresadas' => Denuncia::where('estado', 'ingresada')->count(),
@@ -48,9 +62,9 @@ class BandejaController extends Controller
                 'color' => $t->color,
                 'activos' => Denuncia::where('tecnico_id', $t->id)->whereNotIn('estado', ['rechazada', 'cerrada'])->count(),
             ]),
-            'solicitudesByTicket' => [],
-            'descargosByTicket' => [],
-            'evaluacionesByTicket' => [],
+            'solicitudesByTicket' => $solicitudesByTicket,
+            'descargosByTicket' => $descargosByTicket,
+            'evaluacionesByTicket' => $evaluacionesByTicket,
             'canAct' => false,
             'destacar' => $request->query('destacar'),
         ]);

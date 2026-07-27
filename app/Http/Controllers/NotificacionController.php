@@ -31,7 +31,13 @@ class NotificacionController extends Controller
         $notificaciones = $query->paginate(10, ['*'], 'page', $page);
 
         return Inertia::render('Notificaciones/Index', [
-            'notificaciones' => $notificaciones,
+            'notificaciones' => [
+                'items' => $notificaciones->items(),
+                'total' => $notificaciones->total(),
+                'page' => $notificaciones->currentPage(),
+                'per_page' => $notificaciones->perPage(),
+                'total_pages' => $notificaciones->lastPage(),
+            ],
             'filtros' => [
                 'tipo' => $request->input('tipo'),
                 'leida' => $request->input('leida'),

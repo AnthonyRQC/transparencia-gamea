@@ -185,25 +185,25 @@ function InformeForm({ ticket, informe, tecnicoNombre, processing, setProcessing
   const [clasificacion, setClasificacion] = useState(informe?.clasificacion || '');
   const [fojas, setFojas] = useState(informe?.fojas?.toString() || '');
   const [justificacion, setJustificacion] = useState(informe?.justificacion || '');
-  const [concluidoPor, setConcluidoPor] = useState(informe?.concluido_por || tecnicoNombre);
+  const [concluidoPor, setConcluidoPor] = useState(informe?.concluido_por || tecnicoNombre || '');
   const [sitpreco, setSitpreco] = useState(informe?.sitpreco || '');
   useEffect(() => {
     if (informe) {
       setClasificacion(informe.clasificacion || '');
       setFojas(informe.fojas?.toString() || '');
       setJustificacion(informe.justificacion || '');
-      setConcluidoPor(informe.concluido_por || tecnicoNombre);
+      setConcluidoPor(informe.concluido_por || tecnicoNombre || '');
       setSitpreco(informe.sitpreco || '');
     } else {
       setClasificacion('');
       setFojas('');
       setJustificacion('');
-      setConcluidoPor(tecnicoNombre);
+      setConcluidoPor(tecnicoNombre || '');
       setSitpreco('');
     }
   }, [informe, tecnicoNombre]);
 
-  const canSubmit = clasificacion && parseInt(fojas) > 0 && justificacion.trim().length >= 20 && concluidoPor.trim().length >= 2;
+  const canSubmit = clasificacion && parseInt(fojas) > 0 && (justificacion || '').trim().length >= 20 && (concluidoPor || '').trim().length >= 2;
   const isEdit = informe && informe.clasificacion;
 
   const handleSubmit = () => {
@@ -274,11 +274,14 @@ function InformeForm({ ticket, informe, tecnicoNombre, processing, setProcessing
         <Label htmlFor="concluido-por" className="after:content-['*'] after:text-destructive after:ml-0.5">Concluido por</Label>
         <Input
           id="concluido-por"
-          value={concluidoPor}
+          value={concluidoPor || ''}
           onChange={(e) => setConcluidoPor(e.target.value)}
           placeholder="Nombre del responsable"
           style={{ textTransform: 'uppercase' }}
+          disabled
+          readOnly
         />
+        <p className="text-[10px] text-muted-foreground">Este campo se asigna automáticamente al usuario actual.</p>
       </div>
 
       <div className="space-y-2">

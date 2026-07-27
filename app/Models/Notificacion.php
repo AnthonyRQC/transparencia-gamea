@@ -35,4 +35,9 @@ class Notificacion extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function getDestinoUrlAttribute($value)
+    {
+        return $value ? url($value) : null;
+    }
 }

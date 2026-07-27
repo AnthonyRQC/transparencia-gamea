@@ -18,7 +18,7 @@ class MisCasosController extends Controller
 
         $tecnicoId = Auth::id();
 
-        $with = ['denunciante', 'denunciados', 'categoria', 'tecnico', 'informe', 'cierre'];
+        $with = ['denunciante', 'denunciados', 'categoria', 'tecnico', 'informe', 'cierre', 'solicitudes.unidadDestino', 'solicitudes.ampliaciones', 'descargos.denunciado', 'descargos.ampliaciones', 'evaluaciones', 'bitacora.usuario'];
 
         $denuncias = Denuncia::with($with)
             ->where('tecnico_id', $tecnicoId)
@@ -27,10 +27,22 @@ class MisCasosController extends Controller
             ->get();
 
         $grouped = [];
+        $solicitudesByTicket = [];
+        $descargosByTicket = [];
+        $evaluacionesByTicket = [];
+
         foreach ($denuncias as $d) {
             $estado = $d->estado;
             if (!isset($grouped[$estado])) $grouped[$estado] = [];
             $grouped[$estado][] = $d;
+
+            $solicitudesByTicket[$d->ticket] = $d->solicitudes;
+            $descargosByTicket[$d->ticket] = $d->descargos;
+            $evaluacionesByTicket[$d->ticket] = $d->evaluaciones;
+
+            unset($d->solicitudes);
+            unset($d->descargos);
+            unset($d->evaluaciones);
         }
 
         $evaluacionesDelegadas = EvaluacionTecnica::with('denuncia')
@@ -47,9 +59,9 @@ class MisCasosController extends Controller
             'grouped' => $grouped,
             'tecnicoActual' => $tecnicoId,
             'tecnicos' => User::where('rol', 'tecnico')->where('activo', true)->get(),
-            'solicitudesByTicket' => [],
-            'descargosByTicket' => [],
-            'evaluacionesByTicket' => [],
+            'solicitudesByTicket' => $solicitudesByTicket,
+            'descargosByTicket' => $descargosByTicket,
+            'evaluacionesByTicket' => $evaluacionesByTicket,
             'evaluacionesDelegadas' => $evaluacionesDelegadas,
             'evaluacionesDevueltas' => $evaluacionesDevueltas,
             'canAct' => true,
