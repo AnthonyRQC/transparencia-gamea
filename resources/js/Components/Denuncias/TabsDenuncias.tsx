@@ -26,8 +26,8 @@ export default function TabsDenuncias({ tabs, defaultValue, value, onValueChange
 
   return (
     <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-      <div className="sticky top-0 z-10 bg-card pb-px">
-        <div className="overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none'] border-b border-border">
+      <div className="sticky -top-4 sm:-top-6 md:-top-8 z-20 bg-background border-b border-border shadow-xs -mx-4 sm:-mx-6 md:-mx-8 px-4 sm:px-6 md:px-8 py-2.5 mb-4">
+        <div className="overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
           <TabsList className="w-full min-w-max justify-start h-auto gap-0 bg-transparent p-0 border-none rounded-none">
             {tabs.map((tab) => (
               <TabsTrigger

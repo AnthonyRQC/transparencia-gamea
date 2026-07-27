@@ -14,6 +14,7 @@ import DenunciaCard from '@/Components/Denuncias/DenunciaCard';
 import DenunciaSheet from '@/Components/Denuncias/DenunciaSheet';
 import ContadorCard from '@/Components/Denuncias/ContadorCard';
 import TabsDenuncias from '@/Components/Denuncias/TabsDenuncias';
+import Paginacion from '@/Components/Denuncias/Paginacion';
 import ListaVacia from '@/Components/Denuncias/ListaVacia';
 import ModalAdmision from '@/Components/Denuncias/ModalAdmision';
 import ModalRechazo from '@/Components/Denuncias/ModalRechazo';
@@ -213,6 +214,11 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
   const [sortBy, setSortBy] = useState('plazo');
 
   const [activeTab, setActiveTab] = useState<string>('por-admitir');
+  const [pagina, setPagina] = useState(1);
+
+  useEffect(() => {
+    setPagina(1);
+  }, [activeTab, search, filterTipo, sortBy]);
 
   // Auto-abrir sheet si viene desde notificación
   useEffect(() => {
@@ -287,6 +293,8 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
     });
   };
 
+  const pageSize = 10;
+
   return (
     <AppLayout>
       <Head title="Bandeja de Admisión — Transparencia UTLCC" />
@@ -337,6 +345,8 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
         {(value) => {
           if (value === 'por-admitir') {
             const filtered = filterAndSort(denuncias);
+            const totalPaginas = Math.ceil(filtered.length / pageSize) || 1;
+            const paginated = filtered.slice((pagina - 1) * pageSize, pagina * pageSize);
             return filtered.length === 0 ? (
               <ListaVacia
                 icon={Inbox}
@@ -344,100 +354,111 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
                 descripcion="Todas las denuncias ingresadas han sido procesadas."
               />
             ) : (
-              <div className="space-y-3">
-                {filtered.map((d) => {
-                  const enEvaluacion = d.estado === 'evaluacion_tecnica';
-                  const evaluacionDevuelta = d.estado === 'ingresada' && d.evaluacion_tecnica_texto;
-                  return (
-                    <DenunciaCard
-                      key={d.ticket}
-                      denuncia={d}
-                      plazo={d.plazo}
-                      tecnicos={tecnicos}
-                      onClick={() => setSelectedDenuncia(d)}
-                      isNew={d.estado === 'ingresada' && !evaluacionDevuelta && isNewHours(d.created_at)}
-                    >
-                      <div className="flex items-center gap-2 pt-1 flex-wrap">
-                        {enEvaluacion ? (
-                          <>
-                            <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-full bg-amber-100 text-amber-700 border border-amber-300 dark:bg-amber-900/30 dark:text-amber-300">
-                              <FileSearch className="w-3 h-3" />
-                              En evaluación por {d.evaluacion_tecnica_tecnico_nombre || 'técnico'}
-                            </span>
-                            <span className="text-[10px] text-muted-foreground">
-                              (delegada {d.evaluacion_tecnica_delegada_at ? new Date(d.evaluacion_tecnica_delegada_at).toLocaleDateString('es-BO', { day: '2-digit', month: 'short' }) : ''})
-                            </span>
-                            <button
-                              type="button"
-                              onClick={(e) => { e.stopPropagation(); setModalReasumirEvaluacionTicket(d.ticket); }}
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-100 text-amber-800 text-xs font-semibold hover:bg-amber-200 transition-colors dark:bg-amber-900/30 dark:text-amber-300"
-                            >
-                              <Undo2 className="w-3.5 h-3.5" />
-                              Reasumir
-                            </button>
-                          </>
-                        ) : evaluacionDevuelta ? (
-                          <>
-                            <button
-                              type="button"
-                              onClick={(e) => { e.stopPropagation(); setModalAdmisionTicket(d.ticket); }}
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors"
-                            >
-                              <CheckCircle2 className="w-3.5 h-3.5" />
-                              Admitir
-                            </button>
-                            <button
-                              type="button"
-                              onClick={(e) => { e.stopPropagation(); setModalRechazoTicket(d.ticket); }}
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-destructive/10 text-destructive text-xs font-semibold hover:bg-destructive/20 transition-colors"
-                            >
-                              <X className="w-3.5 h-3.5" />
-                              Rechazar
-                            </button>
-                            <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-full bg-blue-100 text-blue-700 border border-blue-300 dark:bg-blue-900/30 dark:text-blue-300">
-                              <FileSearch className="w-3 h-3" />
-                              Evaluada por {d.evaluacion_tecnica_tecnico_nombre || 'técnico'}
-                              {d.evaluacion_tecnica_recomendacion === 'admitir' ? ' · Recomienda admitir' : d.evaluacion_tecnica_recomendacion === 'rechazar' ? ' · Recomienda rechazar' : ''}
-                            </span>
-                          </>
-                        ) : (
-                          <>
-                            <button
-                              type="button"
-                              onClick={(e) => { e.stopPropagation(); setModalAdmisionTicket(d.ticket); }}
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors"
-                            >
-                              <CheckCircle2 className="w-3.5 h-3.5" />
-                              Admitir
-                            </button>
-                            <button
-                              type="button"
-                              onClick={(e) => { e.stopPropagation(); setModalRechazoTicket(d.ticket); }}
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-destructive/10 text-destructive text-xs font-semibold hover:bg-destructive/20 transition-colors"
-                            >
-                              <X className="w-3.5 h-3.5" />
-                              Rechazar
-                            </button>
-                            <button
-                              type="button"
-                              onClick={(e) => { e.stopPropagation(); setModalDelegarEvaluacionTicket(d.ticket); }}
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-100 text-blue-700 text-xs font-semibold hover:bg-blue-200 transition-colors dark:bg-blue-900/30 dark:text-blue-300"
-                            >
-                              <FileSearch className="w-3.5 h-3.5" />
-                              Delegar evaluación
-                            </button>
-                          </>
-                        )}
-                      </div>
-                    </DenunciaCard>
-                  );
-                })}
+              <div>
+                <div className="space-y-3">
+                  {paginated.map((d) => {
+                    const enEvaluacion = d.estado === 'evaluacion_tecnica';
+                    const evaluacionDevuelta = d.estado === 'ingresada' && d.evaluacion_tecnica_texto;
+                    return (
+                      <DenunciaCard
+                        key={d.ticket}
+                        denuncia={d}
+                        plazo={d.plazo}
+                        tecnicos={tecnicos}
+                        onClick={() => setSelectedDenuncia(d)}
+                        isNew={d.estado === 'ingresada' && !evaluacionDevuelta && isNewHours(d.created_at)}
+                      >
+                        <div className="flex items-center gap-2 pt-1 flex-wrap">
+                          {enEvaluacion ? (
+                            <>
+                              <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-full bg-amber-100 text-amber-700 border border-amber-300 dark:bg-amber-900/30 dark:text-amber-300">
+                                <FileSearch className="w-3 h-3" />
+                                En evaluación por {d.evaluacion_tecnica_tecnico_nombre || 'técnico'}
+                              </span>
+                              <span className="text-[10px] text-muted-foreground">
+                                (delegada {d.evaluacion_tecnica_delegada_at ? new Date(d.evaluacion_tecnica_delegada_at).toLocaleDateString('es-BO', { day: '2-digit', month: 'short' }) : ''})
+                              </span>
+                              <button
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); setModalReasumirEvaluacionTicket(d.ticket); }}
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-100 text-amber-800 text-xs font-semibold hover:bg-amber-200 transition-colors dark:bg-amber-900/30 dark:text-amber-300"
+                              >
+                                <Undo2 className="w-3.5 h-3.5" />
+                                Reasumir
+                              </button>
+                            </>
+                          ) : evaluacionDevuelta ? (
+                            <>
+                              <button
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); setModalAdmisionTicket(d.ticket); }}
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors"
+                              >
+                                <CheckCircle2 className="w-3.5 h-3.5" />
+                                Admitir
+                              </button>
+                              <button
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); setModalRechazoTicket(d.ticket); }}
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-destructive/10 text-destructive text-xs font-semibold hover:bg-destructive/20 transition-colors"
+                              >
+                                <X className="w-3.5 h-3.5" />
+                                Rechazar
+                              </button>
+                              <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-full bg-blue-100 text-blue-700 border border-blue-300 dark:bg-blue-900/30 dark:text-blue-300">
+                                <FileSearch className="w-3 h-3" />
+                                Evaluada por {d.evaluacion_tecnica_tecnico_nombre || 'técnico'}
+                                {d.evaluacion_tecnica_recomendacion === 'admitir' ? ' · Recomienda admitir' : d.evaluacion_tecnica_recomendacion === 'rechazar' ? ' · Recomienda rechazar' : ''}
+                              </span>
+                            </>
+                          ) : (
+                            <>
+                              <button
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); setModalAdmisionTicket(d.ticket); }}
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors"
+                              >
+                                <CheckCircle2 className="w-3.5 h-3.5" />
+                                Admitir
+                              </button>
+                              <button
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); setModalRechazoTicket(d.ticket); }}
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-destructive/10 text-destructive text-xs font-semibold hover:bg-destructive/20 transition-colors"
+                              >
+                                <X className="w-3.5 h-3.5" />
+                                Rechazar
+                              </button>
+                              <button
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); setModalDelegarEvaluacionTicket(d.ticket); }}
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-100 text-blue-700 text-xs font-semibold hover:bg-blue-200 transition-colors dark:bg-blue-900/30 dark:text-blue-300"
+                              >
+                                <FileSearch className="w-3.5 h-3.5" />
+                                Delegar evaluación
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </DenunciaCard>
+                    );
+                  })}
+                </div>
+                <Paginacion
+                  paginaActual={pagina}
+                  totalPaginas={totalPaginas}
+                  totalElementos={filtered.length}
+                  elementosPorPagina={pageSize}
+                  onPaginaChange={(p) => setPagina(p)}
+                />
               </div>
             );
           }
 
           if (value === 'por-asignar') {
             const filtered = filterAndSort(porAsignar);
+            const totalPaginas = Math.ceil(filtered.length / pageSize) || 1;
+            const paginated = filtered.slice((pagina - 1) * pageSize, pagina * pageSize);
             return filtered.length === 0 ? (
               <ListaVacia
                 icon={ClipboardList}
@@ -445,33 +466,44 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
                 descripcion="Todas las denuncias admitidas ya tienen un técnico asignado."
               />
             ) : (
-              <div className="space-y-3">
-                {filtered.map((d) => (
-                  <DenunciaCard
-                    key={d.ticket}
-                    denuncia={d}
-                    plazo={d.plazo}
-                    tecnicos={tecnicos}
-                    onClick={() => setSelectedDenuncia(d)}
-                  >
-                    <div className="pt-1">
-                      <button
-                        type="button"
-                        onClick={(e) => { e.stopPropagation(); setModalAsignacionTicket(d.ticket); }}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors"
-                      >
-                        <UserPlus className="w-3.5 h-3.5" />
-                        Asignar técnico
-                      </button>
-                    </div>
-                  </DenunciaCard>
-                ))}
+              <div>
+                <div className="space-y-3">
+                  {paginated.map((d) => (
+                    <DenunciaCard
+                      key={d.ticket}
+                      denuncia={d}
+                      plazo={d.plazo}
+                      tecnicos={tecnicos}
+                      onClick={() => setSelectedDenuncia(d)}
+                    >
+                      <div className="pt-1">
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); setModalAsignacionTicket(d.ticket); }}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors"
+                        >
+                          <UserPlus className="w-3.5 h-3.5" />
+                          Asignar técnico
+                        </button>
+                      </div>
+                    </DenunciaCard>
+                  ))}
+                </div>
+                <Paginacion
+                  paginaActual={pagina}
+                  totalPaginas={totalPaginas}
+                  totalElementos={filtered.length}
+                  elementosPorPagina={pageSize}
+                  onPaginaChange={(p) => setPagina(p)}
+                />
               </div>
             );
           }
 
           if (value === 'en-curso') {
             const filtered = filterAndSort(enCurso);
+            const totalPaginas = Math.ceil(filtered.length / pageSize) || 1;
+            const paginated = filtered.slice((pagina - 1) * pageSize, pagina * pageSize);
             return filtered.length === 0 ? (
               <ListaVacia
                 icon={Eye}
@@ -479,22 +511,33 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
                 descripcion="Todas las denuncias admitidas ya fueron asignadas y están en proceso."
               />
             ) : (
-              <div className="space-y-3">
-                {filtered.map((d) => (
-                  <DenunciaCard
-                    key={d.ticket}
-                    denuncia={d}
-                    plazo={d.plazo}
-                    tecnicos={tecnicos}
-                    onClick={() => setSelectedDenuncia(d)}
-                  />
-                ))}
+              <div>
+                <div className="space-y-3">
+                  {paginated.map((d) => (
+                    <DenunciaCard
+                      key={d.ticket}
+                      denuncia={d}
+                      plazo={d.plazo}
+                      tecnicos={tecnicos}
+                      onClick={() => setSelectedDenuncia(d)}
+                    />
+                  ))}
+                </div>
+                <Paginacion
+                  paginaActual={pagina}
+                  totalPaginas={totalPaginas}
+                  totalElementos={filtered.length}
+                  elementosPorPagina={pageSize}
+                  onPaginaChange={(p) => setPagina(p)}
+                />
               </div>
             );
           }
 
           if (value === 'historial') {
             const filtered = filterAndSort(historial);
+            const totalPaginas = Math.ceil(filtered.length / pageSize) || 1;
+            const paginated = filtered.slice((pagina - 1) * pageSize, pagina * pageSize);
             return filtered.length === 0 ? (
               <ListaVacia
                 icon={Archive}
@@ -502,22 +545,31 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
                 descripcion="No hay denuncias rechazadas o cerradas registradas."
               />
             ) : (
-              <div className="space-y-3">
-                {filtered.map((d) => (
-                  <DenunciaCard
-                    key={d.ticket}
-                    denuncia={d}
-                    plazo={d.plazo}
-                    tecnicos={tecnicos}
-                    onClick={() => setSelectedDenuncia(d)}
-                  >
-                    {d.estado === 'rechazada' && d.justificacion_rechazo && (
-                      <div className="pt-1">
-                        <p className="text-xs text-destructive italic line-clamp-2">{d.justificacion_rechazo}</p>
-                      </div>
-                    )}
-                  </DenunciaCard>
-                ))}
+              <div>
+                <div className="space-y-3">
+                  {paginated.map((d) => (
+                    <DenunciaCard
+                      key={d.ticket}
+                      denuncia={d}
+                      plazo={d.plazo}
+                      tecnicos={tecnicos}
+                      onClick={() => setSelectedDenuncia(d)}
+                    >
+                      {d.estado === 'rechazada' && d.justificacion_rechazo && (
+                        <div className="pt-1">
+                          <p className="text-xs text-destructive italic line-clamp-2">{d.justificacion_rechazo}</p>
+                        </div>
+                      )}
+                    </DenunciaCard>
+                  ))}
+                </div>
+                <Paginacion
+                  paginaActual={pagina}
+                  totalPaginas={totalPaginas}
+                  totalElementos={filtered.length}
+                  elementosPorPagina={pageSize}
+                  onPaginaChange={(p) => setPagina(p)}
+                />
               </div>
             );
           }

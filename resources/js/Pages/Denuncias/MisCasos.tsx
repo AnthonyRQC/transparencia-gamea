@@ -12,6 +12,7 @@ import AppLayout from '@/Components/Layout/AppLayout';
 import DenunciaCard from '@/Components/Denuncias/DenunciaCard';
 import DenunciaSheet from '@/Components/Denuncias/DenunciaSheet';
 import TabsDenuncias from '@/Components/Denuncias/TabsDenuncias';
+import Paginacion from '@/Components/Denuncias/Paginacion';
 import ListaVacia from '@/Components/Denuncias/ListaVacia';
 import SaltarFaseButton from '@/Components/Denuncias/SaltarFaseButton';
 import ModalNuevaSolicitud from '@/Components/Denuncias/ModalNuevaSolicitud';
@@ -160,6 +161,11 @@ export default function MisCasos({ grouped, tecnicoActual, tecnicos, solicitudes
   const [processingEliminar, setProcessingEliminar] = useState(false);
 
   const [activeTab, setActiveTab] = useState<string>('asignada');
+  const [pagina, setPagina] = useState(1);
+
+  useEffect(() => {
+    setPagina(1);
+  }, [activeTab, sortBy]);
 
   useEffect(() => {
     const ticketToHighlight = destacar || (typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('destacar') : null);
@@ -224,24 +230,25 @@ export default function MisCasos({ grouped, tecnicoActual, tecnicos, solicitudes
   };
 
   const evaluacionesPendientes = evaluacionesDelegadas.length ?? 0;
+  const countVisible = (estado: string) => {
+    const items = grouped[estado] || [];
+    return estado === 'cerrada' ? items.filter(d => !d.subestado).length : items.length;
+  };
+
   const tabs = [
     ...estadoOrden.map((estado) => {
-    const items = grouped[estado] || [];
-    const countVisible = estado === 'cerrada'
-      ? items.filter((d) => !d.subestado).length
-      : items.length;
-    return {
-      value: estado,
-      label: estadoLabels[estado]?.label || estado,
-      count: countVisible,
-    };
-  }),
-  ...(evaluacionesPendientes > 0 ? [{
-    value: 'evaluaciones',
-    label: 'Evaluaciones delegadas',
-    count: evaluacionesPendientes,
-  }] : []),
-];
+      return {
+        value: estado,
+        label: estadoLabels[estado]?.label || estado,
+        count: countVisible(estado),
+      };
+    }),
+    ...(evaluacionesPendientes > 0 ? [{
+      value: 'evaluaciones',
+      label: 'Evaluaciones delegadas',
+      count: evaluacionesPendientes,
+    }] : []),
+  ];
 
   const isNewHours = (dateStr?: string | null): boolean => {
     if (!dateStr) return false;
@@ -307,6 +314,8 @@ export default function MisCasos({ grouped, tecnicoActual, tecnicos, solicitudes
     return { solicitudes: solsPend, descargos: descsPend };
   };
 
+  const pageSize = 10;
+
   return (
     <AppLayout>
       <Head title="Mis Casos — Transparencia UTLCC" />
@@ -343,6 +352,8 @@ export default function MisCasos({ grouped, tecnicoActual, tecnicos, solicitudes
           const sorted = sortItems(items);
           const visible = isCierre ? sorted.filter((d) => !d.subestado) : sorted;
           const archivadas = isCierre ? items.filter((d) => d.subestado === 'archivada') : [];
+          const totalPaginas = Math.ceil(visible.length / pageSize) || 1;
+          const paginated = visible.slice((pagina - 1) * pageSize, pagina * pageSize);
 
           if (value === 'evaluaciones') {
             const evaluacionesList = evaluacionesDelegadas;
@@ -390,7 +401,7 @@ export default function MisCasos({ grouped, tecnicoActual, tecnicos, solicitudes
                 />
               )}
 
-              {visible.map((d) => (
+              {paginated.map((d) => (
                 <DenunciaCard
                   key={d.ticket}
                   denuncia={d}
@@ -405,8 +416,16 @@ export default function MisCasos({ grouped, tecnicoActual, tecnicos, solicitudes
                 </DenunciaCard>
               ))}
 
+              <Paginacion
+                paginaActual={pagina}
+                totalPaginas={totalPaginas}
+                totalElementos={visible.length}
+                elementosPorPagina={pageSize}
+                onPaginaChange={(p) => setPagina(p)}
+              />
+
               {archivadas.length > 0 && (
-                <div className="border border-border rounded-xl overflow-hidden">
+                <div className="border border-border rounded-xl overflow-hidden mt-4">
                   <button
                     type="button"
                     onClick={() => setArchivadasOpen(!archivadasOpen)}

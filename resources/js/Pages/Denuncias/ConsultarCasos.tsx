@@ -6,6 +6,7 @@ import DenunciaSheet from '@/Components/Denuncias/DenunciaSheet';
 import TipoDenunciaBadge from '@/Components/Denuncias/TipoDenunciaBadge';
 import PlazoBadge from '@/Components/Denuncias/PlazoBadge';
 import ModalConsultarCodigo from '@/Components/Denuncias/ModalConsultarCodigo';
+import Paginacion from '@/Components/Denuncias/Paginacion';
 import { Input } from '@/Components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
 import { Button } from '@/Components/ui/button';
@@ -101,6 +102,15 @@ export default function ConsultarCasos({ denuncias, tecnicos, filters }: PagePro
     setFilterEstado(prev => prev.includes(e) ? prev.filter(x => x !== e) : [...prev, e]);
   };
 
+  const [pagina, setPagina] = useState(1);
+  const pageSize = 10;
+  const totalPaginas = Math.ceil(denuncias.length / pageSize) || 1;
+  const paginatedDenuncias = denuncias.slice((pagina - 1) * pageSize, pagina * pageSize);
+
+  useEffect(() => {
+    setPagina(1);
+  }, [denuncias]);
+
   return (
     <AppLayout>
       <Head title="Consultar Casos — Transparencia UTLCC" />
@@ -113,7 +123,7 @@ export default function ConsultarCasos({ denuncias, tecnicos, filters }: PagePro
       {/* Botón toggle filtros */}
       <button
         onClick={() => setShowFilters(!showFilters)}
-        className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors mb-3"
+        className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors mb-3 cursor-pointer"
       >
         {showFilters ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
         {showFilters ? 'Ocultar filtros' : 'Mostrar filtros'}
@@ -217,7 +227,7 @@ export default function ConsultarCasos({ denuncias, tecnicos, filters }: PagePro
 
         {/* Cards como tabla responsive */}
         <div className="space-y-2">
-          {denuncias.map((d) => {
+          {paginatedDenuncias.map((d) => {
             const tecnico = d.tecnico ? tecnicos[d.tecnico] : null;
             const denombres = d.denunciante?.nombres || '—';
             const denResumido = d.denunciados?.slice(0, 2).map(dd => dd.nombres || 'Anónimo').join(', ') || '—';
@@ -266,6 +276,14 @@ export default function ConsultarCasos({ denuncias, tecnicos, filters }: PagePro
             );
           })}
         </div>
+
+        <Paginacion
+          paginaActual={pagina}
+          totalPaginas={totalPaginas}
+          totalElementos={denuncias.length}
+          elementosPorPagina={pageSize}
+          onPaginaChange={(p) => setPagina(p)}
+        />
       </div>
 
       {/* DenunciaSheet para "Ver detalle" (read-only) */}
