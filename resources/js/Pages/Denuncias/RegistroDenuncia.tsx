@@ -85,13 +85,19 @@ const initialForm: FormState = {
 
 const staticErrors: Record<string, string> = {};
 
+interface CategoriaItem {
+    clave: string;
+    nombre: string;
+    tipo_denuncia: string;
+}
+
 export default function RegistroDenuncia() {
-    const { categorias = {} as Record<string, string>, errors: serverErrors = staticErrors, success, ticket: successTicket, token: successToken } = usePage().props as unknown as {
-        errors: Record<string, string>;
-        success?: boolean;
-        ticket?: string;
-        token?: string;
-    };
+    const pageProps = usePage().props as Record<string, any>;
+    const categoriasList = (pageProps.categoriasList ?? []) as CategoriaItem[];
+    const serverErrors: Record<string, string> = pageProps.errors ?? {};
+    const success: boolean | undefined = pageProps.success;
+    const successTicket: string | undefined = pageProps.ticket;
+    const successToken: string | undefined = pageProps.token;
 
     const [form, setForm] = useState<FormState>(initialForm);
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -100,6 +106,16 @@ export default function RegistroDenuncia() {
     const [ticket, setTicket] = useState('');
     const [token, setToken] = useState('');
     const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+
+    const categoriasFiltradas = useMemo(() => {
+        if (!form.tipo) return {};
+        const items = categoriasList.filter((c) => c.tipo_denuncia === form.tipo);
+        const map: Record<string, string> = {};
+        for (const c of items) {
+            map[c.clave] = c.nombre;
+        }
+        return map;
+    }, [categoriasList, form.tipo]);
 
     useEffect(() => {
         if (success && successTicket) {
@@ -144,8 +160,6 @@ export default function RegistroDenuncia() {
                 {
                     id: 'mock-prb-1',
                     tipo: 'testigo',
-                    archivo_nombre: '',
-                    archivo_data: '',
                     descripcion: 'El señor asistente de almacén presenció el momento en que se exigió el dinero.',
                     testigo_nombre: 'Pedro Quispe Callisaya',
                     testigo_telefono: '60123456',
@@ -153,8 +167,6 @@ export default function RegistroDenuncia() {
                 {
                     id: 'mock-prb-2',
                     tipo: 'archivo',
-                    archivo_nombre: 'conversacion_whatsapp.pdf',
-                    archivo_data: 'data:application/pdf;base64,MOCK_PDF_DATA',
                     descripcion: 'Capturas de pantalla del chat de WhatsApp donde se menciona el porcentaje.',
                     testigo_nombre: '',
                     testigo_telefono: '',
@@ -206,8 +218,6 @@ export default function RegistroDenuncia() {
                 {
                     id: 'mock-prb-1',
                     tipo: 'archivo',
-                    archivo_nombre: 'solicitud_recibida.pdf',
-                    archivo_data: 'data:application/pdf;base64,MOCK_PDF_DATA',
                     descripcion: 'Copia digitalizada de la nota de solicitud inicial con sello de recepción y fecha visible.',
                     testigo_nombre: '',
                     testigo_telefono: '',
@@ -466,7 +476,7 @@ export default function RegistroDenuncia() {
                                 <SeccionDetalles
                                     data={form.detalles}
                                     onChange={(f, v) => updateField('detalles', f, v)}
-                                    categorias={categorias}
+                                    categorias={categoriasFiltradas}
                                     errors={errors}
                                 />
                             </div>

@@ -22,7 +22,7 @@ class DenunciaController extends Controller
     public function create()
     {
         return Inertia::render('Denuncias/RegistroDenuncia', [
-            'categorias' => CategoriaDenuncia::where('activa', true)->pluck('nombre', 'clave'),
+            'categoriasList' => CategoriaDenuncia::where('activa', true)->get(['clave', 'nombre', 'tipo_denuncia'])->toArray(),
         ]);
     }
 

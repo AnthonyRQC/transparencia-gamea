@@ -190,10 +190,6 @@ export default function DescargoDetailModal({
             </>
           )}
 
-          {false && descargo.documentos && descargo.documentos.length > 0 && (
-            <></>
-          )}
-
           {ampliaciones.length > 0 && (
             <>
               <Separator />

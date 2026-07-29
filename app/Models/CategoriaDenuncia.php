@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Helpers\UppercaseText;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class CategoriaDenuncia extends Model
@@ -14,7 +13,7 @@ class CategoriaDenuncia extends Model
     protected $table = 'categorias_denuncia';
 
     protected $fillable = [
-        'clave', 'nombre', 'descripcion', 'parent_id', 'tipo_denuncia', 'activa',
+        'clave', 'nombre', 'descripcion', 'tipo_denuncia', 'activa',
     ];
 
     protected array $uppercaseFields = [
@@ -26,16 +25,6 @@ class CategoriaDenuncia extends Model
         return [
             'activa' => 'boolean',
         ];
-    }
-
-    public function parent(): BelongsTo
-    {
-        return $this->belongsTo(self::class, 'parent_id');
-    }
-
-    public function children(): HasMany
-    {
-        return $this->hasMany(self::class, 'parent_id');
     }
 
     public function denuncias(): HasMany

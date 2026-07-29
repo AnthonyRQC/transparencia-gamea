@@ -11,6 +11,7 @@ use App\Http\Controllers\SeguimientoController;
 use App\Http\Controllers\NotificacionController;
 use App\Http\Controllers\EvaluacionController;
 use App\Http\Controllers\ArchivosCasoController;
+use App\Http\Controllers\CatalogoController;
 use App\Http\Controllers\ConsultaCasosController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -147,11 +148,15 @@ Route::get('/reportes', function () {
     return Inertia::render('Reportes/Index');
 })->name('reportes.index');
 
-// ----- Administración (Sprint 8) -----
+// ----- Administración (Sprint 8 + Sprint 11) -----
 Route::prefix('admin')->name('admin.')->group(function () {
+    // Feriados (Sprint 8, redirige a catálogos)
     Route::get('/feriados', function () {
         return Inertia::render('Admin/Feriados');
     })->name('feriados');
+
+    // Catálogos (Sprint 11)
+    Route::get('/catalogos', [CatalogoController::class, 'index'])->name('catalogos');
 });
 
 // Sprint 9 — Notificaciones
@@ -159,6 +164,13 @@ Route::prefix('notificaciones')->name('notificaciones.')->group(function () {
     Route::get('/', [NotificacionController::class, 'index'])->name('index');
     Route::post('/{id}/leer', [NotificacionController::class, 'marcarLeida'])->name('marcar-leida');
     Route::post('/leer-todas', [NotificacionController::class, 'marcarTodasLeidas'])->name('marcar-todas');
+});
+
+// ----- Catálogos API (Sprint 11) -----
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::post('/catalogos/{tipo}', [CatalogoController::class, 'store'])->name('catalogos.store');
+    Route::post('/catalogos/{tipo}/{id}', [CatalogoController::class, 'update'])->name('catalogos.update');
+    Route::post('/catalogos/{tipo}/{id}/eliminar', [CatalogoController::class, 'destroy'])->name('catalogos.destroy');
 });
 
 // API — Endpoint ligero para polling futuro

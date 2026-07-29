@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('configuracion_sistema', function (Blueprint $table) {
             $table->id();
             $table->string('clave', 100)->unique();
-            $table->string('valor', 255);
+            $table->text('valor');
             $table->text('descripcion')->nullable();
             $table->foreignId('actualizado_por_id')->nullable()->constrained('users');
             $table->timestamp('actualizado_at')->nullable();

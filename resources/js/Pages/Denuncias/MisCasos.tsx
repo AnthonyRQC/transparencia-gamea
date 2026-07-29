@@ -469,7 +469,7 @@ export default function MisCasos({ grouped, tecnicoActual, tecnicos, solicitudes
           tecnicos={tecnicos}
           open={selectedDenuncia !== null}
           onOpenChange={(v) => { if (!v) setSelectedDenuncia(null); }}
-          tecnicoNombre={typeof selectedDenuncia.tecnico === 'object' ? selectedDenuncia.tecnico?.name : (selectedDenuncia.tecnico || '—')}
+          tecnicoNombre={selectedDenuncia && typeof selectedDenuncia.tecnico === 'object' ? (selectedDenuncia.tecnico as any)?.name : (selectedDenuncia?.tecnico || '—')}
           solicitudes={solicitudesByTicket[selectedDenuncia.ticket] || []}
           descargos={descargosByTicket[selectedDenuncia.ticket] || []}
           evaluaciones={evaluacionesByTicket?.[selectedDenuncia.ticket] || []}

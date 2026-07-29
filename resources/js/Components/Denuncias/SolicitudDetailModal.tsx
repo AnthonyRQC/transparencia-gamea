@@ -177,10 +177,6 @@ export default function SolicitudDetailModal({
             </>
           )}
 
-          {false && solicitud.archivos && solicitud.archivos.length > 0 && (
-            <></>
-          )}
-
           {ampliaciones.length > 0 && (
             <>
               <Separator />

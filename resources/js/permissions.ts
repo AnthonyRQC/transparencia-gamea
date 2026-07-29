@@ -52,6 +52,7 @@ export type Permiso =
   | 'reporte.ver'
   | 'admin.feriados'
   | 'admin.catalogo'
+  | 'menu.catalogos'
   | 'notificacion.ver';
 
 export type Rol = 'registrador' | 'jefe' | 'tecnico';
@@ -94,6 +95,7 @@ export const PERMISOS_POR_ROL: Record<Rol, Permiso[]> = {
     'reporte.ver',
     'admin.feriados',
     'admin.catalogo',
+    'menu.catalogos',
     'notificacion.ver',
   ],
   tecnico: [

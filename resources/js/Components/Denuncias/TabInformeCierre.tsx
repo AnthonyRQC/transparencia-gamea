@@ -45,6 +45,8 @@ interface CierreData {
 interface DenunciaData {
   ticket: string;
   estado: string;
+  informe?: InformeData | null;
+  cierre?: CierreData | null;
   informe_clasificacion?: string | null;
   informe_fojas?: number | null;
   informe_justificacion?: string | null;

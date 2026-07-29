@@ -83,5 +83,7 @@ class CatalogoSeeder extends Seeder
             'valor' => '2026',
             'descripcion' => 'AÑO VIGENTE DEL SISTEMA',
         ]);
+
+        CatalogosConfigSeeder::run();
     }
 }

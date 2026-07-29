@@ -11,6 +11,7 @@ import {
     Bell,
     FileSearch,
     Search,
+    BookOpen,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Permiso } from '@/permissions';
@@ -124,6 +125,14 @@ export default function Sidebar({
             routeName: 'admin.feriados',
             icon: <CalendarDays className="w-5 h-5 shrink-0" />,
             permiso: 'menu.feriados',
+        },
+        {
+            key: 'catalogos',
+            label: 'Catálogos',
+            href: route('admin.catalogos'),
+            routeName: 'admin.catalogos',
+            icon: <BookOpen className="w-5 h-5 shrink-0" />,
+            permiso: 'menu.catalogos',
         },
     ];
 

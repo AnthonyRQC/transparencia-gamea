@@ -19,6 +19,7 @@ class PermisosCatalogo
         'menu.notificaciones' => 'Ver notificaciones',
         'menu.reportes' => 'Ver reportes',
         'menu.feriados' => 'Ver admin de feriados',
+        'menu.catalogos' => 'Ver admin de catálogos',
 
         'caso.admitir' => 'Admitir denuncia',
         'caso.rechazar' => 'Rechazar denuncia',
@@ -110,6 +111,7 @@ class PermisosCatalogo
             'reporte.ver',
             'admin.feriados',
             'admin.catalogo',
+            'menu.catalogos',
             'notificacion.ver',
         ],
 

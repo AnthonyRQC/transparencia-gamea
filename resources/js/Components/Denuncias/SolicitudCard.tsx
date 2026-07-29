@@ -220,9 +220,6 @@ export default function SolicitudCard({ solicitud, canAct, onClick, onResponder,
         </p>
       )}
 
-      {false && solicitud.archivos && solicitud.archivos.length > 0 && (
-        <></>
-      )}
     </div>
   );
 }

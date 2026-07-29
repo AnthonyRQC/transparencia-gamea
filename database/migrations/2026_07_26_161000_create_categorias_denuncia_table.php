@@ -13,7 +13,6 @@ return new class extends Migration
             $table->string('clave', 50)->unique();
             $table->string('nombre', 255);
             $table->text('descripcion')->nullable();
-            $table->foreignId('parent_id')->nullable()->constrained('categorias_denuncia');
             $table->string('tipo_denuncia', 20)->nullable();
             $table->boolean('activa')->default(true);
             $table->timestamps();
