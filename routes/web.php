@@ -171,6 +171,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('/catalogos/{tipo}', [CatalogoController::class, 'store'])->name('catalogos.store');
     Route::post('/catalogos/{tipo}/{id}', [CatalogoController::class, 'update'])->name('catalogos.update');
     Route::post('/catalogos/{tipo}/{id}/eliminar', [CatalogoController::class, 'destroy'])->name('catalogos.destroy');
+    Route::post('/catalogos/{tipo}/{id}/reactivar', [CatalogoController::class, 'reactivar'])->name('catalogos.reactivar');
 });
 
 // API — Endpoint ligero para polling futuro

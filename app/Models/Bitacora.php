@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Helpers\UppercaseText;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Bitacora extends Model
 {
@@ -13,7 +14,8 @@ class Bitacora extends Model
     protected $table = 'bitacora';
 
     protected $fillable = [
-        'denuncia_id', 'accion', 'detalle', 'usuario_id', 'fecha',
+        'denuncia_id', 'entidad_tipo', 'entidad_id',
+        'accion', 'detalle', 'usuario_id', 'fecha',
     ];
 
     protected array $uppercaseFields = [
@@ -30,6 +32,11 @@ class Bitacora extends Model
     public function denuncia(): BelongsTo
     {
         return $this->belongsTo(Denuncia::class);
+    }
+
+    public function entidad(): MorphTo
+    {
+        return $this->morphTo();
     }
 
     public function usuario(): BelongsTo

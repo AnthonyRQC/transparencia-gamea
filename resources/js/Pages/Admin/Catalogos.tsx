@@ -13,14 +13,17 @@ interface CatalogoItem {
 interface ColumnConfig {
     key: string;
     label: string;
-    type: 'text' | 'boolean' | 'select' | 'date';
+    type: 'text' | 'boolean' | 'select' | 'date' | 'datetime' | 'count' | 'status';
     options?: Record<string, string>;
+    readonly?: boolean;
 }
 
 interface CatalogoDef {
     label: string;
     items: CatalogoItem[];
     columns: ColumnConfig[];
+    readonly?: boolean;
+    agrupado_por_anio?: boolean;
 }
 
 export default function Catalogos() {
@@ -58,6 +61,8 @@ export default function Catalogos() {
                             tipo={tipo}
                             items={catalogos[tipo].items}
                             columns={catalogos[tipo].columns}
+                            agrupado_por_anio={catalogos[tipo].agrupado_por_anio ?? false}
+                            readonly={catalogos[tipo].readonly ?? false}
                         />
                     </TabsContent>
                 ))}

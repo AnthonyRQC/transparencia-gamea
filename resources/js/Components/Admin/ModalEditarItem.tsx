@@ -22,8 +22,9 @@ import {
 interface ColumnConfig {
     key: string;
     label: string;
-    type: 'text' | 'boolean' | 'select' | 'date';
+    type: 'text' | 'boolean' | 'select' | 'date' | 'datetime' | 'count' | 'status';
     options?: Record<string, string>;
+    readonly?: boolean;
 }
 
 interface CatalogoItem {
@@ -38,7 +39,10 @@ interface ModalEditarItemProps {
     item: CatalogoItem | null;
     onSave: (data: Record<string, unknown>) => void;
     processing: boolean;
+    readonly?: boolean;
 }
+
+const EDITABLE_TYPES = ['text', 'boolean', 'select', 'date'];
 
 function getDefaultValue(col: ColumnConfig): unknown {
     if (col.type === 'boolean') return true;
@@ -56,26 +60,28 @@ export default function ModalEditarItem({
     item,
     onSave,
     processing,
+    readonly = false,
 }: ModalEditarItemProps) {
     const [formData, setFormData] = useState<Record<string, unknown>>({});
+    const editableColumns = columns.filter((c) => EDITABLE_TYPES.includes(c.type));
 
     useEffect(() => {
         if (open) {
             if (item) {
                 const data: Record<string, unknown> = {};
-                for (const col of columns) {
+                for (const col of editableColumns) {
                     data[col.key] = item[col.key] ?? getDefaultValue(col);
                 }
                 setFormData(data);
             } else {
                 const data: Record<string, unknown> = {};
-                for (const col of columns) {
+                for (const col of editableColumns) {
                     data[col.key] = getDefaultValue(col);
                 }
                 setFormData(data);
             }
         }
-    }, [open, item, columns]);
+    }, [open, item]);
 
     function setField(key: string, value: unknown) {
         setFormData((prev) => ({ ...prev, [key]: value }));
@@ -99,7 +105,7 @@ export default function ModalEditarItem({
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit} className="space-y-4 py-2">
-                    {columns.map((col) => (
+                    {editableColumns.map((col) => (
                         <div key={col.key} className="space-y-1.5">
                             <Label htmlFor={col.key}>{col.label}</Label>
 
@@ -109,6 +115,7 @@ export default function ModalEditarItem({
                                     value={String(formData[col.key] ?? '')}
                                     onChange={(e) => setField(col.key, e.target.value)}
                                     style={{ textTransform: 'uppercase' }}
+                                    disabled={col.readonly || readonly}
                                 />
                             )}
 
@@ -118,6 +125,7 @@ export default function ModalEditarItem({
                                         id={col.key}
                                         checked={Boolean(formData[col.key])}
                                         onCheckedChange={(v) => setField(col.key, v)}
+                                        disabled={readonly}
                                     />
                                     <span className="text-sm text-muted-foreground">
                                         {formData[col.key] ? 'Sí' : 'No'}
@@ -158,9 +166,11 @@ export default function ModalEditarItem({
                         <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                             Cancelar
                         </Button>
-                        <Button type="submit" disabled={processing}>
-                            {processing ? 'Guardando...' : isEditing ? 'Actualizar' : 'Crear'}
-                        </Button>
+                        {!readonly && (
+                            <Button type="submit" disabled={processing}>
+                                {processing ? 'Guardando...' : isEditing ? 'Actualizar' : 'Crear'}
+                            </Button>
+                        )}
                     </DialogFooter>
                 </form>
             </DialogContent>

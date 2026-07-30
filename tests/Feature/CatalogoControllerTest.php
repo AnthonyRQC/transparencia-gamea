@@ -2,8 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Models\Bitacora;
 use App\Models\CategoriaDenuncia;
 use App\Models\ConfiguracionSistema;
+use App\Models\Denuncia;
 use App\Models\UnidadExterna;
 use App\Models\Feriado;
 use App\Models\User;
@@ -77,6 +79,7 @@ class CatalogoControllerTest extends TestCase
             'nombre' => 'TEST CATEGORÍA',
             'clave' => 'test_categoria',
             'tipo_denuncia' => 'corrupcion',
+            'activa' => 1,
         ]);
     }
 
@@ -105,22 +108,247 @@ class CatalogoControllerTest extends TestCase
         ]);
     }
 
-    public function test_jefe_can_delete_categoria(): void
+    public function test_categoria_desactivar(): void
     {
         $this->actingAs($this->jefe);
 
         $cat = CategoriaDenuncia::create([
-            'clave' => 'test_cat_del',
-            'nombre' => 'TEST ELIMINAR',
+            'clave' => 'test_cat',
+            'nombre' => 'TEST CATEGORÍA',
             'tipo_denuncia' => 'corrupcion',
         ]);
 
         $response = $this->post("/admin/catalogos/categorias/{$cat->id}/eliminar");
 
         $response->assertSessionHas('success');
-        $this->assertDatabaseMissing('categorias_denuncia', [
-            'id' => $cat->id,
+        $cat->refresh();
+        $this->assertFalse($cat->activa);
+        $this->assertNotNull($cat->fecha_desactivacion);
+        $this->assertEquals($this->jefe->id, $cat->desactivado_por_id);
+
+        $this->assertDatabaseHas('bitacora', [
+            'entidad_tipo' => 'App\Models\CategoriaDenuncia',
+            'entidad_id' => $cat->id,
+            'accion' => 'desactivar',
+            'usuario_id' => $this->jefe->id,
         ]);
+    }
+
+    public function test_categoria_no_hard_delete(): void
+    {
+        $this->actingAs($this->jefe);
+
+        $cat = CategoriaDenuncia::create([
+            'clave' => 'test_cat',
+            'nombre' => 'TEST CATEGORÍA',
+            'tipo_denuncia' => 'corrupcion',
+        ]);
+
+        $this->post("/admin/catalogos/categorias/{$cat->id}/eliminar");
+
+        $this->assertDatabaseHas('categorias_denuncia', [
+            'id' => $cat->id,
+            'nombre' => 'TEST CATEGORÍA',
+        ]);
+    }
+
+    public function test_categoria_reactivar(): void
+    {
+        $this->actingAs($this->jefe);
+
+        $cat = CategoriaDenuncia::create([
+            'clave' => 'test_cat',
+            'nombre' => 'TEST CATEGORÍA',
+            'tipo_denuncia' => 'corrupcion',
+            'activa' => false,
+            'fecha_desactivacion' => now(),
+            'desactivado_por_id' => $this->jefe->id,
+        ]);
+
+        $response = $this->post("/admin/catalogos/categorias/{$cat->id}/reactivar");
+
+        $response->assertSessionHas('success');
+        $cat->refresh();
+        $this->assertTrue($cat->activa);
+        $this->assertNull($cat->fecha_desactivacion);
+        $this->assertNull($cat->desactivado_por_id);
+
+        $this->assertDatabaseHas('bitacora', [
+            'entidad_tipo' => 'App\Models\CategoriaDenuncia',
+            'entidad_id' => $cat->id,
+            'accion' => 'reactivar',
+            'usuario_id' => $this->jefe->id,
+        ]);
+    }
+
+    public function test_categoria_desactivar_con_denuncias_asociadas(): void
+    {
+        $this->actingAs($this->jefe);
+
+        $cat = CategoriaDenuncia::create([
+            'clave' => 'test_cat',
+            'nombre' => 'TEST CATEGORÍA',
+            'tipo_denuncia' => 'corrupcion',
+        ]);
+
+        $denuncia = Denuncia::factory()->create([
+            'categoria_id' => $cat->id,
+            'estado' => 'ingresada',
+        ]);
+
+        $response = $this->get('/admin/catalogos');
+        $response->assertInertia(fn($page) => $page
+            ->where('catalogos.categorias.items.0.denuncias_count', 1)
+        );
+    }
+
+    public function test_tipos_denuncia_no_desactivable(): void
+    {
+        $this->actingAs($this->jefe);
+
+        $response = $this->post('/admin/catalogos/tipos_denuncia/1/eliminar');
+
+        $response->assertSessionHasErrors(['error']);
+    }
+
+    public function test_estados_no_eliminable(): void
+    {
+        $this->actingAs($this->jefe);
+
+        $response = $this->post('/admin/catalogos/estados/1/eliminar');
+
+        $response->assertSessionHasErrors(['error']);
+    }
+
+    public function test_tipos_denuncia_no_creable(): void
+    {
+        $this->actingAs($this->jefe);
+
+        $response = $this->post('/admin/catalogos/tipos_denuncia', [
+            'nombre' => 'TEST TIPO',
+            'activo' => true,
+        ]);
+
+        $response->assertSessionHasErrors(['error']);
+    }
+
+    public function test_unidad_desactivar(): void
+    {
+        $this->actingAs($this->jefe);
+
+        $unidad = UnidadExterna::create([
+            'clave' => 'test_uni',
+            'nombre' => 'TEST UNIDAD',
+        ]);
+
+        $response = $this->post("/admin/catalogos/unidades/{$unidad->id}/eliminar");
+
+        $response->assertSessionHas('success');
+        $unidad->refresh();
+        $this->assertFalse($unidad->activa);
+        $this->assertNotNull($unidad->fecha_desactivacion);
+
+        $this->assertDatabaseHas('bitacora', [
+            'entidad_tipo' => 'App\Models\UnidadExterna',
+            'entidad_id' => $unidad->id,
+            'accion' => 'desactivar',
+        ]);
+    }
+
+    public function test_unidad_reactivar(): void
+    {
+        $this->actingAs($this->jefe);
+
+        $unidad = UnidadExterna::create([
+            'clave' => 'test_uni',
+            'nombre' => 'TEST UNIDAD',
+            'activa' => false,
+            'fecha_desactivacion' => now(),
+            'desactivado_por_id' => $this->jefe->id,
+        ]);
+
+        $response = $this->post("/admin/catalogos/unidades/{$unidad->id}/reactivar");
+
+        $response->assertSessionHas('success');
+        $unidad->refresh();
+        $this->assertTrue($unidad->activa);
+        $this->assertNull($unidad->fecha_desactivacion);
+    }
+
+    public function test_feriado_soft_delete(): void
+    {
+        $this->actingAs($this->jefe);
+
+        $feriado = Feriado::create([
+            'fecha' => '2026-12-08',
+            'nombre' => 'FERIADO TEST',
+            'recurrente' => false,
+        ]);
+
+        $response = $this->post("/admin/catalogos/feriados/{$feriado->id}/eliminar");
+
+        $response->assertSessionHas('success');
+        $this->assertSoftDeleted($feriado);
+    }
+
+    public function test_feriado_reactivar(): void
+    {
+        $this->actingAs($this->jefe);
+
+        $feriado = Feriado::create([
+            'fecha' => '2026-12-08',
+            'nombre' => 'FERIADO TEST',
+            'recurrente' => false,
+        ]);
+        $feriado->delete();
+
+        $response = $this->post("/admin/catalogos/feriados/{$feriado->id}/reactivar");
+
+        $response->assertSessionHas('success');
+        $this->assertNotSoftDeleted($feriado);
+    }
+
+    public function test_categoria_reactivar_con_store(): void
+    {
+        $this->actingAs($this->jefe);
+
+        CategoriaDenuncia::create([
+            'clave' => 'test_react',
+            'nombre' => 'REACTIVAR TEST',
+            'tipo_denuncia' => 'corrupcion',
+            'activa' => false,
+            'fecha_desactivacion' => now(),
+            'desactivado_por_id' => $this->jefe->id,
+        ]);
+
+        $response = $this->post('/admin/catalogos/categorias', [
+            'nombre' => 'REACTIVAR TEST',
+            'tipo_denuncia' => 'corrupcion',
+        ]);
+
+        $response->assertSessionHas('success');
+        $cat = CategoriaDenuncia::where('nombre', 'REACTIVAR TEST')->first();
+        $this->assertTrue($cat->activa);
+        $this->assertNull($cat->fecha_desactivacion);
+    }
+
+    public function test_jefe_can_create_feriado(): void
+    {
+        $this->actingAs($this->jefe);
+
+        $response = $this->post('/admin/catalogos/feriados', [
+            'fecha' => '2026-12-08',
+            'nombre' => 'FERIADO TEST',
+            'recurrente' => false,
+        ]);
+
+        $response->assertSessionHas('success');
+        $this->assertDatabaseHas('feriados', [
+            'nombre' => 'FERIADO TEST',
+        ]);
+        $feriado = Feriado::where('nombre', 'FERIADO TEST')->first();
+        $this->assertNotNull($feriado);
+        $this->assertEquals('2026-12-08', $feriado->fecha->format('Y-m-d'));
     }
 
     public function test_jefe_can_create_unidad(): void
@@ -160,58 +388,6 @@ class CatalogoControllerTest extends TestCase
             'id' => $unidad->id,
             'nombre' => 'UNIDAD ACTUALIZADA',
         ]);
-    }
-
-    public function test_jefe_can_delete_unidad(): void
-    {
-        $this->actingAs($this->jefe);
-
-        $unidad = UnidadExterna::create([
-            'clave' => 'test_uni_del',
-            'nombre' => 'UNIDAD ELIMINAR',
-        ]);
-
-        $response = $this->post("/admin/catalogos/unidades/{$unidad->id}/eliminar");
-
-        $response->assertSessionHas('success');
-        $this->assertDatabaseMissing('unidades_externas', [
-            'id' => $unidad->id,
-        ]);
-    }
-
-    public function test_jefe_can_create_feriado(): void
-    {
-        $this->actingAs($this->jefe);
-
-        $response = $this->post('/admin/catalogos/feriados', [
-            'fecha' => '2026-12-08',
-            'nombre' => 'FERIADO TEST',
-            'recurrente' => false,
-        ]);
-
-        $response->assertSessionHas('success');
-        $this->assertDatabaseHas('feriados', [
-            'nombre' => 'FERIADO TEST',
-        ]);
-        $feriado = Feriado::where('nombre', 'FERIADO TEST')->first();
-        $this->assertNotNull($feriado);
-        $this->assertEquals('2026-12-08', $feriado->fecha->format('Y-m-d'));
-    }
-
-    public function test_jefe_can_delete_feriado(): void
-    {
-        $this->actingAs($this->jefe);
-
-        $feriado = Feriado::create([
-            'fecha' => '2026-12-08',
-            'nombre' => 'FERIADO TEST',
-            'recurrente' => false,
-        ]);
-
-        $response = $this->post("/admin/catalogos/feriados/{$feriado->id}/eliminar");
-
-        $response->assertSessionHas('success');
-        $this->assertModelMissing($feriado);
     }
 
     public function test_jefe_can_add_config_based_item(): void
