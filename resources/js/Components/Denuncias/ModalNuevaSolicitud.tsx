@@ -1,39 +1,23 @@
-import { useState, useEffect } from 'react';
-import { router } from '@inertiajs/react';
+import { useState, useEffect, useRef } from 'react';
+import { router, usePage } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/Components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
+import { Popover, PopoverTrigger, PopoverContent } from '@/Components/ui/popover';
+import { ScrollArea } from '@/Components/ui/scroll-area';
 import { Switch } from '@/Components/ui/switch';
 import { Label } from '@/Components/ui/label';
 import { Input } from '@/Components/ui/input';
 import { Textarea } from '@/Components/ui/textarea';
 import { Button } from '@/Components/ui/button';
-import { Plus, Save } from 'lucide-react';
-
-const UNIDADES: Record<string, string> = {
-  'sistemas': 'Unidad de Sistemas',
-  'adquisiciones': 'Dirección de Adquisiciones',
-  'recursos-humanos': 'Dirección de Recursos Humanos',
-  'transito': 'Dirección de Tránsito',
-  'catastro': 'Unidad de Catastro',
-  'obras-publicas': 'Dirección de Obras Públicas',
-  'ingresos': 'Dirección de Ingresos',
-  'secretaria-general': 'Secretaría General',
-  'contrataciones': 'Unidad de Contrataciones',
-  'hacienda': 'Dirección de Hacienda',
-  'auditoria': 'Unidad de Auditoría Interna',
-  'archivo': 'Archivo Central',
-  'ministerio-justicia': 'Ministerio de Justicia y Transparencia Institucional',
-  'otro': 'Otra (especificar)',
-};
-
-const UNIDADES_VALUES = Object.keys(UNIDADES);
+import { Plus, Save, ChevronDown } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { PageProps } from '@/types';
 
 interface SolicitudItem {
   id: number;
   ticket: string;
-  unidad_destino: string;
+  dependencia_destino: string;
   detalle: string;
   plazo_dias?: number;
   estado: string;
@@ -47,6 +31,7 @@ interface ModalNuevaSolicitudProps {
 }
 
 export default function ModalNuevaSolicitud({ ticket, open, onOpenChange, solicitudToEdit }: ModalNuevaSolicitudProps) {
+  const { dependencias = [] } = usePage<PageProps>().props;
   const isEdit = !!solicitudToEdit;
   const [esLibre, setEsLibre] = useState(false);
   const [unidadDestino, setUnidadDestino] = useState('');
@@ -55,15 +40,32 @@ export default function ModalNuevaSolicitud({ ticket, open, onOpenChange, solici
   const [fechaEnvio, setFechaEnvio] = useState(new Date().toISOString().split('T')[0]);
   const [detalle, setDetalle] = useState('');
   const [processing, setProcessing] = useState(false);
+  const [popoverOpen, setPopoverOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setPopoverOpen(false);
+      }
+    }
+    if (popoverOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [popoverOpen]);
 
   useEffect(() => {
     if (open) {
       if (solicitudToEdit) {
-        const unidad = solicitudToEdit.unidad_destino;
-        const isInCatalog = UNIDADES_VALUES.includes(unidad);
+        const dependencia = solicitudToEdit.dependencia_destino;
+        const isInCatalog = dependencias.some(d => d.nombre === dependencia);
         setEsLibre(!isInCatalog);
-        setUnidadDestino(isInCatalog ? unidad : '');
-        setUnidadLibre(!isInCatalog ? unidad : '');
+        setUnidadDestino(isInCatalog ? dependencia : '');
+        setUnidadLibre(!isInCatalog ? dependencia : '');
         setPlazoDias(solicitudToEdit.plazo_dias || 10);
         setDetalle(solicitudToEdit.detalle || '');
       } else {
@@ -75,7 +77,11 @@ export default function ModalNuevaSolicitud({ ticket, open, onOpenChange, solici
         setDetalle('');
       }
     }
-  }, [open, solicitudToEdit]);
+  }, [open, solicitudToEdit, dependencias]);
+
+  const filteredDependencias = dependencias.filter(dep => 
+    dep.nombre.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const destinoValue = esLibre ? unidadLibre.trim() : unidadDestino;
   const canSubmit = (esLibre ? unidadLibre.trim().length >= 5 : unidadDestino)
@@ -88,7 +94,7 @@ export default function ModalNuevaSolicitud({ ticket, open, onOpenChange, solici
     setProcessing(true);
 
     const payload = {
-      unidad_destino: destinoValue,
+      dependencia_destino: destinoValue,
       plazo_dias: plazoDias,
       fecha_envio: fechaEnvio,
       detalle,
@@ -150,13 +156,13 @@ export default function ModalNuevaSolicitud({ ticket, open, onOpenChange, solici
           <div className="flex items-center gap-2">
             <Switch id="es-libre" checked={esLibre} onCheckedChange={setEsLibre} />
             <Label htmlFor="es-libre" className="text-sm cursor-pointer">
-              ¿Unidad o persona externa no registrada?
+              ¿Dependencia o persona externa no registrada?
             </Label>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2 relative" ref={dropdownRef}>
             <Label htmlFor="unidad-destino" className="after:content-['*'] after:text-destructive after:ml-0.5">
-              Unidad destino
+              Dependencia destino
             </Label>
             {esLibre ? (
               <Input
@@ -168,16 +174,79 @@ export default function ModalNuevaSolicitud({ ticket, open, onOpenChange, solici
                 style={{ textTransform: 'uppercase' }}
               />
             ) : (
-              <Select value={unidadDestino} onValueChange={setUnidadDestino}>
-                <SelectTrigger id="unidad-destino">
-                  <SelectValue placeholder="Seleccionar unidad..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(UNIDADES).map(([key, label]) => (
-                    <SelectItem key={key} value={key}>{label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="relative w-full">
+                <Button
+                  id="unidad-destino"
+                  type="button"
+                  variant="outline"
+                  className="w-full justify-between font-normal text-left h-auto py-2 px-3 text-xs whitespace-normal break-words align-top flex"
+                  onClick={() => setPopoverOpen(!popoverOpen)}
+                >
+                  <div className="flex-1 min-w-0 pr-2">
+                    {unidadDestino ? (
+                      unidadDestino.includes('—') ? (
+                        <div className="flex flex-col gap-0.5 text-left">
+                          {unidadDestino.split('—').map((part, index) => {
+                            const text = part.trim();
+                            if (index === 0) {
+                              return <span key={index} className="font-semibold text-foreground text-xs">{text}</span>;
+                            }
+                            return (
+                              <span key={index} className="text-muted-foreground text-[10px] uppercase font-medium leading-normal block pl-1.5 border-l border-muted-foreground/30">
+                                {text}
+                              </span>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <span className="text-xs">{unidadDestino}</span>
+                      )
+                    ) : (
+                      <span className="text-muted-foreground">Seleccionar dependencia...</span>
+                    )}
+                  </div>
+                  <ChevronDown className="h-4 w-4 shrink-0 opacity-50 self-start mt-0.5" />
+                </Button>
+
+                {popoverOpen && (
+                  <div className="absolute left-0 right-0 z-50 mt-1 p-2 bg-popover text-popover-foreground border rounded-md shadow-md">
+                    <div className="space-y-2">
+                      <Input
+                        placeholder="Buscar dependencia..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="h-8 text-xs w-full"
+                        autoFocus
+                      />
+                      <ScrollArea className="h-48 overflow-y-auto pr-1">
+                        {filteredDependencias.length === 0 ? (
+                          <p className="text-xs text-muted-foreground p-2 text-center">No se encontraron dependencias.</p>
+                        ) : (
+                          <div className="space-y-1">
+                            {filteredDependencias.map((dep) => (
+                              <button
+                                key={dep.id}
+                                type="button"
+                                onClick={() => {
+                                  setUnidadDestino(dep.nombre);
+                                  setPopoverOpen(false);
+                                  setSearchQuery('');
+                                }}
+                                className={cn(
+                                  "w-full text-left px-2 py-1.5 text-xs rounded hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer text-[11px] leading-tight block",
+                                  unidadDestino === dep.nombre && "bg-accent font-semibold"
+                                )}
+                              >
+                                {dep.nombre}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </ScrollArea>
+                    </div>
+                  </div>
+                )}
+              </div>
             )}
             {esLibre && unidadLibre.length > 0 && unidadLibre.trim().length < 5 && (
               <p className="text-[11px] text-destructive font-medium">Mínimo 5 caracteres</p>

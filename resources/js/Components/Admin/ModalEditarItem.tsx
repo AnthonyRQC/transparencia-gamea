@@ -70,7 +70,11 @@ export default function ModalEditarItem({
             if (item) {
                 const data: Record<string, unknown> = {};
                 for (const col of editableColumns) {
-                    data[col.key] = item[col.key] ?? getDefaultValue(col);
+                    let val = item[col.key];
+                    if (col.type === 'date' && typeof val === 'string') {
+                        val = val.substring(0, 10);
+                    }
+                    data[col.key] = val ?? getDefaultValue(col);
                 }
                 setFormData(data);
             } else {

@@ -27,7 +27,7 @@ interface SolicitudEdicion {
 interface Solicitud {
   id: number;
   ticket: string;
-  unidad_destino: string;
+  dependencia_destino: string;
   detalle: string;
   fecha_envio: string;
   fecha_vencimiento: string;
@@ -89,7 +89,7 @@ export default function TabSolicitudes({ solicitudes, canAct, ticket, onNuevaSol
         <ListaVacia
           icon={FileSearch}
           titulo="Sin solicitudes de información"
-          descripcion={canAct ? 'Cree una solicitud a una unidad externa para recabar documentación.' : 'El técnico no ha creado solicitudes aún.'}
+          descripcion={canAct ? 'Cree una solicitud a una dependencia externa para recabar documentación.' : 'El técnico no ha creado solicitudes aún.'}
         />
         {detailSolicitud && (
           <SolicitudDetailModal

@@ -541,7 +541,7 @@ class DenunciaSeeder extends Seeder
                 ],
                 'solicitudes' => [
                     [
-                        'unidad_destino_id' => 1,
+                        'dependencia_destino_id' => 1,
                         'detalle' => 'SOLICITUD DE INFORMACIÓN SOBRE EL LISTADO DE LICENCIAS DE FUNCIONAMIENTO EMITIDAS EN LA GESTIÓN 2026',
                         'plazo_dias' => 10,
                         'fecha_envio' => '2026-05-28 09:00:00',
@@ -551,7 +551,7 @@ class DenunciaSeeder extends Seeder
                         'respuesta' => 'SE ADJUNTA LISTADO COMPLETO DE LICENCIAS DE FUNCIONAMIENTO EMITIDAS EN LA GESTIÓN 2026',
                     ],
                     [
-                        'unidad_destino_id' => 2,
+                        'dependencia_destino_id' => 2,
                         'detalle' => 'SOLICITUD DE INFORMACIÓN SOBRE CONTRATACIONES DE LA DIRECCIÓN DE INGRESOS',
                         'plazo_dias' => 10,
                         'fecha_envio' => '2026-06-01 09:00:00',
@@ -746,7 +746,7 @@ class DenunciaSeeder extends Seeder
                 ],
                 'solicitudes' => [
                     [
-                        'unidad_destino_id' => 2,
+                        'dependencia_destino_id' => 2,
                         'detalle' => 'SOLICITUD DE INFORMACIÓN SOBRE PROCESO DE ADQUISICIÓN',
                         'plazo_dias' => 10,
                         'fecha_envio' => '2026-06-10 09:00:00',
@@ -756,7 +756,7 @@ class DenunciaSeeder extends Seeder
                         'respuesta' => 'SE ADJUNTA EXPEDIENTE COMPLETO DE LA ADQUISICIÓN',
                     ],
                     [
-                        'unidad_destino_id' => 10,
+                        'dependencia_destino_id' => 10,
                         'detalle' => 'SOLICITUD DE INFORMACIÓN SOBRE FLUJO DE PAGO',
                         'plazo_dias' => 10,
                         'fecha_envio' => '2026-06-15 09:00:00',

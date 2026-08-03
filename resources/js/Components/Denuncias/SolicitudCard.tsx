@@ -12,7 +12,7 @@ interface SolicitudArchivo {
 interface Solicitud {
   id: number;
   ticket: string;
-  unidad_destino: string;
+  dependencia_destino: string;
   detalle: string;
   fecha_envio: string;
   fecha_vencimiento: string;
@@ -70,7 +70,7 @@ export default function SolicitudCard({ solicitud, canAct, onClick, onResponder,
         <div className="flex items-center gap-2 min-w-0">
           <Building2 className="w-4 h-4 text-primary shrink-0 mt-0.5" />
           <div className="min-w-0">
-            <p className="text-sm font-semibold truncate">{solicitud.unidad_destino}</p>
+            <p className="text-sm font-semibold truncate">{solicitud.dependencia_destino}</p>
             <p className="text-[11px] text-muted-foreground">
               <Clock className="w-3 h-3 inline mr-0.5" />
               Enviada {daysAgo(solicitud.fecha_envio)}

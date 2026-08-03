@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('unidades_externas', function (Blueprint $table) {
+        Schema::table('dependencias_externas', function (Blueprint $table) {
             $table->dateTime('fecha_desactivacion')->nullable()->after('activa');
             $table->foreignId('desactivado_por_id')->nullable()->constrained('users')->after('fecha_desactivacion');
         });
@@ -16,7 +16,7 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::table('unidades_externas', function (Blueprint $table) {
+        Schema::table('dependencias_externas', function (Blueprint $table) {
             $table->dropColumn(['fecha_desactivacion', 'desactivado_por_id']);
         });
     }

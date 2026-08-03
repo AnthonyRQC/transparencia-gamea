@@ -6,6 +6,7 @@ use App\Models\Ampliacion;
 use App\Models\Bitacora;
 use App\Models\Denuncia;
 use App\Models\SolicitudInformacion;
+use App\Models\DependenciaExterna;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -14,20 +15,17 @@ class SolicitudController extends Controller
     public function store(string $ticket, Request $request)
     {
         $validated = $request->validate([
-            'unidad_destino' => 'required|string|max:200',
+            'dependencia_destino' => 'required|string|max:200',
             'detalle' => 'required|string|min:5|max:2000',
             'plazo_dias' => 'required|integer|min:1|max:45',
             'fecha_envio' => 'nullable|date|before_or_equal:today',
         ]);
 
-        $unidad = \App\Models\UnidadExterna::where('clave', $validated['unidad_destino'])
-            ->orWhere('nombre', $validated['unidad_destino'])
-            ->first();
+        $unidad = DependenciaExterna::where('nombre', $validated['dependencia_destino'])->first();
             
         if (!$unidad) {
-            $unidad = \App\Models\UnidadExterna::create([
-                'clave' => \Illuminate\Support\Str::slug($validated['unidad_destino']),
-                'nombre' => $validated['unidad_destino']
+            $unidad = DependenciaExterna::create([
+                'nombre' => $validated['dependencia_destino']
             ]);
         }
 
@@ -38,7 +36,7 @@ class SolicitudController extends Controller
         }
 
         $solicitud = $denuncia->solicitudes()->create([
-            'unidad_destino_id' => $unidad->id,
+            'dependencia_destino_id' => $unidad->id,
             'detalle' => $validated['detalle'],
             'plazo_dias' => (int) $validated['plazo_dias'],
             'fecha_envio' => $validated['fecha_envio'] ?? now(),

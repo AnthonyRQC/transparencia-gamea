@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('solicitudes_informacion', function (Blueprint $table) {
             $table->id();
             $table->foreignId('denuncia_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('unidad_destino_id')->constrained('unidades_externas');
+            $table->foreignId('dependencia_destino_id')->constrained('dependencias_externas');
             $table->text('detalle');
             $table->integer('plazo_dias')->default(10);
             $table->dateTime('fecha_envio');

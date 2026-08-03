@@ -15,7 +15,7 @@ class SolicitudInformacion extends Model
     protected $table = 'solicitudes_informacion';
 
     protected $fillable = [
-        'denuncia_id', 'unidad_destino_id', 'detalle', 'plazo_dias',
+        'denuncia_id', 'dependencia_destino_id', 'detalle', 'plazo_dias',
         'fecha_envio', 'fecha_vencimiento', 'fecha_respuesta',
         'respuesta', 'estado', 'motivo_cancelacion', 'fecha_cancelacion',
         'eliminado', 'fecha_eliminacion', 'historial_ediciones',
@@ -25,15 +25,15 @@ class SolicitudInformacion extends Model
         'detalle', 'respuesta', 'motivo_cancelacion',
     ];
 
-    protected $appends = ['unidad_destino'];
+    protected $appends = ['dependencia_destino'];
 
-    public function getUnidadDestinoAttribute()
+    public function getDependenciaDestinoAttribute()
     {
-        if (array_key_exists('unidadDestino', $this->relations)) {
-            return $this->relations['unidadDestino'] ? $this->relations['unidadDestino']->nombre : '';
+        if (array_key_exists('dependenciaDestino', $this->relations)) {
+            return $this->relations['dependenciaDestino'] ? $this->relations['dependenciaDestino']->nombre : '';
         }
         
-        $relacion = $this->unidadDestino()->first();
+        $relacion = $this->dependenciaDestino()->first();
         return $relacion ? $relacion->nombre : '';
     }
 
@@ -55,9 +55,9 @@ class SolicitudInformacion extends Model
         return $this->belongsTo(Denuncia::class);
     }
 
-    public function unidadDestino(): BelongsTo
+    public function dependenciaDestino(): BelongsTo
     {
-        return $this->belongsTo(UnidadExterna::class, 'unidad_destino_id');
+        return $this->belongsTo(DependenciaExterna::class, 'dependencia_destino_id');
     }
 
     public function ampliaciones(): MorphMany
@@ -73,7 +73,7 @@ class SolicitudInformacion extends Model
     public function toArray()
     {
         $array = parent::toArray();
-        $array['unidad_destino'] = $this->unidad_destino;
+        $array['dependencia_destino'] = $this->dependencia_destino;
         return $array;
     }
 }

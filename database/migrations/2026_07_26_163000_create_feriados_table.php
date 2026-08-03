@@ -12,7 +12,6 @@ return new class extends Migration
             $table->id();
             $table->date('fecha')->unique();
             $table->string('nombre', 255);
-            $table->boolean('recurrente')->default(false);
             $table->timestamps();
         });
     }

@@ -162,7 +162,7 @@ return [
         'telefono' => 'teléfono',
         'email' => 'correo electrónico',
         'categoria_id' => 'categoría',
-        'unidad_destino_id' => 'unidad de destino',
+        'dependencia_destino_id' => 'dependencia de destino',
         'denunciado_id' => 'denunciado',
         'tecnico_id' => 'técnico',
         'fecha' => 'fecha',

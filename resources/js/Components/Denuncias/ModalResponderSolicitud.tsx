@@ -55,7 +55,7 @@ export default function ModalResponderSolicitud({ solicitudId, open, onOpenChang
         <DialogHeader>
           <DialogTitle>Responder solicitud</DialogTitle>
           <DialogDescription>
-            Registre la respuesta recibida de la unidad externa.
+            Registre la respuesta recibida de la dependencia externa.
           </DialogDescription>
         </DialogHeader>
 

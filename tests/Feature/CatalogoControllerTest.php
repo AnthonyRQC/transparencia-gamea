@@ -6,7 +6,7 @@ use App\Models\Bitacora;
 use App\Models\CategoriaDenuncia;
 use App\Models\ConfiguracionSistema;
 use App\Models\Denuncia;
-use App\Models\UnidadExterna;
+use App\Models\DependenciaExterna;
 use App\Models\Feriado;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -236,8 +236,7 @@ class CatalogoControllerTest extends TestCase
     {
         $this->actingAs($this->jefe);
 
-        $unidad = UnidadExterna::create([
-            'clave' => 'test_uni',
+        $unidad = DependenciaExterna::create([
             'nombre' => 'TEST UNIDAD',
         ]);
 
@@ -249,7 +248,7 @@ class CatalogoControllerTest extends TestCase
         $this->assertNotNull($unidad->fecha_desactivacion);
 
         $this->assertDatabaseHas('bitacora', [
-            'entidad_tipo' => 'App\Models\UnidadExterna',
+            'entidad_tipo' => 'App\Models\DependenciaExterna',
             'entidad_id' => $unidad->id,
             'accion' => 'desactivar',
         ]);
@@ -259,8 +258,7 @@ class CatalogoControllerTest extends TestCase
     {
         $this->actingAs($this->jefe);
 
-        $unidad = UnidadExterna::create([
-            'clave' => 'test_uni',
+        $unidad = DependenciaExterna::create([
             'nombre' => 'TEST UNIDAD',
             'activa' => false,
             'fecha_desactivacion' => now(),
@@ -356,14 +354,12 @@ class CatalogoControllerTest extends TestCase
         $this->actingAs($this->jefe);
 
         $response = $this->post('/admin/catalogos/unidades', [
-            'clave' => 'test_unidad',
             'nombre' => 'TEST UNIDAD',
             'activa' => true,
         ]);
 
         $response->assertSessionHas('success');
-        $this->assertDatabaseHas('unidades_externas', [
-            'clave' => 'test_unidad',
+        $this->assertDatabaseHas('dependencias_externas', [
             'nombre' => 'TEST UNIDAD',
         ]);
     }
@@ -372,19 +368,17 @@ class CatalogoControllerTest extends TestCase
     {
         $this->actingAs($this->jefe);
 
-        $unidad = UnidadExterna::create([
-            'clave' => 'test_uni',
+        $unidad = DependenciaExterna::create([
             'nombre' => 'UNIDAD ORIGINAL',
         ]);
 
         $response = $this->post("/admin/catalogos/unidades/{$unidad->id}", [
-            'clave' => 'test_uni',
             'nombre' => 'UNIDAD ACTUALIZADA',
             'activa' => false,
         ]);
 
         $response->assertSessionHas('success');
-        $this->assertDatabaseHas('unidades_externas', [
+        $this->assertDatabaseHas('dependencias_externas', [
             'id' => $unidad->id,
             'nombre' => 'UNIDAD ACTUALIZADA',
         ]);

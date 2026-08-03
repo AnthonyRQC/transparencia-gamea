@@ -17,7 +17,7 @@ class ConsultaCasosController extends Controller
             abort(403, 'Acceso denegado. Solo el Registrador puede consultar casos.');
         }
 
-        $query = Denuncia::with(['denunciante', 'denunciados', 'tecnico', 'categoria', 'solicitudes.unidadDestino', 'solicitudes.ampliaciones', 'descargos.denunciado', 'descargos.ampliaciones', 'evaluaciones', 'bitacora.usuario'])
+        $query = Denuncia::with(['denunciante', 'denunciados', 'tecnico', 'categoria', 'solicitudes.dependenciaDestino', 'solicitudes.ampliaciones', 'descargos.denunciado', 'descargos.ampliaciones', 'evaluaciones', 'bitacora.usuario'])
             ->whereNull('deleted_at');
 
         if ($busqueda = $request->input('busqueda')) {

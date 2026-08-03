@@ -7,14 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class UnidadExterna extends Model
+class DependenciaExterna extends Model
 {
     use UppercaseText;
 
-    protected $table = 'unidades_externas';
+    protected $table = 'dependencias_externas';
 
     protected $fillable = [
-        'clave', 'nombre', 'activa',
+        'nombre', 'activa',
         'fecha_desactivacion', 'desactivado_por_id',
     ];
 
@@ -37,7 +37,7 @@ class UnidadExterna extends Model
 
     public function solicitudes(): HasMany
     {
-        return $this->hasMany(SolicitudInformacion::class, 'unidad_destino_id');
+        return $this->hasMany(SolicitudInformacion::class, 'dependencia_destino_id');
     }
 
     public function scopeActivas($query)

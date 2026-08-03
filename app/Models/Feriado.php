@@ -11,7 +11,7 @@ class Feriado extends Model
     use SoftDeletes, UppercaseText;
 
     protected $fillable = [
-        'fecha', 'nombre', 'recurrente',
+        'fecha', 'nombre',
     ];
 
     protected array $uppercaseFields = [
@@ -22,7 +22,6 @@ class Feriado extends Model
     {
         return [
             'fecha' => 'date',
-            'recurrente' => 'boolean',
         ];
     }
 

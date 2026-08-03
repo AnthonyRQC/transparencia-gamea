@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Data\PermisosCatalogo;
 use App\Models\CategoriaDenuncia;
+use App\Models\DependenciaExterna;
 use App\Models\Notificacion;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -41,6 +42,7 @@ class HandleInertiaRequests extends Middleware
             'ticket' => session('ticket'),
             'token' => session('token'),
             'categorias' => CategoriaDenuncia::where('activa', true)->pluck('nombre', 'clave')->toArray(),
+            'dependencias' => DependenciaExterna::where('activa', true)->orderBy('nombre')->get(['id', 'nombre'])->toArray(),
             'notificaciones' => $user ? [
                 'no_leidas' => Notificacion::where('usuario_id', $user->id)->where('leida', false)->count(),
                 'recientes' => Notificacion::where('usuario_id', $user->id)->latest()->take(5)->get(),

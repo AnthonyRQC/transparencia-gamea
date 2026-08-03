@@ -102,7 +102,7 @@ interface DenunciaDetail {
 interface Solicitud {
   id: number;
   ticket: string;
-  unidad_destino: string;
+  dependencia_destino: string;
   detalle: string;
   fecha_envio: string;
   fecha_vencimiento: string;

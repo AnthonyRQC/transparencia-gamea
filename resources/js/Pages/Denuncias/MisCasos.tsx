@@ -59,7 +59,7 @@ interface BitacoraEntry {
 interface Solicitud {
   id: number;
   ticket: string;
-  unidad_destino: string;
+  dependencia_destino: string;
   detalle: string;
   fecha_envio: string;
   fecha_vencimiento: string;
@@ -490,7 +490,7 @@ export default function MisCasos({ grouped, tecnicoActual, tecnicos, solicitudes
           }}
           onEliminarSolicitud={(id) => {
             const sol = solicitudesByTicket[selectedDenuncia.ticket]?.find(s => s.id === id);
-            if (sol) setModalEliminarSol({ id: sol.id, nombre: sol.unidad_destino });
+             if (sol) setModalEliminarSol({ id: sol.id, nombre: sol.dependencia_destino });
           }}
           onEditarDescargo={(id) => {
             const desc = descargosByTicket[selectedDenuncia.ticket]?.find(d => d.id === id) || null;

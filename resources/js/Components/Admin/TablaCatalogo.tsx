@@ -7,6 +7,8 @@ import { Button } from '@/Components/ui/button';
 import { Switch } from '@/Components/ui/switch';
 import { Label } from '@/Components/ui/label';
 import { Badge } from '@/Components/ui/badge';
+import { Input } from '@/Components/ui/input';
+import { cn } from '@/lib/utils';
 import {
     Table,
     TableBody,
@@ -46,6 +48,7 @@ interface TablaCatalogoProps {
     columns: ColumnConfig[];
     agrupado_por_anio?: boolean;
     readonly?: boolean;
+    editable_only?: boolean;
 }
 
 function formatValue(item: CatalogoItem, col: ColumnConfig): string {
@@ -53,7 +56,8 @@ function formatValue(item: CatalogoItem, col: ColumnConfig): string {
     if (val === null || val === undefined) return '—';
     if (col.type === 'boolean') return val ? 'Sí' : 'No';
     if (col.type === 'date' && typeof val === 'string') {
-        const parts = val.split('-');
+        const dateStr = val.substring(0, 10);
+        const parts = dateStr.split('-');
         return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : val;
     }
     if (col.type === 'datetime' && typeof val === 'string') {
@@ -74,6 +78,7 @@ function formatValue(item: CatalogoItem, col: ColumnConfig): string {
 function isInactivo(item: CatalogoItem): boolean {
     if (item.deleted_at !== undefined && item.deleted_at !== null) return true;
     if (item.activa === false) return true;
+    if (item.activo === false) return true;
     return false;
 }
 
@@ -83,6 +88,7 @@ export default function TablaCatalogo({
     columns,
     agrupado_por_anio = false,
     readonly = false,
+    editable_only = false,
 }: TablaCatalogoProps) {
     const [modalOpen, setModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState<CatalogoItem | null>(null);
@@ -91,16 +97,26 @@ export default function TablaCatalogo({
     const [processing, setProcessing] = useState(false);
     const [showInactive, setShowInactive] = useState(false);
     const [expandedAnios, setExpandedAnios] = useState<Record<number, boolean>>({});
+    const [search, setSearch] = useState('');
 
-    const displayColumns = columns.filter((c) => !['datetime', 'count', 'status'].includes(c.type) || c.key === 'nombre' || c.key === 'clave' || c.key === 'tipo_denuncia' || c.key === 'activa' || c.key === 'fecha' || c.key === 'recurrente');
+    const displayColumns = columns.filter((c) => !['datetime', 'count', 'status'].includes(c.type) || c.key === 'nombre' || c.key === 'clave' || c.key === 'tipo_denuncia' || c.key === 'activa' || c.key === 'fecha');
 
     const flatItems = agrupado_por_anio
         ? (items as AnioGroup[]).flatMap((g) => g.items)
         : (items as CatalogoItem[]);
 
-    const filteredItems = showInactive
+    const activeFilteredItems = showInactive
         ? flatItems
         : flatItems.filter((i) => !isInactivo(i));
+
+    const filteredItems = activeFilteredItems.filter(item => {
+        if (!search.trim()) return true;
+        const query = search.toLowerCase();
+        return columns.some(col => {
+            const val = formatValue(item, col).toLowerCase();
+            return val.includes(query);
+        });
+    });
 
     function handleCreate() {
         setEditingItem(null);
@@ -209,13 +225,13 @@ export default function TablaCatalogo({
                             {columns.map((col) => (
                                 <TableHead key={col.key}>{col.label}</TableHead>
                             ))}
-                            {!readonly && <TableHead className="w-[100px] text-right">Acciones</TableHead>}
+                            {(!readonly || editable_only) && <TableHead className="w-[100px] text-right">Acciones</TableHead>}
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {itemsList.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={readonly ? columns.length : columns.length + 1} className="text-center py-8 text-muted-foreground">
+                                <TableCell colSpan={(!readonly || editable_only) ? columns.length + 1 : columns.length} className="text-center py-8 text-muted-foreground">
                                     No hay elementos en este catálogo.
                                 </TableCell>
                             </TableRow>
@@ -226,7 +242,31 @@ export default function TablaCatalogo({
                                     <TableRow key={item.id} className={inactive ? 'opacity-50' : ''}>
                                         {columns.map((col) => (
                                             <TableCell key={col.key}>
-                                                {col.type === 'status' ? (
+                                                {col.key === 'nombre' && typeof item[col.key] === 'string' && ((item[col.key] as string).includes('—') || (item[col.key] as string).includes(' - ')) ? (
+                                                    <div className="flex flex-col gap-1 max-w-[450px] whitespace-normal break-words py-1 text-xs">
+                                                        {(item[col.key] as string).split(/—| - /).map((part, index) => {
+                                                            const text = part.trim();
+                                                            if (index === 0) {
+                                                                return (
+                                                                    <span key={index} className="font-semibold text-foreground text-xs leading-snug">
+                                                                        {text}
+                                                                    </span>
+                                                                );
+                                                            }
+                                                            return (
+                                                                <div key={index} className="flex items-start gap-1.5 pl-2 border-l border-muted-foreground/30 mt-0.5">
+                                                                    <span className="text-muted-foreground text-[10px] uppercase font-medium leading-tight">
+                                                                        {text}
+                                                                    </span>
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                ) : col.key === 'nombre' ? (
+                                                    <div className="max-w-[450px] whitespace-normal break-words py-1 text-xs">
+                                                        {formatValue(item, col)}
+                                                    </div>
+                                                ) : col.type === 'status' ? (
                                                     inactive ? (
                                                         <Badge variant="outline" className="text-[10px] text-muted-foreground border-dashed">Inactivo</Badge>
                                                     ) : (
@@ -234,16 +274,16 @@ export default function TablaCatalogo({
                                                     )
                                                 ) : col.type === 'boolean' ? (
                                                     inactive ? (
-                                                        <Badge variant="outline" className="text-[10px] text-muted-foreground border-dashed">No</Badge>
+                                                        <Badge variant="outline" className="text-[10px] text-muted-foreground border-dashed">Inactivo</Badge>
                                                     ) : (
-                                                        formatValue(item, col)
+                                                        <Badge variant="outline" className="text-[10px] text-green-600 border-green-300 dark:text-green-400 dark:border-green-700">Activo</Badge>
                                                     )
                                                 ) : (
                                                     formatValue(item, col)
                                                 )}
                                             </TableCell>
                                         ))}
-                                        {!readonly && (
+                                        {(!readonly || editable_only) && (
                                             <TableCell className="text-right">
                                                 <div className="flex justify-end gap-1">
                                                     <Button
@@ -254,15 +294,17 @@ export default function TablaCatalogo({
                                                     >
                                                         <Pencil className="w-4 h-4" />
                                                     </Button>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        onClick={() => handleToggle(item)}
-                                                        title={inactive ? 'Reactivar' : 'Desactivar'}
-                                                        className={inactive ? 'text-green-600 hover:text-green-700' : 'text-destructive hover:text-destructive'}
-                                                    >
-                                                        {inactive ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
-                                                    </Button>
+                                                    {!editable_only && (
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            onClick={() => handleToggle(item)}
+                                                            title={inactive ? 'Reactivar' : 'Desactivar'}
+                                                            className={inactive ? 'text-green-600 hover:text-green-700' : 'text-destructive hover:text-destructive'}
+                                                        >
+                                                            {inactive ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
+                                                        </Button>
+                                                    )}
                                                 </div>
                                             </TableCell>
                                         )}
@@ -283,7 +325,23 @@ export default function TablaCatalogo({
         return (
             <div className="space-y-3">
                 {grupos.map((grupo) => {
-                    const isExpanded = expandedAnios[grupo.anio] ?? (grupo.anio === anioVigente);
+                    const matchedItems = grupo.items
+                        .filter((i) => showInactive || !isInactivo(i))
+                        .filter(item => {
+                            if (!search.trim()) return true;
+                            const query = search.toLowerCase();
+                            return columns.some(col => {
+                                const val = formatValue(item, col).toLowerCase();
+                                return val.includes(query);
+                            });
+                        });
+
+                    if (search.trim() && matchedItems.length === 0) return null;
+
+                    const isExpanded = expandedAnios[grupo.anio] ?? (grupo.anio === anioVigente || !!search.trim());
+                    const activosCount = matchedItems.filter(i => !isInactivo(i)).length;
+                    const inactivosCount = matchedItems.filter(i => isInactivo(i)).length;
+
                     return (
                         <div key={grupo.anio} className="border rounded-2xl overflow-hidden">
                             <button
@@ -295,8 +353,8 @@ export default function TablaCatalogo({
                                     {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                                     <span className="font-semibold text-sm">{grupo.anio}</span>
                                     <span className="text-xs text-muted-foreground">
-                                        ({grupo.activos} activo{grupo.activos !== 1 ? 's' : ''}
-                                        {grupo.inactivos > 0 ? `, ${grupo.inactivos} inactivo${grupo.inactivos !== 1 ? 's' : ''}` : ''})
+                                        ({activosCount} activo{activosCount !== 1 ? 's' : ''}
+                                        {inactivosCount > 0 ? `, ${inactivosCount} inactivo${inactivosCount !== 1 ? 's' : ''}` : ''})
                                     </span>
                                 </div>
                                 {grupo.anio === anioVigente && (
@@ -305,11 +363,7 @@ export default function TablaCatalogo({
                             </button>
                             {isExpanded && (
                                 <div className="border-t">
-                                    {renderTable(
-                                        showInactive
-                                            ? grupo.items
-                                            : grupo.items.filter((i) => !isInactivo(i))
-                                    )}
+                                    {renderTable(matchedItems)}
                                 </div>
                             )}
                         </div>
@@ -321,25 +375,35 @@ export default function TablaCatalogo({
 
     return (
         <div className="space-y-4">
-            <div className="flex justify-between items-center">
-                <div className="flex items-center gap-4">
-                    <p className="text-sm text-muted-foreground">
-                        {filteredItems.length} elemento{filteredItems.length !== 1 ? 's' : ''}
-                    </p>
-                    <div className="flex items-center gap-2">
-                        <Switch
-                            id={`show-inactive-${tipo}`}
-                            checked={showInactive}
-                            onCheckedChange={setShowInactive}
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+                <div className="flex flex-wrap items-center gap-4">
+                    <div className="w-full sm:w-64">
+                        <Input
+                            placeholder="Buscar..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="h-8 text-xs"
                         />
-                        <Label htmlFor={`show-inactive-${tipo}`} className="text-xs text-muted-foreground cursor-pointer">
-                            Mostrar inactivos
-                        </Label>
+                    </div>
+                    <div className="flex items-center gap-4">
+                        <p className="text-xs text-muted-foreground">
+                            {filteredItems.length} elemento{filteredItems.length !== 1 ? 's' : ''}
+                        </p>
+                        <div className="flex items-center gap-2">
+                            <Switch
+                                id={`show-inactive-${tipo}`}
+                                checked={showInactive}
+                                onCheckedChange={setShowInactive}
+                            />
+                            <Label htmlFor={`show-inactive-${tipo}`} className="text-xs text-muted-foreground cursor-pointer select-none">
+                                Mostrar inactivos
+                            </Label>
+                        </div>
                     </div>
                 </div>
-                {!readonly && (
-                    <Button onClick={handleCreate} size="sm">
-                        <Plus className="w-4 h-4 mr-1" />
+                {!readonly && !editable_only && (
+                    <Button onClick={handleCreate} size="sm" className="h-8 text-xs shrink-0">
+                        <Plus className="w-3.5 h-3.5 mr-1" />
                         Nuevo
                     </Button>
                 )}
@@ -357,7 +421,7 @@ export default function TablaCatalogo({
                 item={editingItem}
                 onSave={handleSave}
                 processing={processing}
-                readonly={readonly}
+                readonly={readonly && !editable_only}
             />
 
             <ModalConfirmarDesactivar

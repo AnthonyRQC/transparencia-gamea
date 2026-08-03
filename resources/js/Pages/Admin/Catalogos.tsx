@@ -23,6 +23,7 @@ interface CatalogoDef {
     items: CatalogoItem[];
     columns: ColumnConfig[];
     readonly?: boolean;
+    editable_only?: boolean;
     agrupado_por_anio?: boolean;
 }
 
@@ -63,6 +64,7 @@ export default function Catalogos() {
                             columns={catalogos[tipo].columns}
                             agrupado_por_anio={catalogos[tipo].agrupado_por_anio ?? false}
                             readonly={catalogos[tipo].readonly ?? false}
+                            editable_only={catalogos[tipo].editable_only ?? false}
                         />
                     </TabsContent>
                 ))}

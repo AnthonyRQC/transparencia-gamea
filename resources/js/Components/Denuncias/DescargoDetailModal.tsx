@@ -105,7 +105,7 @@ export default function DescargoDetailModal({
   const campoLabel: Record<string, string> = {
     nombres_denunciado: 'Nombres',
     dependencia_denunciado: 'Dependencia',
-    unidad_destino: 'Unidad destino',
+    dependencia_destino: 'Dependencia destino',
     detalle: 'Detalle',
     plazo_dias: 'Plazo (días hábiles)',
   };

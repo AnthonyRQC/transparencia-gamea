@@ -51,7 +51,7 @@ export default function ModalCancelarSolicitud({ solicitudId, open, onOpenChange
         <DialogHeader>
           <DialogTitle>Cancelar solicitud</DialogTitle>
           <DialogDescription>
-            La solicitud quedará registrada como cancelada. No se esperará respuesta de la unidad.
+            La solicitud quedará registrada como cancelada. No se esperará respuesta de la dependencia.
           </DialogDescription>
         </DialogHeader>
 

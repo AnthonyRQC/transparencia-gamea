@@ -56,7 +56,7 @@ export default function ModalAmpliarSolicitud({ solicitudId, open, onOpenChange 
         <DialogHeader>
           <DialogTitle>Ampliar plazo de solicitud</DialogTitle>
           <DialogDescription>
-            Solicite una prórroga para la respuesta de la unidad externa (máx. 5 días adicionales).
+            Solicite una prórroga para la respuesta de la dependencia externa (máx. 5 días adicionales).
           </DialogDescription>
         </DialogHeader>
 

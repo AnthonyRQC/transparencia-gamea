@@ -20,4 +20,5 @@ export type PageProps<
         user: User;
     };
     categorias: Record<string, string>;
+    dependencias: Array<{ id: number; nombre: string }>;
 };

@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Bitacora;
 use App\Models\CategoriaDenuncia;
-use App\Models\UnidadExterna;
+use App\Models\DependenciaExterna;
 use App\Models\Feriado;
 use App\Models\ConfiguracionSistema;
 use Illuminate\Http\Request;
@@ -28,65 +28,52 @@ class CatalogoController extends Controller
                 'columns' => [
                     ['key' => 'nombre', 'label' => 'Nombre', 'type' => 'text'],
                     ['key' => 'tipo_denuncia', 'label' => 'Tipo Denuncia', 'type' => 'select', 'options' => ['corrupcion' => 'Corrupción', 'negacion' => 'Negación']],
-                    ['key' => 'activa', 'label' => 'Activa', 'type' => 'boolean'],
-                    ['key' => 'fecha_desactivacion', 'label' => 'Desactivada el', 'type' => 'datetime'],
                     ['key' => 'denuncias_count', 'label' => 'Denuncias', 'type' => 'count'],
-                ],
-            ],
-            'unidades' => [
-                'label' => 'Unidades Externas',
-                'items' => UnidadExterna::withCount('solicitudes')->orderBy('nombre')->get()->toArray(),
-                'columns' => [
-                    ['key' => 'clave', 'label' => 'Clave', 'type' => 'text'],
-                    ['key' => 'nombre', 'label' => 'Nombre', 'type' => 'text'],
-                    ['key' => 'activa', 'label' => 'Activa', 'type' => 'boolean'],
-                    ['key' => 'fecha_desactivacion', 'label' => 'Desactivada el', 'type' => 'datetime'],
-                    ['key' => 'solicitudes_count', 'label' => 'Solicitudes', 'type' => 'count'],
+                    ['key' => 'activa', 'label' => 'Estado', 'type' => 'boolean'],
                 ],
             ],
             'feriados' => $this->getFeriadosData(),
-            'clasificaciones' => [
-                'label' => 'Clasificaciones Finales',
-                'items' => $this->getConfigArray('catalogo_clasificaciones'),
+            'unidades' => [
+                'label' => 'Dependencias Externas',
+                'items' => DependenciaExterna::withCount('solicitudes')->orderBy('nombre')->get()->toArray(),
                 'columns' => [
                     ['key' => 'nombre', 'label' => 'Nombre', 'type' => 'text'],
-                    ['key' => 'activo', 'label' => 'Activo', 'type' => 'boolean'],
+                    ['key' => 'solicitudes_count', 'label' => 'Solicitudes', 'type' => 'count'],
+                    ['key' => 'fecha_desactivacion', 'label' => 'Desactivada el', 'type' => 'datetime'],
+                    ['key' => 'activa', 'label' => 'Estado', 'type' => 'boolean'],
                 ],
-            ],
-            'tipos_denuncia' => [
-                'label' => 'Tipos de Denuncia',
-                'items' => $this->getConfigArray('catalogo_tipos_denuncia'),
-                'columns' => [
-                    ['key' => 'clave', 'label' => 'Clave', 'type' => 'text', 'readonly' => true],
-                    ['key' => 'nombre', 'label' => 'Nombre', 'type' => 'text'],
-                    ['key' => 'activo', 'label' => 'Activo', 'type' => 'boolean'],
-                ],
-                'readonly' => true,
-            ],
-            'estados' => [
-                'label' => 'Estados',
-                'items' => $this->getConfigArray('catalogo_estados'),
-                'columns' => [
-                    ['key' => 'clave', 'label' => 'Clave', 'type' => 'text', 'readonly' => true],
-                    ['key' => 'nombre', 'label' => 'Nombre', 'type' => 'text'],
-                    ['key' => 'activo', 'label' => 'Activo', 'type' => 'boolean'],
-                ],
-                'readonly' => true,
             ],
             'medios_notificacion' => [
                 'label' => 'Medios de Notificación',
                 'items' => $this->getConfigArray('catalogo_medios_notificacion'),
                 'columns' => [
                     ['key' => 'nombre', 'label' => 'Nombre', 'type' => 'text'],
-                    ['key' => 'activo', 'label' => 'Activo', 'type' => 'boolean'],
+                    ['key' => 'activo', 'label' => 'Estado', 'type' => 'boolean'],
                 ],
+            ],
+            'clasificaciones' => [
+                'label' => 'Clasificaciones Finales',
+                'items' => $this->getConfigArray('catalogo_clasificaciones'),
+                'columns' => [
+                    ['key' => 'nombre', 'label' => 'Nombre', 'type' => 'text'],
+                    ['key' => 'activo', 'label' => 'Estado', 'type' => 'boolean'],
+                ],
+            ],
+            'estados' => [
+                'label' => 'Estados',
+                'items' => $this->getConfigArray('catalogo_estados'),
+                'columns' => [
+                    ['key' => 'nombre', 'label' => 'Nombre', 'type' => 'text'],
+                    ['key' => 'activo', 'label' => 'Estado', 'type' => 'boolean'],
+                ],
+                'editable_only' => true,
             ],
             'tipos_prueba' => [
                 'label' => 'Tipos de Prueba',
                 'items' => $this->getConfigArray('catalogo_tipos_prueba'),
                 'columns' => [
                     ['key' => 'nombre', 'label' => 'Nombre', 'type' => 'text'],
-                    ['key' => 'activo', 'label' => 'Activo', 'type' => 'boolean'],
+                    ['key' => 'activo', 'label' => 'Estado', 'type' => 'boolean'],
                 ],
             ],
         ];
@@ -121,15 +108,15 @@ class CatalogoController extends Controller
                         'clave' => Str::slug(Str::upper($data['nombre']), '_'),
                     ]);
                 } elseif ($tipo === 'unidades') {
-                    $inactiva = UnidadExterna::where('clave', $data['clave'])
+                    $inactiva = DependenciaExterna::where('nombre', $data['nombre'])
                         ->where('activa', false)->first();
                     if ($inactiva) {
                         $inactiva->update(['activa' => true, 'fecha_desactivacion' => null, 'desactivado_por_id' => null]);
                         $this->logBitacora('unidades', $inactiva->id, 'reactivar', ['nombre' => $data['nombre']]);
                         DB::commit();
-                        return back()->with('success', 'Unidad reactivada correctamente.');
+                        return back()->with('success', 'Dependencia reactivada correctamente.');
                     }
-                    UnidadExterna::create($data);
+                    DependenciaExterna::create($data);
                 } elseif ($tipo === 'feriados') {
                     Feriado::create($data);
                 }
@@ -162,7 +149,7 @@ class CatalogoController extends Controller
             try {
                 $model = match ($tipo) {
                     'categorias' => CategoriaDenuncia::findOrFail((int) $id),
-                    'unidades' => UnidadExterna::findOrFail((int) $id),
+                    'unidades' => DependenciaExterna::findOrFail((int) $id),
                     'feriados' => Feriado::findOrFail((int) $id),
                 };
 
@@ -265,7 +252,7 @@ class CatalogoController extends Controller
 
     private function desactivarUnidad(int $id): void
     {
-        $unidad = UnidadExterna::findOrFail($id);
+        $unidad = DependenciaExterna::findOrFail($id);
         $unidad->update([
             'activa' => false,
             'fecha_desactivacion' => now(),
@@ -296,7 +283,7 @@ class CatalogoController extends Controller
 
     private function reactivarUnidad(int $id): void
     {
-        $unidad = UnidadExterna::findOrFail($id);
+        $unidad = DependenciaExterna::findOrFail($id);
         $unidad->update(['activa' => true, 'fecha_desactivacion' => null, 'desactivado_por_id' => null]);
         $this->logBitacora('unidades', $id, 'reactivar', ['nombre' => $unidad->nombre]);
     }
@@ -313,7 +300,7 @@ class CatalogoController extends Controller
         Bitacora::create([
             'entidad_tipo' => 'App\Models\\' . match ($tipo) {
                 'categorias' => 'CategoriaDenuncia',
-                'unidades' => 'UnidadExterna',
+                'unidades' => 'DependenciaExterna',
                 'feriados' => 'Feriado',
                 default => ucfirst($tipo),
             },
@@ -353,7 +340,6 @@ class CatalogoController extends Controller
             'columns' => [
                 ['key' => 'fecha', 'label' => 'Fecha', 'type' => 'date'],
                 ['key' => 'nombre', 'label' => 'Nombre', 'type' => 'text'],
-                ['key' => 'recurrente', 'label' => 'Recurrente', 'type' => 'boolean'],
                 ['key' => 'deleted_at', 'label' => 'Estado', 'type' => 'status'],
             ],
             'agrupado_por_anio' => true,
@@ -394,14 +380,12 @@ class CatalogoController extends Controller
                 'activa' => 'boolean',
             ],
             'unidades' => [
-                'clave' => 'required|string|max:50' . ($isUpdate ? '' : '|unique:unidades_externas,clave'),
-                'nombre' => 'required|string|max:255',
+                'nombre' => 'required|string|max:255' . ($isUpdate ? '' : '|unique:dependencias_externas,nombre'),
                 'activa' => 'boolean',
             ],
             'feriados' => [
                 'fecha' => 'required|date',
                 'nombre' => 'required|string|max:255',
-                'recurrente' => 'boolean',
             ],
             default => [
                 'nombre' => 'required|string|max:255',

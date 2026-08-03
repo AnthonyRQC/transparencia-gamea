@@ -28,7 +28,7 @@ interface SolicitudArchivo {
 interface Solicitud {
   id: number;
   ticket: string;
-  unidad_destino: string;
+  dependencia_destino: string;
   detalle: string;
   plazo_dias?: number;
   fecha_envio: string;
@@ -91,7 +91,7 @@ export default function SolicitudDetailModal({
   const ediciones = [...(solicitud.ediciones || [])].sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
 
   const campoLabel: Record<string, string> = {
-    unidad_destino: 'Unidad destino',
+    dependencia_destino: 'Dependencia destino',
     detalle: 'Detalle',
     plazo_dias: 'Plazo (días hábiles)',
     nombres_denunciado: 'Nombres',
@@ -108,7 +108,7 @@ export default function SolicitudDetailModal({
           <div className="flex items-center justify-between gap-2 pr-6">
             <div className="flex items-center gap-2 min-w-0">
               <Building2 className="w-5 h-5 text-primary shrink-0" />
-              <DialogTitle className="truncate text-lg">{solicitud.unidad_destino}</DialogTitle>
+              <DialogTitle className="truncate text-lg">{solicitud.dependencia_destino}</DialogTitle>
             </div>
             <Badge variant={isVencida ? 'destructive' : badge.variant} className="text-[11px] shrink-0">
               {isVencida ? 'Vencida' : badge.label}
