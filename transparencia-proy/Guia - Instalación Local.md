@@ -37,9 +37,9 @@ php artisan key:generate
 ```
 
 ### 4. Importar base de datos desde backup
-Colocar el archivo `backup-transparencia-2026-07-31.sql` en el raiz del proyecto y ejecutar:
+Colocar el archivo `backup-transparencia-2026-08-04.sql` en el raiz del proyecto y ejecutar:
 ```bash
-mysql -h 127.0.0.1 -P 3306 -u root transparencia < backup-transparencia-2026-07-31.sql
+mysql -h 127.0.0.1 -P 3306 -u root transparencia < backup-transparencia-2026-08-04.sql
 ```
 
 > **Nota:** Si MySQL tiene contrasena, agregar `-p` y sera pedido por consola.
@@ -88,9 +88,9 @@ Abrir en el navegador: `http://localhost:8000`
 
 ## Datos Incluidos en el Backup
 - 12 categorias de denuncia
-- 13 unidades externas
+- 177 dependencias externas
 - 15 feriados
-- 2 configuraciones del sistema
+- 6 configuraciones del sistema (1 parametro + 5 catalogos JSON)
 - 5 usuarios de prueba
 - 12 denuncias demo (DEN-2026-0001 a 0012)
 - 5 notificaciones demo
@@ -143,8 +143,8 @@ transparencia/
 │   │   └── Controllers/
 │   └── Models/         # 18 modelos Eloquent
 ├── database/
-│   ├── migrations/     # 22 migraciones
-│   └── seeders/        # 4 seeders
+│   ├── migrations/     # 26 migraciones
+│   └── seeders/        # 5 seeders
 ├── resources/
 │   └── js/
 │       ├── Components/ # Componentes React

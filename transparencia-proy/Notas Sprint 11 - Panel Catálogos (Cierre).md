@@ -85,7 +85,7 @@ El flujo de cierre (`FormCierre.tsx`) usa `catalogo_medios_notificacion` como ca
 
 - Se eliminó la clave de config `anio_vigente` porque el sistema no la utiliza (el año se deriva de las fechas reales).
 - Quitada de `CatalogoSeeder.php`, eliminada la fila huérfana de la BD (vía tinker) y actualizada la documentación de esquema y seeders.
-- ⚠️ El backup `backup-transparencia-2026-07-31.sql` conserva la fila (se dejó intacto por decisión del usuario); se eliminará en un respaldo futuro.
+- ⚠️ El backup fue regenerado el 2026-08-04 (`backup-transparencia-2026-08-04.sql`) y ya no incluye `anio_vigente`. El backup viejo (07-31) fue eliminado.
 
 ---
 
