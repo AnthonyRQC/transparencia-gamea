@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
-import { Plus, Pencil, ToggleLeft, ToggleRight, Trash2, ChevronDown, ChevronRight, CircleDot } from 'lucide-react';
+import { Plus, Pencil, ToggleLeft, ToggleRight, Trash2, Lock, ChevronDown, ChevronRight, CircleDot } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/Components/ui/button';
 import { Switch } from '@/Components/ui/switch';
@@ -50,6 +50,7 @@ interface TablaCatalogoProps {
     readonly?: boolean;
     editable_only?: boolean;
     is_json_based?: boolean;
+    usos_label?: string;
 }
 
 function formatValue(item: CatalogoItem, col: ColumnConfig): string {
@@ -93,6 +94,7 @@ export default function TablaCatalogo({
     readonly = false,
     editable_only = false,
     is_json_based = false,
+    usos_label = 'registro(s)',
 }: TablaCatalogoProps) {
     const [modalOpen, setModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState<CatalogoItem | null>(null);
@@ -327,15 +329,36 @@ export default function TablaCatalogo({
                                                         <Pencil className="w-4 h-4" />
                                                     </Button>
                                                     {!editable_only && (is_json_based ? (
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            onClick={() => handleDelete(item)}
-                                                            title="Eliminar"
-                                                            className="text-destructive hover:text-destructive"
-                                                        >
-                                                            <Trash2 className="w-4 h-4" />
-                                                        </Button>
+                                                        (item as any).protegido ? (
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                disabled
+                                                                title="Protegido (no se puede eliminar)"
+                                                            >
+                                                                <Lock className="w-4 h-4 text-muted-foreground" />
+                                                            </Button>
+                                                        ) : (item as any).usos > 0 ? (
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                disabled
+                                                                title={`En uso en ${(item as any).usos} ${usos_label}, no se puede eliminar`}
+                                                                className="text-muted-foreground"
+                                                            >
+                                                                <Trash2 className="w-4 h-4" />
+                                                            </Button>
+                                                        ) : (
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                onClick={() => handleDelete(item)}
+                                                                title="Eliminar"
+                                                                className="text-destructive hover:text-destructive"
+                                                            >
+                                                                <Trash2 className="w-4 h-4" />
+                                                            </Button>
+                                                        )
                                                     ) : (
                                                         <Button
                                                             variant="ghost"

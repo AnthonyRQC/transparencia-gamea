@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ConfiguracionSistema;
 use App\Models\Descargo;
 use App\Models\SolicitudInformacion;
 use App\Models\Denuncia;
@@ -138,16 +139,8 @@ class SeguimientoController extends Controller
         }
 
         if ($estado === 'cerrada') {
-            $clasificacionLabels = [
-                'penal' => 'Penal',
-                'civil' => 'Civil',
-                'administrativo' => 'Administrativo',
-                'sin_indicios' => 'Sin Indicios',
-                'medida_correctiva' => 'Medida Correctiva',
-                'archivado' => 'Archivado',
-            ];
             $clasif = $d->informe?->clasificacion ?? '';
-            $label = $clasificacionLabels[$clasif] ?? '';
+            $label = self::clasificacionLabel($clasif);
             $clasifStr = $label ? " ({$label})" : '';
             return "Su denuncia ha sido cerrada{$clasifStr}. Para más información, acérquese a la oficina de la UTLCC.";
         }
@@ -161,5 +154,29 @@ class SeguimientoController extends Controller
         }
 
         return 'Su denuncia se encuentra en proceso.';
+    }
+
+    private static function clasificacionLabel(string $clave): string
+    {
+        if ($clave === '') {
+            return '';
+        }
+
+        foreach (ConfiguracionSistema::catalogItems('catalogo_clasificaciones') as $item) {
+            if (($item['clave'] ?? '') === $clave) {
+                return $item['nombre'] ?? $clave;
+            }
+        }
+
+        $fallback = [
+            'penal' => 'Penal',
+            'civil' => 'Civil',
+            'administrativo' => 'Administrativo',
+            'sin_indicios' => 'Sin Indicios',
+            'medida_correctiva' => 'Medida Correctiva',
+            'archivado' => 'Archivado',
+        ];
+
+        return $fallback[$clave] ?? $clave;
     }
 }

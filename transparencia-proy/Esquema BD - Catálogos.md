@@ -70,15 +70,14 @@
 | Columna | Tipo | Notas |
 |---------|------|-------|
 | `id` | int PK | |
-| `clave` | varchar(100) UNIQUE | ej: 'siguiente_numero_ticket', 'anio_vigente' |
+| `clave` | varchar(100) UNIQUE | ej: 'siguiente_numero_ticket' |
 | `valor` | varchar(255) | |
 | `descripcion` | text nullable | MAYÚSCULAS |
 | `actualizado_por_id` | int nullable FK → `users(id)` | |
 | `actualizado_at` | timestamp nullable | |
 
-**Seed esperado:** 2-5 registros:
+**Seed esperado:** 1-4 registros:
 - `siguiente_numero_ticket` → "47" (continuación de 46 casos legacy, Sprint 23)
-- `anio_vigente` → "2026"
 
 **Admin:** Solo Jefe puede modificar desde Panel Administrativo (Sprint 23).
 

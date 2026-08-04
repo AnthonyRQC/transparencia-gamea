@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\CategoriaDenuncia;
+use App\Models\ConfiguracionSistema;
 use App\Models\Denuncia;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -194,6 +195,38 @@ class DenunciaFlowTest extends TestCase
 
         $response->assertSessionHas('success');
         $this->assertEquals(1, $denuncia->ampliaciones()->count());
+    }
+
+    public function test_informe_acepta_clasificacion_agregada_al_catalogo(): void
+    {
+        $this->actingAs($this->jefe);
+
+        ConfiguracionSistema::create([
+            'clave' => 'catalogo_clasificaciones',
+            'valor' => json_encode([
+                ['id' => 1, 'clave' => 'penal', 'nombre' => 'PENAL', 'activo' => true],
+                ['id' => 7, 'clave' => 'delitos_electorales', 'nombre' => 'DELITOS ELECTORALES', 'activo' => true],
+            ]),
+            'descripcion' => 'CLASIFICACIONES FINALES',
+        ]);
+
+        $denuncia = Denuncia::factory()->create([
+            'ticket' => 'DEN-2026-0001',
+            'token_consulta' => '1001',
+            'tipo' => 'corrupcion',
+            'estado' => 'informe',
+        ]);
+
+        $response = $this->post("/denuncias/{$denuncia->ticket}/informe", [
+            'clasificacion' => 'delitos_electorales',
+            'fojas' => 10,
+            'justificacion' => 'JUSTIFICACIÓN DE PRUEBA PARA EL INFORME FINAL CON MÍNIMO DE 20 CARACTERES',
+            'concluido_por' => 'TÉCNICO TEST',
+        ]);
+
+        $response->assertSessionHas('success');
+        $denuncia->refresh();
+        $this->assertEquals('delitos_electorales', $denuncia->informe->clasificacion);
     }
 
     public function test_seguimiento_publico_returns_public_data(): void

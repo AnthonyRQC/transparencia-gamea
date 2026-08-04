@@ -1,4 +1,5 @@
 import { ShieldCheck, FileText, Clock, AlertTriangle } from 'lucide-react';
+import { usePage } from '@inertiajs/react';
 import StepperProgreso from '@/Components/Publico/StepperProgreso';
 
 interface DenunciaPublica {
@@ -27,14 +28,16 @@ interface ResultadoSeguimientoProps {
   denuncia: DenunciaPublica;
 }
 
-const clasificacionLabels: Record<string, { label: string; color: string }> = {
-  penal: { label: 'Penal', color: 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400' },
-  civil: { label: 'Civil', color: 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-400' },
-  administrativo: { label: 'Administrativo', color: 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400' },
-  sin_indicios: { label: 'Sin Indicios', color: 'bg-slate-100 text-slate-700 dark:bg-slate-950 dark:text-slate-400' },
-  medida_correctiva: { label: 'Medida Correctiva', color: 'bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-400' },
-  archivado: { label: 'Archivado', color: 'bg-gray-100 text-gray-700 dark:bg-gray-950 dark:text-gray-400' },
+const clasificacionColors: Record<string, string> = {
+  penal: 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400',
+  civil: 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-400',
+  administrativo: 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400',
+  sin_indicios: 'bg-slate-100 text-slate-700 dark:bg-slate-950 dark:text-slate-400',
+  medida_correctiva: 'bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-400',
+  archivado: 'bg-gray-100 text-gray-700 dark:bg-gray-950 dark:text-gray-400',
 };
+
+const DEFAULT_CLASIF_COLOR = 'bg-muted text-muted-foreground';
 
 const estadoBadge: Record<string, { label: string; color: string }> = {
   ingresada: { label: 'En Evaluación', color: 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-400' },
@@ -54,7 +57,21 @@ function formatDate(dateStr: string | null): string {
 
 export default function ResultadoSeguimiento({ denuncia }: ResultadoSeguimientoProps) {
   const badge = estadoBadge[denuncia.estado] ?? { label: denuncia.estado, color: 'bg-muted text-muted-foreground' };
-  const clasifInfo = denuncia.clasificacion ? clasificacionLabels[denuncia.clasificacion] : null;
+
+  const props = usePage().props as Record<string, any>;
+  const catalog = Array.isArray(props.clasificaciones) ? props.clasificaciones : [];
+  const catalogItem = denuncia.clasificacion
+    ? (catalog as Array<{ clave?: string | null; nombre?: string }>).find((c) => c.clave === denuncia.clasificacion)
+    : null;
+  const clasifLabel = catalogItem?.nombre ?? denuncia.clasificacion ?? null;
+  const clasifInfo = clasifLabel
+    ? {
+        label: clasifLabel,
+        color: denuncia.clasificacion && clasificacionColors[denuncia.clasificacion]
+          ? clasificacionColors[denuncia.clasificacion]
+          : DEFAULT_CLASIF_COLOR,
+      }
+    : null;
   const isRechazada = denuncia.estado === 'rechazada';
 
   return (

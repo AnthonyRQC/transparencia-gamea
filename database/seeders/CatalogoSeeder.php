@@ -242,11 +242,6 @@ class CatalogoSeeder extends Seeder
             'valor' => '13',
             'descripcion' => 'SIGUIENTE NÚMERO DE TICKET',
         ]);
-        ConfiguracionSistema::create([
-            'clave' => 'anio_vigente',
-            'valor' => '2026',
-            'descripcion' => 'AÑO VIGENTE DEL SISTEMA',
-        ]);
 
         CatalogosConfigSeeder::run();
     }

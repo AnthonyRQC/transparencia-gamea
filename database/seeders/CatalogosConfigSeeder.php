@@ -13,12 +13,12 @@ class CatalogosConfigSeeder extends Seeder
             'catalogo_clasificaciones' => [
                 'descripcion' => 'CLASIFICACIONES FINALES PARA INFORME',
                 'items' => [
-                    ['id' => 1, 'nombre' => 'PENAL', 'activo' => true],
-                    ['id' => 2, 'nombre' => 'CIVIL', 'activo' => true],
-                    ['id' => 3, 'nombre' => 'ADMINISTRATIVO', 'activo' => true],
-                    ['id' => 4, 'nombre' => 'SIN INDICIOS', 'activo' => true],
-                    ['id' => 5, 'nombre' => 'MEDIDA CORRECTIVA', 'activo' => true],
-                    ['id' => 6, 'nombre' => 'ARCHIVADO', 'activo' => true],
+                    ['id' => 1, 'clave' => 'penal', 'nombre' => 'PENAL', 'activo' => true],
+                    ['id' => 2, 'clave' => 'civil', 'nombre' => 'CIVIL', 'activo' => true],
+                    ['id' => 3, 'clave' => 'administrativo', 'nombre' => 'ADMINISTRATIVO', 'activo' => true],
+                    ['id' => 4, 'clave' => 'sin_indicios', 'nombre' => 'SIN INDICIOS', 'activo' => true],
+                    ['id' => 5, 'clave' => 'medida_correctiva', 'nombre' => 'MEDIDA CORRECTIVA', 'activo' => true],
+                    ['id' => 6, 'clave' => 'archivado', 'nombre' => 'ARCHIVADO', 'activo' => true],
                 ],
             ],
             'catalogo_tipos_denuncia' => [
@@ -44,10 +44,10 @@ class CatalogosConfigSeeder extends Seeder
             'catalogo_medios_notificacion' => [
                 'descripcion' => 'MEDIOS DE NOTIFICACIÓN DE DESCARGOS',
                 'items' => [
-                    ['id' => 1, 'nombre' => 'WHATSAPP', 'activo' => true],
-                    ['id' => 2, 'nombre' => 'EMAIL', 'activo' => true],
-                    ['id' => 3, 'nombre' => 'PRESENCIAL', 'activo' => true],
-                    ['id' => 4, 'nombre' => 'OTRO', 'activo' => true],
+                    ['id' => 1, 'clave' => 'whatsapp', 'nombre' => 'WHATSAPP', 'activo' => true],
+                    ['id' => 2, 'clave' => 'email', 'nombre' => 'EMAIL', 'activo' => true],
+                    ['id' => 3, 'clave' => 'presencial', 'nombre' => 'PRESENCIAL', 'activo' => true],
+                    ['id' => 4, 'clave' => 'otro', 'nombre' => 'OTRO', 'activo' => true],
                 ],
             ],
             'catalogo_tipos_prueba' => [

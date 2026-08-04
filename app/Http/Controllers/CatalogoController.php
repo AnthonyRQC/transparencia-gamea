@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Bitacora;
 use App\Models\CategoriaDenuncia;
+use App\Models\Cierre;
 use App\Models\DependenciaExterna;
 use App\Models\Feriado;
+use App\Models\InformeFinal;
 use App\Models\ConfiguracionSistema;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -18,6 +20,7 @@ class CatalogoController extends Controller
     private const TABLE_BASED = ['categorias', 'unidades', 'feriados'];
     private const CONFIG_BASED = ['clasificaciones', 'tipos_denuncia', 'estados', 'medios_notificacion', 'tipos_prueba'];
     private const READ_ONLY_TYPES = ['tipos_denuncia', 'estados', 'tipos_prueba'];
+    private const PROTECTED_CLASIFICACIONES = ['penal', 'civil', 'administrativo', 'sin_indicios', 'medida_correctiva', 'archivado'];
 
     public function index()
     {
@@ -45,19 +48,21 @@ class CatalogoController extends Controller
             ],
             'medios_notificacion' => [
                 'label' => 'Medios de Notificación',
-                'items' => $this->getConfigArray('catalogo_medios_notificacion'),
+                'items' => $this->getMediosNotificacionData(),
                 'columns' => [
                     ['key' => 'nombre', 'label' => 'Nombre', 'type' => 'text'],
                 ],
                 'is_json_based' => true,
+                'usos_label' => 'cierre(s)',
             ],
             'clasificaciones' => [
                 'label' => 'Clasificaciones Finales',
-                'items' => $this->getConfigArray('catalogo_clasificaciones'),
+                'items' => $this->getClasificacionesData(),
                 'columns' => [
                     ['key' => 'nombre', 'label' => 'Nombre', 'type' => 'text'],
                 ],
                 'is_json_based' => true,
+                'usos_label' => 'informe(s)',
             ],
             'estados' => [
                 'label' => 'Estados',
@@ -136,6 +141,9 @@ class CatalogoController extends Controller
             $items = $this->getConfigArray('catalogo_' . $tipo);
             $newId = count($items) > 0 ? max(array_column($items, 'id')) + 1 : 1;
             $data = $this->upperData($data);
+            if (empty($data['clave'])) {
+                $data['clave'] = Str::slug(Str::upper($data['nombre']), '_');
+            }
             $data['id'] = $newId;
             $items[] = $data;
             $this->setConfigArray('catalogo_' . $tipo, $items);
@@ -224,6 +232,30 @@ class CatalogoController extends Controller
             if (!$found) {
                 return back()->withErrors(['error' => 'Elemento no encontrado.']);
             }
+
+            if ($tipo === 'clasificaciones') {
+                if (in_array($found['clave'] ?? '', self::PROTECTED_CLASIFICACIONES, true)) {
+                    return back()->withErrors(['error' => 'Esta clasificación está protegida y no se puede eliminar.']);
+                }
+                $usos = InformeFinal::where('clasificacion', $found['clave'] ?? '')->count();
+                if ($usos > 0) {
+                    return back()->withErrors([
+                        'error' => "Esta clasificación está en uso en {$usos} informe(s) y no se puede eliminar.",
+                    ]);
+                }
+            }
+
+            if ($tipo === 'medios_notificacion') {
+                $usos = Cierre::whereRaw('UPPER(COALESCE(notificacion_medio, \'\')) = ?', [strtoupper($found['clave'] ?? '')])
+                    ->where('eliminado', false)
+                    ->count();
+                if ($usos > 0) {
+                    return back()->withErrors([
+                        'error' => "Este medio está en uso en {$usos} cierre(s) y no se puede eliminar.",
+                    ]);
+                }
+            }
+
             $items = array_values(array_filter($items, fn($item) => (int) $item['id'] !== (int) $id));
             $this->setConfigArray('catalogo_' . $tipo, $items);
             $this->logBitacora($tipo, (int) $id, 'eliminar', ['nombre' => $found['nombre'] ?? '']);
@@ -329,6 +361,54 @@ class CatalogoController extends Controller
         ]);
     }
 
+    private function getMediosNotificacionData(): array
+    {
+        $items = ConfiguracionSistema::catalogItems('catalogo_medios_notificacion');
+        $claves = array_values(array_filter(array_column($items, 'clave')));
+        $usos = [];
+        if (!empty($claves)) {
+            $usos = Cierre::query()
+                ->where(function ($q) use ($claves) {
+                    foreach ($claves as $clave) {
+                        $q->orWhereRaw('UPPER(COALESCE(notificacion_medio, \'\')) = ?', [strtoupper($clave)]);
+                    }
+                })
+                ->where('eliminado', false)
+                ->selectRaw('UPPER(notificacion_medio) as medio, COUNT(*) as total')
+                ->groupBy('medio')
+                ->pluck('total', 'medio')
+                ->all();
+        }
+
+        foreach ($items as &$item) {
+            $item['usos'] = (int) ($usos[strtoupper($item['clave'] ?? '')] ?? 0);
+        }
+
+        return $items;
+    }
+
+    private function getClasificacionesData(): array
+    {
+        $items = ConfiguracionSistema::catalogItems('catalogo_clasificaciones');
+        $claves = array_column($items, 'clave');
+        $usos = [];
+        if (!empty($claves)) {
+            $usos = InformeFinal::query()
+                ->whereIn('clasificacion', $claves)
+                ->selectRaw('clasificacion, COUNT(*) as total')
+                ->groupBy('clasificacion')
+                ->pluck('total', 'clasificacion')
+                ->all();
+        }
+
+        foreach ($items as &$item) {
+            $item['protegido'] = in_array($item['clave'] ?? '', self::PROTECTED_CLASIFICACIONES, true);
+            $item['usos'] = (int) ($usos[$item['clave'] ?? ''] ?? 0);
+        }
+
+        return $items;
+    }
+
     private function getFeriadosData(): array
     {
         $todos = Feriado::withTrashed()->orderBy('fecha', 'desc')->get();
@@ -358,12 +438,7 @@ class CatalogoController extends Controller
 
     private function getConfigArray(string $clave): array
     {
-        $config = ConfiguracionSistema::where('clave', $clave)->first();
-        if (!$config || !$config->valor) {
-            return [];
-        }
-        $decoded = json_decode($config->valor, true);
-        return is_array($decoded) ? $decoded : [];
+        return ConfiguracionSistema::catalogItems($clave);
     }
 
     private function setConfigArray(string $clave, array $items): void

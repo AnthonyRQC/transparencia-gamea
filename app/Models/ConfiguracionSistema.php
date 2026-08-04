@@ -24,4 +24,14 @@ class ConfiguracionSistema extends Model
     {
         return $this->belongsTo(User::class, 'actualizado_por_id');
     }
+
+    public static function catalogItems(string $clave): array
+    {
+        $config = self::where('clave', $clave)->first();
+        if (!$config || !$config->valor) {
+            return [];
+        }
+        $decoded = json_decode($config->valor, true);
+        return is_array($decoded) ? $decoded : [];
+    }
 }

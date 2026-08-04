@@ -26,6 +26,7 @@ interface CatalogoDef {
     editable_only?: boolean;
     is_json_based?: boolean;
     agrupado_por_anio?: boolean;
+    usos_label?: string;
 }
 
 export default function Catalogos() {
@@ -67,6 +68,7 @@ export default function Catalogos() {
                             readonly={catalogos[tipo].readonly ?? false}
                             editable_only={catalogos[tipo].editable_only ?? false}
                             is_json_based={catalogos[tipo].is_json_based ?? false}
+                            usos_label={catalogos[tipo].usos_label ?? 'registro(s)'}
                         />
                     </TabsContent>
                 ))}

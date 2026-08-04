@@ -115,7 +115,7 @@
 - Agregar `importado_por_id` (FK a usuarios, nullable)
 
 ### Tabla `configuracion_sistema` (nueva, ver `Esquema de Base de Datos.md`)
-- `clave` (UNIQUE): 'siguiente_numero_ticket', 'anio_vigente', etc.
+- `clave` (UNIQUE): 'siguiente_numero_ticket', etc.
 - `valor` (TEXT)
 - `descripcion` (TEXT, MAYÚSCULAS)
 - `actualizado_por_id` (FK a usuarios)

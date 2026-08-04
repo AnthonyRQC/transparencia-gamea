@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Data\PermisosCatalogo;
 use App\Models\CategoriaDenuncia;
+use App\Models\ConfiguracionSistema;
 use App\Models\DependenciaExterna;
 use App\Models\Notificacion;
 use Illuminate\Http\Request;
@@ -43,6 +44,22 @@ class HandleInertiaRequests extends Middleware
             'token' => session('token'),
             'categorias' => CategoriaDenuncia::where('activa', true)->pluck('nombre', 'clave')->toArray(),
             'dependencias' => DependenciaExterna::where('activa', true)->orderBy('nombre')->get(['id', 'nombre'])->toArray(),
+            'clasificaciones' => array_map(
+                fn($item) => [
+                    'id' => $item['id'] ?? null,
+                    'clave' => $item['clave'] ?? null,
+                    'nombre' => $item['nombre'] ?? '',
+                ],
+                ConfiguracionSistema::catalogItems('catalogo_clasificaciones')
+            ),
+            'medios_notificacion' => array_map(
+                fn($item) => [
+                    'id' => $item['id'] ?? null,
+                    'clave' => $item['clave'] ?? null,
+                    'nombre' => $item['nombre'] ?? '',
+                ],
+                ConfiguracionSistema::catalogItems('catalogo_medios_notificacion')
+            ),
             'notificaciones' => $user ? [
                 'no_leidas' => Notificacion::where('usuario_id', $user->id)->where('leida', false)->count(),
                 'recientes' => Notificacion::where('usuario_id', $user->id)->latest()->take(5)->get(),

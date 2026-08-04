@@ -6,6 +6,7 @@ use App\Models\Ampliacion;
 use App\Models\Bitacora;
 use App\Models\CategoriaDenuncia;
 use App\Models\Cierre;
+use App\Models\ConfiguracionSistema;
 use App\Models\Denuncia;
 use App\Models\EvaluacionTecnica;
 use App\Models\InformeFinal;
@@ -15,6 +16,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class DenunciaController extends Controller
@@ -413,7 +415,7 @@ class DenunciaController extends Controller
     public function guardarInforme(string $ticket, Request $request)
     {
         $validated = $request->validate([
-            'clasificacion' => 'required|in:penal,civil,administrativo,sin_indicios,medida_correctiva,archivado',
+            'clasificacion' => ['required', Rule::in($this->clasificacionesValidas())],
             'fojas' => 'required|integer|min:1|max:9999',
             'justificacion' => 'required|string|min:20|max:5000',
             'concluido_por' => 'required|string|min:2|max:100',
@@ -452,7 +454,7 @@ class DenunciaController extends Controller
     public function editarInforme(string $ticket, Request $request)
     {
         $validated = $request->validate([
-            'clasificacion' => 'required|in:penal,civil,administrativo,sin_indicios,medida_correctiva,archivado',
+            'clasificacion' => ['required', Rule::in($this->clasificacionesValidas())],
             'fojas' => 'required|integer|min:1|max:9999',
             'justificacion' => 'required|string|min:20|max:5000',
             'concluido_por' => 'required|string|min:2|max:100',
@@ -976,5 +978,17 @@ class DenunciaController extends Controller
         });
 
         return redirect()->back()->with('success', "Fechas conciliadas para {$ticket}.");
+    }
+
+    private function clasificacionesValidas(): array
+    {
+        $claves = array_values(array_filter(array_column(
+            ConfiguracionSistema::catalogItems('catalogo_clasificaciones'),
+            'clave'
+        )));
+
+        return !empty($claves)
+            ? $claves
+            : ['penal', 'civil', 'administrativo', 'sin_indicios', 'medida_correctiva', 'archivado'];
     }
 }

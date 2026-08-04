@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { router } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { toast } from 'sonner';
 import { Label } from '@/Components/ui/label';
@@ -11,11 +11,16 @@ import { Button } from '@/Components/ui/button';
 import { Separator } from '@/Components/ui/separator';
 import { AlertTriangle, ChevronDown, ChevronRight, History, Archive, Upload, Trash2 } from 'lucide-react';
 
-const mediosNotificacion = [
-  { value: 'whatsapp', label: 'WhatsApp' },
-  { value: 'email', label: 'Correo Electrónico' },
-  { value: 'presencial', label: 'Presencial' },
-  { value: 'otro', label: 'Otro' },
+interface MedioOption {
+  clave: string | null;
+  nombre: string;
+}
+
+const FALLBACK_MEDIOS_NOTIFICACION: MedioOption[] = [
+  { clave: 'whatsapp', nombre: 'WhatsApp' },
+  { clave: 'email', nombre: 'Correo Electrónico' },
+  { clave: 'presencial', nombre: 'Presencial' },
+  { clave: 'otro', nombre: 'Otro' },
 ];
 
 interface CierreData {
@@ -202,8 +207,14 @@ function CierreForm({ ticket, cierre, tecnicoNombre, processing, setProcessing, 
   onCancel?: () => void;
   onSuccess?: () => void;
 }) {
+  const props = usePage().props as Record<string, any>;
+  const catalogMedios = Array.isArray(props.medios_notificacion)
+    ? (props.medios_notificacion as MedioOption[]).filter((m) => m.clave && m.nombre)
+    : [];
+  const mediosNotificacion = catalogMedios.length > 0 ? catalogMedios : FALLBACK_MEDIOS_NOTIFICACION;
+
   const [notificadoDenunciante, setNotificadoDenunciante] = useState(cierre?.notificado_denunciante ?? true);
-  const [notificacionMedio, setNotificacionMedio] = useState(cierre?.notificacion_medio || '');
+  const [notificacionMedio, setNotificacionMedio] = useState((cierre?.notificacion_medio || '').toLowerCase());
   const [notificacionFecha, setNotificacionFecha] = useState(cierre?.notificacion_fecha ? cierre.notificacion_fecha.split('T')[0] : '');
   const [notificacionDescripcion, setNotificacionDescripcion] = useState(cierre?.notificacion_descripcion || '');
   const [noNotificadoMotivo, setNoNotificadoMotivo] = useState(cierre?.no_notificado_motivo || '');
@@ -213,7 +224,7 @@ function CierreForm({ ticket, cierre, tecnicoNombre, processing, setProcessing, 
   useEffect(() => {
     if (cierre) {
       setNotificadoDenunciante(cierre.notificado_denunciante ?? false);
-      setNotificacionMedio(cierre.notificacion_medio || '');
+      setNotificacionMedio((cierre.notificacion_medio || '').toLowerCase());
       setNotificacionFecha(cierre.notificacion_fecha ? cierre.notificacion_fecha.split('T')[0] : '');
       setNotificacionDescripcion(cierre.notificacion_descripcion || '');
       setNoNotificadoMotivo(cierre.no_notificado_motivo || '');
@@ -299,7 +310,7 @@ function CierreForm({ ticket, cierre, tecnicoNombre, processing, setProcessing, 
                 </SelectTrigger>
                 <SelectContent>
                   {mediosNotificacion.map((m) => (
-                    <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
+                    <SelectItem key={m.clave} value={m.clave ?? ''}>{m.nombre}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>

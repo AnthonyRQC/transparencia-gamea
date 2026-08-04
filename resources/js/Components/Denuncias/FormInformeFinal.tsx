@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { router } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { toast } from 'sonner';
 import { Label } from '@/Components/ui/label';
@@ -10,13 +10,19 @@ import { Button } from '@/Components/ui/button';
 import { Separator } from '@/Components/ui/separator';
 import { AlertTriangle, ChevronDown, ChevronRight, History, FileText, Upload, Trash2 } from 'lucide-react';
 import ClasificacionBadge from './ClasificacionBadge';
-const clasificaciones = [
-  { value: 'penal', label: 'Penal' },
-  { value: 'civil', label: 'Civil' },
-  { value: 'administrativo', label: 'Administrativo' },
-  { value: 'sin_indicios', label: 'Sin Indicios' },
-  { value: 'medida_correctiva', label: 'Medida Correctiva' },
-  { value: 'archivado', label: 'Archivado' },
+
+interface ClasificacionOption {
+  clave: string;
+  nombre: string;
+}
+
+const FALLBACK_CLASIFICACIONES: ClasificacionOption[] = [
+  { clave: 'penal', nombre: 'Penal' },
+  { clave: 'civil', nombre: 'Civil' },
+  { clave: 'administrativo', nombre: 'Administrativo' },
+  { clave: 'sin_indicios', nombre: 'Sin Indicios' },
+  { clave: 'medida_correctiva', nombre: 'Medida Correctiva' },
+  { clave: 'archivado', nombre: 'Archivado' },
 ];
 
 interface InformeData {
@@ -203,6 +209,12 @@ function InformeForm({ ticket, informe, tecnicoNombre, processing, setProcessing
     }
   }, [informe, tecnicoNombre]);
 
+  const props = usePage().props as Record<string, any>;
+  const catalogClasificaciones = Array.isArray(props.clasificaciones)
+    ? (props.clasificaciones as ClasificacionOption[]).filter((c) => c.clave && c.nombre)
+    : [];
+  const clasificaciones = catalogClasificaciones.length > 0 ? catalogClasificaciones : FALLBACK_CLASIFICACIONES;
+
   const canSubmit = clasificacion && parseInt(fojas) > 0 && (justificacion || '').trim().length >= 20 && (concluidoPor || '').trim().length >= 2;
   const isEdit = informe && informe.clasificacion;
 
@@ -251,7 +263,7 @@ function InformeForm({ ticket, informe, tecnicoNombre, processing, setProcessing
           </SelectTrigger>
           <SelectContent>
             {clasificaciones.map((c) => (
-              <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+              <SelectItem key={c.clave} value={c.clave}>{c.nombre}</SelectItem>
             ))}
           </SelectContent>
         </Select>

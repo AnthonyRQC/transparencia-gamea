@@ -4,10 +4,12 @@ namespace Tests\Feature;
 
 use App\Models\Bitacora;
 use App\Models\CategoriaDenuncia;
+use App\Models\Cierre;
 use App\Models\ConfiguracionSistema;
 use App\Models\Denuncia;
 use App\Models\DependenciaExterna;
 use App\Models\Feriado;
+use App\Models\InformeFinal;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -38,9 +40,18 @@ class CatalogoControllerTest extends TestCase
         ConfiguracionSistema::create([
             'clave' => 'catalogo_clasificaciones',
             'valor' => json_encode([
-                ['id' => 1, 'nombre' => 'PENAL', 'activo' => true],
+                ['id' => 1, 'clave' => 'penal', 'nombre' => 'PENAL', 'activo' => true],
             ]),
             'descripcion' => 'CLASIFICACIONES FINALES',
+        ]);
+
+        ConfiguracionSistema::create([
+            'clave' => 'catalogo_medios_notificacion',
+            'valor' => json_encode([
+                ['id' => 1, 'clave' => 'whatsapp', 'nombre' => 'WHATSAPP', 'activo' => true],
+                ['id' => 2, 'clave' => 'email', 'nombre' => 'EMAIL', 'activo' => true],
+            ]),
+            'descripcion' => 'MEDIOS DE NOTIFICACIÓN DE DESCARGOS',
         ]);
     }
 
@@ -451,13 +462,203 @@ class CatalogoControllerTest extends TestCase
     {
         $this->actingAs($this->jefe);
 
-        $response = $this->post('/admin/catalogos/clasificaciones/1/eliminar');
+        $this->post('/admin/catalogos/clasificaciones', [
+            'nombre' => 'CLASIFICACIÓN BORRABLE',
+        ])->assertSessionHas('success');
+
+        $config = ConfiguracionSistema::where('clave', 'catalogo_clasificaciones')->first();
+        $items = json_decode($config->valor, true);
+        $this->assertCount(2, $items);
+        $nuevoId = $items[1]['id'];
+
+        $response = $this->post("/admin/catalogos/clasificaciones/{$nuevoId}/eliminar");
+
+        $response->assertSessionHas('success');
+
+        $config->refresh();
+        $items = json_decode($config->valor, true);
+        $this->assertCount(1, $items);
+    }
+
+    public function test_protected_clasificacion_not_deletable(): void
+    {
+        $this->actingAs($this->jefe);
+
+        $config = ConfiguracionSistema::where('clave', 'catalogo_clasificaciones')->first();
+        $config->update(['valor' => json_encode([
+            ['id' => 6, 'clave' => 'archivado', 'nombre' => 'ARCHIVADO', 'activo' => true],
+        ])]);
+
+        $response = $this->post('/admin/catalogos/clasificaciones/6/eliminar');
+
+        $response->assertSessionHasErrors(['error']);
+    }
+
+    public function test_clasificacion_in_use_not_deletable(): void
+    {
+        $this->actingAs($this->jefe);
+
+        $denuncia = Denuncia::factory()->create([
+            'ticket' => 'DEN-2026-0099',
+            'token_consulta' => '9901',
+            'tipo' => 'corrupcion',
+            'estado' => 'cerrada',
+        ]);
+        InformeFinal::create([
+            'denuncia_id' => $denuncia->id,
+            'clasificacion' => 'otra_clasificacion',
+            'fojas' => 5,
+            'justificacion' => 'JUSTIFICACIÓN DE PRUEBA LARGA',
+            'concluido_por' => 'TEST',
+            'redactado_at' => now(),
+        ]);
+
+        $this->post('/admin/catalogos/clasificaciones', [
+            'nombre' => 'OTRA CLASIFICACIÓN',
+        ])->assertSessionHas('success');
+
+        $config = ConfiguracionSistema::where('clave', 'catalogo_clasificaciones')->first();
+        $items = json_decode($config->valor, true);
+        $nuevoId = $items[1]['id'];
+
+        $response = $this->post("/admin/catalogos/clasificaciones/{$nuevoId}/eliminar");
+
+        $response->assertSessionHasErrors(['error']);
+    }
+
+    public function test_clasificacion_store_genera_clave(): void
+    {
+        $this->actingAs($this->jefe);
+
+        $response = $this->post('/admin/catalogos/clasificaciones', [
+            'nombre' => 'OTRO TIPO',
+        ]);
 
         $response->assertSessionHas('success');
 
         $config = ConfiguracionSistema::where('clave', 'catalogo_clasificaciones')->first();
         $items = json_decode($config->valor, true);
-        $this->assertCount(0, $items);
+        $this->assertEquals('otro_tipo', $items[1]['clave']);
+    }
+
+    public function test_clasificacion_index_marks_protected_and_usos(): void
+    {
+        $this->actingAs($this->jefe);
+
+        $denuncia = Denuncia::factory()->create([
+            'ticket' => 'DEN-2026-0098',
+            'token_consulta' => '9801',
+            'tipo' => 'corrupcion',
+            'estado' => 'cerrada',
+        ]);
+        InformeFinal::create([
+            'denuncia_id' => $denuncia->id,
+            'clasificacion' => 'penal',
+            'fojas' => 5,
+            'justificacion' => 'JUSTIFICACIÓN DE PRUEBA LARGA',
+            'concluido_por' => 'TEST',
+            'redactado_at' => now(),
+        ]);
+
+        $response = $this->get('/admin/catalogos');
+
+        $response->assertInertia(fn($page) => $page
+            ->where('catalogos.clasificaciones.items.0.protegido', true)
+            ->where('catalogos.clasificaciones.items.0.usos', 1)
+        );
+    }
+
+    public function test_medio_notificacion_in_use_not_deletable(): void
+    {
+        $this->actingAs($this->jefe);
+
+        $denuncia = Denuncia::factory()->create([
+            'ticket' => 'DEN-2026-0097',
+            'token_consulta' => '9701',
+            'tipo' => 'corrupcion',
+            'estado' => 'cerrada',
+        ]);
+        Cierre::create([
+            'denuncia_id' => $denuncia->id,
+            'notificado_denunciante' => true,
+            'notificacion_medio' => 'WHATSAPP',
+            'notificacion_fecha' => now(),
+            'notificacion_descripcion' => 'NOTIFICACIÓN DE PRUEBA COMPLETA',
+            'concluido_por' => 'TEST',
+            'descripcion' => 'DESCRIPCIÓN DE CIERRE DE PRUEBA LARGA',
+            'cerrado_at' => now(),
+            'eliminado' => false,
+        ]);
+
+        $response = $this->post('/admin/catalogos/medios_notificacion/1/eliminar');
+
+        $response->assertSessionHasErrors(['error']);
+    }
+
+    public function test_medio_notificacion_unused_deletable(): void
+    {
+        $this->actingAs($this->jefe);
+
+        $this->post('/admin/catalogos/medios_notificacion', [
+            'nombre' => 'CORREO INTERNO',
+        ])->assertSessionHas('success');
+
+        $config = ConfiguracionSistema::where('clave', 'catalogo_medios_notificacion')->first();
+        $items = json_decode($config->valor, true);
+        $nuevoId = $items[1]['id'];
+
+        $response = $this->post("/admin/catalogos/medios_notificacion/{$nuevoId}/eliminar");
+
+        $response->assertSessionHas('success');
+
+        $config->refresh();
+        $items = json_decode($config->valor, true);
+        $this->assertCount(2, $items);
+    }
+
+    public function test_medio_notificacion_store_genera_clave(): void
+    {
+        $this->actingAs($this->jefe);
+
+        $response = $this->post('/admin/catalogos/medios_notificacion', [
+            'nombre' => 'CORREO INTERNO',
+        ]);
+
+        $response->assertSessionHas('success');
+
+        $config = ConfiguracionSistema::where('clave', 'catalogo_medios_notificacion')->first();
+        $items = json_decode($config->valor, true);
+        $this->assertCount(3, $items);
+        $this->assertEquals('correo_interno', $items[2]['clave']);
+    }
+
+    public function test_medio_notificacion_index_marks_usos(): void
+    {
+        $this->actingAs($this->jefe);
+
+        $denuncia = Denuncia::factory()->create([
+            'ticket' => 'DEN-2026-0096',
+            'token_consulta' => '9601',
+            'tipo' => 'corrupcion',
+            'estado' => 'cerrada',
+        ]);
+        Cierre::create([
+            'denuncia_id' => $denuncia->id,
+            'notificado_denunciante' => true,
+            'notificacion_medio' => 'EMAIL',
+            'notificacion_fecha' => now(),
+            'notificacion_descripcion' => 'NOTIFICACIÓN DE PRUEBA COMPLETA',
+            'concluido_por' => 'TEST',
+            'descripcion' => 'DESCRIPCIÓN DE CIERRE DE PRUEBA LARGA',
+            'cerrado_at' => now(),
+            'eliminado' => false,
+        ]);
+
+        $response = $this->get('/admin/catalogos');
+
+        $response->assertInertia(fn($page) => $page
+            ->where('catalogos.medios_notificacion.items.1.usos', 1)
+        );
     }
 
     public function test_categoria_validates_unique_name(): void
