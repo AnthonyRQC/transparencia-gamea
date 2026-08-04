@@ -417,6 +417,36 @@ class CatalogoControllerTest extends TestCase
         $this->assertEquals('PENAL ACTUALIZADO', $items[0]['nombre']);
     }
 
+    public function test_config_based_item_is_uppercased_on_store(): void
+    {
+        $this->actingAs($this->jefe);
+
+        $response = $this->post('/admin/catalogos/clasificaciones', [
+            'nombre' => 'test minúsculas',
+        ]);
+
+        $response->assertSessionHas('success');
+
+        $config = ConfiguracionSistema::where('clave', 'catalogo_clasificaciones')->first();
+        $items = json_decode($config->valor, true);
+        $this->assertEquals('TEST MINÚSCULAS', $items[1]['nombre']);
+    }
+
+    public function test_config_based_item_is_uppercased_on_update(): void
+    {
+        $this->actingAs($this->jefe);
+
+        $response = $this->post('/admin/catalogos/clasificaciones/1', [
+            'nombre' => 'penal actualizado',
+        ]);
+
+        $response->assertSessionHas('success');
+
+        $config = ConfiguracionSistema::where('clave', 'catalogo_clasificaciones')->first();
+        $items = json_decode($config->valor, true);
+        $this->assertEquals('PENAL ACTUALIZADO', $items[0]['nombre']);
+    }
+
     public function test_jefe_can_delete_config_based_item(): void
     {
         $this->actingAs($this->jefe);

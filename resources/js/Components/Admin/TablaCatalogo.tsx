@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
-import { Plus, Pencil, ToggleLeft, ToggleRight, ChevronDown, ChevronRight, CircleDot } from 'lucide-react';
+import { Plus, Pencil, ToggleLeft, ToggleRight, Trash2, ChevronDown, ChevronRight, CircleDot } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/Components/ui/button';
 import { Switch } from '@/Components/ui/switch';
@@ -49,6 +49,7 @@ interface TablaCatalogoProps {
     agrupado_por_anio?: boolean;
     readonly?: boolean;
     editable_only?: boolean;
+    is_json_based?: boolean;
 }
 
 function formatValue(item: CatalogoItem, col: ColumnConfig): string {
@@ -77,8 +78,10 @@ function formatValue(item: CatalogoItem, col: ColumnConfig): string {
 
 function isInactivo(item: CatalogoItem): boolean {
     if (item.deleted_at !== undefined && item.deleted_at !== null) return true;
-    if (item.activa === false) return true;
-    if (item.activo === false) return true;
+    const activa = item.activa as any;
+    const activo = item.activo as any;
+    if ('activa' in item && (activa === false || activa === 0 || activa === '0')) return true;
+    if ('activo' in item && (activo === false || activo === 0 || activo === '0')) return true;
     return false;
 }
 
@@ -89,11 +92,13 @@ export default function TablaCatalogo({
     agrupado_por_anio = false,
     readonly = false,
     editable_only = false,
+    is_json_based = false,
 }: TablaCatalogoProps) {
     const [modalOpen, setModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState<CatalogoItem | null>(null);
     const [confirmOpen, setConfirmOpen] = useState(false);
-    const [togglingItem, setTogglingItem] = useState<CatalogoItem | null>(null);
+    const [confirmItem, setConfirmItem] = useState<CatalogoItem | null>(null);
+    const [confirmMode, setConfirmMode] = useState<'desactivar' | 'eliminar'>('desactivar');
     const [processing, setProcessing] = useState(false);
     const [showInactive, setShowInactive] = useState(false);
     const [expandedAnios, setExpandedAnios] = useState<Record<number, boolean>>({});
@@ -129,23 +134,50 @@ export default function TablaCatalogo({
     }
 
     function handleToggle(item: CatalogoItem) {
-        setTogglingItem(item);
+        setConfirmMode('desactivar');
+        setConfirmItem(item);
         setConfirmOpen(true);
     }
 
-    function executeToggle() {
-        if (!togglingItem) return;
+    function handleDelete(item: CatalogoItem) {
+        setConfirmMode('eliminar');
+        setConfirmItem(item);
+        setConfirmOpen(true);
+    }
+
+    function executeConfirm() {
+        if (!confirmItem) return;
         setProcessing(true);
-        const isActive = !isInactivo(togglingItem);
+        const item = confirmItem;
+
+        if (confirmMode === 'eliminar') {
+            router.post(route('admin.catalogos.destroy', { tipo, id: String(item.id) } as any), {} as any, {
+                preserveState: true,
+                preserveScroll: true,
+                onSuccess: () => {
+                    toast.success('Elemento eliminado');
+                    setConfirmOpen(false);
+                    setConfirmItem(null);
+                    setProcessing(false);
+                },
+                onError: () => {
+                    toast.error('Error al eliminar');
+                    setProcessing(false);
+                },
+            });
+            return;
+        }
+
+        const isActive = !isInactivo(item);
 
         if (isActive) {
-            router.post(route('admin.catalogos.destroy', { tipo, id: String(togglingItem.id) } as any), {} as any, {
+            router.post(route('admin.catalogos.destroy', { tipo, id: String(item.id) } as any), {} as any, {
                 preserveState: true,
                 preserveScroll: true,
                 onSuccess: () => {
                     toast.success('Elemento desactivado');
                     setConfirmOpen(false);
-                    setTogglingItem(null);
+                    setConfirmItem(null);
                     setProcessing(false);
                 },
                 onError: () => {
@@ -154,13 +186,13 @@ export default function TablaCatalogo({
                 },
             });
         } else {
-            router.post(route('admin.catalogos.reactivar', { tipo, id: String(togglingItem.id) } as any), {} as any, {
+            router.post(route('admin.catalogos.reactivar', { tipo, id: String(item.id) } as any), {} as any, {
                 preserveState: true,
                 preserveScroll: true,
                 onSuccess: () => {
                     toast.success('Elemento reactivado');
                     setConfirmOpen(false);
-                    setTogglingItem(null);
+                    setConfirmItem(null);
                     setProcessing(false);
                 },
                 onError: () => {
@@ -294,7 +326,17 @@ export default function TablaCatalogo({
                                                     >
                                                         <Pencil className="w-4 h-4" />
                                                     </Button>
-                                                    {!editable_only && (
+                                                    {!editable_only && (is_json_based ? (
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            onClick={() => handleDelete(item)}
+                                                            title="Eliminar"
+                                                            className="text-destructive hover:text-destructive"
+                                                        >
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </Button>
+                                                    ) : (
                                                         <Button
                                                             variant="ghost"
                                                             size="icon"
@@ -304,7 +346,7 @@ export default function TablaCatalogo({
                                                         >
                                                             {inactive ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
                                                         </Button>
-                                                    )}
+                                                    ))}
                                                 </div>
                                             </TableCell>
                                         )}
@@ -389,16 +431,18 @@ export default function TablaCatalogo({
                         <p className="text-xs text-muted-foreground">
                             {filteredItems.length} elemento{filteredItems.length !== 1 ? 's' : ''}
                         </p>
-                        <div className="flex items-center gap-2">
-                            <Switch
-                                id={`show-inactive-${tipo}`}
-                                checked={showInactive}
-                                onCheckedChange={setShowInactive}
-                            />
-                            <Label htmlFor={`show-inactive-${tipo}`} className="text-xs text-muted-foreground cursor-pointer select-none">
-                                Mostrar inactivos
-                            </Label>
-                        </div>
+                        {!is_json_based && !editable_only && (
+                            <div className="flex items-center gap-2">
+                                <Switch
+                                    id={`show-inactive-${tipo}`}
+                                    checked={showInactive}
+                                    onCheckedChange={setShowInactive}
+                                />
+                                <Label htmlFor={`show-inactive-${tipo}`} className="text-xs text-muted-foreground cursor-pointer select-none">
+                                    Mostrar inactivos
+                                </Label>
+                            </div>
+                        )}
                     </div>
                 </div>
                 {!readonly && !editable_only && (
@@ -428,12 +472,17 @@ export default function TablaCatalogo({
                 open={confirmOpen}
                 onOpenChange={(open) => {
                     setConfirmOpen(open);
-                    if (!open) setTogglingItem(null);
+                    if (!open) setConfirmItem(null);
                 }}
-                onConfirm={executeToggle}
-                titulo={togglingItem && !isInactivo(togglingItem) ? 'Desactivar elemento' : 'Reactivar elemento'}
-                nombreItem={togglingItem ? String(togglingItem.nombre ?? togglingItem.clave ?? togglingItem.id) : ''}
-                dependencias={togglingItem && !isInactivo(togglingItem) ? getDependencias(togglingItem) : []}
+                onConfirm={executeConfirm}
+                mode={confirmMode}
+                titulo={confirmMode === 'eliminar'
+                    ? 'Eliminar elemento'
+                    : confirmItem && !isInactivo(confirmItem)
+                        ? 'Desactivar elemento'
+                        : 'Reactivar elemento'}
+                nombreItem={confirmItem ? String(confirmItem.nombre ?? confirmItem.clave ?? confirmItem.id) : ''}
+                dependencias={confirmMode === 'eliminar' ? [] : confirmItem && !isInactivo(confirmItem) ? getDependencias(confirmItem) : []}
                 processing={processing}
             />
         </div>

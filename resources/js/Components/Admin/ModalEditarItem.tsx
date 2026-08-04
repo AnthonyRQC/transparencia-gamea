@@ -10,7 +10,6 @@ import {
 import { Button } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
 import { Label } from '@/Components/ui/label';
-import { Switch } from '@/Components/ui/switch';
 import {
     Select,
     SelectContent,
@@ -42,10 +41,9 @@ interface ModalEditarItemProps {
     readonly?: boolean;
 }
 
-const EDITABLE_TYPES = ['text', 'boolean', 'select', 'date'];
+const EDITABLE_TYPES = ['text', 'select', 'date'];
 
 function getDefaultValue(col: ColumnConfig): unknown {
-    if (col.type === 'boolean') return true;
     if (col.type === 'select' && col.options) {
         const keys = Object.keys(col.options);
         return keys.length > 0 ? keys[0] : '';
@@ -121,20 +119,6 @@ export default function ModalEditarItem({
                                     style={{ textTransform: 'uppercase' }}
                                     disabled={col.readonly || readonly}
                                 />
-                            )}
-
-                            {col.type === 'boolean' && (
-                                <div className="flex items-center gap-2 pt-1">
-                                    <Switch
-                                        id={col.key}
-                                        checked={Boolean(formData[col.key])}
-                                        onCheckedChange={(v) => setField(col.key, v)}
-                                        disabled={readonly}
-                                    />
-                                    <span className="text-sm text-muted-foreground">
-                                        {formData[col.key] ? 'Sí' : 'No'}
-                                    </span>
-                                </div>
                             )}
 
                             {col.type === 'date' && (

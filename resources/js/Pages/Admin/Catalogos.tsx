@@ -24,6 +24,7 @@ interface CatalogoDef {
     columns: ColumnConfig[];
     readonly?: boolean;
     editable_only?: boolean;
+    is_json_based?: boolean;
     agrupado_por_anio?: boolean;
 }
 
@@ -65,6 +66,7 @@ export default function Catalogos() {
                             agrupado_por_anio={catalogos[tipo].agrupado_por_anio ?? false}
                             readonly={catalogos[tipo].readonly ?? false}
                             editable_only={catalogos[tipo].editable_only ?? false}
+                            is_json_based={catalogos[tipo].is_json_based ?? false}
                         />
                     </TabsContent>
                 ))}

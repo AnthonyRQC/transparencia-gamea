@@ -17,7 +17,7 @@ class CatalogoController extends Controller
 {
     private const TABLE_BASED = ['categorias', 'unidades', 'feriados'];
     private const CONFIG_BASED = ['clasificaciones', 'tipos_denuncia', 'estados', 'medios_notificacion', 'tipos_prueba'];
-    private const READ_ONLY_TYPES = ['tipos_denuncia', 'estados'];
+    private const READ_ONLY_TYPES = ['tipos_denuncia', 'estados', 'tipos_prueba'];
 
     public function index()
     {
@@ -48,23 +48,30 @@ class CatalogoController extends Controller
                 'items' => $this->getConfigArray('catalogo_medios_notificacion'),
                 'columns' => [
                     ['key' => 'nombre', 'label' => 'Nombre', 'type' => 'text'],
-                    ['key' => 'activo', 'label' => 'Estado', 'type' => 'boolean'],
                 ],
+                'is_json_based' => true,
             ],
             'clasificaciones' => [
                 'label' => 'Clasificaciones Finales',
                 'items' => $this->getConfigArray('catalogo_clasificaciones'),
                 'columns' => [
                     ['key' => 'nombre', 'label' => 'Nombre', 'type' => 'text'],
-                    ['key' => 'activo', 'label' => 'Estado', 'type' => 'boolean'],
                 ],
+                'is_json_based' => true,
             ],
             'estados' => [
                 'label' => 'Estados',
                 'items' => $this->getConfigArray('catalogo_estados'),
                 'columns' => [
                     ['key' => 'nombre', 'label' => 'Nombre', 'type' => 'text'],
-                    ['key' => 'activo', 'label' => 'Estado', 'type' => 'boolean'],
+                ],
+                'editable_only' => true,
+            ],
+            'tipos_denuncia' => [
+                'label' => 'Tipos de Denuncia',
+                'items' => $this->getConfigArray('catalogo_tipos_denuncia'),
+                'columns' => [
+                    ['key' => 'nombre', 'label' => 'Nombre', 'type' => 'text'],
                 ],
                 'editable_only' => true,
             ],
@@ -73,8 +80,8 @@ class CatalogoController extends Controller
                 'items' => $this->getConfigArray('catalogo_tipos_prueba'),
                 'columns' => [
                     ['key' => 'nombre', 'label' => 'Nombre', 'type' => 'text'],
-                    ['key' => 'activo', 'label' => 'Estado', 'type' => 'boolean'],
                 ],
+                'editable_only' => true,
             ],
         ];
 
@@ -128,6 +135,7 @@ class CatalogoController extends Controller
         } else {
             $items = $this->getConfigArray('catalogo_' . $tipo);
             $newId = count($items) > 0 ? max(array_column($items, 'id')) + 1 : 1;
+            $data = $this->upperData($data);
             $data['id'] = $newId;
             $items[] = $data;
             $this->setConfigArray('catalogo_' . $tipo, $items);
@@ -172,6 +180,7 @@ class CatalogoController extends Controller
             }
         } else {
             $items = $this->getConfigArray('catalogo_' . $tipo);
+            $data = $this->upperData($data);
             $found = false;
             foreach ($items as &$item) {
                 if ((int) $item['id'] === (int) $id) {
@@ -217,7 +226,8 @@ class CatalogoController extends Controller
             }
             $items = array_values(array_filter($items, fn($item) => (int) $item['id'] !== (int) $id));
             $this->setConfigArray('catalogo_' . $tipo, $items);
-            $this->logBitacora($tipo, (int) $id, 'desactivar', ['nombre' => $found['nombre'] ?? '']);
+            $this->logBitacora($tipo, (int) $id, 'eliminar', ['nombre' => $found['nombre'] ?? '']);
+            return back()->with('success', 'Elemento eliminado correctamente.');
         }
 
         return back()->with('success', 'Elemento desactivado correctamente.');
@@ -368,6 +378,14 @@ class CatalogoController extends Controller
                 'descripcion' => 'CATÁLOGO: ' . str_replace('_', ' ', $clave),
             ]);
         }
+    }
+
+    private function upperData(array $data): array
+    {
+        return array_map(
+            fn($value) => is_string($value) ? Str::upper($value) : $value,
+            $data
+        );
     }
 
     private function rulesFor(string $tipo, bool $isUpdate = false): array

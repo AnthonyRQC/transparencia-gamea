@@ -20,6 +20,7 @@ interface ModalConfirmarDesactivarProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onConfirm: () => void;
+    mode?: 'desactivar' | 'eliminar';
     titulo: string;
     nombreItem: string;
     dependencias?: Dependencia[];
@@ -30,12 +31,14 @@ export default function ModalConfirmarDesactivar({
     open,
     onOpenChange,
     onConfirm,
+    mode = 'desactivar',
     titulo,
     nombreItem,
     dependencias = [],
     processing = false,
 }: ModalConfirmarDesactivarProps) {
     const tieneDependencias = dependencias.length > 0;
+    const esEliminar = mode === 'eliminar';
 
     return (
         <AlertDialog open={open} onOpenChange={onOpenChange}>
@@ -47,12 +50,18 @@ export default function ModalConfirmarDesactivar({
                     </AlertDialogTitle>
                     <AlertDialogDescription className="space-y-3">
                         <p>
-                            ¿Está seguro de desactivar <strong>{nombreItem}</strong>?
+                            ¿Está seguro de {esEliminar ? 'eliminar' : 'desactivar'} <strong>{nombreItem}</strong>?
                         </p>
-                        <p className="text-xs text-muted-foreground">
-                            Las referencias existentes a este elemento se mantienen. 
-                            Solo desaparecerá de los formularios de nuevos registros.
-                        </p>
+                        {esEliminar ? (
+                            <p className="text-xs text-muted-foreground">
+                                Esta acción eliminará el elemento permanentemente y no se podrá recuperar.
+                            </p>
+                        ) : (
+                            <p className="text-xs text-muted-foreground">
+                                Las referencias existentes a este elemento se mantienen. 
+                                Solo desaparecerá de los formularios de nuevos registros.
+                            </p>
+                        )}
                         {tieneDependencias && (
                             <div className="bg-muted/50 rounded-lg p-3 space-y-1.5">
                                 <p className="text-xs font-semibold text-foreground">
@@ -75,7 +84,7 @@ export default function ModalConfirmarDesactivar({
                         disabled={processing}
                         className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                     >
-                        {processing ? 'Desactivando...' : 'Desactivar'}
+                        {processing ? (esEliminar ? 'Eliminando...' : 'Desactivando...') : (esEliminar ? 'Eliminar' : 'Desactivar')}
                     </AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>
