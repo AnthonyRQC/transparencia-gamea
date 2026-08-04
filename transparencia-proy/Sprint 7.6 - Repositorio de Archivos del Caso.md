@@ -85,7 +85,7 @@ class ArchivoData
 
 ### 2.4 Comportamiento del soft delete
 - En Fase 0 (mock), el archivo no se "borra" realmente — solo se marca `eliminado: true` en sesión.
-- En Fase 1 (Sprint 14, BD), el archivo físico en disco se **mueve** a `archivos_eliminados/` con timestamp en el nombre:
+- En Fase 1 (Sprint 10, BD), el archivo físico en disco se **mueve** a `archivos_eliminados/` con timestamp en el nombre:
   ```
   storage/app/archivos_eliminados/DEN-2026-0001_acta_2026-07-16_14-30-22.pdf
   ```
@@ -147,7 +147,7 @@ PATCH  /archivos/{id}                        → ArchivosCasoController@update
 DELETE /archivos/{id}                        → ArchivosCasoController@destroy
 ```
 
-## 7. Base de datos (Sprint 14)
+## 7. Base de datos (Sprint 10)
 
 ### Nueva tabla `denuncias_archivos`
 Ver detalle completo en `Esquema de Base de Datos.md` → tabla 7.5.

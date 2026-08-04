@@ -82,7 +82,7 @@ Busca en los siguientes campos concatenados con OR:
 - `denuncias.resumen_rechazo`
 
 **Algoritmo simple (Fase 0 mock):** usar `str_contains()` case-insensitive sobre cada campo.
-**Fase 1 (Sprint 14, BD):** usar LIKE con FULLTEXT index si MySQL.
+**Fase 1 (Sprint 10, BD):** usar LIKE con FULLTEXT index si MySQL.
 
 ### 2.4 Whitelist de campos devueltos
 Por seguridad, la consulta solo devuelve los campos necesarios para la tabla y el detalle. **NO expone:** denunciante completo (solo nombres masked), denunciantes CI, datos de contacto, técnicos password, etc.
@@ -193,7 +193,7 @@ GET /denuncias/consultar                  → ConsultaCasosController@index
 GET /denuncias/{ticket}/consultar-codigo  → ConsultaCasosController@consultarCodigo
 ```
 
-Ambas con middleware de permiso (en Fase 0, chequeo por rol; en Sprint 15, por permiso).
+Ambas con middleware de permiso (en Fase 0, chequeo por rol; en Sprint 16, por permiso).
 
 ### `routes/web.php` (modificar)
 ```php

@@ -40,49 +40,53 @@ $categorias = [
 ];
 ```
 
-### 2.2 Unidades externas (~13 registros)
+### 2.2 Dependencias externas (~13 registros)
 
 ```php
-$unidades = [
-    ['clave' => 'sistemas',       'nombre' => 'UNIDAD DE SISTEMAS'],
-    ['clave' => 'adquisiciones',  'nombre' => 'UNIDAD DE ADQUISICIONES'],
-    ['clave' => 'rrhh',           'nombre' => 'RECURSOS HUMANOS'],
-    ['clave' => 'transito',       'nombre' => 'TRÁNSITO'],
-    ['clave' => 'catastro',       'nombre' => 'CATASTRO'],
-    ['clave' => 'obras',          'nombre' => 'OBRAS PÚBLICAS'],
-    ['clave' => 'ingresos',       'nombre' => 'INGRESOS'],
-    ['clave' => 'secretaria',     'nombre' => 'SECRETARÍA GENERAL'],
-    ['clave' => 'contrataciones', 'nombre' => 'CONTRATACIONES'],
-    ['clave' => 'hacienda',       'nombre' => 'HACIENDA'],
-    ['clave' => 'auditoria',      'nombre' => 'AUDITORÍA INTERNA'],
-    ['clave' => 'archivo',        'nombre' => 'ARCHIVO CENTRAL'],
-    ['clave' => 'min_justicia',   'nombre' => 'MINISTERIO DE JUSTICIA'],
+$dependencias = [
+    ['nombre' => 'UNIDAD DE SISTEMAS'],
+    ['nombre' => 'UNIDAD DE ADQUISICIONES'],
+    ['nombre' => 'RECURSOS HUMANOS'],
+    ['nombre' => 'TRÁNSITO'],
+    ['nombre' => 'CATASTRO'],
+    ['nombre' => 'OBRAS PÚBLICAS'],
+    ['nombre' => 'INGRESOS'],
+    ['nombre' => 'SECRETARÍA GENERAL'],
+    ['nombre' => 'CONTRATACIONES'],
+    ['nombre' => 'HACIENDA'],
+    ['nombre' => 'AUDITORÍA INTERNA'],
+    ['nombre' => 'ARCHIVO CENTRAL'],
+    ['nombre' => 'MINISTERIO DE JUSTICIA'],
 ];
 ```
+
+> **Nota:** La tabla se llama `dependencias_externas` (no `unidades_externas`). NO tiene columna `clave`.
 
 ### 2.3 Feriados (~15 registros)
 
 ```php
 $feriados = [
-    ['fecha' => '2026-01-01', 'nombre' => 'AÑO NUEVO', 'recurrente' => true],
-    ['fecha' => '2026-01-22', 'nombre' => 'DÍA DEL ESTADO PLURINACIONAL', 'recurrente' => true],
-    ['fecha' => '2026-02-02', 'nombre' => 'DÍA DE LA VIRGEN DE COPACABANA', 'recurrente' => true],
-    ['fecha' => '2026-03-03', 'nombre' => 'CARNAVAL', 'recurrente' => true],
-    ['fecha' => '2026-04-04', 'nombre' => 'CARNAVAL', 'recurrente' => true],
-    ['fecha' => '2026-05-01', 'nombre' => 'DÍA DEL TRABAJO', 'recurrente' => true],
-    ['fecha' => '2026-06-21', 'nombre' => 'AÑO NUEVO AYMARA', 'recurrente' => true],
-    ['fecha' => '2026-08-06', 'nombre' => 'DÍA DE LA PATRIA', 'recurrente' => true],
-    ['fecha' => '2026-11-02', 'nombre' => 'DÍA DE LOS DIFUNTOS', 'recurrente' => true],
-    ['fecha' => '2026-12-25', 'nombre' => 'NAVIDAD', 'recurrente' => true],
+    ['fecha' => '2026-01-01', 'nombre' => 'AÑO NUEVO'],
+    ['fecha' => '2026-01-22', 'nombre' => 'DÍA DEL ESTADO PLURINACIONAL'],
+    ['fecha' => '2026-02-02', 'nombre' => 'DÍA DE LA VIRGEN DE COPACABANA'],
+    ['fecha' => '2026-03-03', 'nombre' => 'CARNAVAL'],
+    ['fecha' => '2026-04-04', 'nombre' => 'CARNAVAL'],
+    ['fecha' => '2026-05-01', 'nombre' => 'DÍA DEL TRABAJO'],
+    ['fecha' => '2026-06-21', 'nombre' => 'AÑO NUEVO AYMARA'],
+    ['fecha' => '2026-08-06', 'nombre' => 'DÍA DE LA PATRIA'],
+    ['fecha' => '2026-11-02', 'nombre' => 'DÍA DE LOS DIFUNTOS'],
+    ['fecha' => '2026-12-25', 'nombre' => 'NAVIDAD'],
     // Feriados departamentales La Paz
-    ['fecha' => '2026-07-16', 'nombre' => 'DÍA DEL DEPARTAMENTO DE LA PAZ', 'recurrente' => true],
-    ['fecha' => '2026-07-24', 'nombre' => 'DÍA DE LA VIRGEN DEL CARMEN', 'recurrente' => true],
-    // Feriados puente (no recurrentes)
-    ['fecha' => '2026-01-23', 'nombre' => 'PUENTE ESTADO PLURINACIONAL', 'recurrente' => false],
-    ['fecha' => '2026-11-03', 'nombre' => 'PUENTE DIFUNTOS', 'recurrente' => false],
-    ['fecha' => '2026-12-24', 'nombre' => 'PUENTE NAVIDAD', 'recurrente' => false],
+    ['fecha' => '2026-07-16', 'nombre' => 'DÍA DEL DEPARTAMENTO DE LA PAZ'],
+    ['fecha' => '2026-07-24', 'nombre' => 'DÍA DE LA VIRGEN DEL CARMEN'],
+    // Feriados puente
+    ['fecha' => '2026-01-23', 'nombre' => 'PUENTE ESTADO PLURINACIONAL'],
+    ['fecha' => '2026-11-03', 'nombre' => 'PUENTE DIFUNTOS'],
+    ['fecha' => '2026-12-24', 'nombre' => 'PUENTE NAVIDAD'],
 ];
 ```
+
+> **Nota:** La tabla `feriados` NO tiene columna `recurrente`. Usa `SoftDeletes` (desactivar/restaurar).
 
 ## 3. UserSeeder (5 usuarios demo)
 
@@ -260,6 +264,20 @@ function calcularPlazo(string $tipo): int
 $ultimoTicket = Denuncia::withTrashed()->max('ticket');
 $siguienteNumero = $ultimoTicket ? intval(substr($ultimoTicket, -4)) + 1 : 1;
 ```
+
+---
+
+## 9. CatalogosConfigSeeder (5 catálogos JSON)
+
+```php
+// database/seeders/CatalogosConfigSeeder.php
+// Semilla idempotente: usa updateOrCreate sobre configuracion_sistema
+// 5 claves: catalogo_clasificaciones, catalogo_tipos_denuncia, catalogo_estados,
+//           catalogo_medios_notificacion, catalogo_tipos_prueba
+// Cada item tiene: id, clave (excepto tipos_prueba), nombre, activo
+```
+
+> **Nota:** La clave `anio_vigente` fue eliminada del sistema (el año se deriva de las fechas reales).
 
 ---
 

@@ -77,7 +77,7 @@
 #### `app/Http/Controllers/DenunciaController.php` (`admitir`) (NO TOCAR)
 - Queda como está. Sin SITPRECO.
 
-### 2.3 Base de datos (Sprint 14)
+### 2.3 Base de datos (Sprint 10)
 
 #### `denuncias` (modificar tabla)
 - Agregar columna `sitpreco_rechazo` (TEXT 50, NULLABLE).

@@ -69,7 +69,7 @@ Las notificaciones se filtran automáticamente según el rol y los casos asignad
 
 > Estos defaults serán configurables en Sprint 11 (Panel Admin → Preferencias de alerta).
 
-### Patrón de reusabilidad para Sprint 15
+### Patrón de reusabilidad para Sprint 16
 Cuando se implementen roles reales (Sprint 16):
 1. El dropdown se **elimina** del Header
 2. `SesionUsuarioData` se **reemplaza** por `Auth::user()`
@@ -342,57 +342,35 @@ Ver `Sprint 7.7 - Búsqueda y Consulta para Registrador.md`.
 
 ---
 
-## Sprint 11 (era 10) — Panel Administración Catálogos + Subcategorías
+## Sprint 11 (era 10) — Panel Administración Catálogos ✅ COMPLETADO (Agosto 2026)
 
-**Estado:** Pendiente.
-**Origen:** Respuesta del cliente #18.
+**Estado:** En curso.
+**Origen:** Respuesta del cliente #18. Ver `Notas Sprint 11 - Panel Catálogos (Cierre).md`.
 
 ### Resumen
 Panel administrativo único para **CRUD de todos los catálogos** del sistema. Cada catálogo es editable desde aquí, no hardcodeado en código.
 
-### Catálogos a administrar
-- **Clasificaciones finales:** Penal, Civil, Administrativo, Sin Indicios, Medida Correctiva, Archivado
-- **Categorías** de denuncia
-- **Subcategorías** de denuncia (por tipo, ej. Corrupción → [Soborno, Nepotismo, ...])
-- **Tipos de denuncia:** Corrupción, Negación de Información
-- **Estados:** ingresada, evaluación técnica, admitida, rechazada, asignada, investigación, informe, cerrada
-- **Medios de notificación:** whatsapp, email, presencial, otro
-- **Tipos de prueba:** archivo, prueba física, testigo
-- **Dependencias/unidades externas**
+### Implementado (8 pestañas)
+- **Categorías de denuncia** (tabla BD)
+- **Dependencias externas** (tabla BD)
+- **Feriados** (tabla BD con SoftDeletes)
+- **Medios de notificación** (JSON config, conectados con Cierre — protección por uso)
+- **Clasificaciones finales** (JSON config, fuente de verdad — protección por uso + protegidas)
+- **Estados** (JSON config, solo-edición)
+- **Tipos de denuncia** (JSON config, solo-edición)
+- **Tipos de prueba** (JSON config, solo-edición)
 
-### Configuración de alertas por usuario (NUEVO — Julio 2026)
-Cada usuario (Jefe y Técnicos) podrá configurar los días de anticipación para recibir notificaciones:
-- Plazo total del caso: default 3 días
-- Informe final: default 3 días
-- Solicitud de información: default 2 días
-- Descargo de denunciados: default 2 días
+### Pendiente
+- **Configuración de alertas por usuario:** Sliders/inputs numéricos con preview. Se implementa en Sprint 18 (Panel de Usuario).
+- **Subcategorías jerárquicas:** `parent_id` no se implementó en la migración actual. Pendiente confirmación del cliente sobre estructura.
 
-**UI:** Sliders/inputs numéricos con preview de simulación. Persistencia en sesión (mock) luego en BD (Sprint 9.2).
-
-**Archivo adicional:**
-- `resources/js/Pages/Admin/PreferenciasAlertas.tsx` (nuevo)
-
-### Subcategorías
-- Cada tipo de denuncia tiene sus propias subcategorías
-- Definidas en este panel
-- Seleccionables en formulario de registro
-- Consideración: el gráfico de subcategorías puede tener muchas opciones → manejar con cuidado
-
-### Archivos a crear
+### Archivos creados
 - `resources/js/Pages/Admin/Catalogos.tsx`
-- `app/Data/CatalogoData.php`
 - `app/Http/Controllers/CatalogoController.php`
+- `database/seeders/CatalogosConfigSeeder.php`
 - `resources/js/Components/Admin/TablaCatalogo.tsx`
 - `resources/js/Components/Admin/ModalEditarItem.tsx`
-
-### Archivos a modificar
-- `resources/js/Pages/Denuncias/RegistroDenuncia.tsx` (cargar subcategorías del catálogo)
-
-### Nota — Julio 2026
-**Feriados ahora también se administran aquí.** Aunque Sprint 20 (era 19) formaliza el helper `DiasHabiles`, la **UI de administración de feriados** (cuadrícula calendario anual) vive en este panel. El Jefe de Unidad marca/desmarca feriados desde aquí. Esto adelanta parte del Sprint 20 a este sprint.
-
-**Archivo adicional:**
-- `resources/js/Pages/Admin/Feriados.tsx` (creado, ver Sprint 0 — ya existe como placeholder)
+- `resources/js/Components/Admin/ModalConfirmarDesactivar.tsx`
 
 ---
 
@@ -472,7 +450,7 @@ Baja. Solo vista + endpoint. Se puede hacer tempranamente.
 
 ---
 
-## Sprint 14 (era 13) — Tiempos entre Fases
+## Sprint 14 — Tiempos entre Fases
 
 **Estado:** Pendiente.
 **Origen:** Respuesta del cliente #19.
@@ -864,7 +842,7 @@ Ver `Sprint 22 - Acompañamiento e Intervención v2 (diferido).md`.
 - Sprint 11 (Panel Admin) para configurar `siguiente_numero`
 
 ### Estimación (referencia)
-2-3 días. A refinar cuando se defina Sprint 14.
+2-3 días. A refinar cuando se implemente.
 
 ### Detalle completo
 Ver `Sprint 23 - Migración de Casos Legacy (diferido).md`.
@@ -878,7 +856,7 @@ Ver `Sprint 23 - Migración de Casos Legacy (diferido).md`.
 **Origen:** Duda del cliente Julio 2026 — ¿se necesita un panel de control para dar distintos tipos de permisos a ciertos usuarios o edición de permisos a roles?
 
 ### Decisión tomada (Julio 2026)
-- **Fase 0/1:** 3 roles fijos (Registrador, Jefe, Técnico) con permisos hardcodeados en el catálogo (Sprint 7.5) y formalizados en Sprint 15.
+- **Fase 0/1:** 3 roles fijos (Registrador, Jefe, Técnico) con permisos hardcodeados en el catálogo (Sprint 7.5) y formalizados en Sprint 16.
 - **NO se implementa** un panel de control de permisos granulares por usuario.
 - Si en el futuro se requiere granularidad, Sprint 24+ (v2) lo abordará con librería tipo `spatie/laravel-permission`.
 

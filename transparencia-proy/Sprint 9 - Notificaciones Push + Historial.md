@@ -46,9 +46,9 @@ Sistema de notificaciones con 3 capas:
 
 | # | Decisión | Alternativa descartada | Motivo |
 |---|----------|------------------------|--------|
-| 1 | **Generación derivada** al cargar página | Eventos en cada controller | Fase 0 sin BD. No toca 5+ controllers. Migrable a observers en Sprint 14. |
+| 1 | **Generación derivada** al cargar página | Eventos en cada controller | Fase 0 sin BD. No toca 5+ controllers. Migrable a observers en Sprint 10. |
 | 2 | **Sin WebSockets en Fase 0** | Pusher/Reverb/Socketi | No hay multiusuario real en Fase 0. Endpoint count listo para futuro polling. |
-| 3 | **Audiencia = Jefe** (hasta Sprint 15) | Roles reales | Fase 0 es usuario único. Notificaciones filtradas para Jefe. |
+| 3 | **Audiencia = Jefe** (hasta Sprint 16) | Roles reales | Fase 0 es usuario único. Notificaciones filtradas para Jefe. |
 | 4 | **Umbral ≤ 3 días** para plazos por vencer | 5/7 días | Coherente con umbral amarillo de PlazoBadge (≤5d→amarillo, ≤3d→notificación). |
 | 5 | **Click marca + navega** | Auto-marcar al abrir panel | Más conservador: el usuario decide qué marcar como leído. |
 | 6 | **"Denuncia respondida" = feed de actividad** | Eliminar del sprint | Útil como historial de auditoría, aunque el Jefe sea quien respondió. |
@@ -527,7 +527,7 @@ class NotificacionController extends Controller
 
     /**
      * Endpoint ligero: solo devuelve el contador de no leídas.
-     * Preparado para polling futuro (Sprint 14+).
+     * Preparado para polling futuro (Sprint 10+).
      */
     public function count()
     {
@@ -958,10 +958,10 @@ npx shadcn@2.3.0 add popover scroll-area separator
 
 - **Compatibilidad con Sprint 7 (Evaluación):** Las delegaciones y devoluciones de evaluación NO se incluyen como tipos porque no hay `EvaluacionData.php` aún. Se añadirán cuando Sprint 7 se implemente (o se agrega el tipo ahora para que funcione sin data? Decisión: **no incluir**, dejar el tipo reservado.)
 - **Compatibilidad con Sprint 10+:** Cuando se implemente la BD real, `NotificacionData` se migrará a tabla `notificaciones` con Eloquent. El método `generarParaUsuario()` se reemplaza por Eloquent observers + scheduled jobs.
-- **Compatibilidad con Sprint 15 (Roles):** Las notificaciones se filtrarán por `user_id` real. Se añadirá columna `user_id` en la tabla.
+- **Compatibilidad con Sprint 16 (Roles):** Las notificaciones se filtrarán por `user_id` real. Se añadirá columna `user_id` en la tabla.
 - **Compatibilidad con Sprint 18 (Días hábiles):** Si cambia el cálculo de plazos, se actualiza `generarParaUsuario()` automáticamente porque lee de `getPlazoInfo()`.
 - **Validaciones backend:** `marcarLeida()` valida que `id` exista. `getPaginated()` filtra y pagina correctamente incluso si no hay notificaciones.
-- **Sin polling en Fase 0:** El endpoint `/api/notificaciones/count` está listo. Para habilitar polling en Sprint 14: `setInterval(fetchCount, 30000)` en `CampanaNotificaciones.tsx`.
+- **Sin polling en Fase 0:** El endpoint `/api/notificaciones/count` está listo. Para habilitar polling en Sprint 10: `setInterval(fetchCount, 30000)` en `CampanaNotificaciones.tsx`.
 - **Animación pulse:** CSS `@keyframes pulse` de Tailwind `animate-pulse` aplicado al badge del contador. Se dispara solo cuando `noLeidas` cambia (comparar con `useRef` del valor anterior).
 - **Uso de `usePage().props`:** Las notificaciones se pasan como props globales desde `HandleInertiaRequests`, disponibles en cualquier página sin prop drilling.
 
@@ -969,11 +969,11 @@ npx shadcn@2.3.0 add popover scroll-area separator
 
 ## 10. TODO / Pendientes
 
-> ⏸️ **Pendiente con Sprint 14:** Migrar de sesión mock a tabla MySQL `notificaciones` con Eloquent + observers para generación por evento.
+> ⏸️ **Pendiente con Sprint 10:** Migrar de sesión mock a tabla MySQL `notificaciones` con Eloquent + observers para generación por evento.
 
-> ⏸️ **Pendiente con Sprint 14:** Implementar polling 30s con endpoint count, o Reverb para tiempo real.
+> ⏸️ **Pendiente con Sprint 10:** Implementar polling 30s con endpoint count, o Reverb para tiempo real.
 
-> ⏸️ **Pendiente con Sprint 15:** Filtrar notificaciones por `user_id` real según roles.
+> ⏸️ **Pendiente con Sprint 16:** Filtrar notificaciones por `user_id` real según roles.
 
 > ⏸️ **Pendiente con cliente:** Pregunta #6 (C1) — días hábiles afecta cálculo de plazos por vencer.
 

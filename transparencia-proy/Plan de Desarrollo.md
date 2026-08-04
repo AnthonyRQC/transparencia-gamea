@@ -48,6 +48,7 @@
 - ✅ Sprint 8: Ampliaciones Múltiples (ModalAmpliacionPlazo, aprobarAmpliacion, límite legal, ampliaciones[] en DenunciaData)
 - ✅ Sprint 9: Notificaciones Push (CampanaNotificaciones, PanelNotificaciones, ItemNotificacion, NotificacionData con generación derivada, página /notificaciones con paginación)
 - ✅ Sprint 10: Base de Datos Real (MySQL + Eloquent). Migración completa de app/Data/*. 22 migraciones, 18 modelos, 11 controllers refactorizados, Breeze adaptado a username, tests aislados con SQLite :memory:. Ver `Notas Sprint 10 - Cierre.md`.
+- ✅ Sprint 11: Panel de Catálogos (CRUD admin 8 pestañas, protección por uso, Medios conectados con Cierre, Clasificaciones como fuente de verdad, config JSON en `configuracion_sistema`). Ver `Notas Sprint 11 - Panel Catálogos (Cierre).md`.
 
 ---
 
@@ -80,7 +81,7 @@ Durante la Fase 0 **no hay diferenciación por roles en el código**. Todos los 
 - **Técnico:** Kanban personal, detalle de caso, solicitudes, descargos, informe, cierre
 - **Administrador:** El Jefe de Unidad cumple este rol (gestión de feriados)
 
-> 🆕 **Importante (Julio 2026):** Aunque los roles aún no están formalizados en BD, el **frontend debe gestionar permisos (no roles)** siguiendo buenas prácticas. El catálogo de permisos y la utilidad `useCan()`/`@can` se introducen en **Sprint 7.5**. Los roles formales (BD, Gates, Policies) llegan en **Sprint 15**.
+> 🆕 **Importante (Julio 2026):** Aunque los roles aún no están formalizados en BD, el **frontend debe gestionar permisos (no roles)** siguiendo buenas prácticas. El catálogo de permisos y la utilidad `useCan()`/`@can` se introducen en **Sprint 7.5**. Los roles formales (BD, Gates, Policies) llegan en **Sprint 16**.
 
 ---
 
@@ -622,14 +623,14 @@ El `BuscadorTicket.tsx` original tenía un auto-formato con `formatTicketInput()
 - Registrador: María García (solo `/denuncias/registrar`)
 - Jefe: Pedro Mamani (Bandeja, Reportes, Admin/Feriados)
 - Técnicos: Carlos Quispe, Ana Torres, Luis Mamani (MisCasos, MiResumen)
+**Patrón de reusabilidad — Sprint 16:**
 
-**Patrón de reusabilidad — Sprint 15:**
-Cuando se implementen roles reales (Sprint 15), el dropdown se elimina y se reemplaza por `Auth::user()`. La lógica de filtrado del Sidebar y controllers NO cambia — solo cambia la fuente de datos. Cero código desechable.
+Cuando se implementen roles reales (Sprint 16), el dropdown se elimina y se reemplaza por `Auth::user()`. La lógica de filtrado del Sidebar y controllers NO cambia — solo cambia la fuente de datos. Cero código desechable.
 
 **Notas adicionales:**
 - Las notificaciones persistentes (asignación, traspaso) se guardan con `usuario_id` y se filtran por usuario activo
 - Los defaults de alerta son hardcoded (3d plazo total/informe, 2d solicitud/descargo)
-- Sprint 10 agregará panel de configuración de preferencias
+- Sprint 18 agregará panel de configuración de preferencias
 
 **Ver detalle:** `Sprints Pendientes - Contexto.md` → Sprint 6.5.
 
@@ -689,7 +690,7 @@ Ver detalle: `Sprint 7.A - Cierre SITPRECO Sprint 7.md`.
 
 | Bloque | Descripción |
 |--------|-------------|
-| **Catálogo de permisos** | Permisos por capacidad (no por rol), utilidad `useCan()` en frontend, middleware simulado en backend. Prepara Sprint 15. |
+| **Catálogo de permisos** | Permisos por capacidad (no por rol), utilidad `useCan()` en frontend, middleware simulado en backend. Prepara Sprint 16. |
 | **MAYÚSCULAS** | Todos los textos libres en MAYÚSCULAS (CSS + `Str::upper()` backend). Convención institucional. |
 | **CRUD denuncia raíz** | Editar/eliminar denuncia solo en estado `ingresada`. Nuevos `ModalEditarDenuncia` + acción eliminar. |
 | **Medio notificación libre** | `descargos.medio` de ENUM a texto libre (200 chars). |
@@ -717,7 +718,7 @@ Ver detalle: `Sprint 7.5 - Ajustes UX Urgentes pre-cliente.md`.
 | `resources/js/Pages/Denuncias/Bandeja.tsx` (modificado) | +sección "Archivos del caso" en DenunciaSheet |
 | `resources/js/Pages/Denuncias/MisCasos.tsx` (modificado) | Mismo |
 
-**Convivencia:** Las tablas `solicitudes_archivos`, `descargos_documentos`, `informes_archivos`, `cierres_archivos` se mantienen (adjuntos formales por fase). `denuncias_archivos` (Sprint 14) será el repositorio libre.
+**Convivencia:** Las tablas `solicitudes_archivos`, `descargos_documentos`, `informes_archivos`, `cierres_archivos` se mantienen (adjuntos formales por fase). `denuncias_archivos` (Sprint 10) será el repositorio libre.
 
 **Estimación:** 2-3 días.
 
@@ -794,44 +795,39 @@ Ver detalle: `Sprint 7.7 - Búsqueda y Consulta para Registrador.md`.
 
 ---
 
-### Sprint 10 — Panel Administración Catálogos + Subcategorías
+### Sprint 11 — Panel de Administración de Catálogos ✅ COMPLETADO (Agosto 2026)
 
-**Objetivo:** Panel administrativo único para CRUD de todos los catálogos del sistema (clasificaciones, categorías, subcategorías, tipos, estados, medios notificación, etc.).
+**Objetivo:** Panel administrativo único para CRUD de todos los catálogos del sistema (clasificaciones, categorías, tipos, estados, medios notificación, etc.).
 
-**Origen:** Respuesta del cliente #18.
+**Origen:** Respuesta del cliente #18. Ver `Notas Sprint 11 - Panel Catálogos (Cierre).md`.
 
 | Archivo | Descripción |
 |---------|-------------|
 | `resources/js/Pages/Admin/Catalogos.tsx` (nuevo) | Vista con tabs por tipo de catálogo |
-| `app/Data/CatalogoData.php` (nuevo) | Catálogos dinámicos (clasificaciones, categorías, subcategorías, etc.) |
-| `app/Http/Controllers/CatalogoController.php` (nuevo) | CRUD genérico por tipo de catálogo |
+| `app/Http/Controllers/CatalogoController.php` (nuevo) | CRUD genérico por tipo de catálogo (TABLE_BASED + CONFIG_BASED) |
+| `app/Http/Middleware/HandleInertiaRequests.php` (modificado) | Comparte `clasificaciones` y `medios_notificacion` |
+| `database/seeders/CatalogosConfigSeeder.php` (nuevo) | Semilla de 5 catálogos JSON (clasificaciones, tipos_denuncia, estados, medios, tipos_prueba) |
 | `resources/js/Components/Admin/TablaCatalogo.tsx` (nuevo) | Tabla editable con acciones (crear, editar, eliminar) |
 | `resources/js/Components/Admin/ModalEditarItem.tsx` (nuevo) | Modal de edición de un item del catálogo |
+| `resources/js/Components/Admin/ModalConfirmarDesactivar.tsx` (nuevo) | Confirmación de desactivación |
 
-**NUEVO — Configuración de alertas por usuario:**
-- Sliders por tipo de alerta (plazo total, informe, solicitud, descargo)
-- Defaults: 3, 3, 2, 2 días respectivamente
-- Persistencia en sesión (mock), luego en BD (Sprint 14)
+**✅ Pestañas implementadas (8):**
+- Categorías de denuncia (tabla BD)
+- Dependencias externas (tabla BD)
+- Feriados (tabla BD con SoftDeletes)
+- Medios de notificación (JSON config, **conectados con Cierre** — protección por uso)
+- Clasificaciones finales (JSON config, **fuente de verdad** — protección por uso + protegidas)
+- Estados (JSON config, solo-edición)
+- Tipos de denuncia (JSON config, solo-edición)
+- Tipos de prueba (JSON config, solo-edición)
 
-**Catálogos a administrar:**
-- Clasificaciones finales: Penal, Civil, Administrativo, Sin Indicios, Medida Correctiva, Archivado
-- Categorías de denuncia (por tipo)
-- Subcategorías de denuncia (por tipo)
-- Tipos de denuncia: Corrupción, Negación de Información
-- Estados: ingresada, evaluación técnica, admitida, rechazada, asignada, investigación, informe, cerrada
-- Medios de notificación: whatsapp, email, presencial, otro
-- Tipos de prueba: archivo, prueba física, testigo
-- Dependencias/unidades externas
+**Configuración de alertas por usuario:** Pendiente — se implementa en Sprint 18 (Panel de Usuario).
 
-**Subcategorías:**
-- Cada tipo de denuncia (corrupción / negación) tiene sus propias subcategorías
-- Definidas en este panel
-- Seleccionables en formulario de registro (Sprint 1)
-- Consideración: el gráfico de subcategorías puede tener muchas opciones, manejar con cuidado
+**Subcategorías:** Pendiente — `parent_id` no se implementó en la migración actual. Se implementará cuando el cliente confirme la estructura jerárquica.
 
 ---
 
-### Sprint 11 — Dashboard + KPIs + Reportes PDF/Excel
+### Sprint 12 — Dashboard + KPIs + Reportes PDF/Excel
 
 **Objetivo:** Dashboard con KPIs, gráficos y página de reportes con tabla + filtros + exportación PDF/Excel.
 
@@ -868,7 +864,7 @@ Ver detalle: `Sprint 7.7 - Búsqueda y Consulta para Registrador.md`.
 - **PDF** y **Excel** además de vista en pantalla
 - Solo para el Jefe de Unidad (interno)
 
-**Nota:** Este sprint es SOLO el motor de notificaciones. Las preferencias de alerta (panel de configuración por usuario) se implementan en Sprint 10.
+**Nota:** Este sprint es SOLO el motor de notificaciones. Las preferencias de alerta (panel de configuración por usuario) se implementan en Sprint 18 (Panel de Usuario).
 
 **Dependencia:** `npm install recharts`, `composer require maatwebsite/excel barryvdh/laravel-dompdf`
 
@@ -876,7 +872,7 @@ Ver detalle: `Sprint 7.7 - Búsqueda y Consulta para Registrador.md`.
 
 ---
 
-### Sprint 12 — Tablero Público Cerrados
+### Sprint 13 — Tablero Público Cerrados
 
 **Objetivo:** Sección en la página Welcome pública mostrando casos cerrados recientes (anonimizados) para aumentar transparencia.
 
@@ -900,7 +896,7 @@ Ver detalle: `Sprint 7.7 - Búsqueda y Consulta para Registrador.md`.
 
 ---
 
-### Sprint 13 — Tiempos entre Fases
+### Sprint 14 — Tiempos entre Fases
 
 **Objetivo:** Métricas de duración promedio entre fases del proceso (recepción → admisión, admisión → asignación, etc.).
 
@@ -915,26 +911,13 @@ Ver detalle: `Sprint 7.7 - Búsqueda y Consulta para Registrador.md`.
 
 ---
 
-### Sprint 14 — Base de datos real (MySQL)
+### Sprint 14 — Base de datos real (MySQL) ✅ COMPLETADO como Sprint 10
 
-**Objetivo:** Migrar de mocks a base de datos MySQL real con migraciones, modelos Eloquent y seeders.
-
-**Origen:** Respuestas #24, #29.
-
-| Actividad | Descripción |
-|-----------|-------------|
-| Diseñar esquema de BD | Tablas: denuncias, denunciantes, denunciados, solicitudes, descargos, evaluaciones, informes, cierres, bitácora, usuarios, feriados, notificaciones, catálogos |
-| Crear migraciones | Todas las tablas con sus relaciones |
-| Crear modelos Eloquent | Con relaciones, fillable, casts |
-| Crear seeders | Migrar seeds mock a seeders reales |
-| Refactorizar controllers | Reemplazar acceso a `*Data.php` por queries a Eloquent |
-| Configurar conexión | `.env` con MySQL de Laragon |
-
-**Dependencias:** Requiere Sprint 15 (Roles) posterior.
+La migración de mocks a MySQL + Eloquent se completó como **Sprint 10**. Ver `Notas Sprint 10 - Cierre.md` para el detalle completo (22 migraciones, 18 modelos, 11 controllers refactorizados, Breeze adaptado, tests con SQLite).
 
 ---
 
-### Sprint 15 — Roles y Permisos (Registrador / Jefe / Técnico)
+### Sprint 16 — Roles y Permisos (Registrador / Jefe / Técnico)
 
 **Objetivo:** Implementar sistema de roles y permisos usando Laravel middleware y policies.
 
@@ -948,11 +931,11 @@ Ver detalle: `Sprint 7.7 - Búsqueda y Consulta para Registrador.md`.
 | Implementar guards | Proteger rutas según rol |
 | Refactorizar bandejas | Bandeja solo para Jefe, MisCasos solo para Técnico, etc. |
 
-**Dependencias:** Requiere Sprint 14 (BD).
+**Dependencias:** Requiere Sprint 10 (BD).
 
 ---
 
-### Sprint 16 — Auditoría Backend Detallada
+### Sprint 17 — Auditoría Backend Detallada
 
 **Objetivo:** Auditoría automática de todos los cambios usando `owen-it/laravel-auditing`.
 
@@ -965,15 +948,15 @@ Ver detalle: `Sprint 7.7 - Búsqueda y Consulta para Registrador.md`.
 | Configurar | Qué campos auditar, qué usuario registra, IP |
 | Crear vista de auditoría | Para consultar log por caso o por usuario |
 
-**Dependencias:** Requiere Sprint 14 (BD).
+**Dependencias:** Requiere Sprint 10 (BD).
 
 ---
 
-### Sprint 17 — Panel de Usuario (NUEVO — Julio 2026)
+### Sprint 18 — Panel de Usuario (NUEVO — Julio 2026)
 
 **Objetivo:** Panel completo de usuario con perfil, seguridad, preferencias de notificación y apariencia. Estilo Laravel Breeze pero en mock.
 
-**Origen:** Decisión #40 (reunión Julio 2026). Se implementa post-Sprint 16 por dependencia con BD, roles y auditoría.
+**Origen:** Decisión #40 (reunión Julio 2026). Se implementa post-Sprint 17 por dependencia con BD, roles y auditoría.
 
 **Perfil:** Nombre, email, teléfono editables. Avatar/iniciales read-only.
 
@@ -1007,11 +990,11 @@ Ver detalle: `Sprint 7.7 - Búsqueda y Consulta para Registrador.md`.
 | `HandleInertiaRequests.php` (modificado) | Compartir preferencias globalmente |
 | `Sidebar.tsx` (modificado) | + item "Mi Cuenta" |
 
-**Dependencias:** Sprint 14 (BD), Sprint 15 (Roles), Sprint 16 (Auditoría).
+**Dependencias:** Sprint 10 (BD), Sprint 16 (Roles), Sprint 17 (Auditoría).
 
 ---
 
-### Sprint 18 — Lógica de Mora Explícita
+### Sprint 19 — Lógica de Mora Explícita
 
 **Objetivo:** Implementar lógica explícita de mora para fechas vencidas (texto "+Xd de retraso", badge "Vencido" en cards).
 
@@ -1024,11 +1007,11 @@ Ver detalle: `Sprint 7.7 - Búsqueda y Consulta para Registrador.md`.
 | Mostrar texto "+Xd" en cards | Reemplazar o complementar `PlazoBadge.tsx` |
 | Filtro de "casos morosos" | En Bandeja y MisCasos |
 
-**Dependencias:** Sprint 14 (BD) si se persiste, opcional si solo se calcula on-the-fly.
+**Dependencias:** Sprint 10 (BD) si se persiste, opcional si solo se calcula on-the-fly.
 
 ---
 
-### Sprint 19 — Calendario Feriados + Días Hábiles (FINAL)
+### Sprint 20 — Calendario Feriados + Días Hábiles (FINAL)
 
 **Objetivo:** Cierre formal del sistema de días hábiles. Helper unificado `DiasHabiles.php` + UI de administración + recálculo retroactivo del seed demo.
 
@@ -1055,11 +1038,11 @@ Ver detalle: `Sprint 7.7 - Búsqueda y Consulta para Registrador.md`.
 
 **Decisión:** ✅ Días hábiles confirmado (Julio 2026). Ver `Preguntas para el cliente.md` → #6 y #30.
 
-**Dependencias:** Sprint 14 (BD) para persistencia.
+**Dependencias:** Sprint 10 (BD) para persistencia.
 
 ---
 
-### Sprint 20 — Cierre Fase 1 / Ajustes Finales
+### Sprint 21 — Cierre Fase 1 / Ajustes Finales
 
 **Objetivo:** Testing integral, limpieza técnica, documentación de usuario y deploy a producción. **No incluye funcionalidad nueva.**
 
@@ -1081,7 +1064,7 @@ Ver detalle: `Sprint 7.7 - Búsqueda y Consulta para Registrador.md`.
 
 ---
 
-### Sprint 21 — Archivos Grandes + Conectividad Inestable (NUEVO — Post-Fase 1)
+### Sprint 22 — Archivos Grandes + Conectividad Inestable (NUEVO — Post-Fase 1)
 
 **Objetivo:** Estrategia técnica para subida robusta de archivos de hasta 1000+ páginas (>100MB) en entornos con internet inestable (latencia variable, cortes momentáneos, señal baja).
 
@@ -1101,15 +1084,15 @@ Ver detalle: `Sprint 7.7 - Búsqueda y Consulta para Registrador.md`.
 | **Compresión cliente** | Reducir tamaño de PDF escaneado antes de subir | Browser-side (opcional) |
 | **Storage alternativo** | S3-compat (MinIO) en lugar de disco local | `league/flysystem-aws-s3-v3` |
 
-**Mock en Fase 0:** Solo barra de progreso animada + botón de retry visual. Sin chunking real hasta Fase 1 o Sprint 20.
+**Mock en Fase 0:** Solo barra de progreso animada + botón de retry visual. Sin chunking real hasta Fase 1 o Sprint 21.
 
-**Dependencias:** Sprint 14 (BD), Sprint 15 (Auth).
+**Dependencias:** Sprint 10 (BD), Sprint 16 (Roles).
 
-**Ver detalle:** `Sprints Pendientes - Contexto.md` → Sprint 20.
+**Ver detalle:** `Sprints Pendientes - Contexto.md` → Sprint 21.
 
 ---
 
-### Sprint 22 — Acompañamiento e Intervención (NUEVO — DIFERIDO a v2)
+### Sprint 23 — Acompañamiento e Intervención (NUEVO — DIFERIDO a v2)
 
 **Estado:** ⏸️ **Diferido a v2.** NO se implementa en Fase 0/1.
 
@@ -1121,20 +1104,20 @@ Ver detalle: `Sprint 7.7 - Búsqueda y Consulta para Registrador.md`.
 
 **Notas para v2:**
 - El dropdown selector de tipo (`RegistroDenuncia.tsx`) actualmente tiene 2 opciones (corrupción, negación). En v2 se reagregan 2 opciones.
-- El enum `denuncias.tipo` en BD (Sprint 14) actualmente solo tiene `corrupcion`, `negacion`. En v2 se agregan `acompaniamiento`, `intervencion`.
+- El enum `denuncias.tipo` en BD (Sprint 10) actualmente solo tiene `corrupcion`, `negacion`. En v2 se agregan `acompaniamiento`, `intervencion`.
 - No se requiere migración de BD agresiva; es un `ALTER TABLE ... MODIFY tipo ENUM(...)` simple.
 
-**Ver detalle:** `Sprint 22 - Acompañamiento e Intervención v2 (diferido).md`.
+**Ver detalle:** `Sprint 23 - Acompañamiento e Intervención v2 (diferido).md`.
 
 ---
 
-### Sprint 23 — Migración de Casos Legacy (NUEVO — DIFERIDO)
+### Sprint 24 — Migración de Casos Legacy (NUEVO — DIFERIDO)
 
-**Estado:** ⏸️ **Diferido.** Detalle a definir en Sprint 14 (BD real). Anotación temprana para no perder el requerimiento.
+**Estado:** ⏸️ **Diferido.** Detalle a definir en Sprint 10 (BD real). Anotación temprana para no perder el requerimiento.
 
 **Origen:** Duda del cliente Julio 2026 — la UTLCC tiene actualmente **46 denuncias físicas** que necesitan migrarse al sistema nuevo. Casos legacy no tendrán historial (bitácora) pero sí opción de digitalizar archivos.
 
-**Funcionalidades planificadas (a detalle en Sprint 14):**
+**Funcionalidades planificadas (a detalle en Sprint 10):**
 - Panel administrativo para **configurar número de inicio** de tickets por año (ej. "Comenzar DEN-2026 desde 0047", continuando los 46 legacy).
 - Vista de "Importación legacy" con carga masiva (CSV/Excel).
 - Cada caso legacy tiene flag `es_legacy: true`, sin historial completo, sin plazos automáticos.
@@ -1146,24 +1129,24 @@ Ver detalle: `Sprint 7.7 - Búsqueda y Consulta para Registrador.md`.
 - ¿Se importa la fecha original o se usa la fecha de importación?
 - ¿Se permite editar legacy o son read-only?
 
-**Ver detalle:** `Sprint 23 - Migración de Casos Legacy (diferido).md`.
+**Ver detalle:** `Sprint 24 - Migración de Casos Legacy (diferido).md`.
 
 ---
 
-### Sprint 24 — Permisos Personalizados (NUEVO — DIFERIDO a v2)
+### Sprint 25 — Permisos Personalizados (NUEVO — DIFERIDO a v2)
 
 **Estado:** ⏸️ **Diferido a v2.** NO se implementa en Fase 0/1.
 
 **Origen:** Duda del cliente Julio 2026 — ¿se necesita un panel de control para dar distintos tipos de permisos a ciertos usuarios o edición de permisos a roles?
 
 **Decisión tomada (Julio 2026):**
-- **Fase 0/1:** 3 roles fijos (Registrador, Jefe, Técnico) con permisos hardcodeados en el catálogo (Sprint 7.5) y formalizados en Sprint 15.
+- **Fase 0/1:** 3 roles fijos (Registrador, Jefe, Técnico) con permisos hardcodeados en el catálogo (Sprint 7.5) y formalizados en Sprint 16.
 - **NO se implementa** un panel de control de permisos granulares por usuario.
-- Si en el futuro se requiere granularidad, Sprint 24+ (v2) lo abordará con librería tipo `spatie/laravel-permission`.
+- Si en el futuro se requiere granularidad, Sprint 25+ (v2) lo abordará con librería tipo `spatie/laravel-permission`.
 
 **Razón:** Mantener el sistema simple y predecible en la primera versión. La experiencia ha mostrado que la mayoría de usuarios encajan en uno de los 3 roles.
 
-**Ver detalle:** `Sprint 24 - Permisos Personalizados v2 (diferido).md`.
+**Ver detalle:** `Sprint 25 - Permisos Personalizados v2 (diferido).md`.
 
 ---
 
@@ -1370,9 +1353,9 @@ routes/web.php                                               → GET /seguimient
 | 7.5 | `dropdown-menu` (para `useCan` en componentes) |
 | 7.6 | — (reuso + componente custom) |
 | 7.7 | `table` |
-| 10 | `dropdown-menu`, `date-picker` o alternativa |
-| 11 | `table` |
-| 14+ | `data-table` (si se requiere tabla avanzada) |
+| 11 | `dropdown-menu`, `date-picker` o alternativa |
+| 12 | `table` |
+| 16+ | `data-table` (si se requiere tabla avanzada) |
 
 ---
 
@@ -1383,5 +1366,5 @@ routes/web.php                                               → GET /seguimient
 - El seguimiento público solo muestra datos no sensibles (fase actual, fechas estimadas).
 - Los archivos adjuntos en la maqueta son simulados (no hay almacenamiento real).
 - **MAYÚSCULAS obligatorias** en todos los textos libres (convención institucional, ver Sprint 7.5).
-- **Frontend por permisos, no por roles** (Sprint 7.5 introduce el catálogo; Sprint 15 formaliza con BD).
+- **Frontend por permisos, no por roles** (Sprint 7.5 introduce el catálogo; Sprint 16 formaliza con BD).
 - **Stack fijo:** MySQL (Laragon) + Eloquent con cast JSON. Sin migración a Postgres. La nota sobre JSONB → JSON se aplica si en el futuro se migra.

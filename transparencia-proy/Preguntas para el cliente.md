@@ -165,7 +165,7 @@
 ---
 
 #### #23 — Roles y permisos: cuándo se implementan ✅
-**Decisión:** Los roles se implementarán **casi al final del proyecto** (Sprint 15). Primero debe funcionar la base de datos. Por el momento hay **3 roles**:
+**Decisión:** Los roles se implementarán **casi al final del proyecto** (Sprint 16). Primero debe funcionar la base de datos. Por el momento hay **3 roles**:
 - **Registrador** (antes llamado "Recepcionista")
 - **Jefe de Unidad**
 - **Técnicos**
@@ -188,7 +188,7 @@
 ---
 
 #### #27 — Plazo de respuesta al ciudadano ✅
-**Decisión:** No hay plazo legal, no se implementa. Sin embargo, existe un **tablero informativo fuera de la oficina** que avisa casos cerrados. Esto podría ser una **implementación futura** en la página Welcome (Sprint 12). No es complicado de hacer.
+**Decisión:** No hay plazo legal, no se implementa. Sin embargo, existe un **tablero informativo fuera de la oficina** que avisa casos cerrados. Esto podría ser una **implementación futura** en la página Welcome (Sprint 13). No es complicado de hacer.
 
 ---
 
@@ -295,7 +295,7 @@ Todos los campos donde la ley exige explícitamente: `declaracion_jurada`, `denu
 - Sidebar filtra menú según el rol activo
 - **Persistencia:** Sesión Laravel (servidor), no localStorage
 
-**Patrón de reusabilidad:** Cuando llegue Sprint 15 (Roles reales + BD), el dropdown se elimina y se reemplaza por `Auth::user()`. El Sidebar usa la misma lógica de `rol` (solo cambia la fuente de datos). **Cero código desechable.**
+**Patrón de reusabilidad:** Cuando llegue Sprint 16 (Roles reales + BD), el dropdown se elimina y se reemplaza por `Auth::user()`. El Sidebar usa la misma lógica de `rol` (solo cambia la fuente de datos). **Cero código desechable.**
 
 ---
 
@@ -304,7 +304,7 @@ Todos los campos donde la ley exige explícitamente: `declaracion_jurada`, `denu
 
 Los feriados afectan a TODOS los plazos del sistema (cálculo centralizado). No hay restricción de cuántos feriados se pueden marcar — es potestad institucional.
 
-**Implementación:** Sprint 10 (Panel Catálogos) + Sprint 18 (helper formal).
+**Implementación:** Sprint 11 (Panel Catálogos) + Sprint 20 (helper formal).
 
 ---
 
@@ -326,24 +326,24 @@ Los feriados afectan a TODOS los plazos del sistema (cálculo centralizado). No 
 
 ---
 
-#### #39 — Preferencias de alerta por usuario (Sprint 10 — Panel Admin) ✅
-**Decisión:** En Sprint 10 se implementa un panel de configuración donde cada usuario podrá ajustar los días de anticipación para recibir alertas.
+#### #39 — Preferencias de alerta por usuario (Sprint 11 — Panel Admin) ✅
+**Decisión:** En Sprint 11 se implementa un panel de configuración donde cada usuario podrá ajustar los días de anticipación para recibir alertas.
 
 **Valores por defecto (Sprint 6.5, hardcoded):**
 | Tipo de alerta | Días antes | Sprint implementación |
 |---|---|---|
-| Plazo total del caso por vencer | 3 | 6.5 (default) → 10 (configurable) |
-| Informe final por vencer | 3 | 6.5 (default) → 10 (configurable) |
-| Solicitud de información por vencer | 2 | 6.5 (default) → 10 (configurable) |
-| Descargo de denunciados por vencer | 2 | 6.5 (default) → 10 (configurable) |
+| Plazo total del caso por vencer | 3 | 6.5 (default) → 18 (configurable) |
+| Informe final por vencer | 3 | 6.5 (default) → 18 (configurable) |
+| Solicitud de información por vencer | 2 | 6.5 (default) → 18 (configurable) |
+| Descargo de denunciados por vencer | 2 | 6.5 (default) → 18 (configurable) |
 | Traspaso de casos | Inmediato | 6.5 (siempre inmediato) |
 
-**Implementación:** Panel `/admin/preferencias` en Sprint 10 con sliders/inputs numéricos por tipo de alerta. Persistencia en sesión (mock) luego en BD.
+**Implementación:** Panel `/admin/preferencias` en Sprint 18 con sliders/inputs numéricos por tipo de alerta. Persistencia en sesión (mock) luego en BD.
 
 ---
 
-#### #40 — Panel de Administración por Usuario (Sprint 17) ✅
-**Decisión (Julio 2026):** Se implementa un panel completo de usuario al final del proyecto (Sprint 17), después de la base de datos real (Sprint 14), roles (Sprint 15) y auditoría (Sprint 16).
+#### #40 — Panel de Administración por Usuario (Sprint 18) ✅
+**Decisión (Julio 2026):** Se implementa un panel completo de usuario al final del proyecto (Sprint 18), después de la base de datos real (Sprint 10), roles (Sprint 16) y auditoría (Sprint 17).
 
 **Secciones del panel:**
 1. **Perfil:** Nombre, email, teléfono editables (mock)
@@ -439,18 +439,18 @@ Se quitan 6 inputs de archivo de flujos intermedios (detalle en #31). Solo se su
 - Sprint 7 — Evaluación Técnica Previa
 - Sprint 8 — Ampliaciones Múltiples
 - Sprint 9 — Notificaciones Push + Historial
-- Sprint 10 — Panel Administración Catálogos + Subcategorías + Feriados
-- Sprint 11 — Dashboard + KPIs + Reportes PDF/Excel
-- Sprint 12 — Tablero Público Cerrados
-- Sprint 13 — Tiempos entre Fases
-- Sprint 14 — Base de datos real (MySQL)
-- Sprint 15 — Roles y permisos (Registrador/Jefe/Técnico)
-- Sprint 16 — Auditoría backend detallada
-- Sprint 17 — Panel de Usuario (Perfil + Seguridad + Preferencias + Apariencia) (NUEVO)
-- Sprint 18 — Lógica de mora explícita +Xd
-- Sprint 19 — Calendario feriados + Días hábiles (helper formal)
-- Sprint 20 — Cierre Fase 1 / Ajustes finales
-- Sprint 21 — Archivos Grandes + Conectividad inestable (NUEVO, post-Fase 1)
+- Sprint 10 — Base de datos real (MySQL) ✅ COMPLETADO
+- Sprint 11 — Panel Administración Catálogos ✅ COMPLETADO
+- Sprint 12 — Dashboard + KPIs + Reportes PDF/Excel
+- Sprint 13 — Tablero Público Cerrados
+- Sprint 14 — Tiempos entre Fases
+- Sprint 16 — Roles y permisos (Registrador/Jefe/Técnico)
+- Sprint 17 — Auditoría backend detallada
+- Sprint 18 — Panel de Usuario (Perfil + Seguridad + Preferencias + Apariencia) (NUEVO)
+- Sprint 19 — Lógica de mora explícita +Xd
+- Sprint 20 — Calendario feriados + Días hábiles (helper formal)
+- Sprint 21 — Cierre Fase 1 / Ajustes finales
+- Sprint 22 — Archivos Grandes + Conectividad inestable (NUEVO, post-Fase 1)
 
 ---
 

@@ -5,7 +5,7 @@
 
 **Origen:** Duda del cliente Julio 2026 — ¿se necesita un panel de control para dar distintos tipos de permisos a ciertos usuarios o edición de permisos a roles?
 
-**Decisión tomada (Julio 2026):** 3 roles fijos con permisos hardcodeados (Sprint 7.5 + Sprint 15). NO se implementa panel de control de permisos granulares por usuario en Fase 1.
+**Decisión tomada (Julio 2026):** 3 roles fijos con permisos hardcodeados (Sprint 7.5 + Sprint 16). NO se implementa panel de control de permisos granulares por usuario en Fase 1.
 
 ---
 
@@ -18,7 +18,7 @@
 El cliente preguntó sobre la complejidad. Tras análisis, se concluyó:
 - **En Fase 0/1:** 3 roles fijos (Registrador, Jefe, Técnico) con permisos hardcodeados.
 - **Sprint 7.5** introduce el catálogo de permisos y el chequeo por permisos en frontend.
-- **Sprint 15** formaliza con BD, Laravel Gates y Policies.
+- **Sprint 16** formaliza con BD, Laravel Gates y Policies.
 - **Sprint 24 (v2):** si en el futuro se requiere granularidad por usuario, se abordará con librería tipo `spatie/laravel-permission`.
 
 ### 1.3 Razón de la decisión
@@ -41,7 +41,7 @@ El cliente preguntó sobre la complejidad. Tras análisis, se concluyó:
 - `useCan()` y `<Can>` para chequeo en frontend
 - Mapeo `rol → permisos[]` hardcodeado en `SesionUsuarioData`
 
-### 2.2 Sprint 15 (formal con BD)
+### 2.2 Sprint 16 (formal con BD)
 - Laravel Gates y Policies
 - Tablas `roles`, `permissions`, `role_user`, `permission_role` (o equivalente)
 - Middleware de permisos en rutas
@@ -140,7 +140,7 @@ Esta librería provee:
 |---|----------|------------------------|--------|
 | 1 | Sprint 24 es diferido a v2 | Implementar en Fase 1 | Complejidad no justificada para 3 roles |
 | 2 | 3 roles fijos en Fase 0/1 | Roles dinámicos | Mantener simplicidad |
-| 3 | Catálogo de permisos hardcodeado (Sprint 7.5) | Permisos en BD desde ya | YAGNI, refactor en Sprint 15 |
+| 3 | Catálogo de permisos hardcodeado (Sprint 7.5) | Permisos en BD desde ya | YAGNI, refactor en Sprint 16 |
 | 4 | NO se hace panel de admin de permisos en Fase 1 | Hacerlo desde ya | YAGNI, Sprint 24 lo provee si se necesita |
 | 5 | Si se reactiva, usar `spatie/laravel-permission` | Implementar propio | Librería probada, menos bugs |
 
@@ -158,7 +158,7 @@ Cuando se reactive en v2:
 5. Auditoría de cambios
 6. Testing exhaustivo
 
-Mientras tanto, Sprint 7.5 (catálogo + `useCan()`) y Sprint 15 (formal con BD) son suficientes.
+Mientras tanto, Sprint 7.5 (catálogo + `useCan()`) y Sprint 16 (formal con BD) son suficientes.
 
 ---
 *Documento creado: Julio 2026. Sprint 24 — Permisos Personalizados v2 (diferido).*

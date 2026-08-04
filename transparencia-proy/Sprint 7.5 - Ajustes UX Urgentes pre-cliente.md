@@ -28,7 +28,7 @@ El cliente pidió en la reunión de Julio 2026 una serie de ajustes para antes d
 ## 2. Bloque 1: Catálogo de permisos (refactor arquitectónico)
 
 ### 2.1 Objetivo
-Introducir un sistema de **permisos** desacoplado de los roles, para que el frontend pueda hacer chequeos por capacidad (`useCan('denuncia.editar')`) y no por nombre de rol (`user.rol === 'jefe'`). Esto es una buena práctica que prepara el terreno para Sprint 15 (Roles y Permisos formales con BD).
+Introducir un sistema de **permisos** desacoplado de los roles, para que el frontend pueda hacer chequeos por capacidad (`useCan('denuncia.editar')`) y no por nombre de rol (`user.rol === 'jefe'`). Esto es una buena práctica que prepara el terreno para Sprint 16 (Roles y Permisos formales con BD).
 
 ### 2.2 Catálogo inicial de permisos
 
@@ -328,7 +328,7 @@ El campo `medio` de notificación en descargos pasa de ENUM cerrado a texto libr
 - Quitar validación enum
 - Aceptar string libre
 
-### 5.3 Base de datos (Sprint 14)
+### 5.3 Base de datos (Sprint 10)
 - `descargos.medio`: ENUM → TEXT(200) NULLABLE
 - Ver `Esquema de Base de Datos.md` → tabla `descargos` → campo `medio`
 
@@ -395,7 +395,7 @@ El cliente decidió que Acompañamiento e Intervención no son núcleo del MVP. 
 - `resources/js/Components/Denuncias/FormularioComplejo.tsx` (verificar que no se referencia)
 - `Plan de Desarrollo.md` (actualizar árbol de archivos)
 
-### 7.3 Base de datos (Sprint 14)
+### 7.3 Base de datos (Sprint 10)
 - `denuncias.tipo`: ENUM solo con `'corrupcion'`, `'negacion'`
 - Ver `Esquema de Base de Datos.md` → tabla `denuncias` → campo `tipo`
 
@@ -415,7 +415,7 @@ El Registrador reportó que 5000 caracteres es muy limitante. El cliente sugiri�
 - Actualizar contador visible: "Mín. 20, Máx. 8000 caracteres"
 - Componente `SeccionRelacionHechos.tsx`: actualizar `maxLength={8000}`
 
-### 8.3 Base de datos (Sprint 14)
+### 8.3 Base de datos (Sprint 10)
 - `denuncias.hechos`: TEXT (ya lo es), documentar `max 8000`
 
 ---
@@ -467,7 +467,7 @@ El Registrador reportó que 5000 caracteres es muy limitante. El cliente sugiri�
 
 | # | Decisión | Alternativa descartada | Motivo |
 |---|----------|------------------------|--------|
-| 1 | Frontend por permisos (no roles) | Mantener chequeo por rol | Buena práctica, prepara Sprint 15 |
+| 1 | Frontend por permisos (no roles) | Mantener chequeo por rol | Buena práctica, prepara Sprint 16 |
 | 2 | MAYÚSCULAS en backend con trait + frontend con CSS | Solo CSS o solo backend | Doble seguridad |
 | 3 | Edición/eliminación solo en `ingresada` | En cualquier estado | Integridad legal; post-admisión, solo acciones formales |
 | 4 | `descargos.medio` libre (200 chars) | Mantener ENUM cerrado | Realidad operativa más diversa |
@@ -495,7 +495,7 @@ El Registrador reportó que 5000 caracteres es muy limitante. El cliente sugiri�
 ## 14. Cierre
 
 Al cerrar Sprint 7.5, el sistema queda con:
-- Permisos granulares (preparado para Sprint 15)
+- Permisos granulares (preparado para Sprint 16)
 - MAYÚSCULAS en todos los textos libres
 - CRUD flexible en denuncias `ingresada`
 - Textos libres en descargos y solicitudes

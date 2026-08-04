@@ -329,7 +329,7 @@ La arquitectura actual de `app/Data/` (clases estáticas con sesión) fue diseñ
 | `SolicitudData::getByTicket()`     | `$denuncia->solicitudes()->active()->get()`   |
 | `SesionUsuarioData::getCurrent()`  | `Auth::user()`                          |
 | `session('denuncias_mock')`        | Eloquent ORM / MySQL                    |
-| `session('permisos_demo')`         | (Sprint 15) `Auth::user()->can('x')` + `spatie/laravel-permission` si se requiere granularidad |
+| `session('permisos_demo')`         | (Sprint 16) `Auth::user()->can('x')` + `spatie/laravel-permission` si se requiere granularidad |
 
 ### Filosofía "minimizar tablas" (Sprint 9.2)
 Se aplican tres estrategias para reducir la cantidad de tablas: historiales de ediciones como **JSON**, archivos por fase unificados, y ampliaciones polimórficas. Esto reduce la BD de **31 a 23 tablas** y simplifica queries de lectura.
@@ -399,7 +399,7 @@ Todos los campos de texto libre se almacenan en MAYÚSCULAS por convención inst
 - `evaluaciones_tecnicas`: Índice en `(denuncia_id, estado)`.
 - `denuncias_archivos`: Índice en `(denuncia_id, fecha_eliminacion)`. Índice en `contexto`.
 - `ampliaciones`: Índice en `(tipo, entidad_id)`. Índice en `fecha`.
-- `feriados`: Índice único en `fecha`. Índice en `recurrente`.
+- `feriados`: Índice único en `fecha`.
 - `configuracion_sistema`: Índice único en `clave`.
 
 ### Plazos legales (referencia rápida)

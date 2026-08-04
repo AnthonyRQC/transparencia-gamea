@@ -136,12 +136,12 @@ Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (11–
 
 ## Próximo Sprint
 
-1. **Sprint 11** (era 10) — Panel Administración Catálogos + Subcategorías
-2. **Sprint 12** (era 11) — Dashboard + KPIs + Reportes PDF/Excel
-3. **Sprint 13** (era 12) — Tablero Público Cerrados
-4. **Sprint 14** (era 13) — Tiempos entre Fases
+1. **Sprint 11** — Panel Administración Catálogos ✅ COMPLETADO (Agosto 2026)
+2. **Sprint 12** — Dashboard + KPIs + Reportes PDF/Excel
+3. **Sprint 13** — Tablero Público Cerrados
+4. **Sprint 14** — Tiempos entre Fases
 
-**Estado inmediato:** Corrección de bugs post-migración Sprint 10. Muchos componentes frontend requieren reconexión al backend real (categorías, notificaciones, archivos, etc.).
+**Estado inmediato:** Sprint 11 completado. Próximo: Sprint 12 (Dashboard).
 
 Ver detalle completo en `Sprints Pendientes - Contexto.md`.
 
@@ -155,7 +155,7 @@ Ver detalle completo en `Sprints Pendientes - Contexto.md`.
 > ⏸️ **Otros pendientes con el cliente:**
 > - C7: Destino del expediente al remitirse al Ministerio
 > - C8: Reglas del plazo al reabrir una denuncia
-> - Panel de administración de usuarios (Jefe crea/edita/resetea passwords) → Sprint 11
+> - Panel de administración de usuarios (Jefe crea/edita/resetea passwords) → Sprint 18
 
 > ⏸️ **Funcionalidades diferidas a v2 (no implementar en Fase 1):**
 > - Acompañamiento/Intervención → Sprint 23

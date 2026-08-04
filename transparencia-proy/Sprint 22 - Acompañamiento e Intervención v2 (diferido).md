@@ -18,7 +18,7 @@
 ### 1.2 Estado actual (Julio 2026)
 - En **Sprint 7.5** se eliminan del dropdown selector de tipo en `RegistroDenuncia.tsx`.
 - Se eliminan los archivos `FormularioAcompaniamiento.tsx` y `FormularioIntervencion.tsx`.
-- El enum `denuncias.tipo` en BD (Sprint 14) solo tiene `'corrupcion'`, `'negacion'`.
+- El enum `denuncias.tipo` en BD (Sprint 10) solo tiene `'corrupcion'`, `'negacion'`.
 - Toda referencia a acomp/intervención en docs y código queda como nota histórica.
 
 ### 1.3 Razón de la decisión

@@ -156,8 +156,8 @@ UnidadData::getAll()                             →  UnidadExterna::where('acti
 | `SeguimientoController` | `DenunciaData` | Baja |
 | `SelectorUsuarioController` | `SesionUsuarioData` | **ELIMINAR** |
 | `DemoNotificacionController` | `NotificacionData` | **ELIMINAR** |
-| `UserPanelController` | (futuro Sprint 18) | N/A |
-| `CatalogoController` | (futuro Sprint 11) | N/A |
+| `UserPanelController` | Sprint 18 (Panel de Usuario) | N/A |
+| `CatalogoController` | implementado (Sprint 11) | N/A |
 | `ReporteController` | (futuro Sprint 12) | N/A |
 
 ## 6. Rutas del modal de archivos

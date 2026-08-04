@@ -1,11 +1,11 @@
 #transparencia
 # Sprint 23 — Migración de Casos Legacy ⏸️ DIFERIDO
 
-**Estado:** ⏸️ **Diferido.** Detalle a definir en Sprint 14 (BD real). Anotación temprana para no perder el requerimiento.
+**Estado:** ⏸️ **Diferido.** Detalle a definir en Sprint 10 (BD real). Anotación temprana para no perder el requerimiento.
 
 **Origen:** Duda del cliente Julio 2026 — la UTLCC tiene actualmente **46 denuncias físicas** que necesitan migrarse al sistema nuevo. Casos legacy no tendrán historial (bitácora) pero sí opción de digitalizar archivos.
 
-**Estimación:** 2-3 días (referencia, a refinar cuando se implemente Sprint 14).
+**Estimación:** 2-3 días (referencia, a refinar cuando se implemente Sprint 10).
 
 ---
 
@@ -33,13 +33,13 @@
 
 ---
 
-## 2. Funcionalidades planificadas (a detalle en Sprint 14)
+## 2. Funcionalidades planificadas (a detalle en Sprint 10)
 
 ### 2.1 Panel administrativo: Configuración de numeración
 - Vista `/admin/configuracion` (extender `Sprint 10`)
 - Input "Próximo número de ticket" (default 1)
 - Botón "Guardar" — solo Jefe puede modificar
-- Lee/escribe de tabla `configuracion_sistema` (Sprint 14)
+- Lee/escribe de tabla `configuracion_sistema` (Sprint 10)
 
 **Comportamiento esperado:**
 - Al generar un nuevo ticket, el sistema usa `configuracion_sistema.siguiente_numero_ticket`
@@ -105,7 +105,7 @@
 
 ---
 
-## 4. Cambios en BD (Sprint 14, referencia)
+## 4. Cambios en BD (Sprint 10, referencia)
 
 ### Tabla `denuncias` (modificar)
 - Agregar `es_legacy` (BOOLEAN, default false)
@@ -172,7 +172,7 @@
 
 ## 7. Estimación (referencia)
 
-**2-3 días** cuando se implemente Sprint 14. Incluye:
+**2-3 días** cuando se implemente Sprint 10. Incluye:
 - Tabla `configuracion_sistema` (BD + CRUD)
 - Flag `es_legacy` en `denuncias`
 - Panel de configuración
@@ -184,7 +184,7 @@
 
 ## 8. Dependencias
 
-- **Sprint 14 (BD):** necesario para crear `configuracion_sistema` y campos en `denuncias`
+- **Sprint 10 (BD):** necesario para crear `configuracion_sistema` y campos en `denuncias`
 - **Sprint 10 (Panel Admin):** base para el panel de configuración
 - **Sprint 7.6 (Archivos):** provee `denuncias_archivos` para digitalizar
 
@@ -192,7 +192,7 @@
 
 ## 9. ¿Por qué se difiere y no se hace ya?
 
-- La implementación depende de Sprint 14 (BD real), que viene después.
+- La implementación depende de Sprint 10 (BD real), que viene después.
 - En Fase 0 (mock), no tiene sentido porque no hay persistencia real.
 - Las decisiones pendientes (numeración legacy vs nueva, fechas, etc.) requieren conversación con el cliente.
 - Se anota ahora para no perder el requerimiento.
@@ -201,7 +201,7 @@
 
 ## 10. Cierre
 
-Sprint 23 está **diferido**. No hay actividad en Fase 0/1 hasta que se implemente Sprint 14.
+Sprint 23 está **diferido**. No hay actividad en Fase 0/1 hasta que se implemente Sprint 10.
 
 Cuando se reactive:
 1. Resolver decisiones pendientes con el cliente
