@@ -48,6 +48,7 @@ Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (11–
    - `Proyecto - Transparencia Stack y Conceptos.md`
    - `Proyecto - Vistas y Prototipo de Interface.md`
    - Documentos de sprints cerrados si no estás trabajando en ellos
+   - `setup-demo-publica/` — Documentación operativa de un solo uso. NO LEER por defecto.
 6. **Bitácora de cambios recientes:** Si necesitas el detalle de lo que cambió en Sprint 10, lee `Notas Sprint 10 - Cierre.md`.
 
 ## Documentación Esencial (LEER SIEMPRE)
