@@ -4,11 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Bitacora;
 use App\Models\CategoriaDenuncia;
-use App\Models\Cierre;
+use App\Models\Clasificacion;
+use App\Models\ConfiguracionSistema;
 use App\Models\DependenciaExterna;
 use App\Models\Feriado;
-use App\Models\InformeFinal;
-use App\Models\ConfiguracionSistema;
+use App\Models\MedioNotificacion;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -17,9 +18,9 @@ use Inertia\Inertia;
 
 class CatalogoController extends Controller
 {
-    private const TABLE_BASED = ['categorias', 'unidades', 'feriados'];
-    private const CONFIG_BASED = ['clasificaciones', 'tipos_denuncia', 'estados', 'medios_notificacion', 'tipos_prueba'];
-    private const READ_ONLY_TYPES = ['tipos_denuncia', 'estados', 'tipos_prueba'];
+    private const TABLE_BASED = ['categorias', 'unidades', 'feriados', 'clasificaciones', 'medios_notificacion'];
+    private const CONFIG_BASED = ['tipos_denuncia', 'estados'];
+    private const READ_ONLY_TYPES = ['tipos_denuncia', 'estados'];
     private const PROTECTED_CLASIFICACIONES = ['penal', 'civil', 'administrativo', 'sin_indicios', 'medida_correctiva', 'archivado'];
 
     public function index()
@@ -36,32 +37,34 @@ class CatalogoController extends Controller
                 ],
             ],
             'feriados' => $this->getFeriadosData(),
-            'unidades' => [
-                'label' => 'Dependencias Externas',
-                'items' => DependenciaExterna::withCount('solicitudes')->orderBy('nombre')->get()->toArray(),
-                'columns' => [
-                    ['key' => 'nombre', 'label' => 'Nombre', 'type' => 'text'],
-                    ['key' => 'solicitudes_count', 'label' => 'Solicitudes', 'type' => 'count'],
-                    ['key' => 'fecha_desactivacion', 'label' => 'Desactivada el', 'type' => 'datetime'],
-                    ['key' => 'activa', 'label' => 'Estado', 'type' => 'boolean'],
-                ],
-            ],
+            'unidades' => $this->getUnidadesData(),
             'medios_notificacion' => [
                 'label' => 'Medios de Notificación',
-                'items' => $this->getMediosNotificacionData(),
+                'items' => MedioNotificacion::withCount('cierres')->orderBy('nombre')->get()->map(fn($m) => [
+                    'id' => $m->id,
+                    'clave' => $m->clave,
+                    'nombre' => $m->nombre,
+                    'activa' => $m->activa,
+                    'usos' => $m->cierres_count,
+                ])->toArray(),
                 'columns' => [
                     ['key' => 'nombre', 'label' => 'Nombre', 'type' => 'text'],
                 ],
-                'is_json_based' => true,
                 'usos_label' => 'cierre(s)',
             ],
             'clasificaciones' => [
                 'label' => 'Clasificaciones Finales',
-                'items' => $this->getClasificacionesData(),
+                'items' => Clasificacion::withCount('informes')->orderBy('nombre')->get()->map(fn($c) => [
+                    'id' => $c->id,
+                    'clave' => $c->clave,
+                    'nombre' => $c->nombre,
+                    'activa' => $c->activa,
+                    'protegido' => in_array($c->clave, self::PROTECTED_CLASIFICACIONES, true),
+                    'usos' => $c->informes_count,
+                ])->toArray(),
                 'columns' => [
                     ['key' => 'nombre', 'label' => 'Nombre', 'type' => 'text'],
                 ],
-                'is_json_based' => true,
                 'usos_label' => 'informe(s)',
             ],
             'estados' => [
@@ -75,14 +78,6 @@ class CatalogoController extends Controller
             'tipos_denuncia' => [
                 'label' => 'Tipos de Denuncia',
                 'items' => $this->getConfigArray('catalogo_tipos_denuncia'),
-                'columns' => [
-                    ['key' => 'nombre', 'label' => 'Nombre', 'type' => 'text'],
-                ],
-                'editable_only' => true,
-            ],
-            'tipos_prueba' => [
-                'label' => 'Tipos de Prueba',
-                'items' => $this->getConfigArray('catalogo_tipos_prueba'),
                 'columns' => [
                     ['key' => 'nombre', 'label' => 'Nombre', 'type' => 'text'],
                 ],
@@ -128,9 +123,39 @@ class CatalogoController extends Controller
                         DB::commit();
                         return back()->with('success', 'Dependencia reactivada correctamente.');
                     }
-                    DependenciaExterna::create($data);
+                    DependenciaExterna::create([
+                        'nombre' => $data['nombre'],
+                        'parent_id' => $data['parent_id'] ?? null,
+                        'activa' => $data['activa'] ?? true,
+                    ]);
                 } elseif ($tipo === 'feriados') {
                     Feriado::create($data);
+                } elseif ($tipo === 'clasificaciones') {
+                    $inactiva = Clasificacion::where('nombre', $data['nombre'])
+                        ->where('activa', false)->first();
+                    if ($inactiva) {
+                        $inactiva->update(['activa' => true, 'fecha_desactivacion' => null, 'desactivado_por_id' => null]);
+                        $this->logBitacora('clasificaciones', $inactiva->id, 'reactivar', ['nombre' => $data['nombre']]);
+                        DB::commit();
+                        return back()->with('success', 'Clasificación reactivada correctamente.');
+                    }
+                    Clasificacion::create([
+                        ...$data,
+                        'clave' => Str::slug(Str::upper($data['nombre']), '_'),
+                    ]);
+                } elseif ($tipo === 'medios_notificacion') {
+                    $inactiva = MedioNotificacion::where('nombre', $data['nombre'])
+                        ->where('activa', false)->first();
+                    if ($inactiva) {
+                        $inactiva->update(['activa' => true, 'fecha_desactivacion' => null, 'desactivado_por_id' => null]);
+                        $this->logBitacora('medios_notificacion', $inactiva->id, 'reactivar', ['nombre' => $data['nombre']]);
+                        DB::commit();
+                        return back()->with('success', 'Medio de notificación reactivado correctamente.');
+                    }
+                    MedioNotificacion::create([
+                        ...$data,
+                        'clave' => Str::slug(Str::upper($data['nombre']), '_'),
+                    ]);
                 }
                 DB::commit();
             } catch (\Exception $e) {
@@ -167,10 +192,20 @@ class CatalogoController extends Controller
                     'categorias' => CategoriaDenuncia::findOrFail((int) $id),
                     'unidades' => DependenciaExterna::findOrFail((int) $id),
                     'feriados' => Feriado::findOrFail((int) $id),
+                    'clasificaciones' => Clasificacion::findOrFail((int) $id),
+                    'medios_notificacion' => MedioNotificacion::findOrFail((int) $id),
                 };
 
-                if ($tipo === 'categorias') {
+                if ($tipo === 'categorias' || $tipo === 'clasificaciones' || $tipo === 'medios_notificacion') {
                     $data['clave'] = Str::slug(Str::upper($data['nombre']), '_');
+                }
+
+                if ($tipo === 'unidades') {
+                    $error = $this->validarParentUnidad($model->id, $data['parent_id'] ?? null);
+                    if ($error) {
+                        DB::rollBack();
+                        return back()->withErrors(['error' => $error]);
+                    }
                 }
 
                 $oldActiva = $model->activa;
@@ -215,51 +250,22 @@ class CatalogoController extends Controller
         }
 
         if (in_array($tipo, self::TABLE_BASED)) {
+            if ($tipo === 'clasificaciones') {
+                $clasificacion = Clasificacion::findOrFail((int) $id);
+                if (in_array($clasificacion->clave, self::PROTECTED_CLASIFICACIONES, true)) {
+                    return back()->withErrors(['error' => 'Esta clasificación está protegida y no se puede eliminar.']);
+                }
+            }
+
             match ($tipo) {
                 'categorias' => $this->desactivarCategoria((int) $id),
                 'unidades' => $this->desactivarUnidad((int) $id),
                 'feriados' => $this->desactivarFeriado((int) $id),
+                'clasificaciones' => $this->desactivarClasificacion((int) $id),
+                'medios_notificacion' => $this->desactivarMedio((int) $id),
             };
-        } else {
-            $items = $this->getConfigArray('catalogo_' . $tipo);
-            $found = null;
-            foreach ($items as $item) {
-                if ((int) $item['id'] === (int) $id) {
-                    $found = $item;
-                    break;
-                }
-            }
-            if (!$found) {
-                return back()->withErrors(['error' => 'Elemento no encontrado.']);
-            }
 
-            if ($tipo === 'clasificaciones') {
-                if (in_array($found['clave'] ?? '', self::PROTECTED_CLASIFICACIONES, true)) {
-                    return back()->withErrors(['error' => 'Esta clasificación está protegida y no se puede eliminar.']);
-                }
-                $usos = InformeFinal::where('clasificacion', $found['clave'] ?? '')->count();
-                if ($usos > 0) {
-                    return back()->withErrors([
-                        'error' => "Esta clasificación está en uso en {$usos} informe(s) y no se puede eliminar.",
-                    ]);
-                }
-            }
-
-            if ($tipo === 'medios_notificacion') {
-                $usos = Cierre::whereRaw('UPPER(COALESCE(notificacion_medio, \'\')) = ?', [strtoupper($found['clave'] ?? '')])
-                    ->where('eliminado', false)
-                    ->count();
-                if ($usos > 0) {
-                    return back()->withErrors([
-                        'error' => "Este medio está en uso en {$usos} cierre(s) y no se puede eliminar.",
-                    ]);
-                }
-            }
-
-            $items = array_values(array_filter($items, fn($item) => (int) $item['id'] !== (int) $id));
-            $this->setConfigArray('catalogo_' . $tipo, $items);
-            $this->logBitacora($tipo, (int) $id, 'eliminar', ['nombre' => $found['nombre'] ?? '']);
-            return back()->with('success', 'Elemento eliminado correctamente.');
+            return back()->with('success', 'Elemento desactivado correctamente.');
         }
 
         return back()->with('success', 'Elemento desactivado correctamente.');
@@ -272,10 +278,37 @@ class CatalogoController extends Controller
                 'categorias' => $this->reactivarCategoria((int) $id),
                 'unidades' => $this->reactivarUnidad((int) $id),
                 'feriados' => $this->reactivarFeriado((int) $id),
+                'clasificaciones' => $this->reactivarClasificacion((int) $id),
+                'medios_notificacion' => $this->reactivarMedio((int) $id),
             };
         }
 
         return back()->with('success', 'Elemento reactivado correctamente.');
+    }
+
+    private function validarParentUnidad(int $nodoId, $parentId): ?string
+    {
+        if ($parentId === null || $parentId === '' || (int) $parentId === 0) {
+            return null;
+        }
+
+        $parentId = (int) $parentId;
+        if ($parentId === $nodoId) {
+            return 'No se puede asignar como padre a sí misma.';
+        }
+
+        $candidato = DependenciaExterna::find($parentId);
+        while ($candidato) {
+            if ($candidato->parent_id === null) {
+                break;
+            }
+            if ((int) $candidato->parent_id === $nodoId) {
+                return 'No se puede asignar como padre una dependencia que cuelga de esta.';
+            }
+            $candidato = DependenciaExterna::find($candidato->parent_id);
+        }
+
+        return null;
     }
 
     private function desactivarCategoria(int $id): void
@@ -306,13 +339,31 @@ class CatalogoController extends Controller
         ]);
     }
 
-    private function desactivarFeriado(int $id): void
+    private function desactivarClasificacion(int $id): void
     {
-        $feriado = Feriado::findOrFail($id);
-        $feriado->delete();
-        $this->logBitacora('feriados', $id, 'desactivar', [
-            'nombre' => $feriado->nombre,
-            'fecha' => $feriado->fecha->format('Y-m-d'),
+        $clasificacion = Clasificacion::findOrFail($id);
+        $clasificacion->update([
+            'activa' => false,
+            'fecha_desactivacion' => now(),
+            'desactivado_por_id' => auth()->id(),
+        ]);
+        $this->logBitacora('clasificaciones', $id, 'desactivar', [
+            'nombre' => $clasificacion->nombre,
+            'informes_asociados' => $clasificacion->informes()->count(),
+        ]);
+    }
+
+    private function desactivarMedio(int $id): void
+    {
+        $medio = MedioNotificacion::findOrFail($id);
+        $medio->update([
+            'activa' => false,
+            'fecha_desactivacion' => now(),
+            'desactivado_por_id' => auth()->id(),
+        ]);
+        $this->logBitacora('medios_notificacion', $id, 'desactivar', [
+            'nombre' => $medio->nombre,
+            'cierres_asociados' => $medio->cierres()->count(),
         ]);
     }
 
@@ -330,6 +381,30 @@ class CatalogoController extends Controller
         $this->logBitacora('unidades', $id, 'reactivar', ['nombre' => $unidad->nombre]);
     }
 
+    private function reactivarClasificacion(int $id): void
+    {
+        $clasificacion = Clasificacion::findOrFail($id);
+        $clasificacion->update(['activa' => true, 'fecha_desactivacion' => null, 'desactivado_por_id' => null]);
+        $this->logBitacora('clasificaciones', $id, 'reactivar', ['nombre' => $clasificacion->nombre]);
+    }
+
+    private function reactivarMedio(int $id): void
+    {
+        $medio = MedioNotificacion::findOrFail($id);
+        $medio->update(['activa' => true, 'fecha_desactivacion' => null, 'desactivado_por_id' => null]);
+        $this->logBitacora('medios_notificacion', $id, 'reactivar', ['nombre' => $medio->nombre]);
+    }
+
+    private function desactivarFeriado(int $id): void
+    {
+        $feriado = Feriado::findOrFail($id);
+        $feriado->delete();
+        $this->logBitacora('feriados', $id, 'desactivar', [
+            'nombre' => $feriado->nombre,
+            'fecha' => $feriado->fecha->format('Y-m-d'),
+        ]);
+    }
+
     private function reactivarFeriado(int $id): void
     {
         $feriado = Feriado::onlyTrashed()->findOrFail($id);
@@ -344,6 +419,8 @@ class CatalogoController extends Controller
                 'categorias' => 'CategoriaDenuncia',
                 'unidades' => 'DependenciaExterna',
                 'feriados' => 'Feriado',
+                'clasificaciones' => 'Clasificacion',
+                'medios_notificacion' => 'MedioNotificacion',
                 default => ucfirst($tipo),
             },
             'entidad_id' => $id,
@@ -359,54 +436,6 @@ class CatalogoController extends Controller
             'detalle' => $detalle,
             'usuario_id' => auth()->id(),
         ]);
-    }
-
-    private function getMediosNotificacionData(): array
-    {
-        $items = ConfiguracionSistema::catalogItems('catalogo_medios_notificacion');
-        $claves = array_values(array_filter(array_column($items, 'clave')));
-        $usos = [];
-        if (!empty($claves)) {
-            $usos = Cierre::query()
-                ->where(function ($q) use ($claves) {
-                    foreach ($claves as $clave) {
-                        $q->orWhereRaw('UPPER(COALESCE(notificacion_medio, \'\')) = ?', [strtoupper($clave)]);
-                    }
-                })
-                ->where('eliminado', false)
-                ->selectRaw('UPPER(notificacion_medio) as medio, COUNT(*) as total')
-                ->groupBy('medio')
-                ->pluck('total', 'medio')
-                ->all();
-        }
-
-        foreach ($items as &$item) {
-            $item['usos'] = (int) ($usos[strtoupper($item['clave'] ?? '')] ?? 0);
-        }
-
-        return $items;
-    }
-
-    private function getClasificacionesData(): array
-    {
-        $items = ConfiguracionSistema::catalogItems('catalogo_clasificaciones');
-        $claves = array_column($items, 'clave');
-        $usos = [];
-        if (!empty($claves)) {
-            $usos = InformeFinal::query()
-                ->whereIn('clasificacion', $claves)
-                ->selectRaw('clasificacion, COUNT(*) as total')
-                ->groupBy('clasificacion')
-                ->pluck('total', 'clasificacion')
-                ->all();
-        }
-
-        foreach ($items as &$item) {
-            $item['protegido'] = in_array($item['clave'] ?? '', self::PROTECTED_CLASIFICACIONES, true);
-            $item['usos'] = (int) ($usos[$item['clave'] ?? ''] ?? 0);
-        }
-
-        return $items;
     }
 
     private function getFeriadosData(): array
@@ -434,6 +463,45 @@ class CatalogoController extends Controller
             ],
             'agrupado_por_anio' => true,
         ];
+    }
+
+    private function getUnidadesData(): array
+    {
+        $todas = DependenciaExterna::withCount('solicitudes')->orderBy('nombre')->get();
+
+        return [
+            'label' => 'Dependencias Externas',
+            'items' => $todas->toArray(),
+            'columns' => [
+                ['key' => 'nombre', 'label' => 'Nombre', 'type' => 'text'],
+                ['key' => 'solicitudes_count', 'label' => 'Solicitudes', 'type' => 'count'],
+                ['key' => 'activa', 'label' => 'Estado', 'type' => 'boolean'],
+            ],
+            'es_arbol' => true,
+            'padre_options' => $this->buildPadreOptions($todas),
+        ];
+    }
+
+    private function buildPadreOptions(Collection $todas): array
+    {
+        $porParent = [];
+        foreach ($todas as $d) {
+            $porParent[$d->parent_id ?? 0][] = $d;
+        }
+
+        $opciones = [['id' => null, 'nombre' => 'SIN DEPENDENCIA PADRE (RAÍZ)']];
+
+        $walk = function (int $padreId, string $prefijo) use (&$walk, &$opciones, $porParent) {
+            foreach (($porParent[$padreId] ?? []) as $d) {
+                $ruta = $prefijo === '' ? $d->nombre : $prefijo . ' — ' . $d->nombre;
+                $opciones[] = ['id' => $d->id, 'nombre' => $ruta];
+                $walk($d->id, $ruta);
+            }
+        };
+
+        $walk(0, '');
+
+        return $opciones;
     }
 
     private function getConfigArray(string $clave): array
@@ -474,11 +542,21 @@ class CatalogoController extends Controller
             ],
             'unidades' => [
                 'nombre' => 'required|string|max:255' . ($isUpdate ? '' : '|unique:dependencias_externas,nombre'),
+                'parent_id' => 'nullable|integer|exists:dependencias_externas,id',
                 'activa' => 'boolean',
             ],
             'feriados' => [
                 'fecha' => 'required|date',
                 'nombre' => 'required|string|max:255',
+            ],
+            'clasificaciones' => [
+                'nombre' => 'required|string|max:255',
+                'descripcion' => 'nullable|string',
+                'activa' => 'boolean',
+            ],
+            'medios_notificacion' => [
+                'nombre' => 'required|string|max:255',
+                'activa' => 'boolean',
             ],
             default => [
                 'nombre' => 'required|string|max:255',

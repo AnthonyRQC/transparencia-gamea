@@ -31,6 +31,11 @@ interface CatalogoItem {
     [key: string]: unknown;
 }
 
+interface PadreOption {
+    id: number | null;
+    nombre: string;
+}
+
 interface ModalEditarItemProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
@@ -39,6 +44,7 @@ interface ModalEditarItemProps {
     onSave: (data: Record<string, unknown>) => void;
     processing: boolean;
     readonly?: boolean;
+    padre_options?: PadreOption[];
 }
 
 const EDITABLE_TYPES = ['text', 'select', 'date'];
@@ -59,6 +65,7 @@ export default function ModalEditarItem({
     onSave,
     processing,
     readonly = false,
+    padre_options = [],
 }: ModalEditarItemProps) {
     const [formData, setFormData] = useState<Record<string, unknown>>({});
     const editableColumns = columns.filter((c) => EDITABLE_TYPES.includes(c.type));
@@ -74,16 +81,22 @@ export default function ModalEditarItem({
                     }
                     data[col.key] = val ?? getDefaultValue(col);
                 }
+                if (padre_options.length > 0) {
+                    data.parent_id = item.parent_id ?? null;
+                }
                 setFormData(data);
             } else {
                 const data: Record<string, unknown> = {};
                 for (const col of editableColumns) {
                     data[col.key] = getDefaultValue(col);
                 }
+                if (padre_options.length > 0) {
+                    data.parent_id = null;
+                }
                 setFormData(data);
             }
         }
-    }, [open, item]);
+    }, [open, item, editableColumns, padre_options.length]);
 
     function setField(key: string, value: unknown) {
         setFormData((prev) => ({ ...prev, [key]: value }));
@@ -147,8 +160,32 @@ export default function ModalEditarItem({
                                     </SelectContent>
                                 </Select>
                             )}
+                    </div>
+                ))}
+
+                    {padre_options.length > 0 && (
+                        <div className="space-y-1.5">
+                            <Label htmlFor="parent_id">Dependencia padre</Label>
+                            <Select
+                                value={formData.parent_id === null || formData.parent_id === undefined || formData.parent_id === '' ? '' : String(formData.parent_id)}
+                                onValueChange={(v) => setField('parent_id', v === '' ? null : Number(v))}
+                            >
+                                <SelectTrigger id="parent_id">
+                                    <SelectValue placeholder="Seleccionar dependencia padre" />
+                                </SelectTrigger>
+                                <SelectContent className="max-h-[300px]">
+                                    {padre_options.map((opt) => (
+                                        <SelectItem key={opt.id === null ? 'root' : String(opt.id)} value={opt.id === null ? '' : String(opt.id)}>
+                                            {opt.nombre}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <p className="text-[10px] text-muted-foreground">
+                                Al cambiar el padre, la dependencia se moverá dentro del organigrama.
+                            </p>
                         </div>
-                    ))}
+                    )}
 
                     <DialogFooter className="pt-2">
                         <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>

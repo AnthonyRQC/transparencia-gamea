@@ -32,6 +32,8 @@ erDiagram
     DESCARGOS ||--o{ AMPLIACIONES : ""
     DENUNCIAS ||--o| INFORMES_FINALES : ""
     DENUNCIAS ||--o| CIERRES : ""
+    INFORMES_FINALES ||--o| CLASIFICACIONES : ""
+    CIERRES ||--o| MEDIOS_NOTIFICACION : ""
     DENUNCIAS ||--o{ DENUNCIAS_ARCHIVOS : ""
     DENUNCIAS ||--o{ BITACORA : ""
     DENUNCIAS ||--o{ NOTIFICACIONES : ""
@@ -223,12 +225,14 @@ erDiagram
 
 - **`id`**: Entero, Llave Primaria (Autoincremental).
 - **`denuncia_id`**: Entero, **Llave Foránea** → `denuncias(id)`, Único.
-- **`clasificacion`**: Enum(`'penal'`, `'civil'`, `'administrativo'`, `'sin_indicios'`, `'medida_correctiva'`, `'archivado'`), Obligatorio. Determina la derivación (Art. 26 §II):
+- **`clasificacion_id`**: Entero, **Llave Foránea** → `clasificaciones(id)`, Obligatorio. **(Reestructuración Agosto 2026: antes era columna string `clasificacion`.)** Determina la derivación (Art. 26 §II):
   - `penal`: Remitir al Ministerio Público.
   - `administrativo`: Remitir a la MAE para acciones administrativas.
   - `civil`: Remitir a Auditoría Interna.
   - `sin_indicios` / `archivado`: Archivar antecedentes (Art. 27).
   - `medida_correctiva`: Suspender proceso de contratación en curso.
+  > Las claves viven en el catálogo `clasificaciones`. El modelo expone un **accessor** `clasificacion` → clave para compatibilidad con el frontend (`$appends`).
+- **`clasificado_por_id`**: Entero, **Llave Foránea** → `usuarios(id)`, Nullable. **(Nuevo Agosto 2026.)** Usuario que redactó/clasificó el informe (alimenta reportes "casos clasificados por usuario").
 - **`sitpreco`**: Texto, Nullable. Código SITPRECO del sistema nacional de Bolivia (opcional, solo en informe final).
 - **`fojas`**: Entero, Nullable. Número de fojas del expediente.
 - **`justificacion`**: Texto largo, Nullable. Justificación y conclusiones del informe.
@@ -246,7 +250,9 @@ erDiagram
 - **`id`**: Entero, Llave Primaria (Autoincremental).
 - **`denuncia_id`**: Entero, **Llave Foránea** → `denuncias(id)`, Único.
 - **`notificado_denunciante`**: Booleano, Obligatorio. Si se notificó al denunciante del cierre.
-- **`notificacion_medio`**: Texto, Nullable. Medio de notificación (ej. "email", "personal", "carta").
+- **`notificacion_medio_id`**: Entero, **Llave Foránea** → `medios_notificacion(id)`, Nullable. **(Reestructuración Agosto 2026: antes era columna string `notificacion_medio`.)** Medio de notificación del cierre (whatsapp, email, presencial, otro).
+  > El modelo expone un **accessor** `notificacion_medio` → clave para compatibilidad con el frontend (`$appends`).
+- **`cerrado_por_id`**: Entero, **Llave Foránea** → `usuarios(id)`, Nullable. **(Nuevo Agosto 2026.)** Usuario que registró el cierre.
 - **`notificacion_fecha`**: Timestamp, Nullable. Fecha de notificación al denunciante.
 - **`notificacion_descripcion`**: Texto, Nullable. Detalle de la notificación.
 - **`no_notificado_motivo`**: Texto, Nullable. Motivo si NO se notificó (ej. "Denunciante anónimo sin datos de contacto").
@@ -374,7 +380,7 @@ Todos los campos de texto libre se almacenan en MAYÚSCULAS por convención inst
 | `descargos` | `medio`, `resumen_descargo`, `motivo_cancelacion` |
 | `ampliaciones` | `justificacion`, `solicitado_por` |
 | `informes_finales` | `justificacion`, `concluido_por` |
-| `cierres` | `descripcion`, `notificacion_medio`, `notificacion_descripcion`, `no_notificado_motivo`, `concluido_por` |
+| `cierres` | `descripcion`, `notificacion_descripcion`, `no_notificado_motivo`, `concluido_por` |
 | `bitacora` | `detalle` |
 | `evaluaciones_tecnicas` | `texto_evaluacion`, `justificacion_delegacion` |
 | `notificaciones` | `titulo`, `mensaje` |
@@ -391,8 +397,8 @@ Todos los campos de texto libre se almacenan en MAYÚSCULAS por convención inst
 - Valores de ENUM (lowercase por convención)
 
 ### Índices recomendados
-- `denuncias`: Índice único en `ticket`. Índice en `estado`. Índice en `tecnico_id`. Índice en `es_legacy` (Sprint 23).
-- `solicitudes_informacion`: Índice en `denuncia_id`. Índice en `estado`.
+- `denuncias`: Índice único en `ticket`. Índice en `estado`. Índice en `tecnico_id`. Índice en `tipo`. Índice en `created_at`. Índice en `es_legacy` (Sprint 23).
+- `solicitudes_informacion`: Índice en `denuncia_id`. Índice en `estado`. Índice en `dependencia_destino_id`.
 - `descargos`: Índice en `denuncia_id`. Índice en `estado`.
 - `bitacora`: Índice en `denuncia_id`. Índice en `fecha DESC`.
 - `notificaciones`: Índice compuesto en `(usuario_id, leida, fecha DESC)`.
@@ -401,6 +407,15 @@ Todos los campos de texto libre se almacenan en MAYÚSCULAS por convención inst
 - `ampliaciones`: Índice en `(tipo, entidad_id)`. Índice en `fecha`.
 - `feriados`: Índice único en `fecha`.
 - `configuracion_sistema`: Índice único en `clave`.
+- `informes_finales`: Índice en `redactado_at`. Índice en `clasificacion_id` (FK). Índice en `clasificado_por_id` (FK).
+- `cierres`: Índice en `cerrado_at`. Índice en `notificacion_medio_id` (FK). Índice en `cerrado_por_id` (FK).
+- `dependencias_externas`: Índice en `parent_id` (recorrido de árbol).
+
+> **Reportes en tiempo real (Agosto 2026):** con las FKs `clasificacion_id` /
+> `notificacion_medio_id` y los índices de fechas, las agregaciones del dashboard
+> (`GROUP BY clasificacion_id`, `GROUP BY tecnico_id`, rangos por `redactado_at`/`cerrado_at`)
+> son de sub-milisegundo a escala institucional (cientos a miles de denuncias/año).
+> Ver `Consultas - Dashboard y Reportes.md`.
 
 ### Plazos legales (referencia rápida)
 
@@ -473,3 +488,32 @@ Todos los campos de texto libre se almacenan en MAYÚSCULAS por convención inst
 - Eliminación de denuncias solo por Jefe de Unidad (el Registrador solo edita)
 - Tickets reusados al eliminar denuncia (numeración continua)
 - Soft delete en `denuncias_archivos` usa solo `fecha_eliminacion` (sin booleano)
+
+---
+
+## 🆕 Resumen de cambios — Agosto 2026 / Reestructuración de Catálogos
+
+### Tablas nuevas
+- **`clasificaciones`** — clasificaciones del informe final (antes JSON en `configuracion_sistema`). FK: `informes_finales.clasificacion_id`.
+- **`medios_notificacion`** — medios del cierre (antes JSON). FK: `cierres.notificacion_medio_id`.
+
+### Columnas nuevas
+- `informes_finales.clasificado_por_id` (FK → users): usuario que clasificó/redactó.
+- `cierres.cerrado_por_id` (FK → users): usuario que registró el cierre.
+- `dependencias_externas.parent_id` (self-FK): árbol del organigrama GAMEA 2026.
+
+### Columnas eliminadas (sustituidas por FK)
+- `informes_finales.clasificacion` (string) → `clasificacion_id`.
+- `cierres.notificacion_medio` (string) → `notificacion_medio_id`.
+
+### Catálogos JSON retirados de `configuracion_sistema`
+- `catalogo_clasificaciones`, `catalogo_medios_notificacion`, `catalogo_tipos_prueba` → eliminados.
+- Permanece: `catalogo_estados` y `catalogo_tipos_denuncia`.
+
+### Compatibilidad (accesors)
+- `InformeFinal::clasificacion` → `clasificacionRel.clave` (`$appends`).
+- `Cierre::notificacion_medio` → `medioNotificacion.clave` (`$appends`).
+- El frontend (FormInformeFinal, FormCierre, badges, seguimiento público) sigue recibiendo la clave, sin cambios.
+
+### Regla de reportes
+- Todas las agregaciones por usuario (técnico, clasificado por, cerrado por) deben unir `users` y filtrar `activo = true` por defecto (con toggle "incluir inactivos").

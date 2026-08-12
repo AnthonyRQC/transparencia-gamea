@@ -23,6 +23,19 @@ Tailwind v3 · shadcn/ui (New York) · Laragon (Windows local)
 
 **Estado actual:** Corrección de bugs post-migración (Sprint 10) **Completada al 100%** ✅. Se restauraron los plazos/badges dinámicos, techos de ampliaciones (90d/30d), flujo de traspasos, evaluaciones delegadas con recomendaciones visuales, edición/eliminación con mutación de tickets `DEL-` y reciclaje de correlativo, y panel de notificaciones sin modo demo. Ver `Notas Sprint 10 - Cierre.md`.
 
+> **Reestructuración de Catálogos (Agosto 2026):** Post-Sprint 11, los catálogos
+> `clasificaciones` y `medios_notificacion` migraron de JSON (`configuracion_sistema`)
+> a **tablas propias** con FKs reales (`informes_finales.clasificacion_id`,
+> `cierres.notificacion_medio_id`) más `clasificado_por_id`/`cerrado_por_id` (→ users).
+> `dependencias_externas` ahora es un **árbol** (`parent_id`) con el organigrama GAMEA 2026
+> completo (185 dependencias: raíz GAMEA → DESPACHO ALCALDE → SECRETARÍA MUNICIPAL DE
+> GESTIÓN INSTITUCIONAL → demás secretarías → direcciones → unidades; 14 subalcaldías sin
+> unidades). Se eliminó la pestaña `tipos_prueba` y los catálogos JSON
+> `catalogo_clasificaciones`, `catalogo_medios_notificacion` y `catalogo_tipos_prueba`.
+> **Regla de reportes:** filtrar `users.activo = true` (los desactivados no aparecen en
+> gráficas/informes; el toggle "incluir inactivos" sirve de recordatorio de técnicos a
+> desactivar). Suite: **63 tests**. Ver `Notas Reestructuración BD - Catálogos y Árbol (Cierre).md`.
+
 Sprints pendientes: **11**, **12**, **13**, **14**, **15**, **16+**.
 Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (11–25).
 
@@ -57,6 +70,8 @@ Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (11–
 3. `transparencia-proy/Sprints Pendientes - Contexto.md` — Contexto de sprints pendientes 11-25 (lazy load)
 4. `transparencia-proy/RESUMEN LEY 974.md` — Marco legal
 5. `transparencia-proy/Notas Sprint 10 - Cierre.md` — Decisiones técnicas, bugs y estado de Sprint 10
+6. `transparencia-proy/Notas Reestructuración BD - Catálogos y Árbol (Cierre).md` — Reestructuración de catálogos y árbol de dependencias (Agosto 2026)
+7. `transparencia-proy/Consultas - Dashboard y Reportes.md` — Consultas SQL/Query Builder preparadas para Sprint 12
 
 ## Documentación de Referencia (LEER SOLO SI NECESARIO)
 > ⚠️ NO leer por defecto. Contienen detalles extensos que saturan la memoria de contexto.
@@ -89,8 +104,8 @@ Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (11–
 ## Arquitectura Clave (post Sprint 10)
 
 ### Backend (MySQL + Eloquent)
-- `app/Models/` — 18 modelos Eloquent con relations, casts, UppercaseText
-  - Catálogos: `CategoriaDenuncia`, `UnidadExterna`, `Feriado`, `ConfiguracionSistema`
+- `app/Models/` — 20 modelos Eloquent con relations, casts, UppercaseText
+  - Catálogos: `CategoriaDenuncia`, `Clasificacion`, `MedioNotificacion`, `DependenciaExterna`, `Feriado`, `ConfiguracionSistema`
   - Auth: `User` (extendido con username, rol, iniciales, color, activo, telefono, preferencias)
   - Negocio: `Denuncia` (SoftDeletes), `Denunciante`, `Denunciado`, `Prueba`, `DenunciaArchivo` (polimórfico), `EvaluacionTecnica`, `SolicitudInformacion`, `Descargo`, `Ampliacion` (polimórfico), `InformeFinal`, `Cierre`, `Bitacora`, `Notificacion`
 - `app/Helpers/UppercaseText.php` — Trait que aplica `Str::upper()` en `saving` hook
@@ -123,7 +138,8 @@ Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (11–
 - `resources/js/types/index.d.ts` — Tipos globales (User, PageProps con `categorias`)
 
 ### Seeders
-- `CatalogoSeeder` — 12 categorías, 13 unidades, 15 feriados, 2 config
+- `CatalogoSeeder` — 12 categorías, **185 dependencias (árbol organigrama GAMEA 2026)**, 15 feriados, **6 clasificaciones**, **4 medios notificación**, config `siguiente_numero_ticket`
+- `CatalogosConfigSeeder` — 2 catálogos JSON: `catalogo_estados` (8) y `catalogo_tipos_denuncia` (2)
 - `UserSeeder` — 5 usuarios (jefe, registrador, tecnico1/2/3, todas `demo123`)
 - `DenunciaSeeder` — 12 denuncias demo (DEN-2026-0001 a 0012)
 - `NotificacionSeeder` — 5 notificaciones demo
@@ -143,6 +159,9 @@ Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (11–
 4. **Sprint 14** — Tiempos entre Fases
 
 **Estado inmediato:** Sprint 11 completado. Próximo: Sprint 12 (Dashboard).
+
+> 🗂️ **Para Sprint 12:** leer `Consultas - Dashboard y Reportes.md` (consultas SQL/Query Builder
+> preparadas, KPIs, roll-up por árbol de dependencias y regla `users.activo`).
 
 Ver detalle completo en `Sprints Pendientes - Contexto.md`.
 

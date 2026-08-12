@@ -49,6 +49,7 @@
 - ✅ Sprint 9: Notificaciones Push (CampanaNotificaciones, PanelNotificaciones, ItemNotificacion, NotificacionData con generación derivada, página /notificaciones con paginación)
 - ✅ Sprint 10: Base de Datos Real (MySQL + Eloquent). Migración completa de app/Data/*. 22 migraciones, 18 modelos, 11 controllers refactorizados, Breeze adaptado a username, tests aislados con SQLite :memory:. Ver `Notas Sprint 10 - Cierre.md`.
 - ✅ Sprint 11: Panel de Catálogos (CRUD admin 8 pestañas, protección por uso, Medios conectados con Cierre, Clasificaciones como fuente de verdad, config JSON en `configuracion_sistema`). Ver `Notas Sprint 11 - Panel Catálogos (Cierre).md`.
+- ✅ **Reestructuración Catálogos (Agosto 2026):** clasificaciones y medios migraron de JSON a **tablas** con FKs (`informes_finales.clasificacion_id`, `cierres.notificacion_medio_id`), +`clasificado_por_id`/`cerrado_por_id`; `dependencias_externas` ahora es **árbol** (`parent_id`) con organigrama GAMEA 2026 (185 nodos); se eliminó `tipos_prueba`. Panel a 7 pestañas. Ver `Notas Reestructuración BD - Catálogos y Árbol (Cierre).md`.
 
 ---
 
@@ -806,24 +807,28 @@ Ver detalle: `Sprint 7.7 - Búsqueda y Consulta para Registrador.md`.
 | `resources/js/Pages/Admin/Catalogos.tsx` (nuevo) | Vista con tabs por tipo de catálogo |
 | `app/Http/Controllers/CatalogoController.php` (nuevo) | CRUD genérico por tipo de catálogo (TABLE_BASED + CONFIG_BASED) |
 | `app/Http/Middleware/HandleInertiaRequests.php` (modificado) | Comparte `clasificaciones` y `medios_notificacion` |
-| `database/seeders/CatalogosConfigSeeder.php` (nuevo) | Semilla de 5 catálogos JSON (clasificaciones, tipos_denuncia, estados, medios, tipos_prueba) |
-| `resources/js/Components/Admin/TablaCatalogo.tsx` (nuevo) | Tabla editable con acciones (crear, editar, eliminar) |
-| `resources/js/Components/Admin/ModalEditarItem.tsx` (nuevo) | Modal de edición de un item del catálogo |
+| `database/seeders/CatalogosConfigSeeder.php` (nuevo) | Semilla de catálogos JSON |
+| `resources/js/Components/Admin/TablaCatalogo.tsx` (nuevo) | Tabla editable (con **vista de árbol** para dependencias) |
+| `resources/js/Components/Admin/ModalEditarItem.tsx` (nuevo) | Modal de edición (con select "Dependencia padre") |
 | `resources/js/Components/Admin/ModalConfirmarDesactivar.tsx` (nuevo) | Confirmación de desactivación |
 
-**✅ Pestañas implementadas (8):**
+**✅ Pestañas implementadas (7 tras la reestructuración de Agosto 2026):**
 - Categorías de denuncia (tabla BD)
-- Dependencias externas (tabla BD)
+- Dependencias externas (**tabla BD en árbol** con organigrama GAMEA 2026)
 - Feriados (tabla BD con SoftDeletes)
-- Medios de notificación (JSON config, **conectados con Cierre** — protección por uso)
-- Clasificaciones finales (JSON config, **fuente de verdad** — protección por uso + protegidas)
+- Medios de notificación (**tabla BD**, conectados con Cierre)
+- Clasificaciones finales (**tabla BD**, fuente de verdad, protegidas + soft-deactivate)
 - Estados (JSON config, solo-edición)
 - Tipos de denuncia (JSON config, solo-edición)
-- Tipos de prueba (JSON config, solo-edición)
+- ~~Tipos de prueba~~ (**eliminado** — catálogo huérfano)
+
+> **Reestructuración (Agosto 2026):** clasificaciones y medios pasaron de JSON a tablas con
+> FKs reales; se añadieron `clasificado_por_id`/`cerrado_por_id`; `dependencias_externas`
+> es un árbol de 185 nodos. Ver `Notas Reestructuración BD - Catálogos y Árbol (Cierre).md`.
 
 **Configuración de alertas por usuario:** Pendiente — se implementa en Sprint 18 (Panel de Usuario).
 
-**Subcategorías:** Pendiente — `parent_id` no se implementó en la migración actual. Se implementará cuando el cliente confirme la estructura jerárquica.
+**Subcategorías de Categorías:** Pendiente — `parent_id` en `categorias_denuncia` se implementará cuando el cliente confirme la estructura jerárquica.
 
 ---
 
@@ -832,6 +837,9 @@ Ver detalle: `Sprint 7.7 - Búsqueda y Consulta para Registrador.md`.
 **Objetivo:** Dashboard con KPIs, gráficos y página de reportes con tabla + filtros + exportación PDF/Excel.
 
 **Origen:** Respuestas del cliente #15, #16, #17, #21.
+
+> 🗂️ **Antes de empezar:** leer `Consultas - Dashboard y Reportes.md` (consultas preparadas,
+> KPIs, roll-up por árbol y regla `users.activo`).
 
 | Archivo | Descripción |
 |---------|-------------|

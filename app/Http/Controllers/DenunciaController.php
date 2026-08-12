@@ -6,10 +6,12 @@ use App\Models\Ampliacion;
 use App\Models\Bitacora;
 use App\Models\CategoriaDenuncia;
 use App\Models\Cierre;
+use App\Models\Clasificacion;
 use App\Models\ConfiguracionSistema;
 use App\Models\Denuncia;
 use App\Models\EvaluacionTecnica;
 use App\Models\InformeFinal;
+use App\Models\MedioNotificacion;
 use App\Models\Notificacion;
 use App\Models\User;
 use Carbon\Carbon;
@@ -428,9 +430,12 @@ class DenunciaController extends Controller
             return redirect()->back()->with('error', 'No se puede redactar el informe en esta denuncia.');
         }
 
-        DB::transaction(function () use ($denuncia, $validated) {
+        $clasificacion = Clasificacion::where('clave', $validated['clasificacion'])->firstOrFail();
+
+        DB::transaction(function () use ($denuncia, $validated, $clasificacion) {
             $informe = new InformeFinal([
-                'clasificacion' => $validated['clasificacion'],
+                'clasificacion_id' => $clasificacion->id,
+                'clasificado_por_id' => Auth::id(),
                 'fojas' => $validated['fojas'],
                 'justificacion' => $validated['justificacion'],
                 'concluido_por' => $validated['concluido_por'],
@@ -467,7 +472,9 @@ class DenunciaController extends Controller
             return redirect()->back()->with('error', 'No se puede editar el informe de esta denuncia.');
         }
 
-        DB::transaction(function () use ($denuncia, $validated) {
+        $clasificacion = Clasificacion::where('clave', $validated['clasificacion'])->firstOrFail();
+
+        DB::transaction(function () use ($denuncia, $validated, $clasificacion) {
             $informe = $denuncia->informe;
 
             if (!$informe) {
@@ -482,7 +489,8 @@ class DenunciaController extends Controller
             ];
 
             $informe->update([
-                'clasificacion' => $validated['clasificacion'],
+                'clasificacion_id' => $clasificacion->id,
+                'clasificado_por_id' => Auth::id(),
                 'fojas' => $validated['fojas'],
                 'justificacion' => $validated['justificacion'],
                 'concluido_por' => $validated['concluido_por'],
@@ -546,16 +554,23 @@ class DenunciaController extends Controller
             return redirect()->back()->with('error', 'No se puede cerrar esta denuncia.');
         }
 
-        DB::transaction(function () use ($denuncia, $validated) {
+        $medioId = null;
+        if (!empty($validated['notificacion_medio'])) {
+            $medio = MedioNotificacion::where('clave', mb_strtolower($validated['notificacion_medio']))->first();
+            $medioId = $medio?->id;
+        }
+
+        DB::transaction(function () use ($denuncia, $validated, $medioId) {
             $cierre = new Cierre([
                 'notificado_denunciante' => (bool) $validated['notificado_denunciante'],
-                'notificacion_medio' => $validated['notificacion_medio'] ?? null,
+                'notificacion_medio_id' => $medioId,
                 'notificacion_fecha' => $validated['notificacion_fecha'] ?? null,
                 'notificacion_descripcion' => $validated['notificacion_descripcion'] ?? null,
                 'no_notificado_motivo' => $validated['no_notificado_motivo'] ?? null,
                 'concluido_por' => $validated['concluido_por'],
                 'descripcion' => $validated['descripcion'],
                 'cerrado_at' => now(),
+                'cerrado_por_id' => Auth::id(),
             ]);
 
             $denuncia->cierre()->save($cierre);
@@ -590,7 +605,13 @@ class DenunciaController extends Controller
             return redirect()->back()->with('error', 'No se puede editar el cierre de esta denuncia.');
         }
 
-        DB::transaction(function () use ($denuncia, $validated, $ticket) {
+        $medioId = null;
+        if (!empty($validated['notificacion_medio'])) {
+            $medio = MedioNotificacion::where('clave', mb_strtolower($validated['notificacion_medio']))->first();
+            $medioId = $medio?->id;
+        }
+
+        DB::transaction(function () use ($denuncia, $validated, $ticket, $medioId) {
             $cierre = $denuncia->cierre;
 
             if (!$cierre) {
@@ -606,7 +627,7 @@ class DenunciaController extends Controller
 
             $cierre->update([
                 'notificado_denunciante' => (bool) $validated['notificado_denunciante'],
-                'notificacion_medio' => $validated['notificacion_medio'] ?? null,
+                'notificacion_medio_id' => $medioId,
                 'notificacion_fecha' => $validated['notificacion_fecha'] ?? null,
                 'notificacion_descripcion' => $validated['notificacion_descripcion'] ?? null,
                 'no_notificado_motivo' => $validated['no_notificado_motivo'] ?? null,
@@ -982,10 +1003,7 @@ class DenunciaController extends Controller
 
     private function clasificacionesValidas(): array
     {
-        $claves = array_values(array_filter(array_column(
-            ConfiguracionSistema::catalogItems('catalogo_clasificaciones'),
-            'clave'
-        )));
+        $claves = Clasificacion::where('activa', true)->pluck('clave')->toArray();
 
         return !empty($claves)
             ? $claves

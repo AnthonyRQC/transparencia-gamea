@@ -27,6 +27,8 @@ interface CatalogoDef {
     is_json_based?: boolean;
     agrupado_por_anio?: boolean;
     usos_label?: string;
+    es_arbol?: boolean;
+    padre_options?: Array<{ id: number | null; nombre: string }>;
 }
 
 export default function Catalogos() {
@@ -69,6 +71,8 @@ export default function Catalogos() {
                             editable_only={catalogos[tipo].editable_only ?? false}
                             is_json_based={catalogos[tipo].is_json_based ?? false}
                             usos_label={catalogos[tipo].usos_label ?? 'registro(s)'}
+                            es_arbol={catalogos[tipo].es_arbol ?? false}
+                            padre_options={catalogos[tipo].padre_options ?? []}
                         />
                     </TabsContent>
                 ))}

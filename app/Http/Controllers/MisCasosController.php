@@ -18,7 +18,7 @@ class MisCasosController extends Controller
 
         $tecnicoId = Auth::id();
 
-        $with = ['denunciante', 'denunciados', 'categoria', 'tecnico', 'informe', 'cierre', 'solicitudes.dependenciaDestino', 'solicitudes.ampliaciones', 'descargos.denunciado', 'descargos.ampliaciones', 'evaluaciones', 'bitacora.usuario'];
+        $with = ['denunciante', 'denunciados', 'categoria', 'tecnico', 'informe.clasificacionRel', 'cierre.medioNotificacion', 'solicitudes.dependenciaDestino', 'solicitudes.ampliaciones', 'descargos.denunciado', 'descargos.ampliaciones', 'evaluaciones', 'bitacora.usuario'];
 
         $denuncias = Denuncia::with($with)
             ->where('tecnico_id', $tecnicoId)
@@ -87,7 +87,7 @@ class MisCasosController extends Controller
             ->where('estado', 'devuelta')
             ->get();
 
-        $with = ['denunciante', 'denunciados', 'pruebas', 'categoria', 'tecnico', 'informe', 'cierre', 'solicitudes.dependenciaDestino', 'solicitudes.ampliaciones', 'descargos.denunciado', 'descargos.ampliaciones', 'evaluaciones', 'bitacora.usuario'];
+        $with = ['denunciante', 'denunciados', 'pruebas', 'categoria', 'tecnico', 'informe.clasificacionRel', 'cierre.medioNotificacion', 'solicitudes.dependenciaDestino', 'solicitudes.ampliaciones', 'descargos.denunciado', 'descargos.ampliaciones', 'evaluaciones', 'bitacora.usuario'];
 
         $denunciaIds = $evaluacionesDelegadas->pluck('denuncia_id')->concat($evaluacionesDevueltas->pluck('denuncia_id'))->filter()->unique();
         $denuncias = Denuncia::with($with)->whereIn('id', $denunciaIds)->get();

@@ -16,7 +16,7 @@ class BandejaController extends Controller
             return redirect()->route('dashboard')->with('error', 'Solo el Jefe de Unidad puede acceder a la Bandeja de Admisión.');
         }
 
-        $with = ['denunciante', 'denunciados', 'pruebas', 'categoria', 'tecnico', 'informe', 'cierre', 'solicitudes.dependenciaDestino', 'solicitudes.ampliaciones', 'descargos.denunciado', 'descargos.ampliaciones', 'evaluaciones', 'bitacora.usuario'];
+        $with = ['denunciante', 'denunciados', 'pruebas', 'categoria', 'tecnico', 'informe.clasificacionRel', 'cierre.medioNotificacion', 'solicitudes.dependenciaDestino', 'solicitudes.ampliaciones', 'descargos.denunciado', 'descargos.ampliaciones', 'evaluaciones', 'bitacora.usuario'];
 
         $ingresadas = Denuncia::with($with)->whereIn('estado', ['ingresada', 'evaluacion_tecnica'])->latest()->get();
         $porAsignar = Denuncia::with($with)->where('estado', 'admitida')->latest()->get();

@@ -10,17 +10,6 @@ class CatalogosConfigSeeder extends Seeder
     public static function run(): void
     {
         $catalogos = [
-            'catalogo_clasificaciones' => [
-                'descripcion' => 'CLASIFICACIONES FINALES PARA INFORME',
-                'items' => [
-                    ['id' => 1, 'clave' => 'penal', 'nombre' => 'PENAL', 'activo' => true],
-                    ['id' => 2, 'clave' => 'civil', 'nombre' => 'CIVIL', 'activo' => true],
-                    ['id' => 3, 'clave' => 'administrativo', 'nombre' => 'ADMINISTRATIVO', 'activo' => true],
-                    ['id' => 4, 'clave' => 'sin_indicios', 'nombre' => 'SIN INDICIOS', 'activo' => true],
-                    ['id' => 5, 'clave' => 'medida_correctiva', 'nombre' => 'MEDIDA CORRECTIVA', 'activo' => true],
-                    ['id' => 6, 'clave' => 'archivado', 'nombre' => 'ARCHIVADO', 'activo' => true],
-                ],
-            ],
             'catalogo_tipos_denuncia' => [
                 'descripcion' => 'TIPOS DE DENUNCIA',
                 'items' => [
@@ -39,23 +28,6 @@ class CatalogosConfigSeeder extends Seeder
                     ['id' => 6, 'clave' => 'investigacion', 'nombre' => 'INVESTIGACIÓN', 'activo' => true],
                     ['id' => 7, 'clave' => 'informe', 'nombre' => 'INFORME', 'activo' => true],
                     ['id' => 8, 'clave' => 'cerrada', 'nombre' => 'CERRADA', 'activo' => true],
-                ],
-            ],
-            'catalogo_medios_notificacion' => [
-                'descripcion' => 'MEDIOS DE NOTIFICACIÓN DE DESCARGOS',
-                'items' => [
-                    ['id' => 1, 'clave' => 'whatsapp', 'nombre' => 'WHATSAPP', 'activo' => true],
-                    ['id' => 2, 'clave' => 'email', 'nombre' => 'EMAIL', 'activo' => true],
-                    ['id' => 3, 'clave' => 'presencial', 'nombre' => 'PRESENCIAL', 'activo' => true],
-                    ['id' => 4, 'clave' => 'otro', 'nombre' => 'OTRO', 'activo' => true],
-                ],
-            ],
-            'catalogo_tipos_prueba' => [
-                'descripcion' => 'TIPOS DE PRUEBA EN DENUNCIAS',
-                'items' => [
-                    ['id' => 1, 'nombre' => 'ARCHIVO', 'activo' => true],
-                    ['id' => 2, 'nombre' => 'PRUEBA FÍSICA', 'activo' => true],
-                    ['id' => 3, 'nombre' => 'TESTIGO', 'activo' => true],
                 ],
             ],
         ];

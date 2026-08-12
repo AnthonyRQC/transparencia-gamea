@@ -3,8 +3,9 @@
 namespace Tests\Feature;
 
 use App\Models\CategoriaDenuncia;
-use App\Models\ConfiguracionSistema;
+use App\Models\Clasificacion;
 use App\Models\Denuncia;
+use App\Models\MedioNotificacion;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -45,6 +46,18 @@ class DenunciaFlowTest extends TestCase
             'clave' => 'cohecho',
             'nombre' => 'COHECHO (SOBORNO)',
             'tipo_denuncia' => 'corrupcion',
+            'activa' => true,
+        ]);
+
+        Clasificacion::create([
+            'clave' => 'administrativo',
+            'nombre' => 'ADMINISTRATIVO',
+            'activa' => true,
+        ]);
+
+        MedioNotificacion::create([
+            'clave' => 'email',
+            'nombre' => 'EMAIL',
             'activa' => true,
         ]);
     }
@@ -201,13 +214,11 @@ class DenunciaFlowTest extends TestCase
     {
         $this->actingAs($this->jefe);
 
-        ConfiguracionSistema::create([
-            'clave' => 'catalogo_clasificaciones',
-            'valor' => json_encode([
-                ['id' => 1, 'clave' => 'penal', 'nombre' => 'PENAL', 'activo' => true],
-                ['id' => 7, 'clave' => 'delitos_electorales', 'nombre' => 'DELITOS ELECTORALES', 'activo' => true],
-            ]),
-            'descripcion' => 'CLASIFICACIONES FINALES',
+        // Simula una clasificación agregada desde el Panel de Catálogos
+        Clasificacion::create([
+            'clave' => 'delitos_electorales',
+            'nombre' => 'DELITOS ELECTORALES',
+            'activa' => true,
         ]);
 
         $denuncia = Denuncia::factory()->create([

@@ -4,12 +4,15 @@ namespace Database\Seeders;
 
 use App\Models\Bitacora;
 use App\Models\Cierre;
+use App\Models\Clasificacion;
 use App\Models\Denuncia;
 use App\Models\DenunciaArchivo;
 use App\Models\Denunciado;
 use App\Models\Denunciante;
+use App\Models\DependenciaExterna;
 use App\Models\Descargo;
 use App\Models\InformeFinal;
+use App\Models\MedioNotificacion;
 use App\Models\Prueba;
 use App\Models\SolicitudInformacion;
 use Carbon\Carbon;
@@ -55,6 +58,9 @@ class DenunciaSeeder extends Seeder
 
         if (isset($relations['solicitudes'])) {
             foreach ($relations['solicitudes'] as $s) {
+                if (isset($s['dependencia_destino_id'])) {
+                    $s['dependencia_destino_id'] = $this->depPorIdLegacy((int) $s['dependencia_destino_id']);
+                }
                 $d->solicitudes()->create($s);
             }
         }
@@ -66,11 +72,23 @@ class DenunciaSeeder extends Seeder
         }
 
         if (isset($relations['informe'])) {
-            $d->informe()->create($relations['informe']);
+            $inf = $relations['informe'];
+            if (isset($inf['clasificacion'])) {
+                $clas = Clasificacion::where('clave', $inf['clasificacion'])->first();
+                $inf['clasificacion_id'] = $clas?->id;
+                unset($inf['clasificacion']);
+            }
+            $d->informe()->create($inf);
         }
 
         if (isset($relations['cierre'])) {
-            $d->cierre()->create($relations['cierre']);
+            $cie = $relations['cierre'];
+            if (isset($cie['notificacion_medio'])) {
+                $medio = MedioNotificacion::where('clave', mb_strtolower($cie['notificacion_medio']))->first();
+                $cie['notificacion_medio_id'] = $medio?->id;
+                unset($cie['notificacion_medio']);
+            }
+            $d->cierre()->create($cie);
         }
 
         if (isset($relations['archivos'])) {
@@ -86,6 +104,38 @@ class DenunciaSeeder extends Seeder
         }
 
         return $d;
+    }
+
+    /**
+     * Convierte un ID de dependencia del seed plano legacy (por orden) al ID
+     * actual del árbol de organigrama, resolviendo por nombre del nodo hoja.
+     */
+    private function depPorIdLegacy(int $legacyId): int
+    {
+        $nombresLegacy = [
+            1 => 'UNIDAD DE TRANSPARENCIA Y LUCHA CONTRA LA CORRUPCIÓN',
+            2 => 'UNIDAD SUMARIANTE',
+            3 => 'UNIDAD DE AUDITORIA INTERNA',
+            4 => 'UNIDAD DE RELACIONES PÚBLICAS Y PROTOCOLO',
+            5 => 'UNIDAD DE GESTIÓN SOCIAL',
+            6 => 'UNIDAD DE ASUNTOS JURISDICCIONALES',
+            7 => 'UNIDAD DE NORMAS MUNICIPALES Y ASUNTOS ADMINISTRATIVOS',
+            8 => 'UNIDAD DE DEFENSA Y REGULARIZACIÓN DE BIENES DE DOMINIO MUNICIPAL',
+            9 => 'UNIDAD DE LIMITES',
+            10 => 'UNIDAD DE PROGRAMACIÓN DE OPERACIONES',
+            11 => 'UNIDAD DE INVERSIÓN PÚBLICA Y SEGUIMIENTO',
+            12 => 'UNIDAD DE DESARROLLO ORGANIZACIONAL',
+            13 => 'UNIDAD DE PLANIFICACIÓN ESTRATÉGICA',
+        ];
+
+        $nombre = $nombresLegacy[$legacyId] ?? null;
+        if (!$nombre) {
+            return $legacyId;
+        }
+
+        $dep = DependenciaExterna::where('nombre', $nombre)->first();
+
+        return $dep ? $dep->id : $legacyId;
     }
 
     // DEN-2026-0001 — INGRESADA, CORRUPCIÓN

@@ -344,33 +344,39 @@ Ver `Sprint 7.7 - Búsqueda y Consulta para Registrador.md`.
 
 ## Sprint 11 (era 10) — Panel Administración Catálogos ✅ COMPLETADO (Agosto 2026)
 
-**Estado:** En curso.
-**Origen:** Respuesta del cliente #18. Ver `Notas Sprint 11 - Panel Catálogos (Cierre).md`.
+**Estado:** ✅ Completado. Ver `Notas Sprint 11 - Panel Catálogos (Cierre).md`.
+**Origen:** Respuesta del cliente #18.
 
 ### Resumen
 Panel administrativo único para **CRUD de todos los catálogos** del sistema. Cada catálogo es editable desde aquí, no hardcodeado en código.
 
-### Implementado (8 pestañas)
+### Implementado (8 pestañas → 7 tras reestructuración)
 - **Categorías de denuncia** (tabla BD)
-- **Dependencias externas** (tabla BD)
+- **Dependencias externas** (tabla BD con **árbol** `parent_id` + organigrama GAMEA 2026)
 - **Feriados** (tabla BD con SoftDeletes)
-- **Medios de notificación** (JSON config, conectados con Cierre — protección por uso)
-- **Clasificaciones finales** (JSON config, fuente de verdad — protección por uso + protegidas)
+- **Medios de notificación** (**tabla BD** desde Agosto 2026; conectados con Cierre — protección por uso)
+- **Clasificaciones finales** (**tabla BD** desde Agosto 2026; fuente de verdad — protegidas + soft-deactivate)
 - **Estados** (JSON config, solo-edición)
 - **Tipos de denuncia** (JSON config, solo-edición)
-- **Tipos de prueba** (JSON config, solo-edición)
+- ~~Tipos de prueba~~ **(eliminado en Agosto 2026 — catálogo huérfano)**
+
+> **Reestructuración (Agosto 2026):** clasificaciones y medios migraron de JSON a tablas con
+> FKs reales (`informes_finales.clasificacion_id`, `cierres.notificacion_medio_id`).
+> `dependencias_externas` ahora es un árbol. Ver `Notas Reestructuración BD - Catálogos y Árbol (Cierre).md`.
 
 ### Pendiente
 - **Configuración de alertas por usuario:** Sliders/inputs numéricos con preview. Se implementa en Sprint 18 (Panel de Usuario).
-- **Subcategorías jerárquicas:** `parent_id` no se implementó en la migración actual. Pendiente confirmación del cliente sobre estructura.
+- **Subcategorías jerárquicas de Categorías:** `parent_id` en `categorias_denuncia` sigue pendiente de confirmación del cliente (el árbol de dependencias SÍ se implementó, pero es otra entidad).
+- **UI de calendario para Feriados:** hoy es tabla agrupada por año; mejora a grid mensual si el cliente lo pide.
 
 ### Archivos creados
 - `resources/js/Pages/Admin/Catalogos.tsx`
 - `app/Http/Controllers/CatalogoController.php`
-- `database/seeders/CatalogosConfigSeeder.php`
-- `resources/js/Components/Admin/TablaCatalogo.tsx`
-- `resources/js/Components/Admin/ModalEditarItem.tsx`
+- `database/seeders/CatalogosConfigSeeder.php` (ahora solo estados + tipos_denuncia)
+- `resources/js/Components/Admin/TablaCatalogo.tsx` (con vista de árbol)
+- `resources/js/Components/Admin/ModalEditarItem.tsx` (con select "Dependencia padre")
 - `resources/js/Components/Admin/ModalConfirmarDesactivar.tsx`
+- `resources/js/Components/Denuncias/ModalNuevaSolicitud.tsx` (select jerárquico de dependencias)
 
 ---
 
@@ -379,8 +385,14 @@ Panel administrativo único para **CRUD de todos los catálogos** del sistema. C
 **Estado:** Pendiente (será uno de los últimos sprints a reestructurar).
 **Origen:** Respuestas del cliente #15, #16, #17, #21.
 
-### Resumen
-Dashboard con **KPIs** y **gráficos**, más página de **reportes** con tabla + filtros + **exportación PDF/Excel**.
+> 🗂️ **Antes de empezar:** leer `Consultas - Dashboard y Reportes.md`. La reestructuración de
+> Agosto 2026 (tablas `clasificaciones`/`medios_notificacion`, FKs, árbol de dependencias,
+> `clasificado_por_id`/`cerrado_por_id`, índices) dejó el esquema listo para consultas en tiempo real.
+
+### Reglas de negocio para el dashboard/reportes
+- **`users.activo = true` por defecto** en agregaciones por usuario (técnico, clasificado_por, cerrado_por). Toggle "incluir inactivos" como recordatorio de técnicos a desactivar.
+- **Roll-up por árbol** de dependencias: unidad → dirección → secretaría → Gestión Institucional → GAMEA (recursión en PHP o CTE).
+- Filtros cruzados: rango de fechas libre (por `created_at` o `redactado_at`/`cerrado_at`) + tipo + estado + técnico + clasificación + dependencia.
 
 ### KPIs propuestos
 1. Denuncias activas

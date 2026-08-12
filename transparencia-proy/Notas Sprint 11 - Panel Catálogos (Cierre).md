@@ -5,6 +5,27 @@
 
 ---
 
+## ⚠️ Actualización — Reestructuración de Catálogos (Agosto 2026)
+
+Parte de este documento quedó **desactualizada** tras la reestructuración que migró los catálogos JSON a tablas reales. Resumen de lo que cambió:
+
+| Tema | Antes (Sprint 11) | Ahora (Agosto 2026) |
+|------|-------------------|---------------------|
+| Clasificaciones finales | JSON en `configuracion_sistema` (`catalogo_clasificaciones`) | **Tabla `clasificaciones`** con FK `informes_finales.clasificacion_id` |
+| Medios de notificación | JSON (`catalogo_medios_notificacion`) | **Tabla `medios_notificacion`** con FK `cierres.notificacion_medio_id` |
+| Tipos de prueba | JSON (`catalogo_tipos_prueba`), pestaña en panel | **Eliminado** (catálogo huérfano; `pruebas.tipo` usa `fisica`/`testigo` en código) |
+| Dependencias externas | Tabla plana (~13) | **Árbol** con `parent_id` + organigrama GAMEA 2026 (185 nodos) |
+| Eliminación clasificaciones | Hard-delete con count manual | **Soft-deactivate** (`activa=false`); protegidas = no desactivables; en uso = desactivación permitida (preserva histórico vía FK) |
+| Pestañas del panel | 8 | **7** (se retiró tipos_prueba) |
+| Nuevas columnas | — | `informes_finales.clasificado_por_id`, `cierres.cerrado_por_id` (→ users) |
+
+**Regla de reportes:** filtrar `users.activo = true` en agregaciones por usuario.
+
+> 📄 Ver el detalle completo en `Notas Reestructuración BD - Catálogos y Árbol (Cierre).md`
+> y el catálogo de consultas en `Consultas - Dashboard y Reportes.md`.
+
+---
+
 ## 1. Resumen Ejecutivo
 
 Sprint 11 construyó el **Panel de Catálogos** en `/admin/catalogos` (rol Jefe) para administrar los 8 catálogos del sistema. Unifica dos orígenes de datos: tablas propias de BD y catálogos JSON dentro de `configuracion_sistema.valor`.

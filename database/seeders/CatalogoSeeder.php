@@ -3,14 +3,33 @@
 namespace Database\Seeders;
 
 use App\Models\CategoriaDenuncia;
+use App\Models\Clasificacion;
+use App\Models\ConfiguracionSistema;
 use App\Models\DependenciaExterna;
 use App\Models\Feriado;
-use App\Models\ConfiguracionSistema;
+use App\Models\MedioNotificacion;
 use Illuminate\Database\Seeder;
 
 class CatalogoSeeder extends Seeder
 {
     public function run(): void
+    {
+        $this->crearCategorias();
+        $this->crearDependencias();
+        $this->crearClasificaciones();
+        $this->crearMediosNotificacion();
+        $this->crearFeriados();
+
+        ConfiguracionSistema::create([
+            'clave' => 'siguiente_numero_ticket',
+            'valor' => '13',
+            'descripcion' => 'SIGUIENTE NÚMERO DE TICKET',
+        ]);
+
+        CatalogosConfigSeeder::run();
+    }
+
+    private function crearCategorias(): void
     {
         $categorias = [
             ['clave' => 'cohecho', 'nombre' => 'COHECHO (SOBORNO)', 'tipo_denuncia' => 'corrupcion'],
@@ -30,8 +49,142 @@ class CatalogoSeeder extends Seeder
         foreach ($categorias as $cat) {
             CategoriaDenuncia::create($cat);
         }
+    }
 
-        $dependencias = [
+    private function crearClasificaciones(): void
+    {
+        $clasificaciones = [
+            ['clave' => 'penal', 'nombre' => 'PENAL'],
+            ['clave' => 'civil', 'nombre' => 'CIVIL'],
+            ['clave' => 'administrativo', 'nombre' => 'ADMINISTRATIVO'],
+            ['clave' => 'sin_indicios', 'nombre' => 'SIN INDICIOS'],
+            ['clave' => 'medida_correctiva', 'nombre' => 'MEDIDA CORRECTIVA'],
+            ['clave' => 'archivado', 'nombre' => 'ARCHIVADO'],
+        ];
+
+        foreach ($clasificaciones as $clas) {
+            Clasificacion::create($clas);
+        }
+    }
+
+    private function crearMediosNotificacion(): void
+    {
+        $medios = [
+            ['clave' => 'whatsapp', 'nombre' => 'WHATSAPP'],
+            ['clave' => 'email', 'nombre' => 'EMAIL'],
+            ['clave' => 'presencial', 'nombre' => 'PRESENCIAL'],
+            ['clave' => 'otro', 'nombre' => 'OTRO'],
+        ];
+
+        foreach ($medios as $medio) {
+            MedioNotificacion::create($medio);
+        }
+    }
+
+    /**
+     * Construye el árbol del organigrama GAMEA 2026 usando parent_id.
+     * La lista plana (rutas separadas por " — ") es la fuente de datos.
+     */
+    private function crearDependencias(): void
+    {
+        $raiz = DependenciaExterna::create(['nombre' => 'GOBIERNO AUTÓNOMO MUNICIPAL DE EL ALTO']);
+        $despacho = DependenciaExterna::create(['nombre' => 'DESPACHO ALCALDE', 'parent_id' => $raiz->id]);
+
+        $nodos = [];
+        $obtenerOCrear = function (int $padreId, string $nombre) use (&$nodos) {
+            $key = "{$padreId}|{$nombre}";
+            if (isset($nodos[$key])) {
+                return $nodos[$key];
+            }
+            $dep = DependenciaExterna::create(['nombre' => $nombre, 'parent_id' => $padreId]);
+            $nodos[$key] = $dep->id;
+            return $dep->id;
+        };
+
+        $dependencias = $this->dependenciasFlat();
+
+        // 1. Dependencias y direcciones directas del Despacho
+        foreach ($dependencias as $dep) {
+            if (!str_starts_with($dep['nombre'], 'DESPACHO ALCALDESA')) {
+                continue;
+            }
+            $padre = $despacho->id;
+            foreach (array_slice(explode(' — ', $dep['nombre']), 1) as $nombre) {
+                $padre = $obtenerOCrear($padre, $nombre);
+            }
+        }
+
+        // 2. Secretaría de Gestión Institucional (ex Secretaría General)
+        $gestion = $obtenerOCrear($despacho->id, 'SECRETARÍA MUNICIPAL DE GESTIÓN INSTITUCIONAL');
+        $obtenerOCrear($gestion, 'TERMINAL METROPOLITANA DE EL ALTO');
+
+        foreach ($dependencias as $dep) {
+            if (!str_starts_with($dep['nombre'], 'SECRETARÍA MUNICIPAL DE GESTIÓN INSTITUCIONAL')) {
+                continue;
+            }
+            $padre = $gestion;
+            foreach (array_slice(explode(' — ', $dep['nombre']), 1) as $nombre) {
+                $padre = $obtenerOCrear($padre, $nombre);
+            }
+        }
+
+        // 3. Demás secretarías (cuelgan de Gestión Institucional)
+        $otrasSecretarias = [];
+        foreach ($dependencias as $dep) {
+            $seg1 = explode(' — ', $dep['nombre'])[0];
+            if (str_starts_with($seg1, 'SECRETARÍA MUNICIPAL') && $seg1 !== 'SECRETARÍA MUNICIPAL DE GESTIÓN INSTITUCIONAL') {
+                $otrasSecretarias[$seg1] = true;
+            }
+        }
+
+        foreach (array_keys($otrasSecretarias) as $nombreSecretaria) {
+            $secretariaId = $obtenerOCrear($gestion, $nombreSecretaria);
+            foreach ($dependencias as $dep) {
+                if (!str_starts_with($dep['nombre'], $nombreSecretaria . ' — ')) {
+                    continue;
+                }
+                $padre = $secretariaId;
+                foreach (array_slice(explode(' — ', $dep['nombre']), 1) as $nombre) {
+                    $padre = $obtenerOCrear($padre, $nombre);
+                }
+            }
+        }
+
+        // 4. Subalcaldías: 14 distritos sin unidades internas
+        $subalcaldias = $obtenerOCrear($despacho->id, 'SUBALCALDÍAS MUNICIPALES');
+        for ($i = 1; $i <= 14; $i++) {
+            $obtenerOCrear($subalcaldias, "SUBALCALDÍA MUNICIPAL DISTRITO {$i}");
+        }
+    }
+
+    private function crearFeriados(): void
+    {
+        $feriados = [
+            ['fecha' => '2026-01-01', 'nombre' => 'AÑO NUEVO'],
+            ['fecha' => '2026-01-22', 'nombre' => 'DÍA DEL ESTADO PLURINACIONAL'],
+            ['fecha' => '2026-02-02', 'nombre' => 'DÍA DE LA VIRGEN DE COPACABANA'],
+            ['fecha' => '2026-03-03', 'nombre' => 'CARNAVAL'],
+            ['fecha' => '2026-04-04', 'nombre' => 'CARNAVAL'],
+            ['fecha' => '2026-05-01', 'nombre' => 'DÍA DEL TRABAJO'],
+            ['fecha' => '2026-06-21', 'nombre' => 'AÑO NUEVO AYMARA'],
+            ['fecha' => '2026-08-06', 'nombre' => 'DÍA DE LA PATRIA'],
+            ['fecha' => '2026-11-02', 'nombre' => 'DÍA DE LOS DIFUNTOS'],
+            ['fecha' => '2026-12-25', 'nombre' => 'NAVIDAD'],
+            ['fecha' => '2026-07-16', 'nombre' => 'DÍA DEL DEPARTAMENTO DE LA PAZ'],
+            ['fecha' => '2026-07-24', 'nombre' => 'DÍA DE LA VIRGEN DEL CARMEN'],
+            ['fecha' => '2026-01-23', 'nombre' => 'PUENTE ESTADO PLURINACIONAL'],
+            ['fecha' => '2026-11-03', 'nombre' => 'PUENTE DIFUNTOS'],
+            ['fecha' => '2026-12-24', 'nombre' => 'PUENTE NAVIDAD'],
+        ];
+
+        foreach ($feriados as $fer) {
+            Feriado::create($fer);
+        }
+    }
+
+    private function dependenciasFlat(): array
+    {
+        return [
             ['nombre' => 'DESPACHO ALCALDESA — UNIDAD DE TRANSPARENCIA Y LUCHA CONTRA LA CORRUPCIÓN'],
             ['nombre' => 'DESPACHO ALCALDESA — UNIDAD SUMARIANTE'],
             ['nombre' => 'DESPACHO ALCALDESA — UNIDAD DE AUDITORIA INTERNA'],
@@ -153,96 +306,6 @@ class CatalogoSeeder extends Seeder
             ['nombre' => 'SECRETARÍA MUNICIPAL DE DESARROLLO ECONÓMICO — DIRECCIÓN MUNICIPAL DE TRANSPORTE PÚBLICO – BUS MUNICIPAL — UNIDAD DE OPERACIONES'],
             ['nombre' => 'SECRETARÍA MUNICIPAL DE DESARROLLO ECONÓMICO — DIRECCIÓN MUNICIPAL DE TRANSPORTE PÚBLICO – BUS MUNICIPAL — UNIDAD DE MANTENIMIENTO'],
             ['nombre' => 'SECRETARÍA MUNICIPAL DE DESARROLLO ECONÓMICO — DIRECCIÓN MUNICIPAL DE TRANSPORTE PÚBLICO – BUS MUNICIPAL — UNIDAD DE ADMINISTRACIÓN Y RECAUDO'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 1 — ASESORÍA JURÍDICA'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 1 — UNIDAD DE INFRAESTRUCTURA PÚBLICA'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 1 — UNIDAD DE FINANZAS Y ADMINISTRACIÓN'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 1 — UNIDAD DE DESARROLLO HUMANO'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 2 — ASESORÍA JURÍDICA'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 2 — UNIDAD DE INFRAESTRUCTURA PÚBLICA'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 2 — UNIDAD DE FINANZAS Y ADMINISTRACIÓN'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 2 — UNIDAD DE DESARROLLO HUMANO'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 3 — ASESORÍA JURÍDICA'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 3 — UNIDAD DE INFRAESTRUCTURA PÚBLICA'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 3 — UNIDAD DE FINANZAS Y ADMINISTRACIÓN'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 3 — UNIDAD DE DESARROLLO HUMANO'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 4 — ASESORÍA JURÍDICA'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 4 — UNIDAD DE INFRAESTRUCTURA PÚBLICA'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 4 — UNIDAD DE FINANZAS Y ADMINISTRACIÓN'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 4 — UNIDAD DE DESARROLLO HUMANO'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 5 — ASESORÍA JURÍDICA'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 5 — UNIDAD DE INFRAESTRUCTURA PÚBLICA'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 5 — UNIDAD DE FINANZAS Y ADMINISTRACIÓN'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 5 — UNIDAD DE DESARROLLO HUMANO'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 6 — ASESORÍA JURÍDICA'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 6 — UNIDAD DE INFRAESTRUCTURA PÚBLICA'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 6 — UNIDAD DE FINANZAS Y ADMINISTRACIÓN'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 6 — UNIDAD DE DESARROLLO HUMANO'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 7 — ASESORÍA JURÍDICA'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 7 — UNIDAD DE INFRAESTRUCTURA PÚBLICA'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 7 — UNIDAD DE FINANZAS Y ADMINISTRACIÓN'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 7 — UNIDAD DE DESARROLLO HUMANO'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 8 — ASESORÍA JURÍDICA'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 8 — UNIDAD DE INFRAESTRUCTURA PÚBLICA'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 8 — UNIDAD DE FINANZAS Y ADMINISTRACIÓN'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 8 — UNIDAD DE DESARROLLO HUMANO'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 9 — ASESORÍA JURÍDICA'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 9 — UNIDAD DE INFRAESTRUCTURA PÚBLICA'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 9 — UNIDAD DE FINANZAS Y ADMINISTRACIÓN'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 9 — UNIDAD DE DESARROLLO HUMANO'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 10 — ASESORÍA JURÍDICA'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 10 — UNIDAD DE INFRAESTRUCTURA PÚBLICA'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 10 — UNIDAD DE FINANZAS Y ADMINISTRACIÓN'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 10 — UNIDAD DE DESARROLLO HUMANO'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 11 — ASESORÍA JURÍDICA'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 11 — UNIDAD DE INFRAESTRUCTURA PÚBLICA'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 11 — UNIDAD DE FINANZAS Y ADMINISTRACIÓN'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 11 — UNIDAD DE DESARROLLO HUMANO'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 12 — ASESORÍA JURÍDICA'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 12 — UNIDAD DE INFRAESTRUCTURA PÚBLICA'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 12 — UNIDAD DE FINANZAS Y ADMINISTRACIÓN'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 12 — UNIDAD DE DESARROLLO HUMANO'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 13 — ASESORÍA JURÍDICA'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 13 — UNIDAD DE INFRAESTRUCTURA PÚBLICA'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 13 — UNIDAD DE FINANZAS Y ADMINISTRACIÓN'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 13 — UNIDAD DE DESARROLLO HUMANO'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 14 — ASESORÍA JURÍDICA'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 14 — UNIDAD DE INFRAESTRUCTURA PÚBLICA'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 14 — UNIDAD DE FINANZAS Y ADMINISTRACIÓN'],
-            ['nombre' => 'SUBALCALDÍA MUNICIPAL DISTRITO 14 — UNIDAD DE DESARROLLO HUMANO'],
         ];
-
-        foreach ($dependencias as $dep) {
-            DependenciaExterna::create($dep);
-        }
-
-        $feriados = [
-            ['fecha' => '2026-01-01', 'nombre' => 'AÑO NUEVO'],
-            ['fecha' => '2026-01-22', 'nombre' => 'DÍA DEL ESTADO PLURINACIONAL'],
-            ['fecha' => '2026-02-02', 'nombre' => 'DÍA DE LA VIRGEN DE COPACABANA'],
-            ['fecha' => '2026-03-03', 'nombre' => 'CARNAVAL'],
-            ['fecha' => '2026-04-04', 'nombre' => 'CARNAVAL'],
-            ['fecha' => '2026-05-01', 'nombre' => 'DÍA DEL TRABAJO'],
-            ['fecha' => '2026-06-21', 'nombre' => 'AÑO NUEVO AYMARA'],
-            ['fecha' => '2026-08-06', 'nombre' => 'DÍA DE LA PATRIA'],
-            ['fecha' => '2026-11-02', 'nombre' => 'DÍA DE LOS DIFUNTOS'],
-            ['fecha' => '2026-12-25', 'nombre' => 'NAVIDAD'],
-            ['fecha' => '2026-07-16', 'nombre' => 'DÍA DEL DEPARTAMENTO DE LA PAZ'],
-            ['fecha' => '2026-07-24', 'nombre' => 'DÍA DE LA VIRGEN DEL CARMEN'],
-            ['fecha' => '2026-01-23', 'nombre' => 'PUENTE ESTADO PLURINACIONAL'],
-            ['fecha' => '2026-11-03', 'nombre' => 'PUENTE DIFUNTOS'],
-            ['fecha' => '2026-12-24', 'nombre' => 'PUENTE NAVIDAD'],
-        ];
-
-        foreach ($feriados as $fer) {
-            Feriado::create($fer);
-        }
-
-        ConfiguracionSistema::create([
-            'clave' => 'siguiente_numero_ticket',
-            'valor' => '13',
-            'descripcion' => 'SIGUIENTE NÚMERO DE TICKET',
-        ]);
-
-        CatalogosConfigSeeder::run();
     }
 }

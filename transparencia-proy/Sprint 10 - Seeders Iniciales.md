@@ -1,5 +1,13 @@
 # Sprint 10 — Seeders Iniciales
 
+> ⚠️ **Actualización (Agosto 2026):** Este documento describe el seed original de Sprint 10.
+> Tras la reestructuración de catálogos, `CatalogoSeeder` cambió:
+> - `dependencias_externas` pasó de ~13 filas planas a **185 nodos en árbol** (organigrama GAMEA 2026 con `parent_id`).
+> - Se agregaron **6 clasificaciones** y **4 medios de notificación** (tablas nuevas).
+> - `CatalogosConfigSeeder` ahora siembra solo `catalogo_estados` y `catalogo_tipos_denuncia`.
+>
+> Ver `Notas Reestructuración BD - Catálogos y Árbol (Cierre).md` para el estado vigente.
+
 ## 1. Orden de seeders (en DatabaseSeeder.php)
 
 ```php

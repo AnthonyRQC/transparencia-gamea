@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { router, usePage } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { toast } from 'sonner';
@@ -30,8 +30,21 @@ interface ModalNuevaSolicitudProps {
   solicitudToEdit?: SolicitudItem | null;
 }
 
+interface DepOption {
+  id: number;
+  nombre: string;
+  parent_id?: number | null;
+}
+
+interface ArbolDep {
+  id: number;
+  nombre: string;
+  nivel: number;
+}
+
 export default function ModalNuevaSolicitud({ ticket, open, onOpenChange, solicitudToEdit }: ModalNuevaSolicitudProps) {
   const { dependencias = [] } = usePage<PageProps>().props;
+  const depOptions = dependencias as unknown as DepOption[];
   const isEdit = !!solicitudToEdit;
   const [esLibre, setEsLibre] = useState(false);
   const [unidadDestino, setUnidadDestino] = useState('');
@@ -43,6 +56,24 @@ export default function ModalNuevaSolicitud({ ticket, open, onOpenChange, solici
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const dependenciasArbol = useMemo<ArbolDep[]>(() => {
+    const childrenMap = new Map<number, DepOption[]>();
+    for (const dep of depOptions) {
+      const parent = dep.parent_id ?? 0;
+      if (!childrenMap.has(parent)) childrenMap.set(parent, []);
+      childrenMap.get(parent)!.push(dep);
+    }
+    const out: ArbolDep[] = [];
+    const walk = (parent: number, nivel: number) => {
+      for (const dep of childrenMap.get(parent) ?? []) {
+        out.push({ id: dep.id, nombre: dep.nombre, nivel });
+        walk(dep.id, nivel + 1);
+      }
+    };
+    walk(0, 0);
+    return out;
+  }, [depOptions]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -79,7 +110,7 @@ export default function ModalNuevaSolicitud({ ticket, open, onOpenChange, solici
     }
   }, [open, solicitudToEdit, dependencias]);
 
-  const filteredDependencias = dependencias.filter(dep => 
+  const filteredDependencias = dependenciasArbol.filter(dep => 
     dep.nombre.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -236,7 +267,13 @@ export default function ModalNuevaSolicitud({ ticket, open, onOpenChange, solici
                                   "w-full text-left px-2 py-1.5 text-xs rounded hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer text-[11px] leading-tight block",
                                   unidadDestino === dep.nombre && "bg-accent font-semibold"
                                 )}
+                                style={{ paddingLeft: `${dep.nivel * 12 + 8}px` }}
                               >
+                                {dep.nivel > 0 && (
+                                  <span className="text-muted-foreground/40 mr-1 select-none">
+                                    {'└ '}
+                                  </span>
+                                )}
                                 {dep.nombre}
                               </button>
                             ))}

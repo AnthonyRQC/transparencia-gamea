@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ConfiguracionSistema;
+use App\Models\Clasificacion;
 use App\Models\Descargo;
 use App\Models\SolicitudInformacion;
 use App\Models\Denuncia;
@@ -37,7 +37,7 @@ class SeguimientoController extends Controller
 
         $denuncia = Denuncia::where('ticket', $ticket)
             ->where('token_consulta', $token)
-            ->with(['informe', 'cierre'])
+            ->with(['informe.clasificacionRel', 'cierre.medioNotificacion'])
             ->first();
 
         if (!$denuncia) {
@@ -162,10 +162,9 @@ class SeguimientoController extends Controller
             return '';
         }
 
-        foreach (ConfiguracionSistema::catalogItems('catalogo_clasificaciones') as $item) {
-            if (($item['clave'] ?? '') === $clave) {
-                return $item['nombre'] ?? $clave;
-            }
+        $clasificacion = Clasificacion::where('clave', $clave)->first();
+        if ($clasificacion) {
+            return $clasificacion->nombre;
         }
 
         $fallback = [
