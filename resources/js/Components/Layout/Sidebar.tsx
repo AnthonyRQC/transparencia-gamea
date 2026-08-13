@@ -119,14 +119,6 @@ export default function Sidebar({
             permiso: 'menu.reportes',
         },
         {
-            key: 'feriados',
-            label: 'Feriados',
-            href: route('admin.feriados'),
-            routeName: 'admin.feriados',
-            icon: <CalendarDays className="w-5 h-5 shrink-0" />,
-            permiso: 'menu.feriados',
-        },
-        {
             key: 'catalogos',
             label: 'Catálogos',
             href: route('admin.catalogos'),

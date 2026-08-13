@@ -540,7 +540,7 @@ class DenunciaController extends Controller
     {
         $validated = $request->validate([
             'notificado_denunciante' => 'required|boolean',
-            'notificacion_medio' => 'nullable|string|max:200',
+            'notificacion_medio' => ['nullable', 'string', 'max:200', Rule::in($this->mediosNotificacionValidos())],
             'notificacion_fecha' => 'nullable|date|before_or_equal:today',
             'notificacion_descripcion' => 'nullable|string|min:5|max:2000',
             'no_notificado_motivo' => 'nullable|string|max:500',
@@ -591,7 +591,7 @@ class DenunciaController extends Controller
     {
         $validated = $request->validate([
             'notificado_denunciante' => 'required|boolean',
-            'notificacion_medio' => 'nullable|string|max:200',
+            'notificacion_medio' => ['nullable', 'string', 'max:200', Rule::in($this->mediosNotificacionValidos())],
             'notificacion_fecha' => 'nullable|date|before_or_equal:today',
             'notificacion_descripcion' => 'nullable|string|min:5|max:2000',
             'no_notificado_motivo' => 'nullable|string|max:500',
@@ -1008,5 +1008,14 @@ class DenunciaController extends Controller
         return !empty($claves)
             ? $claves
             : ['penal', 'civil', 'administrativo', 'sin_indicios', 'medida_correctiva', 'archivado'];
+    }
+
+    private function mediosNotificacionValidos(): array
+    {
+        $claves = MedioNotificacion::where('activa', true)->pluck('clave')->toArray();
+
+        return !empty($claves)
+            ? $claves
+            : ['whatsapp', 'email', 'presencial', 'otro'];
     }
 }

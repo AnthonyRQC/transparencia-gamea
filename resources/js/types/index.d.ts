@@ -20,5 +20,7 @@ export type PageProps<
         user: User;
     };
     categorias: Record<string, string>;
-    dependencias: Array<{ id: number; nombre: string }>;
+    dependencias: Array<{ id: number; nombre: string; parent_id?: number | null }>;
+    clasificaciones: Array<{ id: number; clave: string; nombre: string }>;
+    medios_notificacion: Array<{ id: number; clave: string; nombre: string }>;
 };

@@ -150,11 +150,6 @@ Route::get('/reportes', function () {
 
 // ----- Administración (Sprint 8 + Sprint 11) -----
 Route::prefix('admin')->name('admin.')->group(function () {
-    // Feriados (Sprint 8, redirige a catálogos)
-    Route::get('/feriados', function () {
-        return Inertia::render('Admin/Feriados');
-    })->name('feriados');
-
     // Catálogos (Sprint 11)
     Route::get('/catalogos', [CatalogoController::class, 'index'])->name('catalogos');
 });

@@ -178,7 +178,7 @@ class DenunciaFlowTest extends TestCase
 
         $this->post("/denuncias/{$denuncia->ticket}/cierre", [
             'notificado_denunciante' => true,
-            'notificacion_medio' => 'EMAIL TEST',
+            'notificacion_medio' => 'email',
             'notificacion_fecha' => now()->format('Y-m-d'),
             'notificacion_descripcion' => 'NOTIFICACIÓN DE PRUEBA COMPLETA CON SUFICIENTES CARACTERES',
             'concluido_por' => 'TÉCNICO TEST',
