@@ -380,9 +380,16 @@ export default function TablaCatalogo({
                             const text = part.trim();
                             if (index === 0) {
                                 return (
-                                    <span key={index} className="font-semibold text-foreground text-xs leading-snug">
-                                        {text}
-                                    </span>
+                                    <div key={index} className="flex items-center gap-2">
+                                        <span className="font-semibold text-foreground text-xs leading-snug">
+                                            {text}
+                                        </span>
+                                        {(item as any).protegido && (
+                                            <Badge variant="outline" className="text-[9px] py-0 px-1 text-amber-600 border-amber-300 dark:text-amber-400 dark:border-amber-700">
+                                                <Lock className="w-2.5 h-2.5 mr-0.5" /> Protegido
+                                            </Badge>
+                                        )}
+                                    </div>
                                 );
                             }
                             return (
@@ -393,6 +400,20 @@ export default function TablaCatalogo({
                                 </div>
                             );
                         })}
+                    </div>
+                </TableCell>
+            );
+        }
+        if (col.key === 'nombre') {
+            return (
+                <TableCell key={col.key}>
+                    <div className="flex items-center gap-2 max-w-[450px] whitespace-normal break-words py-1 text-xs">
+                        <span className="font-medium text-foreground">{formatValue(item, col)}</span>
+                        {(item as any).protegido && (
+                            <Badge variant="outline" className="text-[9px] py-0 px-1 text-amber-600 border-amber-300 dark:text-amber-400 dark:border-amber-700 shrink-0">
+                                <Lock className="w-2.5 h-2.5 mr-0.5" /> Protegido
+                            </Badge>
+                        )}
                     </div>
                 </TableCell>
             );

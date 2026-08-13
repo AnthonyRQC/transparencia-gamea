@@ -31,6 +31,7 @@ class CatalogoController extends Controller
                 'items' => CategoriaDenuncia::withCount('denuncias')->orderBy('nombre')->get()->toArray(),
                 'columns' => [
                     ['key' => 'nombre', 'label' => 'Nombre', 'type' => 'text'],
+                    ['key' => 'descripcion', 'label' => 'Descripción', 'type' => 'textarea'],
                     ['key' => 'tipo_denuncia', 'label' => 'Tipo Denuncia', 'type' => 'select', 'options' => ['corrupcion' => 'Corrupción', 'negacion' => 'Negación']],
                     ['key' => 'denuncias_count', 'label' => 'Denuncias', 'type' => 'count'],
                     ['key' => 'activa', 'label' => 'Estado', 'type' => 'boolean'],
@@ -49,6 +50,8 @@ class CatalogoController extends Controller
                 ])->toArray(),
                 'columns' => [
                     ['key' => 'nombre', 'label' => 'Nombre', 'type' => 'text'],
+                    ['key' => 'usos', 'label' => 'Cierres', 'type' => 'count'],
+                    ['key' => 'activa', 'label' => 'Estado', 'type' => 'boolean'],
                 ],
                 'usos_label' => 'cierre(s)',
             ],
@@ -58,12 +61,16 @@ class CatalogoController extends Controller
                     'id' => $c->id,
                     'clave' => $c->clave,
                     'nombre' => $c->nombre,
+                    'descripcion' => $c->descripcion,
                     'activa' => $c->activa,
                     'protegido' => in_array($c->clave, self::PROTECTED_CLASIFICACIONES, true),
                     'usos' => $c->informes_count,
                 ])->toArray(),
                 'columns' => [
                     ['key' => 'nombre', 'label' => 'Nombre', 'type' => 'text'],
+                    ['key' => 'descripcion', 'label' => 'Descripción', 'type' => 'textarea'],
+                    ['key' => 'usos', 'label' => 'Informes', 'type' => 'count'],
+                    ['key' => 'activa', 'label' => 'Estado', 'type' => 'boolean'],
                 ],
                 'usos_label' => 'informe(s)',
             ],
