@@ -11,6 +11,9 @@ interface HeaderProps {
     onToggleSidebar: () => void;
     isSidebarCollapsed: boolean;
     isSidebarOpenMobile: boolean;
+    /** Datos reactivos desde el hook SSE (anulan los de Inertia si se proveen) */
+    noLeidas?: number;
+    recientes?: any[];
 }
 
 export default function Header({
@@ -19,13 +22,16 @@ export default function Header({
     onToggleSidebar,
     isSidebarCollapsed,
     isSidebarOpenMobile,
+    noLeidas: noLeidasSSE,
+    recientes: recientesSSE,
 }: HeaderProps) {
     const { props } = usePage();
     const auth = (props as any).auth;
     const user = auth?.user;
     const notificaciones = (props as any).notificaciones;
-    const noLeidas = notificaciones?.no_leidas ?? 0;
-    const recientes = notificaciones?.recientes ?? [];
+    // Priorizar estado SSE (reactivo) sobre datos de Inertia (estáticos al cargar página)
+    const noLeidas = noLeidasSSE ?? notificaciones?.no_leidas ?? 0;
+    const recientes = recientesSSE ?? notificaciones?.recientes ?? [];
 
     const [dropdownOpen, setDropdownOpen] = React.useState(false);
     const dropdownRef = React.useRef<HTMLDivElement>(null);

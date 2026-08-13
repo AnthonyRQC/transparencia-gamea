@@ -9,6 +9,7 @@ use App\Http\Controllers\SolicitudController;
 use App\Http\Controllers\DescargoController;
 use App\Http\Controllers\SeguimientoController;
 use App\Http\Controllers\NotificacionController;
+use App\Http\Controllers\NotificacionStreamController;
 use App\Http\Controllers\EvaluacionController;
 use App\Http\Controllers\ArchivosCasoController;
 use App\Http\Controllers\CatalogoController;
@@ -169,9 +170,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('/catalogos/{tipo}/{id}/reactivar', [CatalogoController::class, 'reactivar'])->name('catalogos.reactivar');
 });
 
-// API — Endpoint ligero para polling futuro
+// API — Notificaciones
 Route::get('/api/notificaciones/count', [NotificacionController::class, 'count'])
     ->middleware('auth');
+
+// SSE — Stream de notificaciones en tiempo real (Server-Sent Events)
+Route::get('/notifications/stream', [NotificacionStreamController::class, 'stream'])
+    ->middleware('auth')
+    ->name('notifications.stream');
 
 // ----- Perfil de usuario -----
 Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
