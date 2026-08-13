@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Head, usePage } from '@inertiajs/react';
-import { BookOpen } from 'lucide-react';
+import { BookOpen, Tag, Calendar, Building, Mail, FileCheck, Shield, AlertTriangle, Layers } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/Components/ui/tabs';
 import AppLayout from '@/Components/Layout/AppLayout';
 import TablaCatalogo from '@/Components/Admin/TablaCatalogo';
@@ -31,6 +31,16 @@ interface CatalogoDef {
     padre_options?: Array<{ id: number | null; nombre: string }>;
 }
 
+const ICONS: Record<string, React.ElementType> = {
+    categorias: Tag,
+    feriados: Calendar,
+    dependencias: Building,
+    medios_notificacion: Mail,
+    clasificaciones: FileCheck,
+    estados: Shield,
+    tipos_denuncia: AlertTriangle,
+};
+
 export default function Catalogos() {
     const props = usePage().props as Record<string, any>;
     const catalogos = props.catalogos as Record<string, CatalogoDef>;
@@ -52,12 +62,21 @@ export default function Catalogos() {
             </div>
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="mb-6 flex-wrap h-auto">
-                    {tipos.map((tipo) => (
-                        <TabsTrigger key={tipo} value={tipo} className="text-xs">
-                            {catalogos[tipo].label}
-                        </TabsTrigger>
-                    ))}
+                <TabsList className="mb-6 flex overflow-x-auto flex-nowrap w-full justify-start h-auto" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                    <style>{`
+                        .mb-6.flex::-webkit-scrollbar {
+                            display: none;
+                        }
+                    `}</style>
+                    {tipos.map((tipo) => {
+                        const Icon = ICONS[tipo] || Layers;
+                        return (
+                            <TabsTrigger key={tipo} value={tipo} className="text-xs flex items-center gap-1.5">
+                                <Icon className="w-3.5 h-3.5" />
+                                {catalogos[tipo].label}
+                            </TabsTrigger>
+                        );
+                    })}
                 </TabsList>
 
                 {tipos.map((tipo) => (

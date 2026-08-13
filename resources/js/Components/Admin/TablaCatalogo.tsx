@@ -1,7 +1,7 @@
 import { useState, useEffect, Fragment } from 'react';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
-import { Plus, Pencil, ToggleLeft, ToggleRight, Trash2, Lock, ChevronDown, ChevronRight, CircleDot } from 'lucide-react';
+import { Plus, Pencil, ToggleLeft, ToggleRight, Trash2, Lock, ChevronDown, ChevronUp, ChevronRight, CircleDot } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/Components/ui/button';
 import { Switch } from '@/Components/ui/switch';
@@ -115,8 +115,18 @@ export default function TablaCatalogo({
     const [showInactive, setShowInactive] = useState(false);
     const [expandedAnios, setExpandedAnios] = useState<Record<number, boolean>>({});
     const [expandedArbol, setExpandedArbol] = useState<Set<number>>(new Set());
+    const [expandedMobile, setExpandedMobile] = useState<Set<number>>(new Set());
     const [padreOptionsFiltrados, setPadreOptionsFiltrados] = useState<PadreOption[]>(padre_options);
     const [search, setSearch] = useState('');
+
+    function toggleMobile(id: number) {
+        setExpandedMobile((prev) => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
+    }
 
     const displayColumns = columns.filter((c) => !['datetime', 'count', 'status'].includes(c.type) || c.key === 'nombre' || c.key === 'clave' || c.key === 'tipo_denuncia' || c.key === 'activa' || c.key === 'fecha');
 
@@ -143,9 +153,11 @@ export default function TablaCatalogo({
     if (es_arbol) {
         for (const item of flatItems) {
             itemById.set(item.id, item);
-            const parent = item.parent_id ?? 0;
-            if (!childrenMap.has(parent)) childrenMap.set(parent, []);
-            childrenMap.get(parent)!.push(item);
+            const parentId = (item.parent_id as number) ?? 0;
+            if (!childrenMap.has(parentId)) {
+                childrenMap.set(parentId, []);
+            }
+            childrenMap.get(parentId)!.push(item);
         }
     }
 
@@ -314,60 +326,59 @@ export default function TablaCatalogo({
         return deps;
     }
 
-    function renderAcciones(item: CatalogoItem) {
+    function renderAcciones(item: CatalogoItem, asDiv = false) {
         if (readonly && !editable_only) return null;
-        return (
-            <TableCell className="text-right">
-                <div className="flex justify-end gap-1">
-                    <Button variant="ghost" size="icon" onClick={() => handleEdit(item)} title="Editar">
-                        <Pencil className="w-4 h-4" />
+        const content = (
+            <div className={cn("flex gap-1", asDiv ? "justify-start" : "justify-end")}>
+                <Button variant="ghost" size="icon" onClick={() => handleEdit(item)} title="Editar">
+                    <Pencil className="w-4 h-4" />
+                </Button>
+                {(item as any).protegido ? (
+                    <Button variant="ghost" size="icon" disabled title="Protegido (no se puede eliminar)">
+                        <Lock className="w-4 h-4 text-muted-foreground" />
                     </Button>
-                    {(item as any).protegido ? (
-                        <Button variant="ghost" size="icon" disabled title="Protegido (no se puede eliminar)">
-                            <Lock className="w-4 h-4 text-muted-foreground" />
+                ) : !editable_only && is_json_based ? (
+                    (item as any).usos > 0 ? (
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            disabled
+                            title={`En uso en ${(item as any).usos} ${usos_label}, no se puede eliminar`}
+                            className="text-muted-foreground"
+                        >
+                            <Trash2 className="w-4 h-4" />
                         </Button>
-                    ) : !editable_only && is_json_based ? (
-                        (item as any).usos > 0 ? (
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                disabled
-                                title={`En uso en ${(item as any).usos} ${usos_label}, no se puede eliminar`}
-                                className="text-muted-foreground"
-                            >
-                                <Trash2 className="w-4 h-4" />
-                            </Button>
-                        ) : (
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handleDelete(item)}
-                                title="Eliminar"
-                                className="text-destructive hover:text-destructive"
-                            >
-                                <Trash2 className="w-4 h-4" />
-                            </Button>
-                        )
                     ) : (
                         <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => handleToggle(item)}
-                            title={isInactivo(item) ? 'Reactivar' : 'Desactivar'}
-                            className={isInactivo(item) ? 'text-green-600 hover:text-green-700' : 'text-destructive hover:text-destructive'}
+                            onClick={() => handleDelete(item)}
+                            title="Eliminar"
+                            className="text-destructive hover:text-destructive"
                         >
-                            {isInactivo(item) ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
+                            <Trash2 className="w-4 h-4" />
                         </Button>
-                    )}
-                </div>
-            </TableCell>
+                    )
+                ) : (
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleToggle(item)}
+                        title={isInactivo(item) ? 'Reactivar' : 'Desactivar'}
+                        className={isInactivo(item) ? 'text-green-600 hover:text-green-700' : 'text-destructive hover:text-destructive'}
+                    >
+                        {isInactivo(item) ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
+                    </Button>
+                )}
+            </div>
         );
+        return asDiv ? content : <TableCell className="text-right hidden md:table-cell">{content}</TableCell>;
     }
 
     function renderCell(item: CatalogoItem, col: ColumnConfig, inline?: React.ReactNode) {
         if (inline !== undefined) {
             return (
-                <TableCell key={col.key}>
+                <TableCell key={col.key} className={col.key !== 'nombre' ? 'hidden md:table-cell' : ''}>
                     {inline}
                 </TableCell>
             );
@@ -421,7 +432,7 @@ export default function TablaCatalogo({
         if (col.type === 'status') {
             const inactive = isInactivo(item);
             return (
-                <TableCell key={col.key}>
+                <TableCell key={col.key} className="hidden md:table-cell">
                     {inactive ? (
                         <Badge variant="outline" className="text-[10px] text-muted-foreground border-dashed">Inactivo</Badge>
                     ) : (
@@ -433,7 +444,7 @@ export default function TablaCatalogo({
         if (col.type === 'boolean') {
             const inactive = isInactivo(item);
             return (
-                <TableCell key={col.key}>
+                <TableCell key={col.key} className="hidden md:table-cell">
                     {inactive ? (
                         <Badge variant="outline" className="text-[10px] text-muted-foreground border-dashed">Inactivo</Badge>
                     ) : (
@@ -443,7 +454,7 @@ export default function TablaCatalogo({
             );
         }
         return (
-            <TableCell key={col.key}>
+            <TableCell key={col.key} className="hidden md:table-cell">
                 <div className="max-w-[450px] whitespace-normal break-words py-1 text-xs">
                     {formatValue(item, col)}
                 </div>
@@ -452,35 +463,103 @@ export default function TablaCatalogo({
     }
 
     function renderTable(itemsList: CatalogoItem[]) {
+        if (itemsList.length === 0) {
+            return (
+                <div className="border rounded-2xl overflow-hidden p-8 text-center text-muted-foreground bg-background">
+                    No hay elementos en este catálogo.
+                </div>
+            );
+        }
+
+        const nombreCol = columns.find(c => c.key === 'nombre') ?? columns[0];
+        const otherCols = columns.filter(c => c !== nombreCol);
+
         return (
-            <div className="border rounded-2xl overflow-hidden">
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            {columns.map((col) => (
-                                <TableHead key={col.key}>{col.label}</TableHead>
-                            ))}
-                            {(!readonly || editable_only) && <TableHead className="w-[100px] text-right">Acciones</TableHead>}
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {itemsList.length === 0 ? (
+            <>
+                <div className="hidden md:block border rounded-2xl overflow-hidden">
+                    <Table>
+                        <TableHeader>
                             <TableRow>
-                                <TableCell colSpan={(!readonly || editable_only) ? columns.length + 1 : columns.length} className="text-center py-8 text-muted-foreground">
-                                    No hay elementos en este catálogo.
-                                </TableCell>
+                                {columns.map((col) => (
+                                    <TableHead key={col.key}>{col.label}</TableHead>
+                                ))}
+                                {(!readonly || editable_only) && <TableHead className="w-[100px] text-right">Acciones</TableHead>}
                             </TableRow>
-                        ) : (
-                            itemsList.map((item) => (
+                        </TableHeader>
+                        <TableBody>
+                            {itemsList.map((item) => (
                                 <TableRow key={item.id} className={isInactivo(item) ? 'opacity-50' : ''}>
                                     {columns.map((col) => renderCell(item, col))}
                                     {(!readonly || editable_only) && renderAcciones(item)}
                                 </TableRow>
-                            ))
-                        )}
-                    </TableBody>
-                </Table>
-            </div>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </div>
+                
+                <div className="block md:hidden space-y-2">
+                    {itemsList.map((item) => {
+                        const inactive = isInactivo(item);
+                        const isExpanded = expandedMobile.has(item.id);
+
+                        return (
+                            <div key={item.id} className={cn("border rounded-xl overflow-hidden bg-background shadow-xs", inactive && 'opacity-60')}>
+                                <button
+                                    type="button"
+                                    onClick={() => toggleMobile(item.id)}
+                                    className="w-full flex items-start justify-between p-3.5 text-left hover:bg-muted/50 transition-colors"
+                                >
+                                    <div className="flex-1 pr-4 min-w-0">
+                                        <div className="font-semibold text-sm leading-snug break-words">
+                                            {formatValue(item, nombreCol)}
+                                        </div>
+                                        <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
+                                            {(item as any).protegido && (
+                                                <Badge variant="outline" className="text-[9px] py-0 px-1 text-amber-600 border-amber-300">
+                                                    <Lock className="w-2.5 h-2.5 mr-0.5" /> Protegido
+                                                </Badge>
+                                            )}
+                                            {inactive && <Badge variant="outline" className="text-[9px] text-muted-foreground border-dashed">Inactivo</Badge>}
+                                        </div>
+                                    </div>
+                                    <div className="text-muted-foreground shrink-0 mt-0.5">
+                                        {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                                    </div>
+                                </button>
+                                
+                                {isExpanded && (
+                                    <div className="px-3.5 pb-3.5 pt-1 border-t bg-muted/20 animate-in fade-in slide-in-from-top-2 duration-200">
+                                        <div className="space-y-3 mt-2">
+                                            {otherCols.map((col) => (
+                                                <div key={col.key}>
+                                                    <div className="text-[10px] text-muted-foreground uppercase font-medium mb-0.5">{col.label}</div>
+                                                    <div className="text-sm font-medium text-foreground">
+                                                        {col.type === 'status' || col.type === 'boolean' ? (
+                                                            isInactivo(item) ? (
+                                                                <span className="text-muted-foreground">Inactivo</span>
+                                                            ) : (
+                                                                <span className="text-green-600 font-medium">Activo</span>
+                                                            )
+                                                        ) : (
+                                                            formatValue(item, col) || <span className="text-muted-foreground/50">—</span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        
+                                        {(!readonly || editable_only) && (
+                                            <div className="mt-4 pt-3 border-t">
+                                                {renderAcciones(item, true)}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })}
+                </div>
+            </>
         );
     }
 
@@ -514,31 +593,53 @@ export default function TablaCatalogo({
                     <TableRow className={inactive ? 'opacity-50' : ''}>
                         {columns.map((col) => {
                             if (col.key === 'nombre') {
-                                return renderCell(node, col, (
-                                    <div
-                                        className="flex items-center gap-1.5 py-1"
-                                        style={{ paddingLeft: depth * 20 }}
-                                    >
-                                        {tieneHijos ? (
-                                            <button
-                                                type="button"
-                                                onClick={() => toggleArbolNode(node.id)}
-                                                className="text-muted-foreground hover:text-foreground shrink-0"
-                                                title={isExpanded ? 'Contraer' : 'Expandir'}
-                                            >
-                                                {isExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
-                                            </button>
+                                const mobileBadges = (
+                                    <div className="md:hidden flex flex-wrap gap-2 mt-1 mb-1 items-center text-xs">
+                                        {isInactivo(node) ? (
+                                            <Badge variant="outline" className="text-[9px] text-muted-foreground border-dashed">Inactivo</Badge>
                                         ) : (
-                                            <CircleDot className="w-3 h-3 text-muted-foreground/40 shrink-0" />
+                                            <Badge variant="outline" className="text-[9px] text-green-600 border-green-300 dark:text-green-400 dark:border-green-700">Activo</Badge>
                                         )}
-                                        <span className={cn('text-xs leading-snug', depth === 0 ? 'font-bold' : depth === 1 ? 'font-semibold' : '')}>
-                                            {node.nombre as string}
-                                        </span>
-                                        {tieneHijos && (
-                                            <span className="text-[10px] text-muted-foreground ml-1 shrink-0">
-                                                ({hijos.length})
+                                        {columns.map(c => {
+                                            if (c.key === 'solicitudes_count') {
+                                                const count = rollUpSolicitudes(node);
+                                                if (count > 0) return <Badge key={c.key} variant="secondary" className="text-[9px] font-normal">{count} solicitudes</Badge>;
+                                            }
+                                            return null;
+                                        })}
+                                        {(!readonly || editable_only) && renderAcciones(node, true)}
+                                    </div>
+                                );
+
+                                return renderCell(node, col, (
+                                    <div className="flex flex-col">
+                                        <div
+                                            className={cn(
+                                                "flex items-center gap-1.5 py-1.5 rounded-md transition-colors",
+                                                tieneHijos && "cursor-pointer select-none hover:text-primary"
+                                            )}
+                                            style={{ paddingLeft: depth * 20 }}
+                                            onClick={tieneHijos ? () => toggleArbolNode(node.id) : undefined}
+                                        >
+                                            {tieneHijos ? (
+                                                <div className="text-muted-foreground shrink-0 flex items-center justify-center">
+                                                    {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                                                </div>
+                                            ) : (
+                                                <CircleDot className="w-3 h-3 text-muted-foreground/40 shrink-0" />
+                                            )}
+                                            <span className={cn('text-xs leading-snug', depth === 0 ? 'font-bold' : depth === 1 ? 'font-semibold' : '')}>
+                                                {node.nombre as string}
                                             </span>
-                                        )}
+                                            {tieneHijos && (
+                                                <span className="text-[10px] text-muted-foreground ml-1 shrink-0 opacity-80">
+                                                    ({hijos.length})
+                                                </span>
+                                            )}
+                                        </div>
+                                        <div style={{ paddingLeft: (depth * 20) + 24 }}>
+                                            {mobileBadges}
+                                        </div>
                                     </div>
                                 ));
                             }
@@ -564,9 +665,11 @@ export default function TablaCatalogo({
                     <TableHeader>
                         <TableRow>
                             {columns.map((col) => (
-                                <TableHead key={col.key}>{col.label}</TableHead>
+                                <TableHead key={col.key} className={col.key !== 'nombre' ? 'hidden md:table-cell' : ''}>
+                                    {col.label}
+                                </TableHead>
                             ))}
-                            {(!readonly || editable_only) && <TableHead className="w-[100px] text-right">Acciones</TableHead>}
+                            {(!readonly || editable_only) && <TableHead className="w-[100px] text-right hidden md:table-cell">Acciones</TableHead>}
                         </TableRow>
                     </TableHeader>
                     <TableBody>

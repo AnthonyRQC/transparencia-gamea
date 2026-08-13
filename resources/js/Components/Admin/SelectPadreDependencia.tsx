@@ -220,7 +220,6 @@ export default function SelectPadreDependencia({
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             className="h-8 text-xs pl-8 pr-3 w-full rounded-xl bg-background"
-                            autoFocus
                         />
                     </div>
 

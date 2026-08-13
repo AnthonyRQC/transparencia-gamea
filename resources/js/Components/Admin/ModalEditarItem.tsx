@@ -113,7 +113,7 @@ export default function ModalEditarItem({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-xl w-[95vw] p-6 overflow-visible">
+            <DialogContent className="sm:max-w-xl w-[95vw] p-6 overflow-visible" onOpenAutoFocus={(e) => e.preventDefault()}>
                 <DialogHeader className="shrink-0">
                     <DialogTitle>{isEditing ? 'Editar elemento' : 'Nuevo elemento'}</DialogTitle>
                     <DialogDescription>
