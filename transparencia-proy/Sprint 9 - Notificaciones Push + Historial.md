@@ -969,11 +969,9 @@ npx shadcn@2.3.0 add popover scroll-area separator
 
 ## 10. TODO / Pendientes
 
-> ⏸️ **Pendiente con Sprint 10:** Migrar de sesión mock a tabla MySQL `notificaciones` con Eloquent + observers para generación por evento.
+> ✅ **Completado (Agosto 2026):** Notificaciones en tiempo real vía Server-Sent Events (SSE) sin F5 ni recargas de página. Ver Sección 12.
 
-> ⏸️ **Pendiente con Sprint 10:** Implementar polling 30s con endpoint count, o Reverb para tiempo real.
-
-> ⏸️ **Pendiente con Sprint 16:** Filtrar notificaciones por `user_id` real según roles.
+> ⏸️ **Pendiente con Sprint 16:** Filtrar notificaciones por `user_id` real según roles formales en BD.
 
 > ⏸️ **Pendiente con cliente:** Pregunta #6 (C1) — días hábiles afecta cálculo de plazos por vencer.
 
@@ -984,10 +982,47 @@ npx shadcn@2.3.0 add popover scroll-area separator
 - **Decisión cliente:** `Preguntas para el cliente.md` #22
 - **Documento de contexto:** `Sprints Pendientes - Contexto.md` sección Sprint 9
 - **Plan de ruta:** `Plan de Desarrollo.md` Sprint 9
-- **Patrón de código:** `SolicitudData.php` / `DescargoData.php` para sesión mock
+- **Patrón de código:** `NotificacionController.php` y `NotificacionStreamController.php`
 - **Iconos:** lucide-react (`Bell`, `Clock`, `CheckCircle`, `XCircle`, `ArrowRightLeft`, `CalendarPlus`, `AlertTriangle`, `FileText`, `MailQuestion`, `MessageSquareWarning`)
 - **Colores:** `primary`, `warning`, `destructive`, `success`, `info` — variables OKLCH institucionales
 
 ---
 
-*Documento creado: Julio 2026. Pendiente de implementación.*
+## 12. Notificaciones en Tiempo Real — Server-Sent Events (SSE) ✅ IMPLEMENTADO (Agosto 2026)
+
+### 12.1 Justificación Técnica
+Para evitar que el usuario tenga que presionar F5 o refrescar la página para enterarse de nuevas asignaciones o eventos, y descartando WebSockets por la sobrecarga de infraestructura (servidor Node/Soketi o Reverb), se implementó **SSE (Server-Sent Events)** con HTTP estándar.
+
+- **Sin procesos externos:** Funciona nativamente sobre Apache + PHP en Laragon.
+- **Carga mínima en BD:** Loop ligero de 15s con `COUNT(*)` indexado.
+- **Auto-reconexión:** `EventSource` nativo en el navegador se reconecta automáticamente en caso de micro-cortes.
+
+### 12.2 Arquitectura y Componentes Creados
+
+```
+[Frontend React: useNotificacionesSSE hook]
+    │  EventSource(route('notifications.stream'))
+    ▼
+[Backend: NotificacionStreamController.php]
+    │  StreamedResponse (loop de 15s, máx 90s por conexión)
+    │  Query: COUNT(*) notificaciones no leídas para Auth::id()
+    │  Si cambia → emite evento 'notificaciones' con JSON (últimas 5)
+    ▼
+[Toasts Sonner: Lógica UX Top-Center]
+    ├── 1 notificación  → Toast individual con título, resumen y botón "Ver"
+    ├── 2-3 notifs      → Toasts secuenciales (delay de 900ms)
+    ├── 4-5 notifs      → 2 primeras + toast resumen "...y X más"
+    └── 6+ notifs       → Toast único: "Tienes X notificaciones sin leer"
+```
+
+### 12.3 Archivos Involucrados
+- **`app/Http/Controllers/NotificacionStreamController.php`**: Controller con `StreamedResponse`, `set_time_limit(0)`, `ignore_user_abort(false)` y headers `text/event-stream`.
+- **`resources/js/hooks/useNotificacionesSSE.ts`**: Custom hook React que abre la conexión SSE usando `route('notifications.stream')` de Ziggy y gestiona las alertas visuales.
+- **`resources/js/Components/Layout/AppLayout.tsx`**: Inicializa el hook SSE cuando el usuario está autenticado y renderiza `<Toaster position="top-center" />`.
+- **`resources/js/Components/Layout/Header.tsx`**: Recibe las notificaciones reactivas SSE y actualiza la campana y el badge sin parpadeos.
+- **`routes/web.php`**: Ruta `GET /notifications/stream` protegida con middleware `auth`.
+
+---
+
+*Documento actualizado: Agosto 2026.*
+
