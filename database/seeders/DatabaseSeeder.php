@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
             CatalogoSeeder::class,
             UserSeeder::class,
             DenunciaSeeder::class,
+            DenunciaMasivaSeeder::class,
             NotificacionSeeder::class,
         ]);
     }
