@@ -58,10 +58,10 @@ interface DenunciaCardProps {
   isNew?: boolean;
 }
 
-const plazoDotColor: Record<string, string> = {
-  green: 'bg-green-500',
-  yellow: 'bg-yellow-500',
-  red: 'bg-red-500',
+const plazoBorderColor: Record<string, string> = {
+  green: 'border-l-4 border-l-emerald-500 dark:border-l-emerald-400',
+  yellow: 'border-l-4 border-l-amber-500 dark:border-l-amber-400',
+  red: 'border-l-4 border-l-rose-500 dark:border-l-rose-400',
 };
 
 const escenarioLabel: Record<string, string> = {
@@ -113,7 +113,11 @@ function getContextualText(denuncia: DenunciaData): string {
 }
 
 export default function DenunciaCard({ denuncia, plazo, tecnicos, onClick, className, children, isNew }: DenunciaCardProps) {
-  const dotClass = plazo ? plazoDotColor[plazo.color] : 'bg-muted-foreground/30';
+  const borderLeftClass = isNew
+    ? 'border-l-4 border-l-primary'
+    : plazo
+    ? (plazoBorderColor[plazo.color] || 'border-l-4 border-l-border')
+    : 'border-l-4 border-l-border';
   const denuncianteNombre = denuncia.denunciante?.nombres || 'Anónimo';
   const tecnicoInfo = denuncia.tecnico && tecnicos ? tecnicos[denuncia.tecnico] : null;
   const isRecentlyTraspasado = denuncia.fecha_traspaso && daysAgo(denuncia.fecha_traspaso) < 7;
@@ -141,12 +145,11 @@ export default function DenunciaCard({ denuncia, plazo, tecnicos, onClick, class
       onKeyDown={onClick ? handleKeyDown : undefined}
       className={cn(
         'w-full flex items-start gap-3 bg-card border rounded-xl px-4 py-3 shadow-xs hover:shadow-md hover:border-primary/30 transition-all duration-200 text-left group relative',
-        isNew ? 'border-l-4 border-l-primary' : 'border-border',
+        borderLeftClass,
         onClick ? 'cursor-pointer' : 'cursor-default',
         className
       )}
     >
-      <span className={cn('w-2.5 h-2.5 rounded-full mt-1.5 shrink-0', dotClass)} />
       <div className="flex-1 min-w-0 space-y-1.5">
         {/* Fila 1: Ticket + tipo·categoria + subestado + badges */}
         <div className="flex items-center gap-2 flex-wrap">

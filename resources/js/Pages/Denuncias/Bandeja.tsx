@@ -289,6 +289,9 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
         const tecB = typeof b.tecnico === 'object' ? (b.tecnico?.name || '') : (b.tecnico || '');
         return tecA.localeCompare(tecB);
       }
+      if (activeTab === 'por-admitir') {
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      }
       return (a.plazo?.dias_restantes ?? 999) - (b.plazo?.dias_restantes ?? 999);
     });
   };

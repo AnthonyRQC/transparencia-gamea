@@ -25,7 +25,6 @@ import ModalCancelarSolicitud from '@/Components/Denuncias/ModalCancelarSolicitu
 import ModalNuevoDescargo from '@/Components/Denuncias/ModalNuevoDescargo';
 import ModalCancelarDescargo from '@/Components/Denuncias/ModalCancelarDescargo';
 import ModalConfirmarEliminar from '@/Components/Denuncias/ModalConfirmarEliminar';
-import ModalAmpliacionPlazo from '@/Components/Denuncias/ModalAmpliacionPlazo';
 import ModalArchivosDelCaso from '@/Components/Denuncias/ModalArchivosDelCaso';
 
 interface PlazoInfo {
@@ -151,8 +150,6 @@ export default function MisCasos({ grouped, tecnicoActual, tecnicos, solicitudes
   const [modalCancelarDescId, setModalCancelarDescId] = useState<number | null>(null);
   const [modalNuevoDescTicket, setModalNuevoDescTicket] = useState<string | null>(null);
   const [modalArchivosTicket, setModalArchivosTicket] = useState<string | null>(null);
-  // Sprint 8 — Ampliación de plazo
-  const [modalAmpliarPlazoDenuncia, setModalAmpliarPlazoDenuncia] = useState<Denuncia | null>(null);
   // Edit/Delete modals
   const [modalEditarSol, setModalEditarSol] = useState<Solicitud | null>(null);
   const [modalEliminarSol, setModalEliminarSol] = useState<{ id: number; nombre: string } | null>(null);
@@ -260,6 +257,9 @@ export default function MisCasos({ grouped, tecnicoActual, tecnicos, solicitudes
     return [...items].sort((a, b) => {
       if (sortBy === 'fecha') return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       if (sortBy === 'tecnico') return (a.tecnico || '').localeCompare(b.tecnico || '');
+      if (activeTab === 'asignada') {
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      }
       return (a.plazo?.dias_restantes ?? 999) - (b.plazo?.dias_restantes ?? 999);
     });
   };
@@ -501,82 +501,42 @@ export default function MisCasos({ grouped, tecnicoActual, tecnicos, solicitudes
             if (desc) setModalEliminarDesc({ id: desc.id, nombre: desc.nombres_denunciado });
           }}
         >
-          <div className="w-full space-y-3">
-            {/* Sección 1: Decisión de Flujo */}
-            {(selectedDenuncia.estado === 'asignada' || selectedDenuncia.estado === 'investigacion') && (
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                  <span>⚡ Acciones del Caso</span>
-                  <TooltipProvider delayDuration={200}>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span className="cursor-help text-muted-foreground/70 hover:text-foreground">ℹ️</span>
-                      </TooltipTrigger>
-                      <TooltipContent side="top">Inicia la investigación o traslada la denuncia a Informe Final.</TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  {selectedDenuncia.estado === 'asignada' && (
-                    <button
-                      type="button"
-                      onClick={() => handleIniciar(selectedDenuncia.ticket)}
-                      disabled={processingTicket === selectedDenuncia.ticket}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 disabled:opacity-50 transition-colors"
-                    >
-                      <Play className="w-3.5 h-3.5" />
-                      {processingTicket === selectedDenuncia.ticket ? 'Iniciando...' : 'Iniciar investigación'}
-                    </button>
-                  )}
-                  {selectedDenuncia.estado === 'investigacion' && (
-                    <SaltarFaseButton
-                      ticket={selectedDenuncia.ticket}
-                      solicitudesPendientes={countPendientes(selectedDenuncia).solicitudes}
-                      descargosPendientes={countPendientes(selectedDenuncia).descargos}
-                    />
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Sección 2: Herramientas y Plazos */}
-            <div className="space-y-1.5">
+          {/* Sección: Acciones del Caso */}
+          {(selectedDenuncia.estado === 'asignada' || selectedDenuncia.estado === 'investigacion') && (
+            <div className="w-full space-y-1.5">
               <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                <span>⚙️ Herramientas y Plazos</span>
+                <span>⚡ Acciones del Caso</span>
                 <TooltipProvider delayDuration={200}>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <span className="cursor-help text-muted-foreground/70 hover:text-foreground">ℹ️</span>
                     </TooltipTrigger>
-                    <TooltipContent side="top">Ampliar plazo de investigación o archivar/desarchivar el expediente.</TooltipContent>
+                    <TooltipContent side="top">Inicia la investigación o traslada la denuncia a Informe Final.</TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
               </div>
               <div className="flex items-center gap-2 flex-wrap">
-                {['admitida', 'asignada', 'investigacion', 'informe'].includes(selectedDenuncia.estado) && (
+                {selectedDenuncia.estado === 'asignada' && (
                   <button
                     type="button"
-                    onClick={() => { setModalAmpliarPlazoDenuncia(selectedDenuncia); }}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-100 text-indigo-800 text-xs font-semibold hover:bg-indigo-200 transition-colors dark:bg-indigo-900/30 dark:text-indigo-300"
+                    onClick={() => handleIniciar(selectedDenuncia.ticket)}
+                    disabled={processingTicket === selectedDenuncia.ticket}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 disabled:opacity-50 transition-colors"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                    Ampliar plazo
+                    <Play className="w-3.5 h-3.5" />
+                    {processingTicket === selectedDenuncia.ticket ? 'Iniciando...' : 'Iniciar investigación'}
                   </button>
                 )}
-                {selectedDenuncia.estado === 'cerrada' && (
-                  <button
-                    type="button"
-                    onClick={() => handleToggleArchivar(selectedDenuncia.ticket)}
-                    disabled={processingTicket === selectedDenuncia.ticket}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 text-slate-800 text-xs font-semibold hover:bg-slate-200 disabled:opacity-50 transition-colors dark:bg-slate-800 dark:text-slate-200"
-                  >
-                    <Archive className="w-3.5 h-3.5" />
-                    {selectedDenuncia.subestado === 'archivada' ? 'Desarchivar expediente' : 'Archivar expediente'}
-                  </button>
+                {selectedDenuncia.estado === 'investigacion' && (
+                  <SaltarFaseButton
+                    ticket={selectedDenuncia.ticket}
+                    solicitudesPendientes={countPendientes(selectedDenuncia).solicitudes}
+                    descargosPendientes={countPendientes(selectedDenuncia).descargos}
+                  />
                 )}
               </div>
             </div>
-          </div>
+          )}
         </DenunciaSheet>
       )}
 
@@ -664,12 +624,6 @@ export default function MisCasos({ grouped, tecnicoActual, tecnicos, solicitudes
         descripcion="Este descargo se ocultará de la lista. Los datos se conservarán para auditoría."
         itemNombre={modalEliminarDesc?.nombre || ''}
         processing={processingEliminar}
-      />
-      <ModalAmpliacionPlazo
-        denuncia={modalAmpliarPlazoDenuncia}
-        open={modalAmpliarPlazoDenuncia !== null}
-        onOpenChange={(v) => { if (!v) setModalAmpliarPlazoDenuncia(null); }}
-        tecnicos={tecnicos}
       />
       <ModalArchivosDelCaso
         ticket={modalArchivosTicket}
