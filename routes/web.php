@@ -14,6 +14,8 @@ use App\Http\Controllers\EvaluacionController;
 use App\Http\Controllers\ArchivosCasoController;
 use App\Http\Controllers\CatalogoController;
 use App\Http\Controllers\ConsultaCasosController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ReporteController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -55,12 +57,16 @@ Route::get('/design-system', function () {
 // RUTAS AUTENTICADAS — Sistema UTLCC
 // ============================================================
 
-// Dashboard / Inicio
+// Dashboard / Inicio (Sprint 12)
 Route::middleware('auth')->group(function () {
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->name('dashboard');
+// Dashboard + Reportes (Sprint 12)
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+// ----- Reportes (Sprint 12) -----
+Route::get('/reportes', [ReporteController::class, 'index'])->name('reportes.index');
+Route::get('/reportes/preview', [ReporteController::class, 'preview'])->name('reportes.preview');
+Route::get('/reportes/exportar', [ReporteController::class, 'exportar'])->name('reportes.exportar');
 
 // ----- Denuncias -----
 Route::prefix('denuncias')->name('denuncias.')->group(function () {
@@ -143,11 +149,6 @@ Route::prefix('denuncias')->name('denuncias.')->group(function () {
     // Evaluaciones Delegadas — Bandeja del Técnico (Sprint 7)
     Route::get('/evaluaciones', [MisCasosController::class, 'evaluaciones'])->name('evaluaciones');
 });
-
-// ----- Reportes (Sprint 7) -----
-Route::get('/reportes', function () {
-    return Inertia::render('Reportes/Index');
-})->name('reportes.index');
 
 // ----- Administración (Sprint 8 + Sprint 11) -----
 Route::prefix('admin')->name('admin.')->group(function () {

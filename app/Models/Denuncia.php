@@ -70,29 +70,35 @@ class Denuncia extends Model
         ];
     }
 
+    /**
+     * Calcula la fecha de vencimiento del plazo INDEPENDIENTE del estado actual.
+     * Usado por el dashboard (KPI % Cumplimiento sobre casos cerrados) y por
+     * el accessor `plazo` sobre casos activos. Fix B1.
+     */
+    public function calcularVencimiento(): Carbon
+    {
+        $baseFecha = $this->fecha_admitida
+            ? Carbon::parse($this->fecha_admitida)
+            : Carbon::parse($this->created_at);
+
+        $diasBase = in_array($this->estado, ['ingresada', 'evaluacion_tecnica'])
+            ? 5
+            : ($this->tipo === 'corrupcion' ? 45 : 20);
+
+        $diasAmpliados = $this->relationLoaded('ampliaciones')
+            ? $this->ampliaciones->sum('dias')
+            : (int) $this->ampliaciones()->sum('dias');
+
+        return DiasHabiles::agregar($diasBase + $diasAmpliados, $baseFecha);
+    }
+
     public function getPlazoAttribute(): ?array
     {
         if (in_array($this->estado, ['rechazada', 'cerrada'])) {
             return null;
         }
 
-        $baseFecha = $this->fecha_admitida 
-            ? Carbon::parse($this->fecha_admitida) 
-            : Carbon::parse($this->created_at);
-
-        if (in_array($this->estado, ['ingresada', 'evaluacion_tecnica'])) {
-            $diasBase = 5;
-        } else {
-            $diasBase = $this->tipo === 'corrupcion' ? 45 : 20;
-        }
-
-        $diasAmpliados = $this->relationLoaded('ampliaciones') 
-            ? $this->ampliaciones->sum('dias') 
-            : (int) $this->ampliaciones()->sum('dias');
-
-        $diasTotales = $diasBase + $diasAmpliados;
-
-        $fechaVencimiento = DiasHabiles::agregar($diasTotales, $baseFecha);
+        $fechaVencimiento = $this->calcularVencimiento();
 
         $now = Carbon::now()->startOfDay();
         $venc = $fechaVencimiento->copy()->startOfDay();

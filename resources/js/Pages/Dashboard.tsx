@@ -1,121 +1,111 @@
+import { useCallback, useState } from 'react';
+import { Head, router } from '@inertiajs/react';
+import { LayoutDashboard, Download, RefreshCw, BarChart3, Users } from 'lucide-react';
 import AppLayout from '@/Components/Layout/AppLayout';
-import { Head, Link } from '@inertiajs/react';
-import {
-    LayoutDashboard,
-    TrendingUp,
-    AlertTriangle,
-    CheckCircle2,
-    Clock,
-    ArrowRight,
-    FilePlus2,
-    Inbox,
-    BarChart3,
-} from 'lucide-react';
+import KPICards from '@/Components/Dashboard/KPICards';
+import FiltrosDashboard from '@/Components/Dashboard/FiltrosDashboard';
+import TabOperativo from '@/Components/Dashboard/TabOperativo';
+import TabResultados from '@/Components/Dashboard/TabResultados';
+import TabRendimiento from '@/Components/Dashboard/TabRendimiento';
+import ModalExportar from '@/Components/Dashboard/ModalExportar';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/Components/ui/tabs';
+import { Button } from '@/Components/ui/button';
+import { route } from 'ziggy-js';
+import type { DashboardProps, FiltrosDashboard as FiltrosState } from '@/types/dashboard';
 
-export default function Dashboard() {
+export default function Dashboard(props: DashboardProps) {
+    const { kpis, operativo, resultados, rendimiento, base_temporal, opciones, esJefe, esTecnico, esRegistrador, filtros } = props;
+
+    const [tab, setTab] = useState<'operativo' | 'resultados' | 'rendimiento'>(
+        filtros.tab === 'resultados' || filtros.tab === 'rendimiento' ? filtros.tab : 'operativo'
+    );
+    const [exportOpen, setExportOpen] = useState(false);
+
+    const aplicarFiltros = useCallback(
+        (next: FiltrosState) => {
+            router.get(
+                route('dashboard'),
+                {
+                    desde: next.desde ?? undefined,
+                    hasta: next.hasta ?? undefined,
+                    tecnico_id: next.tecnico_id ?? undefined,
+                    tipo: next.tipo ?? undefined,
+                    categoria_id: next.categoria_id ?? undefined,
+                    clasificacion_id: next.clasificacion_id ?? undefined,
+                    estado: next.estado ?? undefined,
+                    incluir_inactivos: next.incluir_inactivos || undefined,
+                    tab,
+                },
+                { preserveState: true, preserveScroll: true }
+            );
+        },
+        [tab]
+    );
+
     return (
         <AppLayout>
-            <Head title="Inicio — Transparencia UTLCC" />
+            <Head title="Dashboard — Transparencia UTLCC" />
 
-            {/* Hero */}
-            <section className="bg-gradient-to-br from-primary/10 via-secondary/5 to-transparent border border-primary/20 rounded-3xl p-6 sm:p-8 relative overflow-hidden shadow-sm">
-                <div className="absolute right-0 bottom-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl -z-10" />
-                <div className="max-w-2xl space-y-3">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs text-primary font-semibold tracking-wide uppercase">
-                        <LayoutDashboard className="w-3.5 h-3.5" />
-                        Panel de Control
-                    </div>
-                    <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight">
-                        Sistema de Gestión de <span className="text-primary">Denuncias</span>
-                    </h2>
-                    <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
-                        Bienvenido al sistema de la Unidad de Transparencia y Lucha Contra la Corrupción del
-                        Gobierno Autónomo Municipal de El Alto. Aquí podrá registrar, dar seguimiento y resolver
-                        las denuncias ciudadanas conforme a la Ley N° 974.
-                    </p>
-                </div>
-            </section>
-
-            {/* Quick Access */}
-            <section className="space-y-4">
-                <h3 className="text-xl font-bold tracking-tight">Accesos rápidos</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <Link
-                        href="/denuncias/registrar"
-                        className="group bg-card border rounded-2xl p-5 shadow-xs hover:shadow-md transition-all duration-300 hover:border-primary/40"
-                    >
-                        <div className="flex items-start justify-between mb-3">
-                            <div className="w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center group-hover:scale-110 transition-transform">
-                                <FilePlus2 className="w-5 h-5" />
-                            </div>
-                            <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
-                        </div>
-                        <h4 className="font-bold mb-1">Registrar Denuncia</h4>
-                        <p className="text-xs text-muted-foreground">
-                            Iniciar el registro de una nueva denuncia ciudadana.
-                        </p>
-                    </Link>
-
-                    <Link
-                        href="/denuncias"
-                        className="group bg-card border rounded-2xl p-5 shadow-xs hover:shadow-md transition-all duration-300 hover:border-primary/40"
-                    >
-                        <div className="flex items-start justify-between mb-3">
-                            <div className="w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center group-hover:scale-110 transition-transform">
-                                <Inbox className="w-5 h-5" />
-                            </div>
-                            <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
-                        </div>
-                        <h4 className="font-bold mb-1">Bandeja de Admisión</h4>
-                        <p className="text-xs text-muted-foreground">
-                            Admita o rechace las denuncias ingresadas.
-                        </p>
-                    </Link>
-
-                    <Link
-                        href="/reportes"
-                        className="group bg-card border rounded-2xl p-5 shadow-xs hover:shadow-md transition-all duration-300 hover:border-primary/40"
-                    >
-                        <div className="flex items-start justify-between mb-3">
-                            <div className="w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center group-hover:scale-110 transition-transform">
-                                <BarChart3 className="w-5 h-5" />
-                            </div>
-                            <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
-                        </div>
-                        <h4 className="font-bold mb-1">Reportes</h4>
-                        <p className="text-xs text-muted-foreground">
-                            Métricas, indicadores y gráficos del sistema.
-                        </p>
-                    </Link>
-                </div>
-            </section>
-
-            {/* KPIs (placeholder para Sprint 7) */}
-            <section className="space-y-4">
-                <h3 className="text-xl font-bold tracking-tight">Indicadores (Sprint 7)</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {[
-                        { label: 'Denuncias Activas', icon: Clock, value: '—', color: 'text-primary', bg: 'bg-primary/10' },
-                        { label: 'Pendientes Admisión', icon: AlertTriangle, value: '—', color: 'text-secondary-foreground', bg: 'bg-secondary/20' },
-                        { label: 'Cumplimiento de Plazo', icon: CheckCircle2, value: '—', color: 'text-primary', bg: 'bg-primary/10' },
-                    ].map((kpi) => (
-                        <div key={kpi.label} className="border border-border rounded-xl p-4 bg-card space-y-3">
-                            <div className="flex justify-between items-center text-xs text-muted-foreground">
-                                <span className="font-medium uppercase tracking-wider">{kpi.label}</span>
-                                <span className={`p-1.5 rounded-lg ${kpi.bg}`}>
-                                    <kpi.icon className={`w-3.5 h-3.5 ${kpi.color}`} />
-                                </span>
-                            </div>
-                            <div className="text-3xl font-extrabold tracking-tight font-mono text-muted-foreground">
-                                {kpi.value}
-                            </div>
-                            <p className="text-[11px] text-muted-foreground">
-                                Se conectará a la base de datos en el Sprint 7.
+            <div className="flex flex-col gap-4">
+                {/* Cabecera */}
+                <div className="flex items-center justify-between gap-3 flex-wrap">
+                    <div className="flex items-center gap-2">
+                        <LayoutDashboard className="w-7 h-7 text-primary" />
+                        <div>
+                            <h1 className="text-2xl font-bold tracking-tight leading-tight">Dashboard</h1>
+                            <p className="text-sm text-muted-foreground">
+                                {esJefe ? 'Supervisión global de la unidad' : esTecnico ? 'Mi rendimiento personal' : 'Vista general del sistema'}
                             </p>
                         </div>
-                    ))}
+                    </div>
+                    {esJefe && (
+                        <Button variant="outline" size="sm" onClick={() => setExportOpen(true)} className="gap-1.5">
+                            <Download className="w-4 h-4" />
+                            Exportar
+                        </Button>
+                    )}
                 </div>
-            </section>
+
+                {/* Chips de filtros + Sheet */}
+                <FiltrosDashboard filtros={filtros} opciones={opciones} esJefe={esJefe} onChange={aplicarFiltros} />
+
+                {/* KPIs — siempre visibles */}
+                <KPICards kpis={kpis} baseTemporal={base_temporal} esTecnico={esTecnico} />
+
+                {/* Tabs */}
+                <Tabs value={tab} onValueChange={(v) => setTab(v as 'operativo' | 'resultados' | 'rendimiento')}>
+                    <TabsList>
+                        <TabsTrigger value="operativo" className="gap-1.5">
+                            <RefreshCw className="w-4 h-4" />
+                            Operativo
+                        </TabsTrigger>
+                        <TabsTrigger value="resultados" className="gap-1.5">
+                            <BarChart3 className="w-4 h-4" />
+                            Resultados
+                        </TabsTrigger>
+                        {!esRegistrador && (
+                            <TabsTrigger value="rendimiento" className="gap-1.5">
+                                <Users className="w-4 h-4" />
+                                Rendimiento
+                            </TabsTrigger>
+                        )}
+                    </TabsList>
+
+                    <TabsContent value="operativo" className="mt-3">
+                        <TabOperativo operativo={operativo} baseTemporal={base_temporal} />
+                    </TabsContent>
+                    <TabsContent value="resultados" className="mt-3">
+                        <TabResultados resultados={resultados} baseTemporal={base_temporal} />
+                    </TabsContent>
+                    {!esRegistrador && (
+                        <TabsContent value="rendimiento" className="mt-3">
+                            <TabRendimiento rendimiento={rendimiento} baseTemporal={base_temporal} esTecnico={esTecnico} />
+                        </TabsContent>
+                    )}
+                </Tabs>
+            </div>
+
+            {esJefe && <ModalExportar filtros={filtros} open={exportOpen} onOpenChange={setExportOpen} />}
         </AppLayout>
     );
 }

@@ -65,12 +65,18 @@ $vencidos = $activas->filter(fn($d) => ($d->plazo['dias_restantes'] ?? 0) < 0)->
 ```
 
 ### 3.4 % Cumplimiento de plazos
+> ⚠️ **Fix B1 (Sprint 12):** el accessor `plazo` devuelve `null` en casos `cerrada`/`rechazada`, por lo
+> que **NO** se puede leer `$d->plazo['fecha_vencimiento']` sobre casos cerrados. Usar
+> `Denuncia::calcularVencimiento()` (independiente del estado).
+
 ```php
 // Cerradas donde cerrado_at <= vencimiento calculado (días hábiles)
-$cerradas = Denuncia::where('estado', 'cerrada')->with(['ampliaciones', 'cierre'])->get();
+$cerradas = Denuncia::where('estado', 'cerrada')
+    ->with(['ampliaciones', 'cierre'])
+    ->get();
 
 $cumplidas = $cerradas->filter(function ($d) {
-    $vencimiento = \Carbon\Carbon::parse($d->plazo['fecha_vencimiento']);
+    $vencimiento = $d->calcularVencimiento();
     return $d->cierre && $d->cierre->cerrado_at->lte($vencimiento);
 })->count();
 
@@ -198,7 +204,7 @@ use App\Models\DependenciaExterna;
 use Illuminate\Support\Facades\DB;
 
 $cuentas = DB::table('solicitudes_informacion')
-    ->whereNull('fecha_eliminacion')
+    ->where('eliminado', false)
     ->when($desde, fn($q) => $q->whereDate('fecha_envio', '>=', $desde))
     ->when($hasta, fn($q) => $q->whereDate('fecha_envio', '<=', $hasta))
     ->selectRaw('dependencia_destino_id, COUNT(*) as total')
@@ -207,25 +213,16 @@ $cuentas = DB::table('solicitudes_informacion')
 ```
 
 ### 5.2 Roll-up en PHP (todas las dependencias + suma a padres)
+> ⚠️ **Fix B2 (Sprint 12):** el ejemplo original invocaba `$calcular(0)`, pero la raíz GAMEA se crea con
+> `parent_id = null` (no `0`), por lo que el roll-up no arrancaba. Usar el helper
+> `RollUpDependencias::top()`, que parte de las raíces (`parent_id = null`) y **excluye GAMEA** del Top.
+
 ```php
-$arbol = DependenciaExterna::where('activa', true)->get(['id', 'parent_id', 'nombre']);
+use App\Helpers\RollUpDependencias;
 
-$directos = $arbol->mapWithKeys(fn($d) => [$d->id => (int) ($cuentas[$d->id] ?? 0)]);
-
-$rollUp = $directos->toArray(); // copia
-$calcular = function (int $id) use (&$calcular, &$rollUp, $arbol) {
-    $hijos = $arbol->where('parent_id', $id);
-    foreach ($hijos as $hijo) {
-        $rollUp[$id] = ($rollUp[$id] ?? 0) + $calcular($hijo->id);
-    }
-    return $rollUp[$id] ?? 0;
-};
-
-// Suma desde la raíz para propagar a todos los padres
-$rollUpFinal = $calcular(0);
-$calcular(0);
-
-// Resultado: map id => total acumulado (unidad + sus hijas)
+// $cuentas = map dependencia_id => conteo directo (solicitudes)
+$topDependencias = RollUpDependencias::top($cuentas, 8);
+// Resultado: [{ id, nombre, total }] ordenado desc, sin raíces
 ```
 
 > Alternativa MySQL 8 con CTE recursivo si se prefiere SQL. A escala institucional, la recursión
