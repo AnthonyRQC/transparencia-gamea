@@ -72,7 +72,7 @@ export default function ModalDelegarEvaluacion({ ticket, open, tecnicos: _tecnic
         </DialogHeader>
 
         <div className="space-y-4 py-2">
-          <ScrollArea className="max-h-60">
+          <ScrollArea className="h-60">
             <div className="space-y-2 pr-3">
               {carga.length === 0 && (
                 <p className="text-sm text-muted-foreground italic">No hay técnicos disponibles</p>

@@ -69,7 +69,7 @@ export default function AsignacionModal({ ticket, open, tecnicos: _tecnicos, car
           {carga.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-4">No hay técnicos disponibles.</p>
           ) : (
-            <ScrollArea className="max-h-[280px] pr-2">
+            <ScrollArea className="h-[280px] pr-2">
               <div className="space-y-2">
                 {carga.map((t) => (
                   <TecnicoCargaCard
