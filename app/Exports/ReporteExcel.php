@@ -51,7 +51,7 @@ class ReporteExcel implements FromCollection, WithHeadings, WithStyles, ShouldAu
         ];
     }
 
-    public function styles(Worksheet $sheet)
+    public function styles(Worksheet $sheet): ?array
     {
         $sheet->getStyle('A1:H1')->getFont()->setBold(true)->getColor()->setARGB('FFFFFF');
         $sheet->getStyle('A1:H1')->getFill()
