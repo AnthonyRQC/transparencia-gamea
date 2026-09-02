@@ -1,48 +1,49 @@
-# Sprint 10 — Base de Datos Real (Eloquent + MySQL)
+﻿> ⚠️ **Histórico — Sprint cerrado Jul 2026 (Laravel 11).** Snapshot al cierre, no refleja refactorización Bloques 0-2 (Sep 2026, Laravel 13). Para estado actual ver AI-CONTEXT.md y Notas Reestructuración - Bloques 0-2 (Sept 2026) - Cierre.md.
+# Sprint 10 â€” Base de Datos Real (Eloquent + MySQL)
 
-**Estado:** ✅ Cerrado (Julio 2026). Implementado en su totalidad.
+**Estado:** âœ… Cerrado (Julio 2026). Implementado en su totalidad.
 **Antes:** Sprint 9.2 (renumerado a Sprint 10 en Julio 2026).
 **Depende de:** Sprint 9.1 cerrado.
-**Bloquea:** Sprint 11 (Catálogos), Sprint 16 (Roles), y todos los sprints posteriores.
+**Bloquea:** Sprint 11 (CatÃ¡logos), Sprint 16 (Roles), y todos los sprints posteriores.
 **Ver detalle de cierre:** `Notas Sprint 10 - Cierre.md`.
 
 ---
 
 ## 1. Resumen
 
-Migrar el sistema de mocks basados en sesión (`app/Data/*`) a MySQL real con Laravel migrations,
-modelos Eloquent y seeders. El esquema está diseñado, aprobado y documentado en
-`Esquema BD - Negocio.md`, `Esquema BD - Catálogos.md` y `Esquema BD - Librerías.md`.
+Migrar el sistema de mocks basados en sesiÃ³n (`app/Data/*`) a MySQL real con Laravel migrations,
+modelos Eloquent y seeders. El esquema estÃ¡ diseÃ±ado, aprobado y documentado en
+`Esquema BD - Negocio.md`, `Esquema BD - CatÃ¡logos.md` y `Esquema BD - LibrerÃ­as.md`.
 
 ### Stack
 
-| Componente | Tecnología |
+| Componente | TecnologÃ­a |
 |------------|-----------|
 | Motor BD   | MySQL (Laragon) |
-| ORM        | Eloquent (Laravel 13) | *Histórico 11 hasta Sprint 11, migrado a 13 el 01-sep-2026* |
+| ORM        | Eloquent (Laravel 13) | *HistÃ³rico 11 hasta Sprint 11, migrado a 13 el 01-sep-2026* |
 | Migraciones| `php artisan make:migration` |
-| Relaciones polimórficas | `morphTo()` |
+| Relaciones polimÃ³rficas | `morphTo()` |
 | Auth       | Laravel Breeze (username en vez de email) |
 | Storage    | Local: `storage/app/archivos/` |
-| Auditoría  | Diferida a Sprint 17 |
+| AuditorÃ­a  | Diferida a Sprint 17 |
 
 ### Decisiones clave
 
-| Decisión | Valor |
+| DecisiÃ³n | Valor |
 |----------|-------|
 | Estrategia | Reemplazo total de `app/Data/*` por Eloquent |
 | Polimorfismo | `morphTo()` completo para `Ampliacion` y `DenunciaArchivo` |
 | Auth | `username` + `password` (sin email en MVP) |
 | Soft delete | Solo `Denuncia` usa `SoftDeletes` trait. Resto usa `fecha_eliminacion` |
-| Testing | Tests feature completos para flujos críticos |
-| Auditoría | Diferida a Sprint 17 |
+| Testing | Tests feature completos para flujos crÃ­ticos |
+| AuditorÃ­a | Diferida a Sprint 17 |
 | Storage | Local: `storage/app/archivos/` |
 
 ---
 
-## 2. Fases de implementación
+## 2. Fases de implementaciÃ³n
 
-### Fase 1: Cimientos (días 1-2)
+### Fase 1: Cimientos (dÃ­as 1-2)
 
 1. **Configurar `.env`**
    ```
@@ -54,47 +55,47 @@ modelos Eloquent y seeders. El esquema está diseñado, aprobado y documentado e
    DB_PASSWORD=
    ```
 
-2. **Crear migraciones** (orden específico para respetar FKs):
-   - Catálogos: `categorias_denuncia`, `unidades_externas`, `feriados`, `configuracion_sistema`
+2. **Crear migraciones** (orden especÃ­fico para respetar FKs):
+   - CatÃ¡logos: `categorias_denuncia`, `unidades_externas`, `feriados`, `configuracion_sistema`
    - Auth: `users` (extender con `username`, `rol`, `iniciales`, `color`, `activo`, `telefono`, `preferencias`)
-   - Raíz: `denuncias`
+   - RaÃ­z: `denuncias`
    - Entidades relacionadas: `denunciantes`, `denunciados`, `pruebas`, `evaluaciones_tecnicas`, `solicitudes_informacion`, `descargos`, `informes_finales`, `cierres`
-   - Polimórficas: `denuncias_archivos`, `ampliaciones`
+   - PolimÃ³rficas: `denuncias_archivos`, `ampliaciones`
    - Historial: `bitacora`, `notificaciones`
 
 3. **Crear modelos Eloquent** (ver `Sprint 10 - Convenciones de Modelos Eloquent.md`)
 
 4. **Crear DatabaseSeeder** que invoque seeders en orden correcto
 
-### Fase 2: Entidades núcleo (días 3-5)
+### Fase 2: Entidades nÃºcleo (dÃ­as 3-5)
 
 Implementar modelos + controladores para las entidades principales.
-**No refactorizar controllers aún** — primero models, luego controllers en Fase 4.
+**No refactorizar controllers aÃºn** â€” primero models, luego controllers en Fase 4.
 
-### Fase 3: Tablas polimórficas (días 6-7)
+### Fase 3: Tablas polimÃ³rficas (dÃ­as 6-7)
 
 Implementar `morphTo()` en `Ampliacion` y `DenunciaArchivo`.
 Configurar storage de archivos.
 
-### Fase 4: Auth y refactor de controllers (días 8-10)
+### Fase 4: Auth y refactor de controllers (dÃ­as 8-10)
 
 1. Configurar Breeze con `username` (modificar `App\Models\User` para usar `username` como login field)
 2. Substituir `SesionUsuarioData::getCurrent()` por `Auth::user()` en controllers
 3. Refactorizar UN controller a la vez:
-   - Empezar por `ArchivosCasoController` (más simple)
+   - Empezar por `ArchivosCasoController` (mÃ¡s simple)
    - Seguir por `BandejaController`, `MisCasosController` (solo lectura)
-   - Terminar con `DenunciaController` (más complejo, CRUD + flujo)
+   - Terminar con `DenunciaController` (mÃ¡s complejo, CRUD + flujo)
 4. Eliminar `SelectorUsuarioDemo.tsx` del Header
 
-### Fase 5: Testing (días 11-12)
+### Fase 5: Testing (dÃ­as 11-12)
 
-Tests feature con `RefreshDatabase` para flujos críticos (ver sección Testing).
+Tests feature con `RefreshDatabase` para flujos crÃ­ticos (ver secciÃ³n Testing).
 
 ---
 
 ## 3. Migraciones (orden y detalles)
 
-### 3.1 Catálogos
+### 3.1 CatÃ¡logos
 
 ```php
 Schema::create('categorias_denuncia', function (Blueprint $table) {
@@ -109,7 +110,7 @@ Schema::create('categorias_denuncia', function (Blueprint $table) {
 });
 
 // unidades_externas, feriados, configuracion_sistema
-// Ver esquema completo en Esquema BD - Catálogos.md
+// Ver esquema completo en Esquema BD - CatÃ¡logos.md
 ```
 
 ### 3.2 Users (extendido)
@@ -166,7 +167,7 @@ Schema::create('denuncias', function (Blueprint $table) {
 });
 ```
 
-### 3.4 Tablas polimórficas
+### 3.4 Tablas polimÃ³rficas
 
 ```php
 // Ampliaciones
@@ -222,7 +223,7 @@ Ver archivo adjunto: `Sprint 10 - Convenciones de Modelos Eloquent.md`
 
 ### Relaciones clave
 
-**Ampliacion** (polimórfica):
+**Ampliacion** (polimÃ³rfica):
 ```php
 class Ampliacion extends Model
 {
@@ -239,7 +240,7 @@ class Ampliacion extends Model
 }
 ```
 
-**DenunciaArchivo** (polimórfica):
+**DenunciaArchivo** (polimÃ³rfica):
 ```php
 class DenunciaArchivo extends Model
 {
@@ -268,60 +269,60 @@ class DenunciaArchivo extends Model
 
 ---
 
-## 5. Refactor de controladores (guía general)
+## 5. Refactor de controladores (guÃ­a general)
 
-### Patrón para reemplazar mock → Eloquent
+### PatrÃ³n para reemplazar mock â†’ Eloquent
 
 ```php
 // ANTES (mock)
 $denuncia = DenunciaData::find($ticket);
 $solicitudes = SolicitudData::getByTicket($ticket);
 
-// DESPUÉS (Eloquent)
+// DESPUÃ‰S (Eloquent)
 $denuncia = Denuncia::where('ticket', $ticket)->firstOrFail();
 $solicitudes = $denuncia->solicitudes()->activas()->get();
 ```
 
 ### Orden de refactor sugerido
 
-1. `ArchivosCasoController` → simple, independiente
-2. `EvaluacionController` → simple, independiente
-3. `SolicitudController` → CRUD simple
-4. `DescargoController` → CRUD simple
-5. `NotificacionController` → CRUD simple
-6. `BandejaController` → solo lectura, filtros por rol
-7. `MisCasosController` → solo lectura, filtros por técnico
-8. `ConsultaCasosController` → solo lectura, filtros múltiples
-9. `DenunciaController` → complejo, flujo completo
+1. `ArchivosCasoController` â†’ simple, independiente
+2. `EvaluacionController` â†’ simple, independiente
+3. `SolicitudController` â†’ CRUD simple
+4. `DescargoController` â†’ CRUD simple
+5. `NotificacionController` â†’ CRUD simple
+6. `BandejaController` â†’ solo lectura, filtros por rol
+7. `MisCasosController` â†’ solo lectura, filtros por tÃ©cnico
+8. `ConsultaCasosController` â†’ solo lectura, filtros mÃºltiples
+9. `DenunciaController` â†’ complejo, flujo completo
 
 ### Instrucciones para la IA implementadora
 
-1. **NO eliminar `app/Data/*` hasta que todos los controllers estén refactorizados**
+1. **NO eliminar `app/Data/*` hasta que todos los controllers estÃ©n refactorizados**
 2. **TRABAJAR un controlador a la vez**, probando con la UI
-3. **Después de refactorizar un controlador**, eliminar su correspondiente `*Data.php`
+3. **DespuÃ©s de refactorizar un controlador**, eliminar su correspondiente `*Data.php`
 4. **Al final**, eliminar archivos mock no usados y la carpeta `app/Data/`
 
 ---
 
 ## 6. Testing
 
-### Configuración
+### ConfiguraciÃ³n
 
 ```bash
-composer require laravel/sanctum  # ya debería estar
+composer require laravel/sanctum  # ya deberÃ­a estar
 php artisan make:test DenunciaTest
 ```
 
-### Tests críticos a implementar
+### Tests crÃ­ticos a implementar
 
 1. **Registro de denuncia** (POST denuncias.store)
    - Crear denuncia con todos los campos
    - Validar que se genera ticket correcto
-   - Validar mayúsculas en textos libres
+   - Validar mayÃºsculas en textos libres
 
-2. **Admisión de denuncia** (POST denuncias.admitir)
-   - Jefe admite denuncia → estado cambia a 'admitida'
-   - Registrador intenta admitir → 403
+2. **AdmisiÃ³n de denuncia** (POST denuncias.admitir)
+   - Jefe admite denuncia â†’ estado cambia a 'admitida'
+   - Registrador intenta admitir â†’ 403
 
 3. **Archivos del caso**
    - Subir archivo (POST denuncias.archivos.subir)
@@ -329,22 +330,22 @@ php artisan make:test DenunciaTest
    - Soft delete archivo (POST denuncias.archivos.eliminar)
    - Archivo eliminado no aparece en listado
 
-4. **Autenticación**
-   - Login con username correcto → 200
-   - Login con password incorrecto → 422
+4. **AutenticaciÃ³n**
+   - Login con username correcto â†’ 200
+   - Login con password incorrecto â†’ 422
    - Usuario inactivo no puede loguearse
 
 5. **Roles**
    - Jefe ve Bandeja
-   - Técnico ve MisCasos
+   - TÃ©cnico ve MisCasos
    - Registrador ve ConsultarCasos
 
-6. **Ampliaciones polimórficas**
-   - Crear ampliación para denuncia
-   - Crear ampliación para solicitud
+6. **Ampliaciones polimÃ³rficas**
+   - Crear ampliaciÃ³n para denuncia
+   - Crear ampliaciÃ³n para solicitud
    - Validar que `aprobado_por_id` solo es requerido para `tipo=denuncia`
 
-### Ejecución
+### EjecuciÃ³n
 
 ```bash
 php artisan test --filter=DenunciaTest
@@ -360,7 +361,7 @@ Ver archivo adjunto: `Sprint 10 - Seeders Iniciales.md`
 
 ---
 
-## 8. Criterios de "Done" (hecho ✅)
+## 8. Criterios de "Done" (hecho âœ…)
 
 - [ ] `php artisan migrate:fresh` corre sin errores
 - [ ] `php artisan db:seed` carga todos los datos demo
@@ -376,4 +377,5 @@ Ver archivo adjunto: `Sprint 10 - Seeders Iniciales.md`
 
 ---
 
-*Documento creado: Julio 2026. Sprint 10 — Base de datos real.*
+*Documento creado: Julio 2026. Sprint 10 â€” Base de datos real.*
+

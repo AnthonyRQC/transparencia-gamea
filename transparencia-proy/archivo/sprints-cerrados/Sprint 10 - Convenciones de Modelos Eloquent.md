@@ -1,18 +1,19 @@
-# Sprint 10 — Convenciones de Modelos Eloquent
+﻿> ⚠️ **Histórico — Sprint cerrado Jul 2026 (Laravel 11).** Snapshot al cierre, no refleja refactorización Bloques 0-2 (Sep 2026, Laravel 13). Para estado actual ver AI-CONTEXT.md y Notas Reestructuración - Bloques 0-2 (Sept 2026) - Cierre.md.
+# Sprint 10 â€” Convenciones de Modelos Eloquent
 
 ## 1. Nomenclatura
 
-| Concepto | Convención | Ejemplo |
+| Concepto | ConvenciÃ³n | Ejemplo |
 |----------|-----------|---------|
 | Tabla | `snake_case` plural | `solicitudes_informacion` |
 | Modelo | `PascalCase` singular | `SolicitudInformacion` |
 | PK | `id` (auto-increment) | `$table->id()` |
 | FK | `tabla_singular_id` | `denuncia_id` |
-| Timestamps | Laravel automáticos | `$table->timestamps()` |
+| Timestamps | Laravel automÃ¡ticos | `$table->timestamps()` |
 | JSON | `json` nativo MySQL | `$table->json('campo')->nullable()` |
 | Soft delete | `deleted_at` (solo Denuncia) | `$table->softDeletes()` |
 
-## 2. Casts estándar
+## 2. Casts estÃ¡ndar
 
 ```php
 // En cada modelo que tenga campos JSON
@@ -64,7 +65,7 @@ public function scopeActivos(Builder $query): Builder
 }
 ```
 
-## 4. Relaciones polimórficas
+## 4. Relaciones polimÃ³rficas
 
 ### Ampliacion
 
@@ -77,7 +78,7 @@ class Ampliacion extends Model
         'archivo_respaldo', 'fecha',
     ];
 
-    // morphTo → SolicitudInformacion, Descargo, Denuncia
+    // morphTo â†’ SolicitudInformacion, Descargo, Denuncia
     public function entidad(): MorphTo
     {
         return $this->morphTo();
@@ -127,7 +128,7 @@ class DenunciaArchivo extends Model
         return $this->belongsTo(User::class);
     }
 
-    // morphTo → SolicitudInformacion, Descargo, InformeFinal, Cierre
+    // morphTo â†’ SolicitudInformacion, Descargo, InformeFinal, Cierre
     public function contextoEntidad(): MorphTo
     {
         return $this->morphTo();
@@ -145,11 +146,11 @@ class DenunciaArchivo extends Model
 }
 ```
 
-## 5. Mayúsculas en textos libres
+## 5. MayÃºsculas en textos libres
 
-**Regla de negocio:** todos los textos libres se almacenan en MAYÚSCULAS.
+**Regla de negocio:** todos los textos libres se almacenan en MAYÃšSCULAS.
 
-**Implementación:** Usar mutators en los modelos relevantes o trait global.
+**ImplementaciÃ³n:** Usar mutators en los modelos relevantes o trait global.
 
 ```php
 // Trait UppercaseText (ya existe en app/Helpers/UppercaseText.php)
@@ -179,28 +180,28 @@ class Denuncia extends Model
 }
 ```
 
-Campos listados en `Esquema BD - Negocio.md` → sección MAYÚSCULAS (línea 348+).
+Campos listados en `Esquema BD - Negocio.md` â†’ secciÃ³n MAYÃšSCULAS (lÃ­nea 348+).
 
 ## 6. Lista completa de modelos
 
-| # | Modelo | Tabla | Polimórfico? | Soft delete? |
+| # | Modelo | Tabla | PolimÃ³rfico? | Soft delete? |
 |---|--------|-------|-------------|-------------|
 | 1 | `CategoriaDenuncia` | `categorias_denuncia` | No | No |
 | 2 | `UnidadExterna` | `unidades_externas` | No | No |
 | 3 | `Feriado` | `feriados` | No | No |
 | 4 | `ConfiguracionSistema` | `configuracion_sistema` | No | No |
 | 5 | `User` (Breeze) | `users` | No | No (uso activo) |
-| 6 | `Denuncia` | `denuncias` | No | Sí (`deleted_at`) |
+| 6 | `Denuncia` | `denuncias` | No | SÃ­ (`deleted_at`) |
 | 7 | `Denunciante` | `denunciantes` | No | No |
 | 8 | `Denunciado` | `denunciados` | No | No |
 | 9 | `Prueba` | `pruebas` | No | No |
 | 10 | `EvaluacionTecnica` | `evaluaciones_tecnicas` | No | No |
 | 11 | `SolicitudInformacion` | `solicitudes_informacion` | No | No |
 | 12 | `Descargo` | `descargos` | No | No |
-| 13 | `Ampliacion` | `ampliaciones` | **Sí** (entidad) | No |
+| 13 | `Ampliacion` | `ampliaciones` | **SÃ­** (entidad) | No |
 | 14 | `InformeFinal` | `informes_finales` | No | No |
 | 15 | `Cierre` | `cierres` | No | No |
-| 16 | `DenunciaArchivo` | `denuncias_archivos` | **Sí** (contexto_entidad) | `fecha_eliminacion` |
+| 16 | `DenunciaArchivo` | `denuncias_archivos` | **SÃ­** (contexto_entidad) | `fecha_eliminacion` |
 | 17 | `Bitacora` | `bitacora` | No | No |
 | 18 | `Notificacion` | `notificaciones` | No | No |
 
@@ -260,9 +261,9 @@ class Cierre extends Model {
 }
 ```
 
-## 8. Validación (Form Requests)
+## 8. ValidaciÃ³n (Form Requests)
 
-Crear Form Requests para validación de entrada:
+Crear Form Requests para validaciÃ³n de entrada:
 
 ```php
 // app/Http/Requests/StoreDenunciaRequest.php
@@ -282,7 +283,7 @@ class StoreDenunciaRequest extends FormRequest
             'lugar_hechos' => 'nullable|string|max:500',
             'categoria_id' => 'nullable|exists:categorias_denuncia,id',
             'declaracion_jurada' => 'boolean',
-            // ... más campos
+            // ... mÃ¡s campos
         ];
     }
 }
@@ -291,3 +292,4 @@ class StoreDenunciaRequest extends FormRequest
 ---
 
 *Documento creado: Julio 2026. Convenciones de modelos para Sprint 10.*
+

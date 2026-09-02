@@ -90,12 +90,13 @@ Abrir en el navegador: `http://localhost:8000`
 
 ## Datos Incluidos en el Backup
 - 12 categorias de denuncia
-- 177 dependencias externas
-- 15 feriados
-- 6 configuraciones del sistema (1 parametro + 5 catalogos JSON)
-- 5 usuarios de prueba
-- 12 denuncias demo (DEN-2026-0001 a 0012)
+- 185 dependencias externas (árbol GAMEA 2026)
+- 15 feriados (+ plantilla neutra 14 refs en `config/plantilla_feriados.php` como guía manual)
+- 6 clasificaciones + 4 medios notificación (tablas propias, no JSON)
+- 5 usuarios de prueba (10 técnicos en `DenunciaMasivaSeeder`)
+- 12 denuncias demo (DEN-2026-0001 a 0012) + 72 casos masivos DEN-2026-0013 a 0084
 - 5 notificaciones demo
+- Días hábiles `America/La_Paz` con cache `feriados:fechas` y deduplicación sáb/dom
 
 ## Problemas Comunes
 
@@ -139,20 +140,26 @@ php artisan route:list              # Listar rutas
 ```
 transparencia/
 ├── app/
-│   ├── Data/           # Catalogos
-│   ├── Helpers/        # UppercaseText, DiasHabiles
+│   ├── Enums/          # EstadoDenuncia, TipoDenuncia...
+│   ├── Helpers/        # DiasHabiles (lun-vie+feriados)
+│   ├── Traits/         # UppercaseText
 │   ├── Http/
-│   │   └── Controllers/
-│   └── Models/         # 18 modelos Eloquent
+│   │   ├── Controllers/Denuncia/ (8 delgados) + Dashboard (Queries/)
+│   │   └── Requests/Denuncia/
+│   └── Models/         # 20 modelos + plazo_info hábil en Solicitud/Descargo
+├── config/
+│   └── plantilla_feriados.php # 14 refs neutra
 ├── database/
-│   ├── migrations/     # 26 migraciones
-│   └── seeders/        # 5 seeders
+│   ├── migrations/     # 32 migraciones
+│   └── seeders/        # CatalogoSeeder + DenunciaMasivaSeeder
 ├── resources/
 │   └── js/
-│       ├── Components/ # Componentes React
-│       ├── hooks/      # useCan
-│       └── Pages/      # Vistas
-├── routes/
-├── transparencia-proy/ # Documentacion
+│       ├── Components/Denuncias/{Card,Form,Sheet,Modales,Tabs,Solicitud,Descargo,Shared}
+│       ├── constants/ + helpers/diasHabiles.ts + types/denuncia.ts
+│       └── Pages/      # Dashboard (Kpi/Operativo/Resultados)
+├── transparencia-proy/
+│   ├── archivo/sprints-cerrados/ + archivo/referencia/
+│   └── Notas Reestructuración - Bloques 0-2 - Cierre.md
 └── .env.example
+```
 ```

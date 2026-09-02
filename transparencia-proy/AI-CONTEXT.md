@@ -41,8 +41,8 @@ Tailwind v3 · shadcn/ui (New York) · Laragon (Windows local, PHP 8.3.30)
 > gráficas/informes; el toggle "incluir inactivos" sirve de recordatorio de técnicos a
 > desactivar). Suite: **63 tests**. Ver `Notas Reestructuración BD - Catálogos y Árbol (Cierre).md`.
 
-Sprints pendientes: **11**, **12**, **13**, **14**, **15**, **16+**.
-Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (11–25).
+Sprints pendientes: **13**, **14**, **16+** (Sprint 12 en curso — Dashboard).
+Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (13–25).
 
 ## Roles (post sesión con cliente, Junio 2026)
 - **Registrador** (antes "Recepcionista")
@@ -58,36 +58,36 @@ Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (11–
 1. **Siempre al iniciar:** Lee este `AI-CONTEXT.md` completo (~100 líneas).
 2. **Para ver roadmap completo:** Lee `Plan de Desarrollo.md` (alto nivel).
 3. **Para trabajar en un sprint específico:**
-   - **Sprint cerrado (0-10):** Lee `Sprint X - [Nombre].md` solo si es necesario detalle histórico.
-   - **Sprint pendiente (11+):** Lee SOLO la sección correspondiente en `Sprints Pendientes - Contexto.md`. **No leas otras secciones** (lazy load).
-4. **Para entender el sistema completo:** Lee `Proyecto - Resumen General del Sistema.md` solo si es necesario.
+   - **Sprint cerrado (0-10):** Archivo en `archivo/sprints-cerrados/Sprint X - [Nombre].md` — solo si es necesario histórico.
+   - **Sprint pendiente (13+):** Lee SOLO la sección correspondiente en `Sprints Pendientes - Contexto.md`. **No leas otras secciones** (lazy load).
+4. **Para entender el sistema completo:** Lee `archivo/referencia/Proyecto - Resumen General del Sistema.md` solo si es necesario.
 5. **NO LEER por defecto:**
-   - `Proyecto - Prototipo y Estrategia de Diseño.md`
-   - `Proyecto - Transparencia Stack y Conceptos.md`
-   - `Proyecto - Vistas y Prototipo de Interface.md`
-   - Documentos de sprints cerrados si no estás trabajando en ellos
+   - `archivo/referencia/Proyecto - Prototipo y Estrategia de Diseño.md`
+   - `archivo/referencia/Proyecto - Transparencia Stack y Conceptos.md`
+   - `archivo/referencia/Proyecto - Vistas y Prototipo de Interface.md`
+   - Documentos en `archivo/` si no estás trabajando en ellos
    - `setup-demo-publica/` — Documentación operativa de un solo uso. NO LEER por defecto.
-6. **Bitácora de cambios recientes:** Si necesitas el detalle de lo que cambió en Sprint 10, lee `Notas Sprint 10 - Cierre.md`.
+6. **Bitácora de cambios recientes:** Ver `Notas Reestructuración - Bloques 0-2 (Sept 2026) - Cierre.md` y `Notas Migración Laravel 13 - Cierre.md`.
 
 ## Documentación Esencial (LEER SIEMPRE)
 1. `transparencia-proy/AI-CONTEXT.md` (este archivo) — Snapshot del estado actual
 2. `transparencia-proy/Plan de Desarrollo.md` — Hoja de ruta, sprints, decisiones
-3. `transparencia-proy/Sprints Pendientes - Contexto.md` — Contexto de sprints pendientes 11-25 (lazy load)
+3. `transparencia-proy/Sprints Pendientes - Contexto.md` — Contexto de sprints pendientes 13-25 (lazy load)
 4. `transparencia-proy/RESUMEN LEY 974.md` — Marco legal
-5. `transparencia-proy/Notas Sprint 10 - Cierre.md` — Decisiones técnicas, bugs y estado de Sprint 10
-6. `transparencia-proy/Notas Reestructuración BD - Catálogos y Árbol (Cierre).md` — Reestructuración de catálogos y árbol de dependencias (Agosto 2026)
+5. `transparencia-proy/Notas Reestructuración - Bloques 0-2 (Sept 2026) - Cierre.md` — Refactorización DiasHabiles/Dashboard/Denuncia + feriados + plantilla neutra (Sept 2026)
+6. `transparencia-proy/Notas Migración Laravel 13 - Cierre.md` — Migración L11→L13 (Sep 2026, histórico L11 hasta Sprint 11)
 7. `transparencia-proy/Consultas - Dashboard y Reportes.md` — Consultas SQL/Query Builder preparadas para Sprint 12
-8. `transparencia-proy/Notas Migración Laravel 13 - Cierre.md` — Migración L11→L13 (Sep 2026, histórico L11 hasta Sprint 11)
+8. `transparencia-proy/Esquema BD - Negocio.md` + `Esquema BD - Catálogos.md` — Esquema actual (si tocas BD)
 
 ## Documentación de Referencia (LEER SOLO SI NECESARIO)
-> ⚠️ NO leer por defecto. Contienen detalles extensos que saturan la memoria de contexto.
+> ⚠️ NO leer por defecto. Contienen detalles extensos que saturan la memoria de contexto. Están en `archivo/`.
 
-- `transparencia-proy/Sprint 1 - Registro de Denuncia.md` al `Sprint 9.1 - Simplificación UI Archivos.md`
-- `transparencia-proy/Proyecto - Resumen General del Sistema.md`
-- `transparencia-proy/Proyecto - Prototipo y Estrategia de Diseño.md`
-- `transparencia-proy/Proyecto - Transparencia Stack y Conceptos.md`
-- `transparencia-proy/Proyecto - Vistas y Prototipo de Interfaz.md`
-- `transparencia-proy/Preguntas para el cliente.md`
+- `transparencia-proy/archivo/sprints-cerrados/Sprint 1 - Registro de Denuncia.md` al `Sprint 10 - ...`
+- `transparencia-proy/archivo/referencia/Proyecto - Resumen General del Sistema.md`
+- `transparencia-proy/archivo/referencia/Proyecto - Prototipo y Estrategia de Diseño.md`
+- `transparencia-proy/archivo/referencia/Proyecto - Transparencia Stack y Conceptos.md`
+- `transparencia-proy/archivo/referencia/Proyecto - Vistas y Prototipo de Interfaz.md`
+- `transparencia-proy/archivo/referencia/Preguntas para el cliente.md`
 
 ## Esquemas de Base de Datos (LEER SOLO SI NECESARIO)
 > Organizados en 3 archivos para no abrumar. Implementados en Sprint 10.
@@ -116,15 +116,17 @@ Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (11–
   - Catálogos: `CategoriaDenuncia`, `Clasificacion`, `MedioNotificacion`, `DependenciaExterna`, `Feriado`, `ConfiguracionSistema`
   - Auth: `User` (extendido con username, rol, iniciales, color, activo, telefono, preferencias)
   - Negocio: `Denuncia` (SoftDeletes), `Denunciante`, `Denunciado`, `Prueba`, `DenunciaArchivo` (polimórfico), `EvaluacionTecnica`, `SolicitudInformacion`, `Descargo`, `Ampliacion` (polimórfico), `InformeFinal`, `Cierre`, `Bitacora`, `Notificacion`
-- `app/Helpers/UppercaseText.php` — Trait que aplica `Str::upper()` en `saving` hook
-- `app/Helpers/DiasHabiles.php` — Helper de días hábiles (Sprint 4+)
+- `app/Traits/UppercaseText.php` — Trait `Str::upper()` en `saving` (shim en `Helpers/` por compat)
+- `app/Helpers/DiasHabiles.php` — Días hábiles lun-vie sin feriados (cache `feriados:fechas` global, deduplica sáb/dom, día 1 = mañana)
+- `config/plantilla_feriados.php` — 14 refs neutra (fijos/móviles/dept 16-jul/mun 06-mar) guía manual, anticipa traslados jue→vie
+- `app/Enums/{EstadoDenuncia,TipoDenuncia,EscenarioDenuncia,RolUsuario}.php` + `app/Queries/Dashboard/*` — Enums y Queries del dashboard
 - `app/Data/PermisosCatalogo.php` — Catálogo de permisos (se mantiene, no depende de BD)
 - **NO existe** `app/Data/DenunciaData.php`, `SolicitudData.php`, `DescargoData.php`, etc. (eliminados en Sprint 10)
 
-### Controladores (11 refactorizados a Eloquent)
-- `DenunciaController` — CRUD + flujo completo (admitir/rechazar/asignar/traspasar/reabrir/saltarFase/informe×3/cierre×3/ampliar/delegarEvaluacion/reasumir/conciliar/editar/eliminar)
-- `SolicitudController` — CRUD solicitudes + ampliaciones polimórficas
-- `DescargoController` — CRUD descargos + ampliaciones polimórficas
+### Controladores (refactorizados Sept 2026)
+- `Denuncia/*` — 8 controllers delgados: `DenunciaController` (create/store/editar/eliminar/conciliar), `AdmisionController` (admitir/rechazar), `AsignacionController` (asignar/traspasar/cargaTecnicos), `InvestigacionController` (iniciar/saltarFase), `InformeController` (×3), `CierreController` (×3 + archivar), `AmpliacionController`, `DelegacionController` (delegar/reasumir), `ReaperturaController`
+- `SolicitudController` + `DescargoController` — CRUD con `DiasHabiles::agregar()` (base `fecha_envio`/`fecha_notificacion`) + `plazo_info` hábil en modelos
+- `DashboardController` — 116L delgado (era 591L) vía `DashboardRequest` + `Queries/Dashboard/{Kpi,Operativo,Resultados,Rendimiento}Query`
 - `BandejaController` — Bandeja Jefe (solo lectura)
 - `MisCasosController` — Mis Casos (técnico, solo lectura)
 - `MiResumenController` — Contadores del técnico
@@ -140,8 +142,10 @@ Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (11–
 
 ### Frontend
 - `resources/js/Components/Layout/` — AppLayout, Header (sin SelectorUsuarioDemo), Sidebar (permisos por rol), CampanaNotificaciones, PanelNotificaciones, ItemNotificacion
-- `resources/js/Components/Denuncias/` — ~35 componentes (Card, Sheet, Badges, Modales, formularios, etc.)
-- `resources/js/Pages/` — Bandeja, MisCasos, MiResumen, RegistroDenuncia, ConsultarCasos, Evaluaciones, Notificaciones/Index, Perfil, Seguimiento/Buscar, Admin/Feriados, Reportes, Dashboard
+- `resources/js/Components/Denuncias/` — ~63 → por feature: `Card/`, `Form/`, `Sheet/`, `Modales/{Admision,Flujo,Investigacion,InformeCierre,General}`, `Tabs/`, `Solicitud/`, `Descargo/`, `Shared/` + barrels `DenunciaCard.tsx` etc. para compat
+- `resources/js/Components/Dashboard/` — KPICards, FiltrosDashboard (Sheet), TabOperativo/Resultados/Rendimiento, Grafico*, ModalExportar (usa `route()` Ziggy)
+- `resources/js/Pages/` — Bandeja, MisCasos, MiResumen, RegistroDenuncia, ConsultarCasos, Evaluaciones, Notificaciones/Index, Perfil, Seguimiento/Buscar, Admin/Catalogos, Reportes, Dashboard
+- `resources/js/types/denuncia.ts` — Denuncia/Solicitud/Descargo/PlazoInfo, `resources/js/constants/estados.ts`, `resources/js/helpers/diasHabiles.ts`
 - `resources/js/permissions.ts` + `resources/js/hooks/useCan.ts` + `resources/js/Components/Can.tsx`
 - `resources/js/types/index.d.ts` — Tipos globales (User, PageProps con `categorias`)
 
@@ -162,14 +166,13 @@ Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (11–
 ## Próximo Sprint
 
 1. **Sprint 11** — Panel Administración Catálogos ✅ COMPLETADO (Agosto 2026)
-2. **Sprint 12** — Dashboard + KPIs + Reportes PDF/Excel
-3. **Sprint 13** — Tablero Público Cerrados
-4. **Sprint 14** — Tiempos entre Fases
+2. **Sprint 12** — Dashboard + KPIs + Reportes PDF/Excel ✅ BASE COMPLETADA (Sept 2026 — Bloques 0-2: DiasHabiles blindado + Dashboard delgado + Denuncia split)
+3. **Sprint 13** — Tablero Público Cerrados (pendiente)
+4. **Sprint 14** — Tiempos entre Fases (pendiente)
 
-**Estado inmediato:** Sprint 11 completado. Próximo: Sprint 12 (Dashboard).
+**Estado inmediato:** Bloques 0-2 cerrados. Sprint 12 pulido (faltan presets fecha + drill-down opcionales). Siguiente: Sprint 13.
 
-> 🗂️ **Para Sprint 12:** leer `Consultas - Dashboard y Reportes.md` (consultas SQL/Query Builder
-> preparadas, KPIs, roll-up por árbol de dependencias y regla `users.activo`).
+> 🗂️ **Para Sprint 13:** ver `Sprints Pendientes - Contexto.md`. Dashboard ya usa `Queries/Dashboard/*` y `DiasHabiles` con feriados.
 
 Ver detalle completo en `Sprints Pendientes - Contexto.md`.
 

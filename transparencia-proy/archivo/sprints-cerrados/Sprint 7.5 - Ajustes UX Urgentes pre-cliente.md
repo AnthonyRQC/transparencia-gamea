@@ -1,13 +1,14 @@
+﻿> ⚠️ **Histórico — Sprint cerrado Jul 2026 (Laravel 11).** Snapshot al cierre, no refleja refactorización Bloques 0-2 (Sep 2026, Laravel 13). Para estado actual ver AI-CONTEXT.md y Notas Reestructuración - Bloques 0-2 (Sept 2026) - Cierre.md.
 #transparencia
-# Sprint 7.5 — Ajustes UX Urgentes pre-cliente (Julio 2026) ✅ CERRADO
+# Sprint 7.5 â€” Ajustes UX Urgentes pre-cliente (Julio 2026) âœ… CERRADO
 
-**Objetivo:** Ajustes urgentes solicitados por el cliente. Cubre 7 bloques: catálogo de permisos, MAYÚSCULAS, CRUD denuncia raíz, medio libre descargos, date picker solicitudes, eliminar acomp/intervención, hechos 8000, conciliación de fechas.
+**Objetivo:** Ajustes urgentes solicitados por el cliente. Cubre 7 bloques: catÃ¡logo de permisos, MAYÃšSCULAS, CRUD denuncia raÃ­z, medio libre descargos, date picker solicitudes, eliminar acomp/intervenciÃ³n, hechos 8000, conciliaciÃ³n de fechas.
 
-**Estado:** ✅ Completado — todos los bloques implementados y probados.
+**Estado:** âœ… Completado â€” todos los bloques implementados y probados.
 
-**Origen:** Múltiples pedidos del cliente en reunión Julio 2026.
+**Origen:** MÃºltiples pedidos del cliente en reuniÃ³n Julio 2026.
 
-**Estimación real:** ~5 días (incluye refactor de permisos y 7 bloques).
+**EstimaciÃ³n real:** ~5 dÃ­as (incluye refactor de permisos y 7 bloques).
 
 **Dependencias:** Sprint 7.A cerrado.
 
@@ -15,22 +16,22 @@
 
 ## 1. Contexto
 
-El cliente pidió en la reunión de Julio 2026 una serie de ajustes para antes de la próxima reunión. Estos ajustes se agrupan en este sprint para entrega conjunta. Algunos son arreglos puntuales, otros son refactors arquitectónicos.
+El cliente pidiÃ³ en la reuniÃ³n de Julio 2026 una serie de ajustes para antes de la prÃ³xima reuniÃ³n. Estos ajustes se agrupan en este sprint para entrega conjunta. Algunos son arreglos puntuales, otros son refactors arquitectÃ³nicos.
 
-### Filosofía general del sprint
-- **Flexibilizar** el sistema: menos burocracia, más poder al usuario (técnicos y jefe).
-- **Convención institucional:** MAYÚSCULAS en todos los textos libres.
-- **Buenas prácticas:** frontend por permisos, no por roles.
-- **Eliminar funcionalidades no núcleo:** Acompañamiento/Intervención se difieren a v2.
+### FilosofÃ­a general del sprint
+- **Flexibilizar** el sistema: menos burocracia, mÃ¡s poder al usuario (tÃ©cnicos y jefe).
+- **ConvenciÃ³n institucional:** MAYÃšSCULAS en todos los textos libres.
+- **Buenas prÃ¡cticas:** frontend por permisos, no por roles.
+- **Eliminar funcionalidades no nÃºcleo:** AcompaÃ±amiento/IntervenciÃ³n se difieren a v2.
 
 ---
 
-## 2. Bloque 1: Catálogo de permisos (refactor arquitectónico)
+## 2. Bloque 1: CatÃ¡logo de permisos (refactor arquitectÃ³nico)
 
 ### 2.1 Objetivo
-Introducir un sistema de **permisos** desacoplado de los roles, para que el frontend pueda hacer chequeos por capacidad (`useCan('denuncia.editar')`) y no por nombre de rol (`user.rol === 'jefe'`). Esto es una buena práctica que prepara el terreno para Sprint 16 (Roles y Permisos formales con BD).
+Introducir un sistema de **permisos** desacoplado de los roles, para que el frontend pueda hacer chequeos por capacidad (`useCan('denuncia.editar')`) y no por nombre de rol (`user.rol === 'jefe'`). Esto es una buena prÃ¡ctica que prepara el terreno para Sprint 16 (Roles y Permisos formales con BD).
 
-### 2.2 Catálogo inicial de permisos
+### 2.2 CatÃ¡logo inicial de permisos
 
 ```php
 // app/Data/PermisosCatalogo.php
@@ -39,25 +40,25 @@ return [
     'denuncia.registrar' => 'Registrar nuevas denuncias',
     'denuncia.buscar' => 'Buscar y consultar denuncias (Registrador)',
     'denuncia.consultar_codigo' => 'Consultar ticket + PIN de un caso',
-    'denuncia.editar' => 'Editar denuncia raíz (solo `ingresada`)',
-    'denuncia.eliminar' => 'Eliminar denuncia raíz (solo `ingresada`)',
+    'denuncia.editar' => 'Editar denuncia raÃ­z (solo `ingresada`)',
+    'denuncia.eliminar' => 'Eliminar denuncia raÃ­z (solo `ingresada`)',
     'denuncia.conciliar_fechas' => 'Modificar fechas retroactivas (Jefe)',
     
-    // Admisión / Rechazo
+    // AdmisiÃ³n / Rechazo
     'denuncia.admitir' => 'Admitir una denuncia',
     'denuncia.rechazar' => 'Rechazar una denuncia',
-    'denuncia.delegar_evaluacion' => 'Delegar evaluación técnica',
-    'denuncia.reasumir_evaluacion' => 'Reasumir evaluación técnica',
+    'denuncia.delegar_evaluacion' => 'Delegar evaluaciÃ³n tÃ©cnica',
+    'denuncia.reasumir_evaluacion' => 'Reasumir evaluaciÃ³n tÃ©cnica',
     
-    // Asignación / Traspaso
-    'denuncia.asignar' => 'Asignar técnico a una denuncia admitida',
-    'denuncia.traspasar' => 'Traspasar denuncia entre técnicos',
-    'denuncia.ampliar_plazo' => 'Aprobar ampliación de plazo',
+    // AsignaciÃ³n / Traspaso
+    'denuncia.asignar' => 'Asignar tÃ©cnico a una denuncia admitida',
+    'denuncia.traspasar' => 'Traspasar denuncia entre tÃ©cnicos',
+    'denuncia.ampliar_plazo' => 'Aprobar ampliaciÃ³n de plazo',
     'denuncia.reabrir' => 'Reabrir denuncia cerrada/rechazada',
     
-    // Investigación
-    'denuncia.saltar_fase' => 'Saltar fase de investigación',
-    'solicitud.crear' => 'Crear solicitud de información',
+    // InvestigaciÃ³n
+    'denuncia.saltar_fase' => 'Saltar fase de investigaciÃ³n',
+    'solicitud.crear' => 'Crear solicitud de informaciÃ³n',
     'solicitud.responder' => 'Responder solicitud recibida',
     'solicitud.ampliar' => 'Ampliar plazo de solicitud',
     'solicitud.editar' => 'Editar solicitud existente',
@@ -83,14 +84,14 @@ return [
     'reporte.ver_interno' => 'Ver reportes internos (Jefe)',
     'reporte.exportar' => 'Exportar reportes PDF/Excel',
     
-    // Administración
-    'admin.catalogos' => 'Administrar catálogos (Sprint 10)',
+    // AdministraciÃ³n
+    'admin.catalogos' => 'Administrar catÃ¡logos (Sprint 10)',
     'admin.feriados' => 'Administrar feriados',
     'admin.preferencias' => 'Configurar preferencias de alertas',
 ];
 ```
 
-### 2.3 Mapeo `rol → permisos`
+### 2.3 Mapeo `rol â†’ permisos`
 
 ```php
 // app/Data/SesionUsuarioData.php (extender)
@@ -188,18 +189,18 @@ public function share(Request $request): array
 ### 2.6 Refactor de componentes existentes
 
 Componentes que hoy chequean `user.rol` y deben pasar a `useCan()`:
-- `resources/js/Components/Layout/Sidebar.tsx` (filtra menú por permisos)
+- `resources/js/Components/Layout/Sidebar.tsx` (filtra menÃº por permisos)
 - `resources/js/Components/Layout/Header.tsx` (muestra/oculta campana, items de admin)
 - `resources/js/Components/Denuncias/Bandeja.tsx` (muestra acciones por permiso)
 - `resources/js/Components/Denuncias/MisCasos.tsx` (muestra acciones por permiso)
 - `resources/js/Components/Denuncias/DenunciaSheet.tsx` (muestra botones por permiso)
 
-**Patrón:**
+**PatrÃ³n:**
 ```tsx
 // ANTES
 {user.rol === 'jefe' && <Button>Asignar</Button>}
 
-// DESPUÉS
+// DESPUÃ‰S
 <Can permiso="denuncia.asignar">
   <Button>Asignar</Button>
 </Can>
@@ -207,12 +208,12 @@ Componentes que hoy chequean `user.rol` y deben pasar a `useCan()`:
 
 ---
 
-## 3. Bloque 2: MAYÚSCULAS obligatorias en textos libres
+## 3. Bloque 2: MAYÃšSCULAS obligatorias en textos libres
 
 ### 3.1 Objetivo
-Por convención institucional, todos los campos de texto libre se almacenan en MAYÚSCULAS.
+Por convenciÃ³n institucional, todos los campos de texto libre se almacenan en MAYÃšSCULAS.
 
-### 3.2 Implementación backend
+### 3.2 ImplementaciÃ³n backend
 
 #### `app/Helpers/UppercaseText.php` (nuevo trait)
 ```php
@@ -247,7 +248,7 @@ trait UppercaseText
 
 Aplicar el trait a los modelos: `Denuncia`, `Denunciante`, `Denunciado`, `Prueba`, `Solicitud`, `Descargo`, `AmpliacionPlazo`, `InformeFinal`, `Cierre`, `Bitacora`, `Notificacion`, `EvaluacionTecnica`, `Feriado`, `CategoriaDenuncia`, `UnidadExterna`, `Usuario`, `ConfiguracionSistema`.
 
-### 3.3 Implementación frontend
+### 3.3 ImplementaciÃ³n frontend
 
 - CSS global en `resources/css/app.css`:
   ```css
@@ -256,33 +257,33 @@ Aplicar el trait a los modelos: `Denuncia`, `Denunciante`, `Denunciado`, `Prueba
     text-transform: uppercase;
   }
   ```
-- Helper visual: placeholder "Se guardará en MAYÚSCULAS" en inputs/textareas afectados.
+- Helper visual: placeholder "Se guardarÃ¡ en MAYÃšSCULAS" en inputs/textareas afectados.
 - **NO aplicar a:** email, password, ticket (auto), token_consulta (auto), nombres de archivo, paths.
 
 ### 3.4 Lista de campos afectados (completa)
-Ver `Esquema de Base de Datos.md` → sección MAYÚSCULAS para la lista completa (20 tablas).
+Ver `Esquema de Base de Datos.md` â†’ secciÃ³n MAYÃšSCULAS para la lista completa (20 tablas).
 
 ---
 
-## 4. Bloque 3: CRUD denuncia raíz (solo en `ingresada`)
+## 4. Bloque 3: CRUD denuncia raÃ­z (solo en `ingresada`)
 
 ### 4.1 Objetivo
-El cliente pidió que el Registrador y el Jefe puedan editar/eliminar denuncias cuando aún están en estado `ingresada` (errores humanos al registrar). Una vez admitida o rechazada, NO se puede editar/eliminar — solo acciones formales (traspaso, reapertura, ampliación, conciliación).
+El cliente pidiÃ³ que el Registrador y el Jefe puedan editar/eliminar denuncias cuando aÃºn estÃ¡n en estado `ingresada` (errores humanos al registrar). Una vez admitida o rechazada, NO se puede editar/eliminar â€” solo acciones formales (traspaso, reapertura, ampliaciÃ³n, conciliaciÃ³n).
 
 ### 4.2 `ModalEditarDenuncia.tsx` (nuevo)
 - Modal que permite editar todos los campos editables de una denuncia `ingresada`:
-  - Escenario (revelada, anónimo, reservada)
-  - Categoría
+  - Escenario (revelada, anÃ³nimo, reservada)
+  - CategorÃ­a
   - Fecha, hora, lugar de los hechos
   - Hechos
   - Datos del denunciante
   - Denunciados (agregar/eliminar/editar)
   - Pruebas (agregar/eliminar/editar)
-- **NO se puede** cambiar el tipo (corrupción/negación) ni el ticket.
+- **NO se puede** cambiar el tipo (corrupciÃ³n/negaciÃ³n) ni el ticket.
 - Reusa los componentes existentes: `SeccionDenunciante`, `BloqueDenunciado`, `SeccionDetalles`, `SeccionRelacionHechos`, `BloquePrueba`.
 
-### 4.3 Acción "Eliminar denuncia"
-- Botón en la card de `ingresada` (en Bandeja y MisCasos)
+### 4.3 AcciÃ³n "Eliminar denuncia"
+- BotÃ³n en la card de `ingresada` (en Bandeja y MisCasos)
 - Abre `ModalConfirmarEliminar` (ya existe, reutilizar)
 - Soft delete: la denuncia se marca como `eliminado: true` y se quita de las bandejas
 - Solo permitido a Jefe y Registrador
@@ -290,11 +291,11 @@ El cliente pidió que el Registrador y el Jefe puedan editar/eliminar denuncias 
 
 ### 4.4 Backend
 
-#### `app/Http/Controllers/DenunciaController.php` (nuevos métodos)
-- `editar(Request, $ticket)` — valida `estado === 'ingresada'`, actualiza campos, registra en bitácora
-- `eliminar(Request, $ticket)` — valida `estado === 'ingresada'` y `permiso denuncia.eliminar`, soft delete
+#### `app/Http/Controllers/DenunciaController.php` (nuevos mÃ©todos)
+- `editar(Request, $ticket)` â€” valida `estado === 'ingresada'`, actualiza campos, registra en bitÃ¡cora
+- `eliminar(Request, $ticket)` â€” valida `estado === 'ingresada'` y `permiso denuncia.eliminar`, soft delete
 
-#### `app/Data/DenunciaData.php` (nuevos métodos)
+#### `app/Data/DenunciaData.php` (nuevos mÃ©todos)
 - `editar(string $ticket, array $cambios, int $usuarioId): bool`
 - `eliminar(string $ticket, int $usuarioId): bool`
 
@@ -309,30 +310,30 @@ El cliente pidió que el Registrador y el Jefe puedan editar/eliminar denuncias 
 ## 5. Bloque 4: `descargos.medio` libre
 
 ### 5.1 Objetivo
-El campo `medio` de notificación en descargos pasa de ENUM cerrado a texto libre. La realidad operativa es más diversa que las 4 categorías del ENUM.
+El campo `medio` de notificaciÃ³n en descargos pasa de ENUM cerrado a texto libre. La realidad operativa es mÃ¡s diversa que las 4 categorÃ­as del ENUM.
 
 ### 5.2 Cambios
 
 #### `ModalNotificarDescargo.tsx` (modificar)
 - Reemplazar `<Select>` con valores enum por `<Input>` libre
-- Label: "Medio de notificación"
-- Placeholder: "Ej: Cédula de notificación N° 234, Email institucional, WhatsApp, Presencial, etc."
+- Label: "Medio de notificaciÃ³n"
+- Placeholder: "Ej: CÃ©dula de notificaciÃ³n NÂ° 234, Email institucional, WhatsApp, Presencial, etc."
 - Opcional (no required)
 - Max 200 caracteres
-- MAYÚSCULAS (Sprint 7.5)
+- MAYÃšSCULAS (Sprint 7.5)
 
 #### `app/Http/Controllers/DescargoController.php` (modificar `notificar`)
-- Cambiar validación `'medio' => 'required|in:personal,cedula,email,otro'` por `'medio' => 'nullable|string|max:200'`
+- Cambiar validaciÃ³n `'medio' => 'required|in:personal,cedula,email,otro'` por `'medio' => 'nullable|string|max:200'`
 
 #### `app/Data/DescargoData.php` (modificar `notificar`)
-- Quitar validación enum
+- Quitar validaciÃ³n enum
 - Aceptar string libre
 
 ### 5.3 Base de datos (Sprint 10)
-- `descargos.medio`: ENUM → TEXT(200) NULLABLE
-- Ver `Esquema de Base de Datos.md` → tabla `descargos` → campo `medio`
+- `descargos.medio`: ENUM â†’ TEXT(200) NULLABLE
+- Ver `Esquema de Base de Datos.md` â†’ tabla `descargos` â†’ campo `medio`
 
-### 5.4 Migración de seed
+### 5.4 MigraciÃ³n de seed
 - Actualizar seed `DEN-2026-0009` (que usa medio) para reflejar el nuevo formato libre.
 
 ---
@@ -340,16 +341,16 @@ El campo `medio` de notificación en descargos pasa de ENUM cerrado a texto libr
 ## 6. Bloque 5: Solicitud con date picker manual
 
 ### 6.1 Objetivo
-El cliente pidió que las Solicitudes tengan el mismo nivel de flexibilidad que los Descargos: el técnico puede capturar manualmente la fecha en que realmente se envió la solicitud (no la fecha de hoy automáticamente).
+El cliente pidiÃ³ que las Solicitudes tengan el mismo nivel de flexibilidad que los Descargos: el tÃ©cnico puede capturar manualmente la fecha en que realmente se enviÃ³ la solicitud (no la fecha de hoy automÃ¡ticamente).
 
 ### 6.2 Cambios
 
 #### `ModalNuevaSolicitud.tsx` (modificar)
 - Agregar `<Input type="date">` para `fecha_envio`
 - Default: hoy
-- Atributos: `min={hace 90 días}`, `max={hoy}`
+- Atributos: `min={hace 90 dÃ­as}`, `max={hoy}`
 - Requerido (no opcional)
-- Helper text: "Fecha real en que se envió la solicitud (puede ser anterior a hoy)"
+- Helper text: "Fecha real en que se enviÃ³ la solicitud (puede ser anterior a hoy)"
 
 #### `ModalResponderSolicitud.tsx` (modificar)
 - Agregar `<Input type="date">` para `fecha_respuesta`
@@ -363,29 +364,29 @@ El cliente pidió que las Solicitudes tengan el mismo nivel de flexibilidad que 
 - `responder`: aceptar `fecha_respuesta` (required, date, after_or_equal:fecha_envio, before_or_equal:today)
 
 #### `app/Data/SolicitudData.php` (modificar `add` y `responder`)
-- `add(string $ticket, ..., Carbon $fechaEnvio)` — usar `fechaEnvio` en lugar de `now()`
-- `responder(int $id, ..., Carbon $fechaRespuesta)` — usar `fechaRespuesta` en lugar de `now()`
+- `add(string $ticket, ..., Carbon $fechaEnvio)` â€” usar `fechaEnvio` en lugar de `now()`
+- `responder(int $id, ..., Carbon $fechaRespuesta)` â€” usar `fechaRespuesta` en lugar de `now()`
 - `fecha_vencimiento` se recalcula desde `fecha_envio` (no desde hoy)
 
 ### 6.3 Comportamiento
-- Coincide con el patrón de `ModalNotificarDescargo`
-- Permite paridad con descargos: el técnico registra la fecha real, no la del sistema
+- Coincide con el patrÃ³n de `ModalNotificarDescargo`
+- Permite paridad con descargos: el tÃ©cnico registra la fecha real, no la del sistema
 
 ---
 
-## 7. Bloque 6: Eliminar acomp/intervención
+## 7. Bloque 6: Eliminar acomp/intervenciÃ³n
 
 ### 7.1 Objetivo
-El cliente decidió que Acompañamiento e Intervención no son núcleo del MVP. Se eliminan del dropdown de registro y se difieren a Sprint 22 (v2).
+El cliente decidiÃ³ que AcompaÃ±amiento e IntervenciÃ³n no son nÃºcleo del MVP. Se eliminan del dropdown de registro y se difieren a Sprint 22 (v2).
 
 ### 7.2 Cambios
 
 #### `resources/js/Pages/Denuncias/RegistroDenuncia.tsx` (modificar)
 - Dropdown selector de tipo: solo 2 opciones
-  - "Corrupción (Plazo: hasta 45 días)"
-  - "Negación de Información (Plazo: hasta 20 días)"
-- Eliminar opciones "Acompañamiento" e "Intervención / Medida Correctiva"
-- Lógica condicional: solo se renderiza el formulario complejo (corrupción/negación). No se renderizan los formularios de acomp/intervención.
+  - "CorrupciÃ³n (Plazo: hasta 45 dÃ­as)"
+  - "NegaciÃ³n de InformaciÃ³n (Plazo: hasta 20 dÃ­as)"
+- Eliminar opciones "AcompaÃ±amiento" e "IntervenciÃ³n / Medida Correctiva"
+- LÃ³gica condicional: solo se renderiza el formulario complejo (corrupciÃ³n/negaciÃ³n). No se renderizan los formularios de acomp/intervenciÃ³n.
 
 #### Eliminar componentes
 - `resources/js/Components/Denuncias/FormularioAcompaniamiento.tsx` (ELIMINAR)
@@ -393,26 +394,26 @@ El cliente decidió que Acompañamiento e Intervención no son núcleo del MVP. 
 
 #### Eliminar referencias en otros componentes
 - `resources/js/Components/Denuncias/FormularioComplejo.tsx` (verificar que no se referencia)
-- `Plan de Desarrollo.md` (actualizar árbol de archivos)
+- `Plan de Desarrollo.md` (actualizar Ã¡rbol de archivos)
 
 ### 7.3 Base de datos (Sprint 10)
 - `denuncias.tipo`: ENUM solo con `'corrupcion'`, `'negacion'`
-- Ver `Esquema de Base de Datos.md` → tabla `denuncias` → campo `tipo`
+- Ver `Esquema de Base de Datos.md` â†’ tabla `denuncias` â†’ campo `tipo`
 
 ---
 
-## 8. Bloque 7: Hechos 5000 → 8000 caracteres
+## 8. Bloque 7: Hechos 5000 â†’ 8000 caracteres
 
 ### 8.1 Objetivo
-El Registrador reportó que 5000 caracteres es muy limitante. El cliente sugirió ilimitado pero acordamos 8000 como límite razonable (≈ 1.5 páginas A4).
+El Registrador reportÃ³ que 5000 caracteres es muy limitante. El cliente sugiriÃ³ ilimitado pero acordamos 8000 como lÃ­mite razonable (â‰ˆ 1.5 pÃ¡ginas A4).
 
 ### 8.2 Cambios
 
 #### `app/Http/Controllers/DenunciaController.php` (modificar `store`)
-- Cambiar `'hechos' => 'required|string|min:20|max:5000'` → `'hechos' => 'required|string|min:20|max:8000'`
+- Cambiar `'hechos' => 'required|string|min:20|max:5000'` â†’ `'hechos' => 'required|string|min:20|max:8000'`
 
 #### `resources/js/Pages/Denuncias/RegistroDenuncia.tsx` (modificar)
-- Actualizar contador visible: "Mín. 20, Máx. 8000 caracteres"
+- Actualizar contador visible: "MÃ­n. 20, MÃ¡x. 8000 caracteres"
 - Componente `SeccionRelacionHechos.tsx`: actualizar `maxLength={8000}`
 
 ### 8.3 Base de datos (Sprint 10)
@@ -424,9 +425,9 @@ El Registrador reportó que 5000 caracteres es muy limitante. El cliente sugiri�
 
 | Archivo | Tipo |
 |---------|------|
-| `app/Data/PermisosCatalogo.php` | Backend (catálogo) |
+| `app/Data/PermisosCatalogo.php` | Backend (catÃ¡logo) |
 | `app/Helpers/UppercaseText.php` | Backend (trait) |
-| `resources/js/permissions.ts` | Frontend (catálogo) |
+| `resources/js/permissions.ts` | Frontend (catÃ¡logo) |
 | `resources/js/hooks/useCan.ts` | Frontend (hook) |
 | `resources/js/Components/Can.tsx` | Frontend (componente) |
 | `resources/js/Components/Denuncias/ModalEditarDenuncia.tsx` | Frontend (modal) |
@@ -448,10 +449,10 @@ El Registrador reportó que 5000 caracteres es muy limitante. El cliente sugiri�
 - `resources/js/Components/Layout/Sidebar.tsx` (refactor: chequeo por permisos)
 - `resources/js/Components/Layout/Header.tsx` (refactor: chequeo por permisos)
 - `resources/js/Components/Layout/SelectorUsuarioDemo.tsx` (mostrar permisos al hover)
-- `resources/js/Pages/Denuncias/RegistroDenuncia.tsx` (quitar acomp/intervención, 8000 chars)
+- `resources/js/Pages/Denuncias/RegistroDenuncia.tsx` (quitar acomp/intervenciÃ³n, 8000 chars)
 - `resources/js/Pages/Denuncias/Bandeja.tsx` (+botones editar/eliminar/conciliar en `ingresada`)
-- `resources/js/Pages/Denuncias/MisCasos.tsx` (+botón editar en `ingresada`)
-- `resources/js/Components/Denuncias/ModalRechazo.tsx` (Sprint 7.A — SITPRECO opcional)
+- `resources/js/Pages/Denuncias/MisCasos.tsx` (+botÃ³n editar en `ingresada`)
+- `resources/js/Components/Denuncias/ModalRechazo.tsx` (Sprint 7.A â€” SITPRECO opcional)
 - `resources/js/Components/Denuncias/ModalNotificarDescargo.tsx` (medio libre)
 - `resources/js/Components/Denuncias/ModalNuevaSolicitud.tsx` (+date picker `fecha_envio`)
 - `resources/js/Components/Denuncias/ModalResponderSolicitud.tsx` (+date picker `fecha_respuesta`)
@@ -465,44 +466,45 @@ El Registrador reportó que 5000 caracteres es muy limitante. El cliente sugiri�
 
 ## 12. Decisiones del Sprint
 
-| # | Decisión | Alternativa descartada | Motivo |
+| # | DecisiÃ³n | Alternativa descartada | Motivo |
 |---|----------|------------------------|--------|
-| 1 | Frontend por permisos (no roles) | Mantener chequeo por rol | Buena práctica, prepara Sprint 16 |
-| 2 | MAYÚSCULAS en backend con trait + frontend con CSS | Solo CSS o solo backend | Doble seguridad |
-| 3 | Edición/eliminación solo en `ingresada` | En cualquier estado | Integridad legal; post-admisión, solo acciones formales |
-| 4 | `descargos.medio` libre (200 chars) | Mantener ENUM cerrado | Realidad operativa más diversa |
+| 1 | Frontend por permisos (no roles) | Mantener chequeo por rol | Buena prÃ¡ctica, prepara Sprint 16 |
+| 2 | MAYÃšSCULAS en backend con trait + frontend con CSS | Solo CSS o solo backend | Doble seguridad |
+| 3 | EdiciÃ³n/eliminaciÃ³n solo en `ingresada` | En cualquier estado | Integridad legal; post-admisiÃ³n, solo acciones formales |
+| 4 | `descargos.medio` libre (200 chars) | Mantener ENUM cerrado | Realidad operativa mÃ¡s diversa |
 | 5 | Solicitud: date picker manual en `fecha_envio` y `fecha_respuesta` | Auto `now()` | Paridad con descargos |
-| 6 | Eliminar acomp/intervención del MVP | Mantenerlas | No son núcleo del objetivo (Ley 974) |
-| 7 | Hechos: 5000 → 8000 chars | Ilimitado | Necesario, pero 8000 es razonable |
-| 8 | MAYÚSCULAS NO aplica a email, ticket, paths | Aplicar a todo | Respetar case técnico de archivos y auto-generados |
+| 6 | Eliminar acomp/intervenciÃ³n del MVP | Mantenerlas | No son nÃºcleo del objetivo (Ley 974) |
+| 7 | Hechos: 5000 â†’ 8000 chars | Ilimitado | Necesario, pero 8000 es razonable |
+| 8 | MAYÃšSCULAS NO aplica a email, ticket, paths | Aplicar a todo | Respetar case tÃ©cnico de archivos y auto-generados |
 
-## 13. Verificación de cierre
+## 13. VerificaciÃ³n de cierre
 
 ### Pruebas manuales
-1. ✅ Cambiar de usuario demo en el dropdown — el sidebar refleja solo los items del rol
-2. ✅ Intentar editar una denuncia `admitida` — el botón "Editar" NO aparece
-3. ✅ Intentar eliminar una denuncia `admitida` — el botón "Eliminar" NO aparece
-4. ✅ Crear un descargo con medio "Cédula de notificación N° 234" — se guarda en MAYÚSCULAS
-5. ✅ Crear una solicitud con fecha_envio de hace 3 días — el plazo se calcula desde esa fecha
-6. ✅ Intentar registrar una denuncia de "Acompañamiento" — la opción no aparece
-7. ✅ Verificar contador de "hechos" — muestra "0 / 8000"
+1. âœ… Cambiar de usuario demo en el dropdown â€” el sidebar refleja solo los items del rol
+2. âœ… Intentar editar una denuncia `admitida` â€” el botÃ³n "Editar" NO aparece
+3. âœ… Intentar eliminar una denuncia `admitida` â€” el botÃ³n "Eliminar" NO aparece
+4. âœ… Crear un descargo con medio "CÃ©dula de notificaciÃ³n NÂ° 234" â€” se guarda en MAYÃšSCULAS
+5. âœ… Crear una solicitud con fecha_envio de hace 3 dÃ­as â€” el plazo se calcula desde esa fecha
+6. âœ… Intentar registrar una denuncia de "AcompaÃ±amiento" â€” la opciÃ³n no aparece
+7. âœ… Verificar contador de "hechos" â€” muestra "0 / 8000"
 
-### Verificación de docs
-- ✅ Todos los .md actualizados
-- ✅ `Esquema de Base de Datos.md` con campos y tipos correctos
-- ✅ `AI-CONTEXT.md` con decisiones del sprint
+### VerificaciÃ³n de docs
+- âœ… Todos los .md actualizados
+- âœ… `Esquema de Base de Datos.md` con campos y tipos correctos
+- âœ… `AI-CONTEXT.md` con decisiones del sprint
 
 ## 14. Cierre
 
 Al cerrar Sprint 7.5, el sistema queda con:
 - Permisos granulares (preparado para Sprint 16)
-- MAYÚSCULAS en todos los textos libres
+- MAYÃšSCULAS en todos los textos libres
 - CRUD flexible en denuncias `ingresada`
 - Textos libres en descargos y solicitudes
-- Sin acomp/intervención (diferido a Sprint 22 v2)
+- Sin acomp/intervenciÃ³n (diferido a Sprint 22 v2)
 - Hechos con 8000 chars
 
-**Siguiente sprint urgente:** Sprint 7.6 — Repositorio de Archivos del Caso.
+**Siguiente sprint urgente:** Sprint 7.6 â€” Repositorio de Archivos del Caso.
 
 ---
-*Documento creado: Julio 2026. Sprint 7.5 — Ajustes UX Urgentes pre-cliente.*
+*Documento creado: Julio 2026. Sprint 7.5 â€” Ajustes UX Urgentes pre-cliente.*
+
