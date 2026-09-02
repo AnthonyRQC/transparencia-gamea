@@ -6,14 +6,19 @@ y negación de información para el GAMEA / UTLCC (El Alto, Bolivia).
 Cumple con la Ley 974.
 
 ## Stack
-Laravel 11 · Inertia.js v2 · React 18 · TypeScript ·
-Tailwind v3 · shadcn/ui (New York) · Laragon (Windows local)
+Laravel 13 · Inertia.js v2 · React 18 · TypeScript ·
+Tailwind v3 · shadcn/ui (New York) · Laragon (Windows local, PHP 8.3.30)
 
-## Estado Actual (Julio 2026)
+> **Histórico:** Proyecto nació en **Laravel 11 / PHP 8.2** (Sprint 0 → Sprint 11, Julio 2026). Migrado a **Laravel 13 / PHP 8.3** el 01-sep-2026 antes de ejecutar Sprint 12. Ver `Notas Migración Laravel 13 - Cierre.md`. Tags: `pre-laravel13: 01bcc42` → `laravel-13: b91e404`.
+
+## Estado Actual (Septiembre 2026)
 
 **Fase 0 (Maqueta Frontend)** — Cerrada ✅
 **Sprint 0 al 9.1** (funcionalidades frontend + mock data) — Cerrados ✅
 **Sprint 10 (Base de Datos Real)** — Cerrado ✅ (Julio 2026)
+**Migración Laravel 11 → 13** — Cerrada ✅ (01-sep-2026)
+
+> **Migración Laravel 11 → 13 (01-sep-2026):** Hasta **Sprint 11 inclusive** se trabajó en **Laravel 11 / PHP 8.2.31** (Sprint 12 planeado en L11 — `31bcebd` *planeacion de sprint 12 finalizada*). Migrado directo a **Laravel 13 / PHP 8.3.30** antes de ejecutar Sprint 12. `composer.json` bump: `laravel/framework ^13.0`, `maatwebsite/excel ^4.0`, `phpunit ^12.0`, `collision ^9.0`, `tinker ^3.0`. Frontend intacto (Inertia v2 / React 18 / Tailwind v3). Tags: `pre-laravel13: 01bcc42` → `laravel-13: b91e404`. Ver `Notas Migración Laravel 13 - Cierre.md`.
 
 > Sprint 10 completó la migración del sistema de mocks en sesión a MySQL + Eloquent.
 > Se crearon 22 migraciones, 18 modelos, 4 seeders, y se refactorizaron 11 controllers.
@@ -72,6 +77,7 @@ Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (11–
 5. `transparencia-proy/Notas Sprint 10 - Cierre.md` — Decisiones técnicas, bugs y estado de Sprint 10
 6. `transparencia-proy/Notas Reestructuración BD - Catálogos y Árbol (Cierre).md` — Reestructuración de catálogos y árbol de dependencias (Agosto 2026)
 7. `transparencia-proy/Consultas - Dashboard y Reportes.md` — Consultas SQL/Query Builder preparadas para Sprint 12
+8. `transparencia-proy/Notas Migración Laravel 13 - Cierre.md` — Migración L11→L13 (Sep 2026, histórico L11 hasta Sprint 11)
 
 ## Documentación de Referencia (LEER SOLO SI NECESARIO)
 > ⚠️ NO leer por defecto. Contienen detalles extensos que saturan la memoria de contexto.
@@ -90,7 +96,9 @@ Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (11–
 - `transparencia-proy/Esquema BD - Catálogos.md` — 4 tablas pequeñas de referencia (categorías, unidades, feriados, config)
 - `transparencia-proy/Esquema BD - Librerías.md` — 4-6 tablas generadas por paquetes (Breeze + Auditing)
 
-## Convenciones Vigentes (Julio 2026)
+## Convenciones Vigentes (Septiembre 2026)
+
+> **Stack histórico:** Laravel 11 / PHP 8.2 hasta Sprint 11 inclusive. Desde 01-sep-2026: Laravel 13 / PHP 8.3 (tags `pre-laravel13` → `laravel-13`). Sprint 12+ se ejecuta en L13.
 - Colores institucionales: morado `#690bb2` + gold `#fecd2a` (CSS vars OKLCH)
 - Font: Outfit (sans) + Fira Code (mono)
 - Modo oscuro: clase `.dark` en `<html>`, persistido en localStorage

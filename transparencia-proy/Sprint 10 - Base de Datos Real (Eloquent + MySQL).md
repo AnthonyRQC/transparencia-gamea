@@ -19,7 +19,7 @@ modelos Eloquent y seeders. El esquema está diseñado, aprobado y documentado e
 | Componente | Tecnología |
 |------------|-----------|
 | Motor BD   | MySQL (Laragon) |
-| ORM        | Eloquent (Laravel 11) |
+| ORM        | Eloquent (Laravel 13) | *Histórico 11 hasta Sprint 11, migrado a 13 el 01-sep-2026* |
 | Migraciones| `php artisan make:migration` |
 | Relaciones polimórficas | `morphTo()` |
 | Auth       | Laravel Breeze (username en vez de email) |

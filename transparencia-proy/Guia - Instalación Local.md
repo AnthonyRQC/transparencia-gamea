@@ -1,7 +1,9 @@
 # Guia - Instalacion Local del Proyecto
 
 ## Prerrequisitos
-- PHP 8.2+ con extensiones: mbstring, xml, curl, zip, mysql, gd
+- PHP 8.3+ con extensiones: mbstring, xml, curl, zip, mysql, gd
+
+> **Histórico:** Hasta Sprint 11 (agosto 2026) el proyecto usó PHP 8.2.31 / Laravel 11. Desde el 01-sep-2026 migró a **PHP 8.3.30 / Laravel 13** antes de Sprint 12. Ver `Notas Migración Laravel 13 - Cierre.md`. En Laragon: `Menu → PHP → Version → php-8.3.30-Win32-vs16-x64`.
 - MySQL 8.x (Laragon recomendado)
 - Node.js 18+ con npm
 - Composer

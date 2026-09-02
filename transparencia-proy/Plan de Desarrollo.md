@@ -7,25 +7,25 @@
 
 ## Stack Tecnológico
 
-| Capa | Tecnología | Versión |
-|------|-----------|---------|
-| Backend | Laravel | 11.x |
-| Bridge | Inertia.js | v2 |
-| Frontend | React | 18.x |
-| Lenguaje | TypeScript | Latest |
-| Estilos | Tailwind CSS | v3 (no v4) |
-| Componentes UI | shadcn/ui | 2.3.0 |
-| Autenticación | Laravel Breeze (React + TS) | Latest |
-| Base de Datos | MySQL (postergada a Fase 1) | Latest |
-| Entorno Local | Laragon | Latest |
-| Bundler | Vite | Latest |
+| Capa | Tecnología | Versión | Nota |
+|------|-----------|---------|------|
+| Backend | Laravel | 13.x | *Histórico 11.x hasta Sprint 11, migrado a 13.x el 01-sep-2026 (pre-laravel13:01bcc42 → laravel-13:b91e404)* |
+| Bridge | Inertia.js | v2 | Sin cambios (adapter backend `inertia-laravel ^2.0` compatible) |
+| Frontend | React | 18.x | Sin cambios (no requiere React 19) |
+| Lenguaje | TypeScript | Latest | — |
+| Estilos | Tailwind CSS | v3 (no v4) | Sin cambios (L13 no requiere Tailwind v4) |
+| Componentes UI | shadcn/ui | 2.3.0 | Sin cambios |
+| Autenticación | Laravel Breeze (React + TS) | Latest | — |
+| Base de Datos | MySQL (postergada a Fase 1) | Latest | — |
+| Entorno Local | Laragon (PHP 8.3.30) | Latest | *Histórico PHP 8.2.31 hasta Sprint 11* |
+| Bundler | Vite | Latest | — |
 
 ---
 
-## Estado Actual (Fase 0 — Maqueta Frontend Funcional)
+## Estado Actual (Septiembre 2026 — Laravel 13)
 
 ### Ya implementado
-- ✅ Laravel 11 + Breeze (autenticación Inertia + React + TypeScript)
+- ✅ Laravel 13 + Breeze (autenticación Inertia + React + TypeScript) — *Histórico: nació en Laravel 11, migrado a 13 el 01-sep-2026 antes de Sprint 12 (tags pre-laravel13:01bcc42 → laravel-13:b91e404). Hasta Sprint 11 inclusive se trabajó en L11/PHP 8.2.*
 - ✅ Tailwind CSS v3 con variables OKLCH (colores institucionales: morado `#690bb2` / amarillo `#fecd2a`)
 - ✅ shadcn/ui configurado (New York style)
 - ✅ Componentes shadcn instalados: `button`
@@ -50,6 +50,7 @@
 - ✅ Sprint 10: Base de Datos Real (MySQL + Eloquent). Migración completa de app/Data/*. 22 migraciones, 18 modelos, 11 controllers refactorizados, Breeze adaptado a username, tests aislados con SQLite :memory:. Ver `Notas Sprint 10 - Cierre.md`.
 - ✅ Sprint 11: Panel de Catálogos (CRUD admin 8 pestañas, protección por uso, Medios conectados con Cierre, Clasificaciones como fuente de verdad, config JSON en `configuracion_sistema`). Ver `Notas Sprint 11 - Panel Catálogos (Cierre).md`.
 - ✅ **Reestructuración Catálogos (Agosto 2026):** clasificaciones y medios migraron de JSON a **tablas** con FKs (`informes_finales.clasificacion_id`, `cierres.notificacion_medio_id`), +`clasificado_por_id`/`cerrado_por_id`; `dependencias_externas` ahora es **árbol** (`parent_id`) con organigrama GAMEA 2026 (185 nodos); se eliminó `tipos_prueba`. Panel a 7 pestañas. Ver `Notas Reestructuración BD - Catálogos y Árbol (Cierre).md`.
+- ✅ **Migración Laravel 11 → 13 (01-sep-2026):** Hasta Sprint 11 se trabajó en L11/PHP 8.2.31. Migrado directo a L13/PHP 8.3.30 antes de Sprint 12 (Sprint 12 planeado en L11 — `31bcebd`). Bump: `laravel/framework ^13.0`, `maatwebsite/excel ^4.0`, `phpunit ^12.0`, `collision ^9.0`, `tinker ^3.0`. Frontend intacto. Tags `pre-laravel13:01bcc42` → `laravel-13:b91e404`. Ver `Notas Migración Laravel 13 - Cierre.md`.
 
 ---
 

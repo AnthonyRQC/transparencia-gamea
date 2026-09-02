@@ -381,9 +381,9 @@ Los plazos son el corazón del sistema. La ley es estricta y el sistema debe gar
 
 ## 8. Stack Tecnológico
 
-| Capa | Tecnología |
-|------|-----------|
-| Backend | Laravel 11 |
+| Capa | Tecnología | Nota |
+|------|-----------|------|
+| Backend | Laravel 13 | *Histórico 11 hasta Sprint 11, migrado a 13 el 01-sep-2026 (pre-laravel13:01bcc42 → laravel-13:b91e404)* |
 | Bridge Frontend-Backend | Inertia.js |
 | Frontend | React 18 + TypeScript |
 | Estilos | Tailwind CSS v3 + shadcn/ui |

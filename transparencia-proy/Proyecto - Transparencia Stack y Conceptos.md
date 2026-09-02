@@ -35,11 +35,11 @@ Es un sistema de **gestión de denuncias por pestañas (tabs)** para la Unidad d
 
 ## 2. Stack Tecnológico Confirmado
 
-| Capa | Tecnología | Versión |
-|------|-----------|---------|
-| **Backend** | Laravel | 11.x |
-| **Frontend (Bridge)** | Inertia.js | Latest |
-| **Frontend (UI)** | React | 18.x |
+| Capa | Tecnología | Versión | Nota |
+|------|-----------|---------|------|
+| **Backend** | Laravel | 13.x | *Histórico 11.x hasta Sprint 11, migrado a 13.x el 01-sep-2026 (pre-laravel13:01bcc42 → laravel-13:b91e404)* |
+| **Frontend (Bridge)** | Inertia.js | Latest | — |
+| **Frontend (UI)** | React | 18.x | — |
 | **Lenguaje** | TypeScript | Latest |
 | **Estilos** | Tailwind CSS | **v3** (no v4) |
 | **Componentes UI** | shadcn/ui | **2.3.0** (compatible con Tailwind v3) |
@@ -124,7 +124,7 @@ El concepto más importante de todo el stack. Sin entender Inertia, no entender�
 #### E. Notificaciones en Tiempo Real
 | Concepto                             | ¿Qué es y por qué lo necesitas?                                                                                                                                                                                            |
 | --------------------------------------| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Laravel Echo + Pusher (o Reverb)** | El sistema de notificaciones en tiempo real. Cuando el Jefe asigna una denuncia, el Técnico debe ver una notificación inmediata sin refrescar la página. Laravel Reverb es la opción gratuita y self-hosted de Laravel 11. |
+| **Laravel Echo + Pusher (o Reverb)** | El sistema de notificaciones en tiempo real. Cuando el Jefe asigna una denuncia, el Técnico debe ver una notificación inmediata sin refrescar la página. Laravel Reverb es la opción gratuita y self-hosted de Laravel 13 (*histórico 11 hasta Sprint 11*). |
 | **`useEffect` para WebSockets**      | Cómo suscribirte a un canal de WebSocket dentro de un componente React usando `useEffect` y limpiar la suscripción en el cleanup. Ya sabes `useEffect`, esto es la aplicación práctica.                                    |
 | **Componente Toast/Notificación**    | shadcn tiene el componente `<Sonner>` o `<Toast>`. Integra el evento WebSocket con una notificación visual al usuario.                                                                                                     |
 
