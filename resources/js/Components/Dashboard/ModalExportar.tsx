@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from '@inertiajs/react';
 import { Download, FileText, FileSpreadsheet, ExternalLink, Loader2, FileDown } from 'lucide-react';
 import axios from 'axios';
+import { route } from 'ziggy-js';
 import { Button } from '@/Components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/Components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/Components/ui/table';
@@ -46,7 +47,7 @@ export default function ModalExportar({ filtros, open, onOpenChange }: Props) {
         if (!open) return;
         setCargando(true);
         axios
-            .get('/reportes/preview', { params: new URLSearchParams(queryParams()) })
+            .get(route('reportes.preview'), { params: new URLSearchParams(queryParams()) })
             .then((res) => {
                 setRows(res.data.rows ?? []);
                 setTotal(res.data.total ?? 0);
@@ -68,7 +69,7 @@ export default function ModalExportar({ filtros, open, onOpenChange }: Props) {
     if (filtros.tecnico_id) resumenFiltros.push(`técnico ${filtros.tecnico_id}`);
 
     const descargar = () => {
-        window.open(`/reportes/exportar?${queryParams()}&formato=${formato}`, '_blank');
+        window.open(`${route('reportes.exportar')}?${queryParams()}&formato=${formato}`, '_blank');
     };
 
     return (
@@ -156,7 +157,7 @@ export default function ModalExportar({ filtros, open, onOpenChange }: Props) {
 
                 <DialogFooter className="gap-2 sm:justify-between">
                     <Link
-                        href={`/reportes?${queryParams()}`}
+                        href={`${route('reportes.index')}?${queryParams()}`}
                         className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
                     >
                         Abrir en Reportes

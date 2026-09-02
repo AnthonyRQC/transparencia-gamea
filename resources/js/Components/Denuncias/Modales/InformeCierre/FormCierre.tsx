@@ -1,0 +1,424 @@
+import { useState, useEffect } from 'react';
+import { router, usePage } from '@inertiajs/react';
+import { route } from 'ziggy-js';
+import { toast } from 'sonner';
+import { Label } from '@/Components/ui/label';
+import { Input } from '@/Components/ui/input';
+import { Textarea } from '@/Components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
+import { Checkbox } from '@/Components/ui/checkbox';
+import { Button } from '@/Components/ui/button';
+import { Separator } from '@/Components/ui/separator';
+import { AlertTriangle, ChevronDown, ChevronRight, History, Archive, Upload, Trash2 } from 'lucide-react';
+
+interface MedioOption {
+  clave: string | null;
+  nombre: string;
+}
+
+const FALLBACK_MEDIOS_NOTIFICACION: MedioOption[] = [
+  { clave: 'whatsapp', nombre: 'WhatsApp' },
+  { clave: 'email', nombre: 'Correo Electrónico' },
+  { clave: 'presencial', nombre: 'Presencial' },
+  { clave: 'otro', nombre: 'Otro' },
+];
+
+interface CierreData {
+  notificado_denunciante: boolean | null;
+  notificacion_medio: string | null;
+  notificacion_fecha: string | null;
+  notificacion_descripcion: string | null;
+  no_notificado_motivo: string | null;
+  concluido_por: string | null;
+  descripcion: string | null;
+  cerrado_at: string | null;
+  ediciones: Array<{ fecha: string; cambios: string[]; usuario: string }>;
+  eliminado: boolean;
+  fecha_eliminacion: string | null;
+}
+
+interface FormCierreProps {
+  ticket: string;
+  cierre: CierreData | null;
+  informeExiste: boolean;
+  tecnicoNombre: string;
+  canAct: boolean;
+  onEdit?: () => void;
+  onDelete?: () => void;
+}
+
+export default function FormCierre({ ticket, cierre, informeExiste, tecnicoNombre, canAct, onEdit, onDelete }: FormCierreProps) {
+  const [openHistorial, setOpenHistorial] = useState(false);
+  const [processing, setProcessing] = useState(false);
+  const [isEditingForm, setIsEditingForm] = useState(false);
+
+  const isClosed = cierre && !cierre.eliminado && cierre.cerrado_at;
+  const showForm = canAct && informeExiste && (!isClosed || isEditingForm);
+
+  if (!informeExiste && !isClosed) {
+    return (
+      <div className="flex items-start gap-2 p-3 rounded-lg bg-amber-50 border border-amber-200 dark:bg-amber-950/20 dark:border-amber-800">
+        <AlertTriangle className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
+        <div className="text-xs text-amber-800 dark:text-amber-300">
+          <p className="font-semibold">⚠️ Falta redactar el Informe Final</p>
+          <p className="mt-1">Debe redactar el Informe Final antes de cerrar el caso.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!showForm && !cierre) {
+    return (
+      <div className="text-sm text-muted-foreground italic py-4">Sin cierre registrado.</div>
+    );
+  }
+
+  return (
+    <div className="space-y-5">
+      {isClosed && !isEditingForm ? (
+        <CierrePreview
+          cierre={cierre}
+          canAct={canAct}
+          onEdit={() => {
+            setIsEditingForm(true);
+            if (onEdit) onEdit();
+          }}
+          onDelete={onDelete}
+        />
+      ) : canAct ? (
+        <CierreForm
+          ticket={ticket}
+          cierre={cierre}
+          tecnicoNombre={tecnicoNombre}
+          processing={processing}
+          setProcessing={setProcessing}
+          onCancel={isClosed ? () => setIsEditingForm(false) : undefined}
+          onSuccess={() => setIsEditingForm(false)}
+        />
+      ) : null}
+
+      {cierre && !cierre.eliminado && cierre.ediciones && cierre.ediciones.length > 0 && (
+        <>
+          <Separator />
+          <section>
+            <button
+              type="button"
+              onClick={() => setOpenHistorial(!openHistorial)}
+              className="w-full flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+            >
+              {openHistorial ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+              <History className="w-3.5 h-3.5" />
+              Historial de cambios ({cierre.ediciones.length})
+            </button>
+            {openHistorial && (
+              <div className="mt-2 space-y-2">
+                {cierre.ediciones.map((ed, i) => (
+                  <div key={i} className="text-sm bg-muted/50 rounded-lg px-3 py-2">
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(ed.fecha).toLocaleDateString('es-BO', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                      {ed.usuario !== 'sistema' ? ` — ${ed.usuario}` : ''}
+                    </p>
+                    {ed.cambios.map((c, j) => (
+                      <p key={j} className="text-xs mt-0.5">{c}</p>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+        </>
+      )}
+    </div>
+  );
+}
+
+function CierrePreview({ cierre, canAct, onEdit, onDelete }: {
+  cierre: CierreData;
+  canAct: boolean;
+  onEdit?: () => void;
+  onDelete?: () => void;
+}) {
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Archive className="w-4 h-4 text-primary" />
+          <span className="text-sm font-semibold">Cierre</span>
+        </div>
+        {canAct && (
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={onEdit}>
+              Editar
+            </Button>
+            <Button variant="destructive" size="sm" onClick={onDelete}>
+              <Trash2 className="w-3.5 h-3.5" />
+            </Button>
+          </div>
+        )}
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 text-sm">
+        <div>
+          <span className="text-muted-foreground">Concluido por:</span>
+          <p className="font-medium">{cierre.concluido_por || '—'}</p>
+        </div>
+      </div>
+
+      {cierre.cerrado_at && (
+        <p className="text-xs text-muted-foreground">
+          Cerrado: {new Date(cierre.cerrado_at).toLocaleDateString('es-BO', { day: '2-digit', month: 'long', year: 'numeric' })}
+        </p>
+      )}
+
+      <div>
+        <h5 className="text-xs font-semibold text-muted-foreground mb-1">Notificación al denunciante</h5>
+        {cierre.notificado_denunciante ? (
+          <div className="text-sm bg-muted/50 rounded-lg px-3 py-2 space-y-1">
+            <p><span className="text-muted-foreground">Medio:</span> {cierre.notificacion_medio || '—'}</p>
+            {cierre.notificacion_fecha && <p><span className="text-muted-foreground">Fecha:</span> {new Date(cierre.notificacion_fecha).toLocaleDateString('es-BO', { day: '2-digit', month: 'long', year: 'numeric' })}</p>}
+            {cierre.notificacion_descripcion && <p><span className="text-muted-foreground">Detalle:</span> {cierre.notificacion_descripcion}</p>}
+          </div>
+        ) : (
+          <div className="text-sm bg-muted/50 rounded-lg px-3 py-2 space-y-1">
+            <p className="text-muted-foreground italic">No se notificó al denunciante.</p>
+            {cierre.no_notificado_motivo && <p><span className="text-muted-foreground">Motivo:</span> {cierre.no_notificado_motivo}</p>}
+          </div>
+        )}
+      </div>
+
+      {cierre.descripcion && (
+        <div>
+          <h5 className="text-xs font-semibold text-muted-foreground mb-1">Descripción del cierre</h5>
+          <p className="text-sm whitespace-pre-wrap break-words bg-muted/50 rounded-lg px-3 py-2">{cierre.descripcion}</p>
+        </div>
+      )}
+
+
+    </div>
+  );
+}
+
+function CierreForm({ ticket, cierre, tecnicoNombre, processing, setProcessing, onCancel, onSuccess }: {
+  ticket: string;
+  cierre: CierreData | null;
+  tecnicoNombre: string;
+  processing: boolean;
+  setProcessing: (v: boolean) => void;
+  onCancel?: () => void;
+  onSuccess?: () => void;
+}) {
+  const props = usePage().props as Record<string, any>;
+  const catalogMedios = Array.isArray(props.medios_notificacion)
+    ? (props.medios_notificacion as MedioOption[]).filter((m) => m.clave && m.nombre)
+    : [];
+  const mediosNotificacion = catalogMedios.length > 0 ? catalogMedios : FALLBACK_MEDIOS_NOTIFICACION;
+
+  const [notificadoDenunciante, setNotificadoDenunciante] = useState(cierre?.notificado_denunciante ?? true);
+  const [notificacionMedio, setNotificacionMedio] = useState((cierre?.notificacion_medio || '').toLowerCase());
+  const [notificacionFecha, setNotificacionFecha] = useState(cierre?.notificacion_fecha ? cierre.notificacion_fecha.split('T')[0] : '');
+  const [notificacionDescripcion, setNotificacionDescripcion] = useState(cierre?.notificacion_descripcion || '');
+  const [noNotificadoMotivo, setNoNotificadoMotivo] = useState(cierre?.no_notificado_motivo || '');
+  const [concluidoPor, setConcluidoPor] = useState(cierre?.concluido_por || tecnicoNombre || '');
+  const [descripcion, setDescripcion] = useState(cierre?.descripcion || '');
+
+  useEffect(() => {
+    if (cierre) {
+      setNotificadoDenunciante(cierre.notificado_denunciante ?? false);
+      setNotificacionMedio((cierre.notificacion_medio || '').toLowerCase());
+      setNotificacionFecha(cierre.notificacion_fecha ? cierre.notificacion_fecha.split('T')[0] : '');
+      setNotificacionDescripcion(cierre.notificacion_descripcion || '');
+      setNoNotificadoMotivo(cierre.no_notificado_motivo || '');
+      setConcluidoPor(cierre.concluido_por || tecnicoNombre || '');
+      setDescripcion(cierre.descripcion || '');
+    } else {
+      setNotificadoDenunciante(false);
+      setNotificacionMedio('');
+      setNotificacionFecha('');
+      setNotificacionDescripcion('');
+      setNoNotificadoMotivo('');
+      setConcluidoPor(tecnicoNombre || '');
+      setDescripcion('');
+    }
+  }, [cierre, tecnicoNombre]);
+
+  const canSubmit = notificadoDenunciante
+    ? notificacionMedio && notificacionFecha && String(notificacionDescripcion || '').trim().length >= 10 && String(concluidoPor || '').trim().length >= 2 && String(descripcion || '').trim().length >= 20
+    : String(noNotificadoMotivo || '').trim().length >= 10 && String(concluidoPor || '').trim().length >= 2 && String(descripcion || '').trim().length >= 20;
+
+  const isEdit = cierre && cierre.cerrado_at;
+
+  const handleSubmit = () => {
+    if (!canSubmit) return;
+    setProcessing(true);
+    const routeName = isEdit ? 'denuncias.cierre.editar' : 'denuncias.cierre.guardar';
+    router.post(
+      route(routeName, { ticket }),
+      {
+        notificado_denunciante: notificadoDenunciante,
+        notificacion_medio: notificadoDenunciante ? notificacionMedio : null,
+        notificacion_fecha: notificadoDenunciante ? notificacionFecha : null,
+        notificacion_descripcion: notificadoDenunciante ? notificacionDescripcion : null,
+        no_notificado_motivo: notificadoDenunciante ? null : noNotificadoMotivo || null,
+        concluido_por: concluidoPor,
+        descripcion,
+      },
+      {
+        preserveScroll: true,
+        onSuccess: () => {
+          toast.success(isEdit ? 'Cierre actualizado' : 'Denuncia cerrada correctamente');
+          setProcessing(false);
+          if (onSuccess) onSuccess();
+        },
+        onError: (errors) => {
+          const keys = Object.keys(errors);
+          toast.error(keys.length > 0 ? errors[keys[0]] : 'Error al guardar cierre');
+          setProcessing(false);
+        },
+        onFinish: () => setProcessing(false),
+      }
+    );
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-2">
+        <Archive className="w-4 h-4 text-primary" />
+        <span className="text-sm font-semibold">{isEdit ? 'Editar Cierre' : 'Registrar Cierre'}</span>
+      </div>
+
+      <div className="space-y-3">
+        <h5 className="text-xs font-semibold text-muted-foreground">Notificación al denunciante</h5>
+
+        <div className="flex items-center gap-2">
+          <Checkbox
+            id="notificado"
+            checked={notificadoDenunciante}
+            onCheckedChange={(v) => setNotificadoDenunciante(v === true)}
+          />
+          <Label htmlFor="notificado" className="text-sm cursor-pointer">
+            ¿Se notificó al denunciante?
+          </Label>
+        </div>
+
+        {notificadoDenunciante ? (
+          <div className="space-y-3 pl-6 border-l-2 border-muted">
+            <div className="space-y-2">
+              <Label htmlFor="medio" className="after:content-['*'] after:text-destructive after:ml-0.5">Medio</Label>
+              <Select value={notificacionMedio} onValueChange={setNotificacionMedio}>
+                <SelectTrigger id="medio">
+                  <SelectValue placeholder="Seleccione medio" />
+                </SelectTrigger>
+                <SelectContent>
+                  {mediosNotificacion.map((m) => (
+                    <SelectItem key={m.clave} value={m.clave ?? ''}>{m.nombre}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="fecha-notif" className="after:content-['*'] after:text-destructive after:ml-0.5">Fecha de notificación</Label>
+              <Input
+                id="fecha-notif"
+                type="date"
+                value={notificacionFecha}
+                onChange={(e) => setNotificacionFecha(e.target.value)}
+                max={new Date().toISOString().split('T')[0]}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="desc-notif" className="after:content-['*'] after:text-destructive after:ml-0.5">Descripción</Label>
+              <Textarea
+                id="desc-notif"
+                value={notificacionDescripcion}
+                onChange={(e) => setNotificacionDescripcion(e.target.value)}
+                rows={2}
+                maxLength={2000}
+                placeholder="Ej: Notificado por WhatsApp al 7XXXXXXX..."
+                style={{ textTransform: 'uppercase' }}
+              />
+              <div className="flex items-center justify-between">
+                <p className="text-[11px] text-muted-foreground">{notificacionDescripcion.length}/2000</p>
+                {notificacionDescripcion.length > 0 && notificacionDescripcion.trim().length < 5 && (
+                  <p className="text-[11px] text-destructive font-medium">Mínimo 5 caracteres</p>
+                )}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="pl-6 border-l-2 border-muted">
+            <div className="space-y-2">
+              <Label htmlFor="motivo-no-notif">Motivo (opcional)</Label>
+              <Textarea
+                id="motivo-no-notif"
+                value={noNotificadoMotivo}
+                onChange={(e) => setNoNotificadoMotivo(e.target.value)}
+                rows={2}
+                maxLength={500}
+                placeholder="Ej: Denunciante anónimo sin datos de contacto..."
+                style={{ textTransform: 'uppercase' }}
+              />
+              <p className="text-[11px] text-muted-foreground">{noNotificadoMotivo.length}/500</p>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <Separator />
+
+      <div className="space-y-2">
+        <Label htmlFor="concluido-por" className="after:content-['*'] after:text-destructive after:ml-0.5">Concluido por</Label>
+        <Input
+          id="concluido-por"
+          value={concluidoPor || ''}
+          onChange={(e) => setConcluidoPor(e.target.value)}
+          placeholder="Nombre del responsable"
+          style={{ textTransform: 'uppercase' }}
+          disabled
+          readOnly
+        />
+        <p className="text-[10px] text-muted-foreground">Este campo se asigna automáticamente al usuario actual.</p>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="descripcion-cierre" className="after:content-['*'] after:text-destructive after:ml-0.5">Descripción del cierre</Label>
+        <Textarea
+          id="descripcion-cierre"
+          value={descripcion}
+          onChange={(e) => setDescripcion(e.target.value)}
+          rows={4}
+          maxLength={5000}
+          placeholder="Explique los detalles del cierre del caso..."
+          style={{ textTransform: 'uppercase' }}
+        />
+        <div className="flex items-center justify-between">
+          <p className="text-[11px] text-muted-foreground">{descripcion.length}/5000</p>
+          {descripcion.length > 0 && descripcion.trim().length < 20 && (
+            <p className="text-[11px] text-destructive font-medium">Mínimo 20 caracteres</p>
+          )}
+        </div>
+      </div>
+
+      <div className="space-y-2 rounded-lg border border-border/60 bg-muted/20 p-4">
+        <p className="text-xs text-muted-foreground">
+          Los archivos adjuntos al cierre se gestionan desde el repositorio de archivos del caso.
+        </p>
+        <p className="text-xs text-muted-foreground">
+          Use el botón <strong>"Archivos del caso"</strong> en el detalle de la denuncia para subir archivos con contexto <strong>"Cierre"</strong>.
+        </p>
+      </div>
+
+      <div className="flex gap-2">
+        {onCancel && (
+          <Button type="button" variant="outline" onClick={onCancel} disabled={processing} className="w-full">
+            Cancelar
+          </Button>
+        )}
+        <Button disabled={processing || !canSubmit} onClick={handleSubmit} className="w-full">
+          {processing ? 'Procesando...' : isEdit ? 'Actualizar Cierre' : 'Cerrar Expediente'}
+        </Button>
+      </div>
+    </div>
+  );
+}

@@ -4,7 +4,15 @@ use App\Http\Controllers\BandejaController;
 use App\Http\Controllers\MisCasosController;
 use App\Http\Controllers\MiResumenController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\DenunciaController;
+use App\Http\Controllers\Denuncia\AmpliacionController;
+use App\Http\Controllers\Denuncia\AsignacionController;
+use App\Http\Controllers\Denuncia\AdmisionController;
+use App\Http\Controllers\Denuncia\CierreController;
+use App\Http\Controllers\Denuncia\DelegacionController;
+use App\Http\Controllers\Denuncia\DenunciaController;
+use App\Http\Controllers\Denuncia\InformeController;
+use App\Http\Controllers\Denuncia\InvestigacionController;
+use App\Http\Controllers\Denuncia\ReaperturaController;
 use App\Http\Controllers\SolicitudController;
 use App\Http\Controllers\DescargoController;
 use App\Http\Controllers\SeguimientoController;
@@ -73,42 +81,42 @@ Route::prefix('denuncias')->name('denuncias.')->group(function () {
     // Bandeja de Admisión (Sprint 2)
     Route::get('/', [BandejaController::class, 'index'])->name('bandeja');
 
-    // Registro de nueva denuncia (Sprint 1)
+    // Registro de nueva denuncia (Sprint 1) — DenunciaController delgado
     Route::get('/registrar', [DenunciaController::class, 'create'])->name('registrar');
     Route::post('/', [DenunciaController::class, 'store'])->name('store');
 
-    // Acciones (Sprint 2)
-    Route::post('/{ticket}/admitir', [DenunciaController::class, 'admitir'])->name('admitir');
-    Route::post('/{ticket}/rechazar', [DenunciaController::class, 'rechazar'])->name('rechazar');
-    Route::post('/{ticket}/iniciar', [DenunciaController::class, 'iniciarInvestigacion'])->name('iniciar');
+    // Acciones (Sprint 2) — AdmisionController
+    Route::post('/{ticket}/admitir', [AdmisionController::class, 'admitir'])->name('admitir');
+    Route::post('/{ticket}/rechazar', [AdmisionController::class, 'rechazar'])->name('rechazar');
+    Route::post('/{ticket}/iniciar', [InvestigacionController::class, 'iniciarInvestigacion'])->name('iniciar');
 
     // Sprint 3 — Asignación, Traspaso, Reapertura
-    Route::post('/{ticket}/asignar', [DenunciaController::class, 'asignar'])->name('asignar');
-    Route::post('/{ticket}/traspasar', [DenunciaController::class, 'traspasar'])->name('traspasar');
-    Route::post('/{ticket}/reabrir', [DenunciaController::class, 'reabrir'])->name('reabrir');
+    Route::post('/{ticket}/asignar', [AsignacionController::class, 'asignar'])->name('asignar');
+    Route::post('/{ticket}/traspasar', [AsignacionController::class, 'traspasar'])->name('traspasar');
+    Route::post('/{ticket}/reabrir', [ReaperturaController::class, 'reabrir'])->name('reabrir');
 
     // Sprint 4 — Saltar fase
-    Route::post('/{ticket}/saltar-fase', [DenunciaController::class, 'saltarFase'])->name('saltar-fase');
+    Route::post('/{ticket}/saltar-fase', [InvestigacionController::class, 'saltarFase'])->name('saltar-fase');
 
     // Sprint 5 — Informe Final y Cierre
-    Route::post('/{ticket}/informe', [DenunciaController::class, 'guardarInforme'])->name('informe.guardar');
-    Route::post('/{ticket}/informe/editar', [DenunciaController::class, 'editarInforme'])->name('informe.editar');
-    Route::post('/{ticket}/informe/eliminar', [DenunciaController::class, 'eliminarInforme'])->name('informe.eliminar');
-    Route::post('/{ticket}/cierre', [DenunciaController::class, 'guardarCierre'])->name('cierre.guardar');
-    Route::post('/{ticket}/cierre/editar', [DenunciaController::class, 'editarCierre'])->name('cierre.editar');
-    Route::post('/{ticket}/cierre/eliminar', [DenunciaController::class, 'eliminarCierre'])->name('cierre.eliminar');
-    Route::post('/{ticket}/archivar', [DenunciaController::class, 'toggleArchivar'])->name('archivar');
+    Route::post('/{ticket}/informe', [InformeController::class, 'guardarInforme'])->name('informe.guardar');
+    Route::post('/{ticket}/informe/editar', [InformeController::class, 'editarInforme'])->name('informe.editar');
+    Route::post('/{ticket}/informe/eliminar', [InformeController::class, 'eliminarInforme'])->name('informe.eliminar');
+    Route::post('/{ticket}/cierre', [CierreController::class, 'guardarCierre'])->name('cierre.guardar');
+    Route::post('/{ticket}/cierre/editar', [CierreController::class, 'editarCierre'])->name('cierre.editar');
+    Route::post('/{ticket}/cierre/eliminar', [CierreController::class, 'eliminarCierre'])->name('cierre.eliminar');
+    Route::post('/{ticket}/archivar', [CierreController::class, 'toggleArchivar'])->name('archivar');
 
     // Carga de técnicos (Sprint 3)
-    Route::get('/carga-tecnicos', [DenunciaController::class, 'cargaTecnicos'])->name('carga-tecnicos');
+    Route::get('/carga-tecnicos', [AsignacionController::class, 'cargaTecnicos'])->name('carga-tecnicos');
 
     // Sprint 7 — Evaluación Técnica Previa
-    Route::post('/{ticket}/delegar-evaluacion', [DenunciaController::class, 'delegarEvaluacion'])->name('delegar-evaluacion');
-    Route::post('/{ticket}/reasumir-evaluacion', [DenunciaController::class, 'reasumirEvaluacion'])->name('reasumir-evaluacion');
+    Route::post('/{ticket}/delegar-evaluacion', [DelegacionController::class, 'delegarEvaluacion'])->name('delegar-evaluacion');
+    Route::post('/{ticket}/reasumir-evaluacion', [DelegacionController::class, 'reasumirEvaluacion'])->name('reasumir-evaluacion');
     Route::post('/evaluaciones/{id}/devolver', [EvaluacionController::class, 'devolver'])->name('evaluaciones.devolver');
 
     // Sprint 8 — Ampliaciones Múltiples
-    Route::post('/{ticket}/ampliar-plazo', [DenunciaController::class, 'aprobarAmpliacion'])->name('ampliar-plazo');
+    Route::post('/{ticket}/ampliar-plazo', [AmpliacionController::class, 'aprobarAmpliacion'])->name('ampliar-plazo');
 
     // Sprint 7.5 — Editar/Eliminar denuncia raíz (solo ingresada)
     Route::post('/{ticket}/editar', [DenunciaController::class, 'editar'])->name('editar');
