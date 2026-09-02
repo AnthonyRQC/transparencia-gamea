@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\DiasHabiles;
 use App\Models\Ampliacion;
 use App\Models\Bitacora;
 use App\Models\Denuncia;
 use App\Models\SolicitudInformacion;
 use App\Models\DependenciaExterna;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -35,12 +37,13 @@ class SolicitudController extends Controller
             return redirect()->back()->with('error', 'No se pueden crear solicitudes en el estado actual de la denuncia.');
         }
 
+        $fechaEnvio = isset($validated['fecha_envio']) ? Carbon::parse($validated['fecha_envio']) : Carbon::now('America/La_Paz');
         $solicitud = $denuncia->solicitudes()->create([
             'dependencia_destino_id' => $unidad->id,
             'detalle' => $validated['detalle'],
             'plazo_dias' => (int) $validated['plazo_dias'],
-            'fecha_envio' => $validated['fecha_envio'] ?? now(),
-            'fecha_vencimiento' => now()->addDays((int) $validated['plazo_dias']),
+            'fecha_envio' => $fechaEnvio,
+            'fecha_vencimiento' => DiasHabiles::agregar((int) $validated['plazo_dias'], $fechaEnvio),
             'estado' => 'pendiente',
         ]);
 
@@ -137,7 +140,7 @@ class SolicitudController extends Controller
 
         $solicitud->update([
             'estado' => 'ampliada',
-            'fecha_vencimiento' => $solicitud->fecha_vencimiento->addDays((int) $validated['dias']),
+            'fecha_vencimiento' => DiasHabiles::agregar((int) $validated['dias'], $solicitud->fecha_vencimiento),
         ]);
 
         Bitacora::create([
@@ -172,7 +175,7 @@ class SolicitudController extends Controller
         $solicitud->update([
             'detalle' => $validated['detalle'],
             'plazo_dias' => (int) $validated['plazo_dias'],
-            'fecha_vencimiento' => $solicitud->fecha_envio->addDays((int) $validated['plazo_dias']),
+            'fecha_vencimiento' => DiasHabiles::agregar((int) $validated['plazo_dias'], $solicitud->fecha_envio),
             'historial_ediciones' => $historial,
         ]);
 

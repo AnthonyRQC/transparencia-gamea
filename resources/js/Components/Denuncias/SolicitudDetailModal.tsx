@@ -130,12 +130,7 @@ export default function SolicitudDetailModal({
           {solicitud.plazo_info ? (
             <PlazoProgress {...solicitud.plazo_info} />
           ) : (
-            <PlazoProgress
-              dias_restantes={Math.ceil((new Date(solicitud.fecha_vencimiento).getTime() - Date.now()) / (1000 * 60 * 60 * 24))}
-              color={isVencida ? 'red' : 'green'}
-              texto={isVencida ? 'Vencida' : 'Pendiente'}
-              fecha_vencimiento={solicitud.fecha_vencimiento}
-            />
+            <p className="text-[11px] text-muted-foreground italic">Sin plazo</p>
           )}
 
           <div className="text-[11px] text-muted-foreground flex items-center gap-3">

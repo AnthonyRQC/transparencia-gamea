@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Helpers\DiasHabiles;
 use App\Helpers\UppercaseText;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -25,7 +27,7 @@ class SolicitudInformacion extends Model
         'detalle', 'respuesta', 'motivo_cancelacion',
     ];
 
-    protected $appends = ['dependencia_destino'];
+    protected $appends = ['dependencia_destino', 'plazo_info'];
 
     public function getDependenciaDestinoAttribute()
     {
@@ -70,10 +72,28 @@ class SolicitudInformacion extends Model
         return $query->whereNull('fecha_eliminacion');
     }
 
+    public function getPlazoInfoAttribute(): ?array
+    {
+        if (!$this->fecha_vencimiento || in_array($this->estado, ['respondida', 'cancelada'])) {
+            return null;
+        }
+        $venc = $this->fecha_vencimiento instanceof Carbon ? $this->fecha_vencimiento : Carbon::parse($this->fecha_vencimiento);
+        $dias = DiasHabiles::diasRestantes($venc);
+        $color = $dias < 0 ? 'red' : ($dias <= 5 ? 'yellow' : 'green');
+        $texto = $dias < 0 ? "Vencida hace " . abs($dias) . "d" : ($dias === 0 ? "Vence hoy" : "Vence en {$dias}d");
+        return [
+            'dias_restantes' => $dias,
+            'color' => $color,
+            'texto' => $texto,
+            'fecha_vencimiento' => $venc->format('Y-m-d'),
+        ];
+    }
+
     public function toArray()
     {
         $array = parent::toArray();
         $array['dependencia_destino'] = $this->dependencia_destino;
+        $array['plazo_info'] = $this->plazo_info;
         return $array;
     }
 }

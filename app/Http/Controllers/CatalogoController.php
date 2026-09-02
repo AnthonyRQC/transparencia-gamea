@@ -9,6 +9,7 @@ use App\Models\ConfiguracionSistema;
 use App\Models\DependenciaExterna;
 use App\Models\Feriado;
 use App\Models\MedioNotificacion;
+use App\Helpers\DiasHabiles;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -137,6 +138,7 @@ class CatalogoController extends Controller
                     ]);
                 } elseif ($tipo === 'feriados') {
                     Feriado::create($data);
+                    DiasHabiles::olvidarCache();
                 } elseif ($tipo === 'clasificaciones') {
                     $inactiva = Clasificacion::where('nombre', $data['nombre'])
                         ->where('activa', false)->first();
@@ -217,6 +219,10 @@ class CatalogoController extends Controller
 
                 $oldActiva = $model->activa;
                 $model->update($data);
+
+                if ($model instanceof Feriado) {
+                    DiasHabiles::olvidarCache();
+                }
 
                 if ($oldActiva === false && $data['activa'] === true) {
                     $model->update(['fecha_desactivacion' => null, 'desactivado_por_id' => null]);
@@ -406,6 +412,7 @@ class CatalogoController extends Controller
     {
         $feriado = Feriado::findOrFail($id);
         $feriado->delete();
+        DiasHabiles::olvidarCache();
         $this->logBitacora('feriados', $id, 'desactivar', [
             'nombre' => $feriado->nombre,
             'fecha' => $feriado->fecha->format('Y-m-d'),
@@ -416,6 +423,7 @@ class CatalogoController extends Controller
     {
         $feriado = Feriado::onlyTrashed()->findOrFail($id);
         $feriado->restore();
+        DiasHabiles::olvidarCache();
         $this->logBitacora('feriados', $id, 'reactivar', ['nombre' => $feriado->nombre]);
     }
 

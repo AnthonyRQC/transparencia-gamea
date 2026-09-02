@@ -149,13 +149,28 @@ export default function ModalEditarItem({
                                 )}
 
                                 {col.type === 'date' && (
-                                    <Input
-                                        id={col.key}
-                                        type="date"
-                                        value={String(formData[col.key] ?? '')}
-                                        onChange={(e) => setField(col.key, e.target.value)}
-                                        disabled={col.readonly || readonly}
-                                    />
+                                    <>
+                                        <Input
+                                            id={col.key}
+                                            type="date"
+                                            value={String(formData[col.key] ?? '')}
+                                            onChange={(e) => setField(col.key, e.target.value)}
+                                            disabled={col.readonly || readonly}
+                                        />
+                                        {(() => {
+                                            const v = String(formData[col.key] ?? '');
+                                            if (!v || v.length < 10) return null;
+                                            const d = new Date(v + 'T12:00:00');
+                                            const dow = d.getDay();
+                                            const isWeekend = dow === 0 || dow === 6;
+                                            if (!isWeekend) return null;
+                                            return (
+                                                <p className="text-[11px] font-semibold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-md px-2 py-1.5 mt-1">
+                                                    ⚠ CAE EN FIN DE SEMANA — Este feriado no descontará días extra (ya es no hábil).
+                                                </p>
+                                            );
+                                        })()}
+                                    </>
                                 )}
 
                                 {col.type === 'select' && col.options && (

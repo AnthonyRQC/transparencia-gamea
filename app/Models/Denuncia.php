@@ -100,7 +100,7 @@ class Denuncia extends Model
 
         $fechaVencimiento = $this->calcularVencimiento();
 
-        $now = Carbon::now()->startOfDay();
+        $now = Carbon::now('America/La_Paz')->startOfDay();
         $venc = $fechaVencimiento->copy()->startOfDay();
 
         if ($now->gt($venc)) {

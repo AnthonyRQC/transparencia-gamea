@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Helpers\DiasHabiles;
 use App\Models\Ampliacion;
 use App\Models\Cierre;
 use App\Models\Clasificacion;
@@ -352,7 +353,7 @@ class DenunciaMasivaSeeder extends Seeder
             $depNombre = $deps[($num + $i) % count($deps)];
             $depId = $this->dependenciaId($depNombre);
             $envio = $this->fecha($invDias - 2 - $i, 9);
-            $venc = $envio->copy()->addDays(10);
+            $venc = DiasHabiles::agregar(10, $envio);
             $esRespondida = ($i === 0) || ($num % 3 !== 0);
 
             $s = $d->solicitudes()->create([
@@ -388,7 +389,7 @@ class DenunciaMasivaSeeder extends Seeder
     {
         $denunciadoId = $denunciadoIds[0];
         $notif = $this->fecha($invDias - 5, 10);
-        $venc = $notif->copy()->addDays(14);
+        $venc = DiasHabiles::agregar(14, $notif);
         $estadosDescargo = ['respondido', 'notificado', 'pendiente_notif'];
         $estado = $estadosDescargo[$num % 3];
 

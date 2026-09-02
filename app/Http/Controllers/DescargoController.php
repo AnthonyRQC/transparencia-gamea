@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\DiasHabiles;
 use App\Models\Bitacora;
 use App\Models\Denuncia;
 use App\Models\Descargo;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -68,10 +70,11 @@ class DescargoController extends Controller
             return redirect()->back()->with('error', 'Este descargo ya fue notificado.');
         }
 
+        $fechaNotificacion = Carbon::parse($validated['fecha_notificacion']);
         $descargo->update([
-            'fecha_notificacion' => $validated['fecha_notificacion'],
+            'fecha_notificacion' => $fechaNotificacion,
             'medio' => $validated['medio'],
-            'fecha_vencimiento' => now()->addDays((int) $validated['plazo_dias']),
+            'fecha_vencimiento' => DiasHabiles::agregar((int) $validated['plazo_dias'], $fechaNotificacion),
             'estado' => 'notificado',
         ]);
 
@@ -147,7 +150,7 @@ class DescargoController extends Controller
 
         $descargo->update([
             'estado' => 'ampliado',
-            'fecha_vencimiento' => $descargo->fecha_vencimiento->addDays((int) $validated['dias']),
+            'fecha_vencimiento' => DiasHabiles::agregar((int) $validated['dias'], $descargo->fecha_vencimiento),
         ]);
 
         Bitacora::create([

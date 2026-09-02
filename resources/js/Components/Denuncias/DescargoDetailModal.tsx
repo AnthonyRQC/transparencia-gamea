@@ -144,17 +144,8 @@ export default function DescargoDetailModal({
             )}
           </div>
 
-          {descargo.estado !== 'pendiente_notif' && descargo.fecha_vencimiento && (
-            descargo.plazo_info ? (
-              <PlazoProgress {...descargo.plazo_info} />
-            ) : (
-              <PlazoProgress
-                dias_restantes={Math.ceil((new Date(descargo.fecha_vencimiento).getTime() - Date.now()) / (1000 * 60 * 60 * 24))}
-                color={isVencido ? 'red' : 'green'}
-                texto={isVencido ? 'Vencido' : 'Pendiente'}
-                fecha_vencimiento={descargo.fecha_vencimiento}
-              />
-            )
+          {descargo.estado !== 'pendiente_notif' && descargo.fecha_vencimiento && descargo.plazo_info && (
+            <PlazoProgress {...descargo.plazo_info} />
           )}
 
           {descargo.estado === 'pendiente_notif' && (

@@ -94,20 +94,7 @@ export default function SolicitudCard({ solicitud, canAct, onClick, onResponder,
             fecha_vencimiento={solicitud.plazo_info.fecha_vencimiento}
           />
         ) : (
-          <PlazoProgress
-            dias_restantes={Math.ceil((new Date(solicitud.fecha_vencimiento).getTime() - Date.now()) / (1000 * 60 * 60 * 24))}
-            color={
-              new Date(solicitud.fecha_vencimiento) < new Date() ? 'red'
-              : Math.ceil((new Date(solicitud.fecha_vencimiento).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) > 5 ? 'green'
-              : 'yellow'
-            }
-            texto={
-              new Date(solicitud.fecha_vencimiento) < new Date()
-                ? `Vencida hace ${Math.abs(Math.ceil((new Date(solicitud.fecha_vencimiento).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))}d`
-                : `Vence en ${Math.ceil((new Date(solicitud.fecha_vencimiento).getTime() - Date.now()) / (1000 * 60 * 60 * 24))}d`
-            }
-            fecha_vencimiento={solicitud.fecha_vencimiento}
-          />
+          <p className="text-[11px] text-muted-foreground italic">Sin plazo</p>
         )}
 
       </div>

@@ -106,20 +106,7 @@ export default function DescargoCard({ descargo, canAct, onClick, onNotificar, o
               fecha_vencimiento={descargo.plazo_info.fecha_vencimiento}
             />
           ) : (
-            <PlazoProgress
-              dias_restantes={Math.ceil((new Date(descargo.fecha_vencimiento).getTime() - Date.now()) / (1000 * 60 * 60 * 24))}
-              color={
-                new Date(descargo.fecha_vencimiento) < new Date() ? 'red'
-                : Math.ceil((new Date(descargo.fecha_vencimiento).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) > 5 ? 'green'
-                : 'yellow'
-              }
-              texto={
-                new Date(descargo.fecha_vencimiento) < new Date()
-                  ? `Vencido hace ${Math.abs(Math.ceil((new Date(descargo.fecha_vencimiento).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))}d`
-                  : `Vence en ${Math.ceil((new Date(descargo.fecha_vencimiento).getTime() - Date.now()) / (1000 * 60 * 60 * 24))}d`
-              }
-              fecha_vencimiento={descargo.fecha_vencimiento}
-            />
+            <span className="text-[11px] text-muted-foreground italic">Sin plazo</span>
           )
         ) : (
           <span className="text-[11px] text-muted-foreground italic">Pendiente de notificación</span>
