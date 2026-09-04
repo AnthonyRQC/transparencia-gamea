@@ -11,7 +11,7 @@ export interface KPIs {
   pendientesAdmision: number;
   proximosAVencer: number;
   vencidos: number;
-  cumplimiento: number;
+  cumplimiento: number | null;
   rechazadas: number;
   sinAsignar: number;
   split: { corrupcion: number; negacion: number };

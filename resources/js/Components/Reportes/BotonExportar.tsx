@@ -1,58 +1,37 @@
-import { FileText, FileSpreadsheet, Download } from 'lucide-react';
+import { useState } from 'react';
+import { Download } from 'lucide-react';
 import { Button } from '@/Components/ui/button';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from '@/Components/ui/dropdown-menu';
+import ModalExportar from '@/Components/Dashboard/ModalExportar';
 import type { ReportesFiltros } from './FiltrosReporte';
+import type { FiltrosDashboard } from '@/types/dashboard';
 
 interface Props {
     filtros: ReportesFiltros;
 }
 
 export default function BotonExportar({ filtros }: Props) {
-    const queryParams = () => {
-        const p = new URLSearchParams();
-        if (filtros.desde) p.set('desde', filtros.desde);
-        if (filtros.hasta) p.set('hasta', filtros.hasta);
-        if (filtros.tipo) p.set('tipo', filtros.tipo);
-        if (filtros.estado) p.set('estado', filtros.estado);
-        if (filtros.tecnico_id) p.set('tecnico_id', String(filtros.tecnico_id));
-        if (filtros.categoria_id) p.set('categoria_id', String(filtros.categoria_id));
-        if (filtros.clasificacion_id) p.set('clasificacion_id', String(filtros.clasificacion_id));
-        if (filtros.busqueda) p.set('busqueda', filtros.busqueda);
+    const [open, setOpen] = useState(false);
 
-        return p.toString();
-    };
-
-    const descargar = (formato: 'pdf' | 'excel') => {
-        window.open(`/reportes/exportar?${queryParams()}&formato=${formato}`, '_blank');
+    // El modal trabaja con filtros de dashboard; se mapean los de reportes.
+    const filtrosDashboard: FiltrosDashboard = {
+        desde: filtros.desde,
+        hasta: filtros.hasta,
+        tecnico_id: filtros.tecnico_id,
+        tipo: filtros.tipo,
+        categoria_id: filtros.categoria_id,
+        clasificacion_id: filtros.clasificacion_id,
+        estado: filtros.estado,
+        incluir_inactivos: false,
+        tab: 'operativo',
     };
 
     return (
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button className="gap-1.5">
-                    <Download className="w-4 h-4" />
-                    Exportar
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>Formato de exportación</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => descargar('excel')} className="gap-2 cursor-pointer">
-                    <FileSpreadsheet className="w-4 h-4 text-green-600 dark:text-green-400" />
-                    Excel (.xlsx)
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => descargar('pdf')} className="gap-2 cursor-pointer">
-                    <FileText className="w-4 h-4 text-red-600 dark:text-red-400" />
-                    PDF (membretado)
-                </DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>
+        <>
+            <Button onClick={() => setOpen(true)} className="gap-1.5">
+                <Download className="w-4 h-4" />
+                Exportar
+            </Button>
+            <ModalExportar filtros={filtrosDashboard} open={open} onOpenChange={setOpen} />
+        </>
     );
 }

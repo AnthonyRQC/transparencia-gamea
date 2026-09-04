@@ -15,7 +15,10 @@ export default function TabResultados({ resultados, baseTemporal, onDrillClasifi
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div className="border rounded-2xl bg-card p-4 space-y-2">
                 <div className="flex items-center justify-between gap-2 flex-wrap">
-                    <h3 className="font-bold text-sm">Casos por Clasificación Final</h3>
+                    <div>
+                        <h3 className="font-bold text-sm">¿En qué termina cada caso?</h3>
+                        <p className="text-[11px] text-muted-foreground">Por fecha del informe final · clic para ver los casos.</p>
+                    </div>
                     <BaseTemporalBadge base={baseTemporal['resultados.clasificaciones']} />
                 </div>
                 <GraficoBarras
@@ -26,14 +29,20 @@ export default function TabResultados({ resultados, baseTemporal, onDrillClasifi
             </div>
             <div className="border rounded-2xl bg-card p-4 space-y-2">
                 <div className="flex items-center justify-between gap-2 flex-wrap">
-                    <h3 className="font-bold text-sm">Top Dependencias GAMEA</h3>
+                    <div>
+                        <h3 className="font-bold text-sm">¿Qué unidades reciben más solicitudes?</h3>
+                        <p className="text-[11px] text-muted-foreground">Por fecha de envío · suma cada unidad con sus subordinadas.</p>
+                    </div>
                     <BaseTemporalBadge base={baseTemporal['resultados.dependencias']} />
                 </div>
                 <GraficoBarras data={resultados.dependencias} height={220} unit="Solicitudes" />
             </div>
             <div className="border rounded-2xl bg-card p-4 space-y-2">
                 <div className="flex items-center justify-between gap-2 flex-wrap">
-                    <h3 className="font-bold text-sm">Cierres por Medio de Notificación</h3>
+                    <div>
+                        <h3 className="font-bold text-sm">¿Cómo se notificó cada cierre?</h3>
+                        <p className="text-[11px] text-muted-foreground">Por fecha de cierre · clic para ver los casos.</p>
+                    </div>
                     <BaseTemporalBadge base={baseTemporal['resultados.medios']} />
                 </div>
                 <GraficoBarras

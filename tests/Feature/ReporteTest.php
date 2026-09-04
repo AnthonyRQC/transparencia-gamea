@@ -196,4 +196,35 @@ class ReporteTest extends TestCase
             ->assertJsonPath('total', 1)
             ->assertJsonPath('rows.0.ticket', $conEmail->ticket);
     }
+
+    public function test_preview_paginado(): void
+    {
+        foreach (range(1, 15) as $i) {
+            $this->denuncia();
+        }
+
+        $this->actingAs($this->jefe);
+
+        $this->get('/reportes/preview?page=2')
+            ->assertOk()
+            ->assertJsonPath('total', 15)
+            ->assertJsonPath('current_page', 2)
+            ->assertJsonPath('last_page', 2)
+            ->assertJsonCount(5, 'rows');
+    }
+
+    public function test_exportar_excel_con_columnas_elegidas(): void
+    {
+        $this->denuncia();
+
+        $this->actingAs($this->jefe);
+
+        $response = $this->get('/reportes/exportar?formato=excel&columnas[]=ticket&columnas[]=estado&columnas[]=invalida');
+
+        $response->assertOk();
+        $this->assertStringContainsString(
+            'spreadsheetml',
+            $response->headers->get('content-type') ?? ''
+        );
+    }
 }

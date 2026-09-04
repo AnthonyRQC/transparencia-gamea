@@ -11,6 +11,8 @@ class KpiQuery
 
     public static function calcular(array $f): array
     {
+        // Los KPIs son la foto fija de hoy: el filtro Estado NO aplica aquí
+        // (solo mueve Embudo y Evolución). Decisión de usabilidad Sep 2026.
         $estadoQuery = DashboardQueryBase::denuncias($f, false);
 
         $activos = (clone $estadoQuery)->whereNotIn('estado', self::ESTADOS_TERMINALES)->count();
@@ -55,7 +57,9 @@ class KpiQuery
             return $cierre->cerrado_at->lte($d->calcularVencimiento());
         })->count();
 
-        $cumplimiento = $cerradas->count() > 0 ? round($cumplidas / $cerradas->count() * 100, 1) : 0;
+        // Sin cierres en el período no hay tasa que mostrar: null (el frontend
+        // muestra "—"), no 0% (compute-or-defer: un 0% falso parece mala gestión).
+        $cumplimiento = $cerradas->count() > 0 ? round($cumplidas / $cerradas->count() * 100, 1) : null;
 
         $rechazadas = Denuncia::whereNull('deleted_at')
             ->where('estado', 'rechazada')

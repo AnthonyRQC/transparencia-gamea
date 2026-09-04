@@ -29,6 +29,11 @@ interface Props {
 export default function TablaCasosUrgentes({ urgentes, esTecnico }: Props) {
     return (
         <div className="overflow-x-auto">
+            {urgentes.length > 0 && (
+                <p className="text-[11px] text-muted-foreground px-1 pb-1">
+                    {urgentes.length} caso(s) que vencen pronto o ya vencieron.
+                </p>
+            )}
             <Table>
                 <TableHeader>
                     <TableRow>

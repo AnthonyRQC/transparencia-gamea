@@ -274,6 +274,9 @@ export default function FiltrosDashboard({ filtros, opciones, esJefe, onChange }
                                     ))}
                                 </SelectContent>
                             </Select>
+                            <p className="text-[11px] text-muted-foreground">
+                                El estado solo cambia los dos gráficos de arriba (fase y evolución); los números de arriba siempre muestran hoy.
+                            </p>
                         </div>
                     </div>
 

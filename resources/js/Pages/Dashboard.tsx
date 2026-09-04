@@ -24,6 +24,7 @@ export default function Dashboard(props: DashboardProps) {
     const [exportOpen, setExportOpen] = useState(false);
     const [drillOpen, setDrillOpen] = useState(false);
     const [drillTitulo, setDrillTitulo] = useState('');
+    const [drillDescripcion, setDrillDescripcion] = useState<string | undefined>(undefined);
     const [drill, setDrill] = useState<DrillFiltros | null>(null);
     const aplicoDefaultRef = useRef(false);
 
@@ -61,8 +62,9 @@ export default function Dashboard(props: DashboardProps) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    const abrirDrill = (titulo: string, d: DrillFiltros) => {
+    const abrirDrill = (titulo: string, d: DrillFiltros, descripcion?: string) => {
         setDrillTitulo(titulo);
+        setDrillDescripcion(descripcion);
         setDrill(d);
         setDrillOpen(true);
     };
@@ -123,7 +125,7 @@ export default function Dashboard(props: DashboardProps) {
                             onDrillEstado={
                                 esJefe
                                     ? (estado, label) =>
-                                          abrirDrill(`Casos en estado: ${label}`, { estado, sinRango: true })
+                                          abrirDrill(`Casos en: ${label}`, { estado, sinRango: true }, 'Estado actual de cada caso (foto de hoy).')
                                     : undefined
                             }
                         />
@@ -135,19 +137,45 @@ export default function Dashboard(props: DashboardProps) {
                             onDrillClasificacion={
                                 esJefe
                                     ? (id, label) =>
-                                          abrirDrill(`Casos con clasificación: ${label}`, { clasificacion_id: id })
+                                          abrirDrill(
+                                              `Casos terminados en: ${label}`,
+                                              { clasificacion_id: id },
+                                              'El gráfico cuenta por fecha del informe; aquí se listan por fecha de ingreso en el rango.'
+                                          )
                                     : undefined
                             }
                             onDrillMedio={
                                 esJefe
-                                    ? (id, label) => abrirDrill(`Cierres por medio: ${label}`, { medio_id: id })
+                                    ? (id, label) =>
+                                          abrirDrill(
+                                              `Cierres notificados por: ${label}`,
+                                              { medio_id: id },
+                                              'El gráfico cuenta por fecha de cierre; aquí se listan por fecha de ingreso en el rango.'
+                                          )
                                     : undefined
                             }
                         />
                     </TabsContent>
                     {!esRegistrador && (
                         <TabsContent value="rendimiento" className="mt-3">
-                            <TabRendimiento rendimiento={rendimiento} baseTemporal={base_temporal} esTecnico={esTecnico} />
+                            <TabRendimiento
+                                rendimiento={rendimiento}
+                                baseTemporal={base_temporal}
+                                esTecnico={esTecnico}
+                                onDrillTecnico={
+                                    esJefe
+                                        ? (nombre) => {
+                                              const t = opciones.tecnicos.find((x) => x.name === nombre);
+                                              if (!t) return;
+                                              abrirDrill(
+                                                  `Casos de: ${nombre}`,
+                                                  { tecnico_id: t.id, sinRango: true },
+                                                  'Casos asignados hoy a este técnico.'
+                                              );
+                                          }
+                                        : undefined
+                                }
+                            />
                         </TabsContent>
                     )}
                 </Tabs>
@@ -157,6 +185,7 @@ export default function Dashboard(props: DashboardProps) {
             {esJefe && (
                 <ModalDrillDown
                     titulo={drillTitulo}
+                    descripcion={drillDescripcion}
                     filtros={filtros}
                     drill={drill}
                     open={drillOpen}

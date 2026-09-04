@@ -15,8 +15,7 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class ReporteController extends Controller
 {
-    private const ESTADOS = [
-        'ingresada' => 'INGRESADA',
+    private const ESTADOS = [        'ingresada' => 'INGRESADA',
         'evaluacion_tecnica' => 'EVALUACIÓN TÉCNICA',
         'admitida' => 'ADMITIDA',
         'rechazada' => 'RECHAZADA',
@@ -25,6 +24,31 @@ class ReporteController extends Controller
         'informe' => 'INFORME',
         'cerrada' => 'CERRADA',
         'archivada' => 'CERRADA · ARCHIVADA',
+    ];
+
+    /**
+     * Columnas disponibles para exportación Excel (clave => encabezado).
+     * El orden del array es el orden de las columnas cuando se piden todas.
+     */
+    public const COLUMNAS_EXCEL = [
+        'ticket' => 'TICKET',
+        'tipo' => 'TIPO',
+        'categoria' => 'CATEGORÍA',
+        'tecnico' => 'TÉCNICO',
+        'estado' => 'ESTADO',
+        'fecha_ingreso' => 'FECHA INGRESO',
+        'fecha_admision' => 'FECHA ADMISIÓN',
+        'fecha_rechazo' => 'FECHA RECHAZO',
+        'escenario' => 'ESCENARIO',
+        'clasificacion' => 'CLASIFICACIÓN FINAL',
+        'medio_cierre' => 'MEDIO NOTIFICACIÓN CIERRE',
+        'fecha_cierre' => 'FECHA CIERRE',
+        'dias_restantes' => 'DÍAS RESTANTES',
+    ];
+
+    public const COLUMNAS_DEFAULT = [
+        'ticket', 'tipo', 'categoria', 'tecnico',
+        'estado', 'fecha_ingreso', 'fecha_admision', 'fecha_rechazo',
     ];
 
     private function autorizarJefe(): void
@@ -49,12 +73,14 @@ class ReporteController extends Controller
     {
         $this->autorizarJefe();
 
-        $total = $this->queryBase($request)->count();
-        $rows = $this->queryBase($request)->take(10)->get();
+        $paginado = $this->queryBase($request)->paginate(10)->withQueryString();
 
         return response()->json([
-            'total' => $total,
-            'rows' => $rows->map(fn ($d) => [
+            'total' => $paginado->total(),
+            'current_page' => $paginado->currentPage(),
+            'last_page' => $paginado->lastPage(),
+            'per_page' => $paginado->perPage(),
+            'rows' => $paginado->getCollection()->map(fn ($d) => [
                 'ticket' => $d->ticket,
                 'tipo' => $d->tipo,
                 'categoria' => $d->categoria?->nombre ?? '',
@@ -63,6 +89,22 @@ class ReporteController extends Controller
                 'created_at' => $d->created_at?->format('d/m/Y'),
             ]),
         ]);
+    }
+
+    /**
+     * Columnas pedidas y válidas para el Excel (o el default si no se piden).
+     * @return array<int,string>
+     */
+    public static function columnasPedidas(Request $request): array
+    {
+        $pedidas = $request->input('columnas');
+        if (! is_array($pedidas) || $pedidas === []) {
+            return self::COLUMNAS_DEFAULT;
+        }
+
+        $validas = array_values(array_intersect($pedidas, array_keys(self::COLUMNAS_EXCEL)));
+
+        return $validas === [] ? self::COLUMNAS_DEFAULT : $validas;
     }
 
     public function exportar(Request $request)
@@ -84,7 +126,7 @@ class ReporteController extends Controller
             return $pdf->download("reporte-denuncias-{$fecha}.pdf");
         }
 
-        return Excel::download(new ReporteExcel($rows), "reporte-denuncias-{$fecha}.xlsx");
+        return Excel::download(new ReporteExcel($rows, self::columnasPedidas($request)), "reporte-denuncias-{$fecha}.xlsx");
     }
 
     /**
@@ -93,7 +135,7 @@ class ReporteController extends Controller
      */
     private function queryBase(Request $request)
     {
-        return Denuncia::with(['tecnico', 'categoria', 'ampliaciones'])
+        return Denuncia::with(['tecnico', 'categoria', 'ampliaciones', 'informe.clasificacionRel', 'cierre.medioNotificacion'])
             ->whereNull('deleted_at')
             ->when($request->input('desde'), fn ($q, $v) => $q->whereDate('created_at', '>=', $v))
             ->when($request->input('hasta'), fn ($q, $v) => $q->whereDate('created_at', '<=', $v))

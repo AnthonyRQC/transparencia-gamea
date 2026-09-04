@@ -9,9 +9,10 @@ import { ETIQUETAS_TIPO, type FiltrosDashboard } from '@/types/dashboard';
 
 export interface DrillFiltros {
     estado?: string;
+    tecnico_id?: number;
     clasificacion_id?: number;
     medio_id?: number;
-    /** El embudo es snapshot HOY: no hereda rango de fechas. */
+    /** El embudo y la carga son snapshot HOY: no heredan rango de fechas. */
     sinRango?: boolean;
 }
 
@@ -45,6 +46,7 @@ export default function ModalDrillDown({ titulo, descripcion, filtros, drill, op
             if (filtros.hasta) p.set('hasta', filtros.hasta);
         }
         if (filtros.tecnico_id) p.set('tecnico_id', String(filtros.tecnico_id));
+        if (drill?.tecnico_id) p.set('tecnico_id', String(drill.tecnico_id));
         if (filtros.tipo) p.set('tipo', filtros.tipo);
         if (filtros.categoria_id) p.set('categoria_id', String(filtros.categoria_id));
         if (drill?.estado) p.set('estado', drill.estado);
