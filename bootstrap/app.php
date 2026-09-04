@@ -18,6 +18,12 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
         ]);
 
+        // Time Machine: debe correr antes que el resto del grupo web
+        // para que Carbon::setTestNow() aplique a controllers y shares.
+        $middleware->web(prepend: [
+            \App\Http\Middleware\SimularFecha::class,
+        ]);
+
         //
     })
     ->withExceptions(function (Exceptions $exceptions) {

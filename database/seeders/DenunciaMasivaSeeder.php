@@ -129,6 +129,7 @@ class DenunciaMasivaSeeder extends Seeder
 
     public function run(): void
     {
+        mt_srand(2026);
         $this->crearCasosPipeline();
         $this->crearCasosAsignados();
         $this->actualizarSiguienteTicket();
@@ -162,7 +163,7 @@ class DenunciaMasivaSeeder extends Seeder
 
     private function escenarioFor(int $num): string
     {
-        $pool = ['revelada', 'revelada', 'revelada', 'anonima', 'reservada'];
+        $pool = ['revelada', 'revelada', 'revelada', 'anonimo', 'reservada'];
         return $pool[$num % 5];
     }
 
@@ -217,7 +218,7 @@ class DenunciaMasivaSeeder extends Seeder
         $d = Denuncia::create($data);
 
         // Denunciante
-        if ($escenario !== 'anonima') {
+        if ($escenario !== 'anonimo') {
             $d->denunciante()->create([
                 'nombres' => $this->nombresComunes[$num % count($this->nombresComunes)],
                 'ci' => (string) random_int(1000000, 9999999),
@@ -237,21 +238,20 @@ class DenunciaMasivaSeeder extends Seeder
             $ndx = ($num + $i) % count($this->nombresDenunciados);
             $dd = $d->denunciados()->create([
                 'orden' => $i,
-                'conoce_identidad' => $escenario !== 'anonima',
-                'nombres' => $escenario !== 'anonima' ? $this->nombresDenunciados[$ndx] : null,
-                'dependencia' => $escenario !== 'anonima' ? $lugar : null,
-                'descripcion' => $escenario === 'anonima' ? 'FUNCIONARIO DE ' . $lugar . ', DESCRIPCION FISICA NO ESPECIFICADA' : null,
+                'conoce_identidad' => $escenario !== 'anonimo',
+                'nombres' => $escenario !== 'anonimo' ? $this->nombresDenunciados[$ndx] : null,
+                'dependencia' => $escenario !== 'anonimo' ? $lugar : null,
+                'descripcion' => $escenario === 'anonimo' ? 'FUNCIONARIO DE ' . $lugar . ', DESCRIPCION FISICA NO ESPECIFICADA' : null,
             ]);
             $denunciadoIds[] = $dd->id;
         }
 
         // Pruebas
         $cantPruebas = ($num % 5 === 0) ? 1 : 2;
-        $pruebasTipos = ['fisica', 'fisica', 'testigo', 'archivo'];
+        $pruebasTipos = ['fisica', 'fisica', 'testigo'];
         $pruebasDescs = [
             'fisica' => ['COPIA DE DOCUMENTO OFICIAL RELACIONADO', 'FOTO DEL LUGAR DE LOS HECHOS', 'RECIBOS Y COMPROBANTES DE PAGO', 'DOCUMENTACION CONTABLE SOLICITADA', 'CARTA DE SOLICITUD CON SELLO DE RECEPCION'],
             'testigo' => ['TESTIGO PRESENCIAL DEL HECHO', 'FUNCIONARIO QUE CONOCE LOS HECHOS', 'OTRO AFECTADO POR LA SITUACION'],
-            'archivo' => ['GRABACION DE AUDIO DEL HECHO', 'REGISTRO DIGITAL DE COMUNICACIONES', 'CAPTURA DE PANTALLA DE SOLICITUD'],
         ];
         for ($i = 0; $i < $cantPruebas; $i++) {
             $tipoP = $pruebasTipos[($num + $i) % count($pruebasTipos)];
@@ -479,28 +479,28 @@ class DenunciaMasivaSeeder extends Seeder
             ['ticket' => $this->ticket(13), 'estado' => 'ingresada', 'cr' => 1],
             ['ticket' => $this->ticket(14), 'estado' => 'ingresada', 'cr' => 2],
             ['ticket' => $this->ticket(15), 'estado' => 'ingresada', 'cr' => 4],
-            ['ticket' => $this->ticket(16), 'estado' => 'ingresada', 'cr' => 6, 'escenario' => 'anonima'],
-            ['ticket' => $this->ticket(17), 'estado' => 'ingresada', 'cr' => 9, 'tipo' => 'negacion'],
+            ['ticket' => $this->ticket(16), 'estado' => 'ingresada', 'cr' => 6, 'escenario' => 'anonimo'],
+            ['ticket' => $this->ticket(17), 'estado' => 'ingresada', 'cr' => 2, 'tipo' => 'negacion'],
             ['ticket' => $this->ticket(18), 'estado' => 'ingresada', 'cr' => 3],
-            ['ticket' => $this->ticket(19), 'estado' => 'ingresada', 'cr' => 12, 'escenario' => 'reservada'],
+            ['ticket' => $this->ticket(19), 'estado' => 'ingresada', 'cr' => 3, 'escenario' => 'reservada'],
 
             // evaluacion_tecnica x4
             ['ticket' => $this->ticket(20), 'estado' => 'evaluacion_tecnica', 'cr' => 2, 'adm' => null],
-            ['ticket' => $this->ticket(21), 'estado' => 'evaluacion_tecnica', 'cr' => 5, 'adm' => null, 'escenario' => 'anonima'],
-            ['ticket' => $this->ticket(22), 'estado' => 'evaluacion_tecnica', 'cr' => 8, 'adm' => null, 'tipo' => 'negacion'],
+            ['ticket' => $this->ticket(21), 'estado' => 'evaluacion_tecnica', 'cr' => 5, 'adm' => null, 'escenario' => 'anonimo'],
+            ['ticket' => $this->ticket(22), 'estado' => 'evaluacion_tecnica', 'cr' => 2, 'adm' => null, 'tipo' => 'negacion'],
             ['ticket' => $this->ticket(23), 'estado' => 'evaluacion_tecnica', 'cr' => 3, 'adm' => null],
 
             // admitida sin asignar x4
             ['ticket' => $this->ticket(24), 'estado' => 'admitida', 'cr' => 4, 'adm' => 3],
             ['ticket' => $this->ticket(25), 'estado' => 'admitida', 'cr' => 6, 'adm' => 5, 'escenario' => 'reservada'],
-            ['ticket' => $this->ticket(26), 'estado' => 'admitida', 'cr' => 9, 'adm' => 8, 'tipo' => 'negacion'],
+            ['ticket' => $this->ticket(26), 'estado' => 'admitida', 'cr' => 3, 'adm' => 2, 'tipo' => 'negacion'],
             ['ticket' => $this->ticket(27), 'estado' => 'admitida', 'cr' => 12, 'adm' => 10],
 
             // rechazada x5
             ['ticket' => $this->ticket(28), 'estado' => 'rechazada', 'cr' => 8, 'adm' => 6, 'rc' => 3],
             ['ticket' => $this->ticket(29), 'estado' => 'rechazada', 'cr' => 15, 'adm' => 12, 'rc' => 8],
             ['ticket' => $this->ticket(30), 'estado' => 'rechazada', 'cr' => 25, 'adm' => 20, 'rc' => 15, 'tipo' => 'negacion'],
-            ['ticket' => $this->ticket(31), 'estado' => 'rechazada', 'cr' => 40, 'adm' => 35, 'rc' => 30, 'escenario' => 'anonima'],
+            ['ticket' => $this->ticket(31), 'estado' => 'rechazada', 'cr' => 40, 'adm' => 35, 'rc' => 30, 'escenario' => 'anonimo'],
             ['ticket' => $this->ticket(32), 'estado' => 'rechazada', 'cr' => 65, 'adm' => 60, 'rc' => 55],
         ];
 
@@ -529,71 +529,71 @@ class DenunciaMasivaSeeder extends Seeder
             ['ticket' => $this->ticket(35), 'estado' => 'informe', 'tecnico_id' => $t3, 'cr' => 35, 'adm' => 30, 'asg' => 28, 'inv' => 25, 'inf' => 3, 'sol' => true],
 
             // tecnico2 (Ana Torres) +4: asignada, investigacion x2, cerrada
-            ['ticket' => $this->ticket(36), 'estado' => 'asignada', 'tecnico_id' => $t4, 'cr' => 35, 'adm' => 28, 'asg' => 25],
-            ['ticket' => $this->ticket(37), 'estado' => 'investigacion', 'tecnico_id' => $t4, 'cr' => 15, 'adm' => 10, 'asg' => 8, 'inv' => 6, 'sol' => true, 'tipo' => 'negacion'],
+            ['ticket' => $this->ticket(36), 'estado' => 'asignada', 'tecnico_id' => $t4, 'cr' => 70, 'adm' => 62, 'asg' => 60],
+            ['ticket' => $this->ticket(37), 'estado' => 'investigacion', 'tecnico_id' => $t4, 'cr' => 14, 'adm' => 12, 'asg' => 10, 'inv' => 8, 'sol' => true, 'tipo' => 'negacion'],
             ['ticket' => $this->ticket(38), 'estado' => 'investigacion', 'tecnico_id' => $t4, 'cr' => 80, 'adm' => 70, 'asg' => 65, 'inv' => 60, 'amp' => 90, 'des' => true],
             ['ticket' => $this->ticket(39), 'estado' => 'cerrada', 'tecnico_id' => $t4, 'cr' => 50, 'adm' => 45, 'asg' => 42, 'inv' => 38, 'inf' => 12, 'crt' => 8, 'sol' => true],
 
             // tecnico3 (Luis Mamani) +4: asignada, investigacion, cerrada, archivada
-            ['ticket' => $this->ticket(40), 'estado' => 'asignada', 'tecnico_id' => $t5, 'cr' => 55, 'adm' => 48, 'asg' => 45],
-            ['ticket' => $this->ticket(41), 'estado' => 'investigacion', 'tecnico_id' => $t5, 'cr' => 48, 'adm' => 42, 'asg' => 38, 'inv' => 35, 'sol' => true, 'des' => true, 'tipo' => 'negacion'],
-            ['ticket' => $this->ticket(42), 'estado' => 'cerrada', 'tecnico_id' => $t5, 'cr' => 65, 'adm' => 55, 'asg' => 50, 'inv' => 45, 'inf' => 22, 'crt' => 20],
+            ['ticket' => $this->ticket(40), 'estado' => 'asignada', 'tecnico_id' => $t5, 'cr' => 12, 'adm' => 10, 'asg' => 9],
+            ['ticket' => $this->ticket(41), 'estado' => 'investigacion', 'tecnico_id' => $t5, 'cr' => 14, 'adm' => 12, 'asg' => 10, 'inv' => 8, 'sol' => true, 'des' => true, 'tipo' => 'negacion'],
+            ['ticket' => $this->ticket(42), 'estado' => 'cerrada', 'tecnico_id' => $t5, 'cr' => 30, 'adm' => 27, 'asg' => 25, 'inv' => 22, 'inf' => 10, 'crt' => 4],
             ['ticket' => $this->ticket(43), 'estado' => 'cerrada_archivada', 'tecnico_id' => $t5, 'cr' => 50, 'adm' => 42, 'asg' => 38, 'inv' => 32, 'inf' => 18, 'crt' => 12, 'sub' => 'archivada', 'clas' => 'sin_indicios'],
 
             // tecnico4 (Jorge Apaza) +6
             ['ticket' => $this->ticket(44), 'estado' => 'asignada', 'tecnico_id' => $t6, 'cr' => 14, 'adm' => 10, 'asg' => 8],
-            ['ticket' => $this->ticket(45), 'estado' => 'investigacion', 'tecnico_id' => $t6, 'cr' => 20, 'adm' => 15, 'asg' => 12, 'inv' => 9, 'sol' => true, 'tipo' => 'negacion'],
+            ['ticket' => $this->ticket(45), 'estado' => 'investigacion', 'tecnico_id' => $t6, 'cr' => 15, 'adm' => 13, 'asg' => 11, 'inv' => 9, 'sol' => true, 'tipo' => 'negacion'],
             ['ticket' => $this->ticket(46), 'estado' => 'investigacion', 'tecnico_id' => $t6, 'cr' => 100, 'adm' => 95, 'asg' => 90, 'inv' => 85, 'amp' => 30, 'des' => true],
             ['ticket' => $this->ticket(47), 'estado' => 'informe', 'tecnico_id' => $t6, 'cr' => 38, 'adm' => 28, 'asg' => 25, 'inv' => 22, 'inf' => 5],
             ['ticket' => $this->ticket(48), 'estado' => 'cerrada', 'tecnico_id' => $t6, 'cr' => 55, 'adm' => 40, 'asg' => 37, 'inv' => 32, 'inf' => 12, 'crt' => 5],
             ['ticket' => $this->ticket(49), 'estado' => 'cerrada_archivada', 'tecnico_id' => $t6, 'cr' => 70, 'adm' => 60, 'asg' => 55, 'inv' => 50, 'inf' => 20, 'crt' => 15, 'sub' => 'archivada', 'clas' => 'archivado'],
 
             // tecnico5 (Karina Villca) +6
-            ['ticket' => $this->ticket(50), 'estado' => 'asignada', 'tecnico_id' => $t7, 'cr' => 22, 'adm' => 16, 'asg' => 14, 'tipo' => 'negacion'],
+            ['ticket' => $this->ticket(50), 'estado' => 'asignada', 'tecnico_id' => $t7, 'cr' => 10, 'adm' => 8, 'asg' => 7, 'tipo' => 'negacion'],
             ['ticket' => $this->ticket(51), 'estado' => 'investigacion', 'tecnico_id' => $t7, 'cr' => 30, 'adm' => 25, 'asg' => 22, 'inv' => 18, 'sol' => true, 'des' => true],
-            ['ticket' => $this->ticket(52), 'estado' => 'informe', 'tecnico_id' => $t7, 'cr' => 95, 'adm' => 90, 'asg' => 85, 'inv' => 80, 'inf' => 10],
-            ['ticket' => $this->ticket(53), 'estado' => 'informe', 'tecnico_id' => $t7, 'cr' => 42, 'adm' => 35, 'asg' => 32, 'inv' => 28, 'inf' => 4, 'tipo' => 'negacion'],
-            ['ticket' => $this->ticket(54), 'estado' => 'cerrada', 'tecnico_id' => $t7, 'cr' => 80, 'adm' => 70, 'asg' => 65, 'inv' => 60, 'inf' => 18, 'crt' => 8],
+            ['ticket' => $this->ticket(52), 'estado' => 'informe', 'tecnico_id' => $t7, 'cr' => 25, 'adm' => 22, 'asg' => 20, 'inv' => 18, 'inf' => 4],
+            ['ticket' => $this->ticket(53), 'estado' => 'informe', 'tecnico_id' => $t7, 'cr' => 16, 'adm' => 14, 'asg' => 12, 'inv' => 10, 'inf' => 3, 'tipo' => 'negacion'],
+            ['ticket' => $this->ticket(54), 'estado' => 'cerrada', 'tecnico_id' => $t7, 'cr' => 28, 'adm' => 25, 'asg' => 23, 'inv' => 20, 'inf' => 8, 'crt' => 3],
             ['ticket' => $this->ticket(55), 'estado' => 'cerrada_archivada', 'tecnico_id' => $t7, 'cr' => 55, 'adm' => 48, 'asg' => 44, 'inv' => 40, 'inf' => 15, 'crt' => 6, 'sub' => 'archivada', 'clas' => 'sin_indicios'],
 
             // tecnico6 (Miguel Condori) +5
             ['ticket' => $this->ticket(56), 'estado' => 'asignada', 'tecnico_id' => $t8, 'cr' => 16, 'adm' => 12, 'asg' => 9],
-            ['ticket' => $this->ticket(57), 'estado' => 'asignada', 'tecnico_id' => $t8, 'cr' => 40, 'adm' => 35, 'asg' => 33, 'tipo' => 'negacion'],
+            ['ticket' => $this->ticket(57), 'estado' => 'asignada', 'tecnico_id' => $t8, 'cr' => 12, 'adm' => 10, 'asg' => 9, 'tipo' => 'negacion'],
             ['ticket' => $this->ticket(58), 'estado' => 'investigacion', 'tecnico_id' => $t8, 'cr' => 65, 'adm' => 60, 'asg' => 56, 'inv' => 52, 'amp' => 30, 'sol' => true],
             ['ticket' => $this->ticket(59), 'estado' => 'informe', 'tecnico_id' => $t8, 'cr' => 52, 'adm' => 48, 'asg' => 44, 'inv' => 40, 'inf' => 12],
             ['ticket' => $this->ticket(60), 'estado' => 'cerrada', 'tecnico_id' => $t8, 'cr' => 60, 'adm' => 50, 'asg' => 46, 'inv' => 42, 'inf' => 20, 'crt' => 15, 'sol' => true],
 
             // tecnico7 (Veronica Mamani) +6
-            ['ticket' => $this->ticket(61), 'estado' => 'asignada', 'tecnico_id' => $t9, 'cr' => 11, 'adm' => 7, 'asg' => 5, 'tipo' => 'negacion'],
+            ['ticket' => $this->ticket(61), 'estado' => 'asignada', 'tecnico_id' => $t9, 'cr' => 8, 'adm' => 6, 'asg' => 5, 'tipo' => 'negacion'],
             ['ticket' => $this->ticket(62), 'estado' => 'investigacion', 'tecnico_id' => $t9, 'cr' => 18, 'adm' => 12, 'asg' => 9, 'inv' => 7, 'sol' => true, 'des' => true],
-            ['ticket' => $this->ticket(63), 'estado' => 'investigacion', 'tecnico_id' => $t9, 'cr' => 55, 'adm' => 50, 'asg' => 47, 'inv' => 44, 'des' => true],
-            ['ticket' => $this->ticket(64), 'estado' => 'informe', 'tecnico_id' => $t9, 'cr' => 65, 'adm' => 60, 'asg' => 56, 'inv' => 52, 'inf' => 8],
-            ['ticket' => $this->ticket(65), 'estado' => 'cerrada', 'tecnico_id' => $t9, 'cr' => 90, 'adm' => 85, 'asg' => 80, 'inv' => 76, 'inf' => 20, 'crt' => 10, 'sol' => true],
+            ['ticket' => $this->ticket(63), 'estado' => 'investigacion', 'tecnico_id' => $t9, 'cr' => 30, 'adm' => 27, 'asg' => 24, 'inv' => 21, 'des' => true],
+            ['ticket' => $this->ticket(64), 'estado' => 'informe', 'tecnico_id' => $t9, 'cr' => 16, 'adm' => 14, 'asg' => 12, 'inv' => 10, 'inf' => 3],
+            ['ticket' => $this->ticket(65), 'estado' => 'cerrada', 'tecnico_id' => $t9, 'cr' => 32, 'adm' => 29, 'asg' => 27, 'inv' => 24, 'inf' => 10, 'crt' => 4, 'sol' => true],
             ['ticket' => $this->ticket(66), 'estado' => 'cerrada_archivada', 'tecnico_id' => $t9, 'cr' => 45, 'adm' => 38, 'asg' => 34, 'inv' => 30, 'inf' => 15, 'crt' => 8, 'sub' => 'archivada'],
 
             // tecnico8 (Rodrigo Huanca) +6
             ['ticket' => $this->ticket(67), 'estado' => 'asignada', 'tecnico_id' => $t10, 'cr' => 28, 'adm' => 22, 'asg' => 20],
-            ['ticket' => $this->ticket(68), 'estado' => 'investigacion', 'tecnico_id' => $t10, 'cr' => 38, 'adm' => 33, 'asg' => 30, 'inv' => 26, 'sol' => true],
-            ['ticket' => $this->ticket(69), 'estado' => 'informe', 'tecnico_id' => $t10, 'cr' => 80, 'adm' => 75, 'asg' => 70, 'inv' => 65, 'inf' => 15, 'des' => true],
-            ['ticket' => $this->ticket(70), 'estado' => 'informe', 'tecnico_id' => $t10, 'cr' => 35, 'adm' => 30, 'asg' => 27, 'inv' => 24, 'inf' => 6, 'tipo' => 'negacion'],
-            ['ticket' => $this->ticket(71), 'estado' => 'cerrada', 'tecnico_id' => $t10, 'cr' => 70, 'adm' => 60, 'asg' => 55, 'inv' => 50, 'inf' => 25, 'crt' => 18],
-            ['ticket' => $this->ticket(72), 'estado' => 'cerrada_archivada', 'tecnico_id' => $t10, 'cr' => 85, 'adm' => 78, 'asg' => 73, 'inv' => 68, 'inf' => 22, 'crt' => 12, 'sub' => 'archivada', 'clas' => 'sin_indicios'],
+            ['ticket' => $this->ticket(68), 'estado' => 'investigacion', 'tecnico_id' => $t10, 'cr' => 14, 'adm' => 12, 'asg' => 10, 'inv' => 8, 'sol' => true],
+            ['ticket' => $this->ticket(69), 'estado' => 'informe', 'tecnico_id' => $t10, 'cr' => 25, 'adm' => 22, 'asg' => 20, 'inv' => 18, 'inf' => 5, 'des' => true],
+            ['ticket' => $this->ticket(70), 'estado' => 'informe', 'tecnico_id' => $t10, 'cr' => 14, 'adm' => 12, 'asg' => 10, 'inv' => 8, 'inf' => 3, 'tipo' => 'negacion'],
+            ['ticket' => $this->ticket(71), 'estado' => 'cerrada', 'tecnico_id' => $t10, 'cr' => 30, 'adm' => 27, 'asg' => 25, 'inv' => 22, 'inf' => 9, 'crt' => 3],
+            ['ticket' => $this->ticket(72), 'estado' => 'cerrada_archivada', 'tecnico_id' => $t10, 'cr' => 28, 'adm' => 25, 'asg' => 23, 'inv' => 20, 'inf' => 9, 'crt' => 4, 'sub' => 'archivada', 'clas' => 'sin_indicios'],
 
             // tecnico9 (Cindy Limachi) +6
-            ['ticket' => $this->ticket(73), 'estado' => 'asignada', 'tecnico_id' => $t11, 'cr' => 35, 'adm' => 30, 'asg' => 27, 'tipo' => 'negacion'],
+            ['ticket' => $this->ticket(73), 'estado' => 'asignada', 'tecnico_id' => $t11, 'cr' => 12, 'adm' => 10, 'asg' => 9, 'tipo' => 'negacion'],
             ['ticket' => $this->ticket(74), 'estado' => 'investigacion', 'tecnico_id' => $t11, 'cr' => 22, 'adm' => 18, 'asg' => 15, 'inv' => 12, 'des' => true],
-            ['ticket' => $this->ticket(75), 'estado' => 'investigacion', 'tecnico_id' => $t11, 'cr' => 85, 'adm' => 80, 'asg' => 76, 'inv' => 72, 'amp' => 90, 'sol' => true],
-            ['ticket' => $this->ticket(76), 'estado' => 'informe', 'tecnico_id' => $t11, 'cr' => 45, 'adm' => 40, 'asg' => 37, 'inv' => 33, 'inf' => 9],
+            ['ticket' => $this->ticket(75), 'estado' => 'investigacion', 'tecnico_id' => $t11, 'cr' => 60, 'adm' => 55, 'asg' => 52, 'inv' => 48, 'amp' => 90, 'sol' => true],
+            ['ticket' => $this->ticket(76), 'estado' => 'informe', 'tecnico_id' => $t11, 'cr' => 16, 'adm' => 14, 'asg' => 12, 'inv' => 10, 'inf' => 4],
             ['ticket' => $this->ticket(77), 'estado' => 'cerrada', 'tecnico_id' => $t11, 'cr' => 50, 'adm' => 44, 'asg' => 40, 'inv' => 36, 'inf' => 15, 'crt' => 10, 'sol' => true],
             ['ticket' => $this->ticket(78), 'estado' => 'cerrada_archivada', 'tecnico_id' => $t11, 'cr' => 58, 'adm' => 50, 'asg' => 46, 'inv' => 42, 'inf' => 22, 'crt' => 18, 'sub' => 'archivada'],
 
             // tecnico10 (Pablo Siles) +6
             ['ticket' => $this->ticket(79), 'estado' => 'asignada', 'tecnico_id' => $t12, 'cr' => 45, 'adm' => 40, 'asg' => 37],
-            ['ticket' => $this->ticket(80), 'estado' => 'investigacion', 'tecnico_id' => $t12, 'cr' => 50, 'adm' => 45, 'asg' => 41, 'inv' => 38, 'sol' => true, 'des' => true, 'tipo' => 'negacion'],
+            ['ticket' => $this->ticket(80), 'estado' => 'investigacion', 'tecnico_id' => $t12, 'cr' => 15, 'adm' => 13, 'asg' => 11, 'inv' => 9, 'sol' => true, 'des' => true, 'tipo' => 'negacion'],
             ['ticket' => $this->ticket(81), 'estado' => 'informe', 'tecnico_id' => $t12, 'cr' => 60, 'adm' => 55, 'asg' => 50, 'inv' => 46, 'inf' => 11],
-            ['ticket' => $this->ticket(82), 'estado' => 'informe', 'tecnico_id' => $t12, 'cr' => 32, 'adm' => 26, 'asg' => 23, 'inv' => 20, 'inf' => 2, 'escenario' => 'anonima'],
-            ['ticket' => $this->ticket(83), 'estado' => 'cerrada', 'tecnico_id' => $t12, 'cr' => 100, 'adm' => 95, 'asg' => 90, 'inv' => 86, 'inf' => 30, 'crt' => 22],
-            ['ticket' => $this->ticket(84), 'estado' => 'cerrada_archivada', 'tecnico_id' => $t12, 'cr' => 75, 'adm' => 68, 'asg' => 63, 'inv' => 58, 'inf' => 25, 'crt' => 18, 'sub' => 'archivada'],
+            ['ticket' => $this->ticket(82), 'estado' => 'informe', 'tecnico_id' => $t12, 'cr' => 32, 'adm' => 26, 'asg' => 23, 'inv' => 20, 'inf' => 2, 'escenario' => 'anonimo'],
+            ['ticket' => $this->ticket(83), 'estado' => 'cerrada', 'tecnico_id' => $t12, 'cr' => 33, 'adm' => 30, 'asg' => 28, 'inv' => 25, 'inf' => 11, 'crt' => 5],
+            ['ticket' => $this->ticket(84), 'estado' => 'cerrada_archivada', 'tecnico_id' => $t12, 'cr' => 29, 'adm' => 26, 'asg' => 24, 'inv' => 21, 'inf' => 10, 'crt' => 5, 'sub' => 'archivada'],
         ];
 
         foreach ($casos as $c) {

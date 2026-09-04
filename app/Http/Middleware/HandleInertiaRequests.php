@@ -8,6 +8,7 @@ use App\Models\Clasificacion;
 use App\Models\DependenciaExterna;
 use App\Models\MedioNotificacion;
 use App\Models\Notificacion;
+use App\Services\AlertasPlazo;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -47,13 +48,25 @@ class HandleInertiaRequests extends Middleware
             'dependencias' => DependenciaExterna::where('activa', true)->orderBy('nombre')->get(['id', 'nombre', 'parent_id'])->toArray(),
             'clasificaciones' => Clasificacion::where('activa', true)->orderBy('nombre')->get(['id', 'clave', 'nombre'])->toArray(),
             'medios_notificacion' => MedioNotificacion::where('activa', true)->orderBy('nombre')->get(['id', 'clave', 'nombre'])->toArray(),
-            'notificaciones' => $user ? [
-                'no_leidas' => Notificacion::where('usuario_id', $user->id)->where('leida', false)->count(),
-                'recientes' => Notificacion::where('usuario_id', $user->id)->latest()->take(5)->get(),
-            ] : [
+            'notificaciones' => $user ? (function () use ($user) {
+                $persistentes = Notificacion::where('usuario_id', $user->id)->latest()->take(5)->get()->toArray();
+                // Alertas derivadas (vivas): no se persisten, respetan fecha simulada.
+                try {
+                    $derivadas = AlertasPlazo::paraUsuario($user);
+                } catch (\Throwable) {
+                    $derivadas = [];
+                }
+                $recientes = array_slice(array_merge($derivadas, $persistentes), 0, 5);
+                $noLeidas = Notificacion::where('usuario_id', $user->id)->where('leida', false)->count()
+                    + count($derivadas);
+
+                return ['no_leidas' => $noLeidas, 'recientes' => $recientes];
+            })() : [
                 'no_leidas' => 0,
                 'recientes' => [],
             ],
+            // Time Machine: fecha simulada (solo local). El banner la muestra.
+            'simFecha' => app()->isLocal() ? session('dev_sim_fecha') : null,
         ];
 
         return $share;

@@ -16,6 +16,7 @@ export default function AppLayout({ children, headerBottom }: AppLayoutProps) {
     const { props } = usePage();
     const auth = (props as any).auth;
     const notificacionesInertia = (props as any).notificaciones;
+    const simFecha = (props as any).simFecha as string | null | undefined;
 
     const [isDarkMode, setIsDarkMode] = useState(() => {
         if (typeof window !== 'undefined') {
@@ -103,6 +104,13 @@ export default function AppLayout({ children, headerBottom }: AppLayoutProps) {
                 />
 
                 {headerBottom}
+
+                {simFecha && (
+                    <div className="mx-4 sm:mx-6 md:mx-8 mt-4 rounded-lg border border-amber-500/50 bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-700 dark:text-amber-300 flex items-center justify-between gap-2">
+                        <span>SIMULANDO FECHA: <span className="font-mono">{simFecha}</span> — plazos, KPIs y alertas usan esta fecha.</span>
+                        <a href="/dev/tiempo" className="underline shrink-0">Cambiar</a>
+                    </div>
+                )}
 
                 <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-6 md:p-8 space-y-6">
                     {children}

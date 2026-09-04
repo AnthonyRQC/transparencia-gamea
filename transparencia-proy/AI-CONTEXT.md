@@ -171,6 +171,7 @@ Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (13–
 4. **Sprint 14** — Tiempos entre Fases (pendiente)
 
 **Estado inmediato:** Bloques 0-2 cerrados. Sprint 12 pulido (faltan presets fecha + drill-down opcionales). Siguiente: Sprint 13.
+**Demo fresca (Sep 2026):** seeders con fechas relativas a hoy — 84 casos (60 activos: 59 en plazo, 1 mora intencional DEN-2026-0036; 18 cerradas 89% cumplidas). Time Machine solo-local en `/dev/tiempo` (`SimularFecha` + `Carbon::setTestNow`) + alertas derivadas vivas (`AlertasPlazo`: plazo ≤3d, solicitud/descargo ≤2d) fusionadas en campana. Deuda/riesgos en `Deuda Tecnica y Riesgos.md`.
 
 > 🗂️ **Para Sprint 13:** ver `Sprints Pendientes - Contexto.md`. Dashboard ya usa `Queries/Dashboard/*` y `DiasHabiles` con feriados.
 

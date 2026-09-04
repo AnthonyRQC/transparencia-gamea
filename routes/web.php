@@ -23,6 +23,7 @@ use App\Http\Controllers\ArchivosCasoController;
 use App\Http\Controllers\CatalogoController;
 use App\Http\Controllers\ConsultaCasosController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DevTiempoController;
 use App\Http\Controllers\ReporteController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -192,6 +193,11 @@ Route::get('/notifications/stream', [NotificacionStreamController::class, 'strea
 Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
 Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
 Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+// ----- Time Machine (solo local, el controller hace abort 404 si no es local) -----
+Route::get('/dev/tiempo', [DevTiempoController::class, 'index'])->name('dev.tiempo');
+Route::post('/dev/tiempo', [DevTiempoController::class, 'fijar'])->name('dev.tiempo.fijar');
+Route::post('/dev/tiempo/limpiar', [DevTiempoController::class, 'limpiar'])->name('dev.tiempo.limpiar');
 
 }); // end auth middleware group
 

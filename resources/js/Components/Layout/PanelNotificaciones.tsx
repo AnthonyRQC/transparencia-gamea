@@ -32,6 +32,8 @@ export default function PanelNotificaciones({ notificaciones, noLeidas = 0, onCe
   const leidasItems = notificaciones.filter((n) => n.leida);
 
   const handleMarcarLeida = (id: number) => {
+    // Las derivadas (id negativo / efímeras) no se persisten: solo navegar.
+    if (id < 0) return;
     router.post(route('notificaciones.marcar-leida', { id }));
   };
 
