@@ -250,7 +250,7 @@ class DenunciaSeeder extends Seeder
         );
     }
 
-    // DEN-2026-0003 — INGRESADA, CORRUPCIÓN
+    // DEN-2026-0003 — ADMITIDA, CORRUPCIÓN
     private function denuncia003(): void
     {
         $this->makeDenuncia(
@@ -259,15 +259,17 @@ class DenunciaSeeder extends Seeder
                 'token_consulta' => '1003',
                 'tipo' => 'corrupcion',
                 'escenario' => 'reservada',
-                'estado' => 'ingresada',
+                'estado' => 'admitida',
                 'categoria_id' => 7,
                 'fecha_hechos' => $this->haceFecha(9),
                 'lugar_hechos' => 'MERCADO CENTRAL DE EL ALTO',
                 'hechos' => 'SE DENUNCIA QUE RECAUDADORES DEL MERCADO CENTRAL ESTARÍAN COBRANDO MONTOS SUPERIORES A LOS AUTORIZADOS POR LA LEY MUNICIPAL, RETENIENDO LA DIFERENCIA PARA BENEFICIO PERSONAL.',
                 'declaracion_jurada' => true,
                 'registrado_por_id' => 2,
+                'fecha_admitida' => $this->hace(2, 10),
+                'justificacion_admision' => 'EXISTEN INDICIOS SUFICIENTES PARA CONTINUAR CON EL PROCESO.',
                 'created_at' => $this->hace(4, 9, 15),
-                'updated_at' => $this->hace(4, 9, 15),
+                'updated_at' => $this->hace(2, 10),
             ],
             [
                 'denunciante' => [
@@ -299,6 +301,12 @@ class DenunciaSeeder extends Seeder
                         'detalle' => 'DENUNCIA REGISTRADA CON TICKET DEN-2026-0003 EN MODO RESERVADA',
                         'usuario_id' => 2,
                         'fecha' => $this->hace(4, 9, 15),
+                    ],
+                    [
+                        'accion' => 'admitida',
+                        'detalle' => 'DENUNCIA ADMITIDA PARA INVESTIGACIÓN',
+                        'usuario_id' => 1,
+                        'fecha' => $this->hace(2, 10),
                     ],
                 ],
             ]

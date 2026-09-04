@@ -8,6 +8,7 @@ import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetT
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
 import { cn } from '@/lib/utils';
 import { ETIQUETAS_TIPO, type DashboardProps, type FiltrosDashboard } from '@/types/dashboard';
+import { ETIQUETAS_PRESET, PRESETS_FECHA, detectarPreset, rangoPreset, type PresetFechaKey } from '@/helpers/presetsFecha';
 
 interface Props {
     filtros: FiltrosDashboard;
@@ -54,10 +55,11 @@ export default function FiltrosDashboard({ filtros, opciones, esJefe, onChange }
     };
 
     const chips: Array<{ key: string; label: string; clear: () => void }> = [];
+    const presetActivo: PresetFechaKey = detectarPreset(filtros.desde, filtros.hasta);
     if (filtros.desde || filtros.hasta) {
         chips.push({
             key: 'rango',
-            label: `Rango: ${filtros.desde ?? 'inicio'} → ${filtros.hasta ?? 'hoy'}`,
+            label: `Fecha: ${ETIQUETAS_PRESET[presetActivo]} (${filtros.desde ?? 'inicio'} → ${filtros.hasta ?? 'hoy'})`,
             clear: () => onChange({ ...filtros, desde: null, hasta: null }),
         });
     }
@@ -146,13 +148,36 @@ export default function FiltrosDashboard({ filtros, opciones, esJefe, onChange }
                     </SheetHeader>
 
                     <div className="space-y-4 py-4">
-                        <div className="space-y-2">
-                            <Label>Rango de fechas</Label>
-                            <div className="grid grid-cols-2 gap-2">
-                                <Input type="date" value={form.desde ?? ''} onChange={(e) => setCampo('desde', e.target.value || null)} />
-                                <Input type="date" value={form.hasta ?? ''} onChange={(e) => setCampo('hasta', e.target.value || null)} />
-                            </div>
+                    <div className="space-y-2">
+                        <Label>Rango de fechas</Label>
+                        <div className="flex flex-wrap gap-1.5">
+                            {PRESETS_FECHA.map((p) => {
+                                const activo = detectarPreset(form.desde, form.hasta) === p.key;
+                                return (
+                                    <Button
+                                        key={p.key}
+                                        type="button"
+                                        variant={activo ? 'default' : 'outline'}
+                                        size="sm"
+                                        className="h-7 px-2.5 text-xs"
+                                        onClick={() => {
+                                            const r = rangoPreset(p.key);
+                                            setForm((f) => ({ ...f, desde: r.desde, hasta: r.hasta }));
+                                        }}
+                                    >
+                                        {p.label}
+                                    </Button>
+                                );
+                            })}
                         </div>
+                        <div className="grid grid-cols-2 gap-2">
+                            <Input type="date" value={form.desde ?? ''} onChange={(e) => setCampo('desde', e.target.value || null)} />
+                            <Input type="date" value={form.hasta ?? ''} onChange={(e) => setCampo('hasta', e.target.value || null)} />
+                        </div>
+                        {detectarPreset(form.desde, form.hasta) === 'personalizado' && (
+                            <p className="text-[11px] text-muted-foreground">Rango personalizado (fuera de presets).</p>
+                        )}
+                    </div>
 
                         {esJefe && (
                             <>

@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Head, router } from '@inertiajs/react';
 import { LayoutDashboard, Download, RefreshCw, BarChart3, Users } from 'lucide-react';
 import AppLayout from '@/Components/Layout/AppLayout';
@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/Components/ui/tabs';
 import { Button } from '@/Components/ui/button';
 import { route } from 'ziggy-js';
 import type { DashboardProps, FiltrosDashboard as FiltrosState } from '@/types/dashboard';
+import { PRESET_DEFAULT, rangoPreset } from '@/helpers/presetsFecha';
 
 export default function Dashboard(props: DashboardProps) {
     const { kpis, operativo, resultados, rendimiento, base_temporal, opciones, esJefe, esTecnico, esRegistrador, filtros } = props;
@@ -20,6 +21,7 @@ export default function Dashboard(props: DashboardProps) {
         filtros.tab === 'resultados' || filtros.tab === 'rendimiento' ? filtros.tab : 'operativo'
     );
     const [exportOpen, setExportOpen] = useState(false);
+    const aplicoDefaultRef = useRef(false);
 
     const aplicarFiltros = useCallback(
         (next: FiltrosState) => {
@@ -41,6 +43,19 @@ export default function Dashboard(props: DashboardProps) {
         },
         [tab]
     );
+
+    // Rango por defecto (Sprint 12 §6 Q3): al entrar sin fechas, aplicar preset
+    // "Último mes" una sola vez. Reset manual (Todo) no se re-aplica.
+    useEffect(() => {
+        if (!aplicoDefaultRef.current && filtros.desde == null && filtros.hasta == null) {
+            aplicoDefaultRef.current = true;
+            const r = rangoPreset(PRESET_DEFAULT);
+            aplicarFiltros({ ...filtros, desde: r.desde, hasta: r.hasta });
+        } else {
+            aplicoDefaultRef.current = true;
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     return (
         <AppLayout>

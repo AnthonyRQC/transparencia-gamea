@@ -474,21 +474,25 @@ class DenunciaMasivaSeeder extends Seeder
 
     private function crearCasosPipeline(): void
     {
+        // Dos técnicos para los casos que pasan a asignada directo del pipeline
+        $t3 = User::where('username', 'tecnico1')->first()->id;
+        $t4 = User::where('username', 'tecnico2')->first()->id;
+
         $pipeline = [
-            // ingresada x7
+            // ingresada x4 (001, 002 y 13, 14, 17 completan 5 en DenunciaSeeder)
             ['ticket' => $this->ticket(13), 'estado' => 'ingresada', 'cr' => 1],
             ['ticket' => $this->ticket(14), 'estado' => 'ingresada', 'cr' => 2],
-            ['ticket' => $this->ticket(15), 'estado' => 'ingresada', 'cr' => 4],
-            ['ticket' => $this->ticket(16), 'estado' => 'ingresada', 'cr' => 6, 'escenario' => 'anonimo'],
+            ['ticket' => $this->ticket(15), 'estado' => 'admitida', 'cr' => 4, 'adm' => 3],
+            ['ticket' => $this->ticket(16), 'estado' => 'rechazada', 'cr' => 6, 'adm' => 5, 'rc' => 4, 'escenario' => 'anonimo'],
             ['ticket' => $this->ticket(17), 'estado' => 'ingresada', 'cr' => 2, 'tipo' => 'negacion'],
-            ['ticket' => $this->ticket(18), 'estado' => 'ingresada', 'cr' => 3],
-            ['ticket' => $this->ticket(19), 'estado' => 'ingresada', 'cr' => 3, 'escenario' => 'reservada'],
+            ['ticket' => $this->ticket(18), 'estado' => 'rechazada', 'cr' => 3, 'adm' => 2, 'rc' => 1],
+            ['ticket' => $this->ticket(19), 'estado' => 'admitida', 'cr' => 3, 'adm' => 2, 'escenario' => 'reservada'],
 
-            // evaluacion_tecnica x4
+            // evaluacion_tecnica x2
             ['ticket' => $this->ticket(20), 'estado' => 'evaluacion_tecnica', 'cr' => 2, 'adm' => null],
-            ['ticket' => $this->ticket(21), 'estado' => 'evaluacion_tecnica', 'cr' => 5, 'adm' => null, 'escenario' => 'anonimo'],
+            ['ticket' => $this->ticket(21), 'estado' => 'asignada', 'tecnico_id' => $t4, 'cr' => 5, 'adm' => 4, 'asg' => 3, 'escenario' => 'anonimo'],
             ['ticket' => $this->ticket(22), 'estado' => 'evaluacion_tecnica', 'cr' => 2, 'adm' => null, 'tipo' => 'negacion'],
-            ['ticket' => $this->ticket(23), 'estado' => 'evaluacion_tecnica', 'cr' => 3, 'adm' => null],
+            ['ticket' => $this->ticket(23), 'estado' => 'asignada', 'tecnico_id' => $t3, 'cr' => 3, 'adm' => 2, 'asg' => 1],
 
             // admitida sin asignar x4
             ['ticket' => $this->ticket(24), 'estado' => 'admitida', 'cr' => 4, 'adm' => 3],
