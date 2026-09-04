@@ -6,9 +6,11 @@ import type { BaseTemporal, Resultados } from '@/types/dashboard';
 interface Props {
     resultados: Resultados;
     baseTemporal: Record<string, BaseTemporal>;
+    onDrillClasificacion?: (id: number | undefined, label: string) => void;
+    onDrillMedio?: (id: number | undefined, label: string) => void;
 }
 
-export default function TabResultados({ resultados, baseTemporal }: Props) {
+export default function TabResultados({ resultados, baseTemporal, onDrillClasificacion, onDrillMedio }: Props) {
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div className="border rounded-2xl bg-card p-4 space-y-2">
@@ -16,7 +18,11 @@ export default function TabResultados({ resultados, baseTemporal }: Props) {
                     <h3 className="font-bold text-sm">Casos por Clasificación Final</h3>
                     <BaseTemporalBadge base={baseTemporal['resultados.clasificaciones']} />
                 </div>
-                <GraficoBarras data={resultados.clasificaciones} height={220} />
+                <GraficoBarras
+                    data={resultados.clasificaciones}
+                    height={220}
+                    onSelect={onDrillClasificacion ? (item) => onDrillClasificacion(item.id, item.label) : undefined}
+                />
             </div>
             <div className="border rounded-2xl bg-card p-4 space-y-2">
                 <div className="flex items-center justify-between gap-2 flex-wrap">
@@ -30,7 +36,11 @@ export default function TabResultados({ resultados, baseTemporal }: Props) {
                     <h3 className="font-bold text-sm">Cierres por Medio de Notificación</h3>
                     <BaseTemporalBadge base={baseTemporal['resultados.medios']} />
                 </div>
-                <GraficoBarras data={resultados.medios} height={220} />
+                <GraficoBarras
+                    data={resultados.medios}
+                    height={220}
+                    onSelect={onDrillMedio ? (item) => onDrillMedio(item.id, item.label) : undefined}
+                />
             </div>
             <div className="border rounded-2xl border-dashed p-4 flex flex-col items-center justify-center gap-2 text-muted-foreground min-h-[240px]">
                 <Hourglass className="w-8 h-8" />

@@ -20,11 +20,11 @@ class ResultadosQuery
             ->when($f['tipo'], fn ($q, $v) => $q->where('denuncias.tipo', $v))
             ->when($f['categoria_id'], fn ($q, $v) => $q->where('denuncias.categoria_id', $v))
             ->when($f['clasificacion_id'], fn ($q, $v) => $q->where('informes_finales.clasificacion_id', $v))
-            ->selectRaw('clasificaciones.nombre as label, COUNT(*) as value')
+            ->selectRaw('clasificaciones.id as id, clasificaciones.nombre as label, COUNT(*) as value')
             ->groupBy('clasificaciones.id', 'clasificaciones.nombre')
             ->orderByDesc('value')
             ->get()
-            ->map(fn ($r) => ['label' => $r->label, 'value' => (int) $r->value])
+            ->map(fn ($r) => ['id' => (int) $r->id, 'label' => $r->label, 'value' => (int) $r->value])
             ->toArray();
 
         $medios = DB::table('cierres')
@@ -37,11 +37,11 @@ class ResultadosQuery
             ->when($f['tecnico_id'], fn ($q, $v) => $q->where('denuncias.tecnico_id', $v))
             ->when($f['tipo'], fn ($q, $v) => $q->where('denuncias.tipo', $v))
             ->when($f['categoria_id'], fn ($q, $v) => $q->where('denuncias.categoria_id', $v))
-            ->selectRaw('medios_notificacion.nombre as label, COUNT(*) as value')
+            ->selectRaw('medios_notificacion.id as id, medios_notificacion.nombre as label, COUNT(*) as value')
             ->groupBy('medios_notificacion.id', 'medios_notificacion.nombre')
             ->orderByDesc('value')
             ->get()
-            ->map(fn ($r) => ['label' => $r->label, 'value' => (int) $r->value])
+            ->map(fn ($r) => ['id' => (int) $r->id, 'label' => $r->label, 'value' => (int) $r->value])
             ->toArray();
 
         $cuentas = DB::table('solicitudes_informacion')

@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\CategoriaDenuncia;
 use App\Models\Clasificacion;
 use App\Models\Denuncia;
+use App\Models\MedioNotificacion;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -165,5 +166,34 @@ class ReporteTest extends TestCase
 
         $this->get('/reportes/exportar?formato=excel')->assertForbidden();
         $this->get('/reportes/exportar?formato=pdf')->assertForbidden();
+    }
+
+    public function test_preview_filtra_por_medio_notificacion(): void
+    {
+        $medioEmail = MedioNotificacion::create(['clave' => 'email', 'nombre' => 'EMAIL']);
+        $medioOtro = MedioNotificacion::create(['clave' => 'otro', 'nombre' => 'OTRO']);
+
+        $conEmail = $this->denuncia(['estado' => 'cerrada']);
+        $conEmail->cierre()->create([
+            'notificado_denunciante' => true,
+            'notificacion_medio_id' => $medioEmail->id,
+            'concluido_por' => 'TECNICO UNO',
+            'cerrado_at' => now(),
+        ]);
+
+        $conOtro = $this->denuncia(['estado' => 'cerrada']);
+        $conOtro->cierre()->create([
+            'notificado_denunciante' => true,
+            'notificacion_medio_id' => $medioOtro->id,
+            'concluido_por' => 'TECNICO UNO',
+            'cerrado_at' => now(),
+        ]);
+
+        $this->actingAs($this->jefe);
+
+        $this->get('/reportes/preview?medio_id=' . $medioEmail->id)
+            ->assertOk()
+            ->assertJsonPath('total', 1)
+            ->assertJsonPath('rows.0.ticket', $conEmail->ticket);
     }
 }

@@ -38,8 +38,8 @@ export interface Operativo {
 }
 
 export interface Resultados {
-  clasificaciones: Array<{ label: string; value: number }>;
-  medios: Array<{ label: string; value: number }>;
+  clasificaciones: Array<{ id?: number; label: string; value: number }>;
+  medios: Array<{ id?: number; label: string; value: number }>;
   dependencias: Array<{ label: string; value: number }>;
 }
 

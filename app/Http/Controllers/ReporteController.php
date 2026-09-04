@@ -109,6 +109,14 @@ class ReporteController extends Controller
                         ->where('informes_finales.clasificacion_id', (int) $request->input('clasificacion_id'));
                 });
             })
+            ->when($request->input('medio_id'), function ($q) use ($request) {
+                $q->whereExists(function ($sub) use ($request) {
+                    $sub->selectRaw('1')->from('cierres')
+                        ->whereColumn('cierres.denuncia_id', 'denuncias.id')
+                        ->where('cierres.eliminado', false)
+                        ->where('cierres.notificacion_medio_id', (int) $request->input('medio_id'));
+                });
+            })
             ->when($request->input('busqueda'), function ($q) use ($request) {
                 $v = $request->input('busqueda');
                 $q->where(fn ($w) => $w->where('ticket', 'like', "%{$v}%")
@@ -153,6 +161,7 @@ class ReporteController extends Controller
             'tecnico_id' => $request->input('tecnico_id') ? (int) $request->input('tecnico_id') : null,
             'categoria_id' => $request->input('categoria_id') ? (int) $request->input('categoria_id') : null,
             'clasificacion_id' => $request->input('clasificacion_id') ? (int) $request->input('clasificacion_id') : null,
+            'medio_id' => $request->input('medio_id') ? (int) $request->input('medio_id') : null,
             'busqueda' => $request->input('busqueda') ?: null,
         ];
     }

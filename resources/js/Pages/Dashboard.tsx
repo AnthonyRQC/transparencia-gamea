@@ -8,6 +8,7 @@ import TabOperativo from '@/Components/Dashboard/TabOperativo';
 import TabResultados from '@/Components/Dashboard/TabResultados';
 import TabRendimiento from '@/Components/Dashboard/TabRendimiento';
 import ModalExportar from '@/Components/Dashboard/ModalExportar';
+import ModalDrillDown, { type DrillFiltros } from '@/Components/Dashboard/ModalDrillDown';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/Components/ui/tabs';
 import { Button } from '@/Components/ui/button';
 import { route } from 'ziggy-js';
@@ -21,6 +22,9 @@ export default function Dashboard(props: DashboardProps) {
         filtros.tab === 'resultados' || filtros.tab === 'rendimiento' ? filtros.tab : 'operativo'
     );
     const [exportOpen, setExportOpen] = useState(false);
+    const [drillOpen, setDrillOpen] = useState(false);
+    const [drillTitulo, setDrillTitulo] = useState('');
+    const [drill, setDrill] = useState<DrillFiltros | null>(null);
     const aplicoDefaultRef = useRef(false);
 
     const aplicarFiltros = useCallback(
@@ -56,6 +60,12 @@ export default function Dashboard(props: DashboardProps) {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    const abrirDrill = (titulo: string, d: DrillFiltros) => {
+        setDrillTitulo(titulo);
+        setDrill(d);
+        setDrillOpen(true);
+    };
 
     return (
         <AppLayout>
@@ -107,10 +117,33 @@ export default function Dashboard(props: DashboardProps) {
                     </TabsList>
 
                     <TabsContent value="operativo" className="mt-3">
-                        <TabOperativo operativo={operativo} baseTemporal={base_temporal} />
+                        <TabOperativo
+                            operativo={operativo}
+                            baseTemporal={base_temporal}
+                            onDrillEstado={
+                                esJefe
+                                    ? (estado, label) =>
+                                          abrirDrill(`Casos en estado: ${label}`, { estado, sinRango: true })
+                                    : undefined
+                            }
+                        />
                     </TabsContent>
                     <TabsContent value="resultados" className="mt-3">
-                        <TabResultados resultados={resultados} baseTemporal={base_temporal} />
+                        <TabResultados
+                            resultados={resultados}
+                            baseTemporal={base_temporal}
+                            onDrillClasificacion={
+                                esJefe
+                                    ? (id, label) =>
+                                          abrirDrill(`Casos con clasificación: ${label}`, { clasificacion_id: id })
+                                    : undefined
+                            }
+                            onDrillMedio={
+                                esJefe
+                                    ? (id, label) => abrirDrill(`Cierres por medio: ${label}`, { medio_id: id })
+                                    : undefined
+                            }
+                        />
                     </TabsContent>
                     {!esRegistrador && (
                         <TabsContent value="rendimiento" className="mt-3">
@@ -121,6 +154,15 @@ export default function Dashboard(props: DashboardProps) {
             </div>
 
             {esJefe && <ModalExportar filtros={filtros} open={exportOpen} onOpenChange={setExportOpen} />}
+            {esJefe && (
+                <ModalDrillDown
+                    titulo={drillTitulo}
+                    filtros={filtros}
+                    drill={drill}
+                    open={drillOpen}
+                    onOpenChange={setDrillOpen}
+                />
+            )}
         </AppLayout>
     );
 }
