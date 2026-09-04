@@ -65,7 +65,48 @@ class ReporteExcel implements FromCollection, WithHeadings, WithStyles, ShouldAu
             'medio_cierre' => (string) ($d->cierre?->medioNotificacion?->nombre ?? ''),
             'fecha_cierre' => $d->cierre?->cerrado_at?->format('d/m/Y') ?? '',
             'dias_restantes' => ($p = $d->plazo) !== null ? (string) $p['dias_restantes'] : '—',
+            // Columnas formato cliente (informe a la MAE)
+            'denunciante' => $this->denunciante($d),
+            'denunciados' => $this->denunciados($d),
+            'sitpreco' => (string) ($d->informe?->sitpreco ?? ''),
+            'fecha_conclusion' => $d->informe?->redactado_at?->format('d/m/Y') ?? '',
+            'resumen_conclusion' => (string) ($d->informe?->justificacion ?? ''),
             default => '',
         };
+    }
+
+    /**
+     * Solo nombres (sin CI ni contactos, Ley 974 Art. 24/29).
+     * Anónimo o sin registro → ANÓNIMO.
+     */
+    private function denunciante(mixed $d): string
+    {
+        if (($d->escenario ?? '') === 'anonimo') {
+            return 'ANÓNIMO';
+        }
+        $nombre = trim((string) ($d->denunciante?->nombres ?? ''));
+
+        return $nombre !== '' ? $nombre : 'ANÓNIMO';
+    }
+
+    /** Nombres separados por coma; sin identidad → NO IDENTIFICADO. */
+    private function denunciados(mixed $d): string
+    {
+        $lista = $d->relationLoaded('denunciados')
+            ? $d->denunciados
+            : $d->denunciados()->get();
+
+        if ($lista->isEmpty()) {
+            return '—';
+        }
+
+        return $lista->map(function ($dd) {
+            if (! $dd->conoce_identidad || trim((string) ($dd->nombres ?? '')) === '') {
+                return 'NO IDENTIFICADO';
+            }
+            $dep = trim((string) ($dd->dependencia ?? ''));
+
+            return $dep !== '' ? "{$dd->nombres} ({$dep})" : (string) $dd->nombres;
+        })->implode(', ');
     }
 }

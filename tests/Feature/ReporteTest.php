@@ -7,6 +7,7 @@ use App\Models\Clasificacion;
 use App\Models\Denuncia;
 use App\Models\MedioNotificacion;
 use App\Models\User;
+use App\Exports\ReporteExcel;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -226,5 +227,52 @@ class ReporteTest extends TestCase
             'spreadsheetml',
             $response->headers->get('content-type') ?? ''
         );
+    }
+
+    public function test_exportar_excel_columnas_cliente_por_defecto(): void
+    {
+        $d = $this->denuncia(['estado' => 'informe', 'escenario' => 'revelada']);
+        $d->denunciante()->create(['nombres' => 'JUAN PEREZ']);
+        $d->denunciados()->create([
+            'orden' => 0, 'conoce_identidad' => true,
+            'nombres' => 'PEDRO GOMEZ', 'dependencia' => 'CONTRATACIONES',
+        ]);
+        $d->informe()->create([
+            'clasificacion_id' => Clasificacion::first()->id,
+            'sitpreco' => 'SIT-2026-001',
+            'justificacion' => 'SE VERIFICO EL SOBREPRECIO.',
+            'concluido_por' => 'TECNICO UNO',
+            'redactado_at' => now()->subDays(2),
+        ]);
+
+        $export = new ReporteExcel(
+            Denuncia::with(['tecnico', 'categoria', 'denunciante', 'denunciados', 'informe.clasificacionRel'])->get()
+        );
+
+        $this->assertSame(
+            ['FECHA DE INGRESO', 'NRO DE DENUNCIA', 'TIPO DE DENUNCIA', 'DATOS DEL DENUNCIANTE', 'DATOS DE LOS DENUNCIADOS', 'NRO SITPRECO', 'TÉCNICO ENCARGADO', 'FECHA DE CONCLUSIÓN', 'RESUMEN DE CONCLUSIÓN DEL CASO', 'CLASIFICACIÓN FINAL DEL CASO'],
+            $export->headings()
+        );
+
+        $fila = $export->collection()->firstWhere(fn ($r) => $r[1] === $d->ticket);
+        $this->assertSame('JUAN PEREZ', $fila[3]);
+        $this->assertSame('PEDRO GOMEZ (CONTRATACIONES)', $fila[4]);
+        $this->assertSame('SIT-2026-001', $fila[5]);
+        $this->assertSame('SE VERIFICO EL SOBREPRECIO.', $fila[8]);
+    }
+
+    public function test_exportar_excel_denunciante_anonimo_enmascarado(): void
+    {
+        $d = $this->denuncia(['escenario' => 'anonimo']);
+        $d->denunciados()->create(['orden' => 0, 'conoce_identidad' => false]);
+
+        $export = new ReporteExcel(
+            Denuncia::with(['denunciante', 'denunciados'])->get(),
+            ['denunciante', 'denunciados']
+        );
+
+        $fila = $export->collection()->first();
+        $this->assertSame('ANÓNIMO', $fila[0]);
+        $this->assertSame('NO IDENTIFICADO', $fila[1]);
     }
 }

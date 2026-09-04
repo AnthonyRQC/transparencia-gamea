@@ -28,22 +28,30 @@ interface PreviewRow {
 
 /** Columnas disponibles para el Excel (clave => etiqueta). Debe coincidir con ReporteController::COLUMNAS_EXCEL. */
 export const COLUMNAS_EXCEL: Array<{ key: string; label: string; fija?: boolean }> = [
-    { key: 'ticket', label: 'Ticket', fija: true },
-    { key: 'tipo', label: 'Tipo' },
+    { key: 'fecha_ingreso', label: 'Fecha de ingreso', fija: true },
+    { key: 'ticket', label: 'Nro de denuncia', fija: true },
+    { key: 'tipo', label: 'Tipo de denuncia' },
+    { key: 'denunciante', label: 'Datos del denunciante' },
+    { key: 'denunciados', label: 'Datos de los denunciados' },
+    { key: 'sitpreco', label: 'Nro SITPRECO' },
+    { key: 'tecnico', label: 'Técnico encargado' },
+    { key: 'fecha_conclusion', label: 'Fecha de conclusión' },
+    { key: 'resumen_conclusion', label: 'Resumen de conclusión' },
+    { key: 'clasificacion', label: 'Clasificación final' },
     { key: 'categoria', label: 'Categoría' },
-    { key: 'tecnico', label: 'Técnico' },
     { key: 'estado', label: 'Estado' },
-    { key: 'fecha_ingreso', label: 'Fecha ingreso' },
     { key: 'fecha_admision', label: 'Fecha admisión' },
     { key: 'fecha_rechazo', label: 'Fecha rechazo' },
     { key: 'escenario', label: 'Escenario' },
-    { key: 'clasificacion', label: 'Clasificación final' },
     { key: 'medio_cierre', label: 'Medio notificación cierre' },
     { key: 'fecha_cierre', label: 'Fecha cierre' },
     { key: 'dias_restantes', label: 'Días restantes' },
 ];
 
-const COLUMNAS_DEFAULT = ['ticket', 'tipo', 'categoria', 'tecnico', 'estado', 'fecha_ingreso', 'fecha_admision', 'fecha_rechazo'];
+const COLUMNAS_DEFAULT = [
+    'fecha_ingreso', 'ticket', 'tipo', 'denunciante', 'denunciados',
+    'sitpreco', 'tecnico', 'fecha_conclusion', 'resumen_conclusion', 'clasificacion',
+];
 
 export default function ModalExportar({ filtros, open, onOpenChange }: Props) {
     const [formato, setFormato] = useState<'pdf' | 'excel'>('excel');

@@ -29,26 +29,32 @@ class ReporteController extends Controller
     /**
      * Columnas disponibles para exportación Excel (clave => encabezado).
      * El orden del array es el orden de las columnas cuando se piden todas.
+     * El default sigue el formato pedido por el cliente (informe a la MAE).
      */
     public const COLUMNAS_EXCEL = [
-        'ticket' => 'TICKET',
-        'tipo' => 'TIPO',
+        'fecha_ingreso' => 'FECHA DE INGRESO',
+        'ticket' => 'NRO DE DENUNCIA',
+        'tipo' => 'TIPO DE DENUNCIA',
+        'denunciante' => 'DATOS DEL DENUNCIANTE',
+        'denunciados' => 'DATOS DE LOS DENUNCIADOS',
+        'sitpreco' => 'NRO SITPRECO',
+        'tecnico' => 'TÉCNICO ENCARGADO',
+        'fecha_conclusion' => 'FECHA DE CONCLUSIÓN',
+        'resumen_conclusion' => 'RESUMEN DE CONCLUSIÓN DEL CASO',
+        'clasificacion' => 'CLASIFICACIÓN FINAL DEL CASO',
         'categoria' => 'CATEGORÍA',
-        'tecnico' => 'TÉCNICO',
         'estado' => 'ESTADO',
-        'fecha_ingreso' => 'FECHA INGRESO',
         'fecha_admision' => 'FECHA ADMISIÓN',
         'fecha_rechazo' => 'FECHA RECHAZO',
         'escenario' => 'ESCENARIO',
-        'clasificacion' => 'CLASIFICACIÓN FINAL',
         'medio_cierre' => 'MEDIO NOTIFICACIÓN CIERRE',
         'fecha_cierre' => 'FECHA CIERRE',
         'dias_restantes' => 'DÍAS RESTANTES',
     ];
 
     public const COLUMNAS_DEFAULT = [
-        'ticket', 'tipo', 'categoria', 'tecnico',
-        'estado', 'fecha_ingreso', 'fecha_admision', 'fecha_rechazo',
+        'fecha_ingreso', 'ticket', 'tipo', 'denunciante', 'denunciados',
+        'sitpreco', 'tecnico', 'fecha_conclusion', 'resumen_conclusion', 'clasificacion',
     ];
 
     private function autorizarJefe(): void
@@ -135,7 +141,7 @@ class ReporteController extends Controller
      */
     private function queryBase(Request $request)
     {
-        return Denuncia::with(['tecnico', 'categoria', 'ampliaciones', 'informe.clasificacionRel', 'cierre.medioNotificacion'])
+        return Denuncia::with(['tecnico', 'categoria', 'ampliaciones', 'denunciante', 'denunciados', 'informe.clasificacionRel', 'cierre.medioNotificacion'])
             ->whereNull('deleted_at')
             ->when($request->input('desde'), fn ($q, $v) => $q->whereDate('created_at', '>=', $v))
             ->when($request->input('hasta'), fn ($q, $v) => $q->whereDate('created_at', '<=', $v))
