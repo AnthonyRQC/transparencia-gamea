@@ -11,9 +11,18 @@ import ModalExportar from '@/Components/Dashboard/ModalExportar';
 import ModalDrillDown, { type DrillFiltros } from '@/Components/Dashboard/ModalDrillDown';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/Components/ui/tabs';
 import { Button } from '@/Components/ui/button';
+import { toast } from 'sonner';
 import { route } from 'ziggy-js';
 import type { DashboardProps, FiltrosDashboard as FiltrosState } from '@/types/dashboard';
 import { PRESET_DEFAULT, rangoPreset } from '@/helpers/presetsFecha';
+
+/** "2026-09-05" → "5 sep 2026" para encabezados legibles. */
+function formatearFechaCorta(ymd: string | null): string | null {
+    if (!ymd) return null;
+    const d = new Date(ymd + 'T12:00:00');
+    if (Number.isNaN(d.getTime())) return ymd;
+    return d.toLocaleDateString('es-BO', { day: 'numeric', month: 'short', year: 'numeric' });
+}
 
 export default function Dashboard(props: DashboardProps) {
     const { kpis, operativo, resultados, rendimiento, base_temporal, opciones, esJefe, esTecnico, esRegistrador, filtros } = props;
@@ -56,6 +65,7 @@ export default function Dashboard(props: DashboardProps) {
             aplicoDefaultRef.current = true;
             const r = rangoPreset(PRESET_DEFAULT);
             aplicarFiltros({ ...filtros, desde: r.desde, hasta: r.hasta });
+            toast.info('Mostrando el último mes — puedes cambiarlo en Filtros', { duration: 4000 });
         } else {
             aplicoDefaultRef.current = true;
         }
@@ -96,11 +106,34 @@ export default function Dashboard(props: DashboardProps) {
                 {/* Chips de filtros + Sheet */}
                 <FiltrosDashboard filtros={filtros} opciones={opciones} esJefe={esJefe} onChange={aplicarFiltros} />
 
-                {/* KPIs — siempre visibles */}
-                <KPICards kpis={kpis} baseTemporal={base_temporal} esTecnico={esTecnico} />
+                {/* BANDA 1 — HOY: foto actual, ignora las fechas */}
+                <section aria-label="Foto de hoy" className="space-y-2.5">
+                    <div className="flex items-center gap-2">
+                        <span className="text-xs font-extrabold uppercase tracking-widest text-primary">Hoy</span>
+                        <span className="text-xs text-muted-foreground">Foto actual — no cambia con las fechas</span>
+                        <div className="flex-1 h-px bg-border" />
+                    </div>
+                    <KPICards
+                        kpis={kpis}
+                        baseTemporal={base_temporal}
+                        esTecnico={esTecnico}
+                        bandejaHref={route('denuncias.bandeja')}
+                        misCasosHref={route('denuncias.mis-casos')}
+                    />
+                </section>
 
-                {/* Tabs */}
-                <Tabs value={tab} onValueChange={(v) => setTab(v as 'operativo' | 'resultados' | 'rendimiento')}>
+                {/* BANDA 2 — PERÍODO ELEGIDO */}
+                <section aria-label="Período elegido" className="space-y-2.5">
+                    <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-xs font-extrabold uppercase tracking-widest text-primary">Período</span>
+                        <span className="text-xs text-muted-foreground">
+                            {filtros.desde || filtros.hasta
+                                ? `${formatearFechaCorta(filtros.desde) ?? 'inicio'} → ${formatearFechaCorta(filtros.hasta) ?? 'hoy'}`
+                                : 'Todo el historial'}
+                        </span>
+                        <div className="flex-1 h-px bg-border" />
+                    </div>
+                    <Tabs value={tab} onValueChange={(v) => setTab(v as 'operativo' | 'resultados' | 'rendimiento')}>
                     <TabsList>
                         <TabsTrigger value="operativo" className="gap-1.5">
                             <RefreshCw className="w-4 h-4" />
@@ -179,6 +212,7 @@ export default function Dashboard(props: DashboardProps) {
                         </TabsContent>
                     )}
                 </Tabs>
+                </section>
             </div>
 
             {esJefe && <ModalExportar filtros={filtros} open={exportOpen} onOpenChange={setExportOpen} />}

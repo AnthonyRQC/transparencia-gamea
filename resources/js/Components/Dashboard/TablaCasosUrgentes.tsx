@@ -15,9 +15,9 @@ const ETIQUETAS_ESTADO: Record<string, string> = {
 };
 
 const badgeColor: Record<string, string> = {
-    green: 'bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/30',
-    yellow: 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/30',
-    red: 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/30',
+    green: 'bg-teal-500/10 text-teal-700 dark:text-teal-300 border-teal-500/30',
+    yellow: 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-300 border-yellow-500/30',
+    red: 'bg-pink-600/10 text-pink-700 dark:text-pink-300 border-pink-600/30',
     gray: 'bg-muted text-muted-foreground border-border',
 };
 

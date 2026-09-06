@@ -21,7 +21,7 @@ export default function GraficoCargaTecnicos({
                         dataKey="enPlazo"
                         name="En plazo"
                         stackId="a"
-                        fill="#22c55e"
+                        fill="#008F89"
                         barSize={16}
                         onClick={(d) => {
                             const t = (d as unknown as { tecnico?: string })?.tecnico;
@@ -29,8 +29,31 @@ export default function GraficoCargaTecnicos({
                         }}
                         style={onSelect ? { cursor: 'pointer' } : undefined}
                     />
-                    <Bar dataKey="proximos" name="Por vencer" stackId="a" fill="#eab308" barSize={16} />
-                    <Bar dataKey="vencidos" name="Vencidos" stackId="a" fill="#ef4444" radius={[0, 6, 6, 0]} barSize={16} />
+                    <Bar
+                        dataKey="proximos"
+                        name="Por vencer"
+                        stackId="a"
+                        fill="#F5B400"
+                        barSize={16}
+                        onClick={(d) => {
+                            const t = (d as unknown as { tecnico?: string })?.tecnico;
+                            if (onSelect && t) onSelect(t);
+                        }}
+                        style={onSelect ? { cursor: 'pointer' } : undefined}
+                    />
+                    <Bar
+                        dataKey="vencidos"
+                        name="Vencidos"
+                        stackId="a"
+                        fill="#F4007A"
+                        radius={[0, 6, 6, 0]}
+                        barSize={16}
+                        onClick={(d) => {
+                            const t = (d as unknown as { tecnico?: string })?.tecnico;
+                            if (onSelect && t) onSelect(t);
+                        }}
+                        style={onSelect ? { cursor: 'pointer' } : undefined}
+                    />
                 </BarChart>
             </ResponsiveContainer>
         </div>

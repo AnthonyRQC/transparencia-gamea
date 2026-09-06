@@ -1,16 +1,17 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LabelList } from 'recharts';
 import type { EmbudoItem } from '@/types/dashboard';
 
+/** Fases activas en rampa morada institucional; terminales en un solo gris. */
 const COLORES: Record<string, string> = {
-    ingresada: '#818cf8',
-    evaluacion_tecnica: '#a78bfa',
-    admitida: '#60a5fa',
-    asignada: '#22d3ee',
-    investigacion: '#2dd4bf',
-    informe: '#34d399',
-    rechazada: '#9ca3af',
+    ingresada: '#4B0090',
+    evaluacion_tecnica: '#5E1AA8',
+    admitida: '#6D28D9',
+    asignada: '#7C3AED',
+    investigacion: '#8B5CF6',
+    informe: '#A78BFA',
+    rechazada: '#6b7280',
     cerrada: '#6b7280',
-    cerrada_archivada: '#9ca3af',
+    cerrada_archivada: '#6b7280',
 };
 
 export default function GraficoEmbudo({ data, onSelect }: { data: EmbudoItem[]; onSelect?: (estado: string, label: string) => void }) {
@@ -37,7 +38,7 @@ export default function GraficoEmbudo({ data, onSelect }: { data: EmbudoItem[]; 
                         {data.map((d) => (
                             <Cell key={d.estado} fill={COLORES[d.estado] ?? '#818cf8'} opacity={d.esTerminal ? 0.55 : 1} />
                         ))}
-                        <LabelList dataKey="total" position="right" style={{ fontSize: 11, fontWeight: 700, fill: '#690bb2' }} />
+                        <LabelList dataKey="total" position="right" style={{ fontSize: 11, fontWeight: 700 }} />
                     </Bar>
                 </BarChart>
             </ResponsiveContainer>

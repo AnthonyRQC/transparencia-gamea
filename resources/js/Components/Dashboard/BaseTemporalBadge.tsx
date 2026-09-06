@@ -3,13 +3,22 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/Comp
 import { cn } from '@/lib/utils';
 import type { BaseTemporal } from '@/types/dashboard';
 
+const ETIQUETA: Record<BaseTemporal, string> = {
+  estado_actual: 'Hoy',
+  created_at: 'Por ingreso',
+  cerrado_at: 'Por cierre',
+  redactado_at: 'Por informe',
+  fecha_rechazada: 'Por rechazo',
+  fecha_envio: 'Por envío',
+};
+
 const DESCRIPCIONES: Record<BaseTemporal, string> = {
-  estado_actual: 'Estado actual — este elemento NO usa el rango de fechas',
-  created_at: 'Según fecha de ingreso del caso',
-  cerrado_at: 'Según fecha de cierre del caso',
-  redactado_at: 'Según fecha de redacción del informe final',
-  fecha_rechazada: 'Según fecha de rechazo del caso',
-  fecha_envio: 'Según fecha de envío de la solicitud',
+  estado_actual: 'Foto de hoy — no cambia con las fechas elegidas',
+  created_at: 'Cuenta por fecha de ingreso del caso',
+  cerrado_at: 'Cuenta por fecha de cierre del caso',
+  redactado_at: 'Cuenta por fecha del informe final',
+  fecha_rechazada: 'Cuenta por fecha de rechazo del caso',
+  fecha_envio: 'Cuenta por fecha de envío de la solicitud',
 };
 
 interface Props {
@@ -25,17 +34,18 @@ export default function BaseTemporalBadge({ base, className }: Props) {
     <TooltipProvider delayDuration={100}>
       <Tooltip>
         <TooltipTrigger asChild>
-          <span
+          <button
+            type="button"
             className={cn(
-              'inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-semibold uppercase tracking-wide cursor-help select-none',
+              'inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-semibold cursor-help select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50',
               esEstado ? 'bg-primary/10 text-primary' : 'bg-secondary/40 text-muted-foreground',
               className
             )}
           >
             {esEstado ? <Pin className="w-3 h-3" /> : <CalendarDays className="w-3 h-3" />}
-            {esEstado ? 'Estado actual' : 'Del período'}
+            {ETIQUETA[base]}
             <Info className="w-2.5 h-2.5 opacity-70" />
-          </span>
+          </button>
         </TooltipTrigger>
         <TooltipContent className="max-w-xs text-center text-[11px]">{DESCRIPCIONES[base]}</TooltipContent>
       </Tooltip>

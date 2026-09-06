@@ -1,6 +1,7 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LabelList } from 'recharts';
 
-const PALETA = ['#690bb2', '#fecd2a', '#60a5fa', '#22c55e', '#f97316', '#e879f9', '#14b8a6', '#ef4444'];
+/** Rampa monocromática institucional (categorías sin semántica): morado #4B0090 degradado. */
+const PALETA = ['#4B0090', '#5E1AA8', '#6D28D9', '#7C3AED', '#8B5CF6', '#A78BFA', '#C4B5FD', '#DDD6FE'];
 
 interface Props {
     data: Array<{ id?: number; label: string; value: number }>;
