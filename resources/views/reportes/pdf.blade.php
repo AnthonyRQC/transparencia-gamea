@@ -14,22 +14,22 @@
         }
         .membrete {
             text-align: center;
-            border-bottom: 3px solid #690bb2;
+            border-bottom: 3px solid #4B0090;
             padding-bottom: 10px;
             margin-bottom: 14px;
         }
         .membrete h1 {
             font-size: 13px;
             margin: 0 0 2px 0;
-            color: #690bb2;
+            color: #4B0090;
             letter-spacing: 1px;
         }
         .membrete h2 { font-size: 11px; margin: 0 0 4px 0; font-weight: bold; }
         .membrete p { margin: 0; font-size: 9px; color: #4b5563; }
-        .titulo { font-size: 11px; font-weight: bold; margin: 10px 0 6px 0; color: #690bb2; }
+        .titulo { font-size: 11px; font-weight: bold; margin: 10px 0 6px 0; color: #4B0090; }
         table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
         th {
-            background: #690bb2;
+            background: #4B0090;
             color: #ffffff;
             font-weight: bold;
             padding: 5px 6px;
@@ -38,9 +38,9 @@
             letter-spacing: 0.5px;
         }
         td { padding: 4px 6px; border: 1px solid #e5e7eb; }
-        tr:nth-child(even) td { background: #f9f5ff; }
+        tr:nth-child(even) td { background: #f6f1fb; }
         .kpi-row td { font-size: 10px; }
-        .kpi-row td b { font-size: 13px; color: #690bb2; }
+        .kpi-row td b { font-size: 13px; color: #4B0090; }
         .footer {
             margin-top: 16px;
             padding-top: 8px;

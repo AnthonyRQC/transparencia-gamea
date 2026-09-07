@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\CategoriaDenuncia;
 use App\Models\Clasificacion;
 use App\Models\Denuncia;
+use App\Models\DependenciaExterna;
 use App\Models\MedioNotificacion;
 use App\Models\User;
 use App\Exports\ReporteExcel;
@@ -274,5 +275,56 @@ class ReporteTest extends TestCase
         $fila = $export->collection()->first();
         $this->assertSame('ANÓNIMO', $fila[0]);
         $this->assertSame('NO IDENTIFICADO', $fila[1]);
+    }
+
+    public function test_preview_clasificacion_usa_fecha_informe(): void
+    {
+        // Informe reciente de un caso ingresado hace 60 días: el gráfico lo
+        // cuenta en el último mes, el modal debe listarlo también.
+        $viejo = $this->denuncia(['estado' => 'informe', 'created_at' => now()->subDays(60), 'updated_at' => now()->subDays(60)]);
+        $viejo->informe()->create([
+            'clasificacion_id' => Clasificacion::first()->id,
+            'concluido_por' => 'TECNICO UNO',
+            'redactado_at' => now()->subDays(5),
+        ]);
+
+        $this->actingAs($this->jefe);
+
+        $desde = now()->subDays(30)->toDateString();
+        $hasta = now()->toDateString();
+
+        // Base informe (la que usa el drill-down): sí aparece.
+        $this->get("/reportes/preview?clasificacion_id=" . Clasificacion::first()->id . "&desde={$desde}&hasta={$hasta}")
+            ->assertOk()
+            ->assertJsonPath('total', 1);
+
+        // Base ingreso explícita: no aparece (ingresó hace 60 días).
+        $this->get("/reportes/preview?clasificacion_id=" . Clasificacion::first()->id . "&desde={$desde}&hasta={$hasta}&fecha_base=ingreso")
+            ->assertOk()
+            ->assertJsonPath('total', 0);
+    }
+
+    public function test_preview_filtra_por_dependencia_con_subarbol(): void
+    {
+        $padre = DependenciaExterna::create(['nombre' => 'SECRETARIA PRUEBA', 'activa' => true]);
+        $hija = DependenciaExterna::create(['nombre' => 'UNIDAD PRUEBA', 'parent_id' => $padre->id, 'activa' => true]);
+
+        $d = $this->denuncia(['estado' => 'investigacion']);
+        $d->solicitudes()->create([
+            'dependencia_destino_id' => $hija->id,
+            'detalle' => 'SOLICITUD DE PRUEBA',
+            'plazo_dias' => 10,
+            'fecha_envio' => now(),
+            'fecha_vencimiento' => now()->addDays(10),
+        ]);
+        $this->denuncia(['estado' => 'investigacion']);
+
+        $this->actingAs($this->jefe);
+
+        // Filtrar por el padre trae el caso de la hija (roll-up).
+        $this->get('/reportes/preview?dependencia_id=' . $padre->id)
+            ->assertOk()
+            ->assertJsonPath('total', 1)
+            ->assertJsonPath('rows.0.ticket', $d->ticket);
     }
 }

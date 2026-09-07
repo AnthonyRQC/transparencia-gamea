@@ -98,7 +98,7 @@ export default function DesignSystem() {
                         Línea Gráfica Premium para <span className="text-primary bg-clip-text">Shadcn + React</span>
                     </h2>
                     <p className="text-muted-foreground text-sm sm:text-base md:text-lg leading-relaxed">
-                        Diseño contemporáneo con paleta personalizada usando el color principal <strong className="text-foreground">#690bb2 (Morado)</strong> y el secundario <strong className="text-foreground">#fecd2a (Amarillo)</strong>. Implementado nativamente en el espacio de color <code className="bg-muted px-1.5 py-0.5 rounded text-sm text-primary font-bold">OKLCH</code> con soporte para opacidad dinámica y modo oscuro automático.
+                        Diseño contemporáneo con paleta institucional usando el color principal <strong className="text-foreground">#4B0090 (Morado)</strong> y el secundario <strong className="text-foreground">#F5B400 (Dorado)</strong>, más teal <strong className="text-foreground">#008F89</strong> y magenta <strong className="text-foreground">#F4007A</strong> como semánticos. Implementado nativamente en el espacio de color <code className="bg-muted px-1.5 py-0.5 rounded text-sm text-primary font-bold">OKLCH</code> con soporte para opacidad dinámica y modo oscuro automático.
                     </p>
                 </div>
             </section>
@@ -116,8 +116,8 @@ export default function DesignSystem() {
                             <span className="font-bold">Color Principal (Primary)</span>
                         </div>
                         <div className="bg-primary text-primary-foreground p-4 rounded-xl space-y-1">
-                            <div className="text-lg font-bold">#690bb2</div>
-                            <div className="text-xs opacity-90 font-mono">oklch(0.4685 0.264 301.12)</div>
+                            <div className="text-lg font-bold">#4B0090</div>
+                            <div className="text-xs opacity-90 font-mono">oklch(0.3536 0.1919 297.03)</div>
                         </div>
                         <div className="grid grid-cols-5 gap-2">
                             <div className="h-10 rounded-lg bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary">10%</div>
@@ -135,8 +135,8 @@ export default function DesignSystem() {
                             <span className="font-bold">Color Secundario (Secondary)</span>
                         </div>
                         <div className="bg-secondary text-secondary-foreground p-4 rounded-xl space-y-1">
-                            <div className="text-lg font-bold">#fecd2a</div>
-                            <div className="text-xs opacity-90 font-mono">oklch(0.884 0.165 91.5)</div>
+                            <div className="text-lg font-bold">#F5B400</div>
+                            <div className="text-xs opacity-90 font-mono">oklch(0.8088 0.1665 82.31)</div>
                         </div>
                         <div className="grid grid-cols-5 gap-2">
                             <div className="h-10 rounded-lg bg-secondary/10 flex items-center justify-center text-[10px] font-bold text-secondary-foreground/70">10%</div>

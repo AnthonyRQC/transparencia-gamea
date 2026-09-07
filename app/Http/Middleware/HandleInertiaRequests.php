@@ -67,6 +67,10 @@ class HandleInertiaRequests extends Middleware
             ],
             // Time Machine: fecha simulada (solo local). El banner la muestra.
             'simFecha' => app()->isLocal() ? session('dev_sim_fecha') : null,
+            // Visible solo en local: Sidebar muestra el enlace a /dev/tiempo.
+            'devTiempo' => app()->isLocal()
+                ? ['visible' => true, 'simFecha' => session('dev_sim_fecha')]
+                : ['visible' => false, 'simFecha' => null],
         ];
 
         return $share;

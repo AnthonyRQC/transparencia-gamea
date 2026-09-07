@@ -227,4 +227,20 @@ class DashboardTest extends TestCase
                 ->where('kpis.activos', 1)
                 ->where('opciones.tecnicos', []));
     }
+
+    public function test_carga_respeta_filtro_tecnico_como_urgentes(): void
+    {
+        $this->denuncia(['estado' => 'asignada', 'tecnico_id' => $this->tecnico1->id]);
+        $this->denuncia(['estado' => 'asignada', 'tecnico_id' => $this->tecnico2->id]);
+
+        $this->actingAs($this->jefe);
+
+        $response = $this->get('/dashboard?tecnico_id=' . $this->tecnico1->id);
+
+        $response->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->where('rendimiento.modo', 'jefe')
+                ->where('rendimiento.cargaTecnicos', fn ($carga) => count($carga) === 1)
+                ->where('rendimiento.cargaTecnicos.0.tecnico', $this->tecnico1->name));
+    }
 }

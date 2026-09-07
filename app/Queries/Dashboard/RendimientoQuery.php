@@ -23,11 +23,12 @@ class RendimientoQuery
                 ->orderBy('name')
                 ->get(['id', 'name', 'activo']);
 
-            $activas = Denuncia::whereNull('deleted_at')
+            // Mismo set de filtros que casosUrgentes (técnico/tipo/categoría/
+            // clasificación, sin fechas ni estado: foto de hoy). Antes la carga
+            // ignoraba técnico y clasificación y no cuadraba con Urgentes.
+            $activas = DashboardQueryBase::denuncias($f, false)
                 ->whereNotIn('estado', self::ESTADOS_TERMINALES)
                 ->whereNotNull('tecnico_id')
-                ->when($f['tipo'], fn ($q, $v) => $q->where('tipo', $v))
-                ->when($f['categoria_id'], fn ($q, $v) => $q->where('categoria_id', $v))
                 ->with('ampliaciones')
                 ->get();
 

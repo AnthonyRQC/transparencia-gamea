@@ -6,6 +6,7 @@ use App\Exports\ReporteExcel;
 use App\Models\CategoriaDenuncia;
 use App\Models\Clasificacion;
 use App\Models\Denuncia;
+use App\Models\DependenciaExterna;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -137,14 +138,37 @@ class ReporteController extends Controller
 
     /**
      * Misma query base para pantalla, preview y exportación (Sprint 12 §9.3).
-     * El rango de fechas usa `created_at` (fecha de ingreso del caso).
+     * El rango de fechas usa por defecto `created_at` (fecha de ingreso), pero el
+     * drill-down del dashboard puede pedir la base natural de cada gráfico:
+     * `informe` (redactado_at) o `cierre` (cerrado_at). Sin `fecha_base`
+     * explícito se infiere: clasificacion_id → informe, medio_id → cierre.
      */
     private function queryBase(Request $request)
     {
+        $base = $request->input('fecha_base');
+        if (! in_array($base, ['ingreso', 'informe', 'cierre', 'rechazo'], true)) {
+            $base = $request->input('clasificacion_id') ? 'informe'
+                : ($request->input('medio_id') ? 'cierre' : 'ingreso');
+        }
+
         return Denuncia::with(['tecnico', 'categoria', 'ampliaciones', 'denunciante', 'denunciados', 'informe.clasificacionRel', 'cierre.medioNotificacion'])
             ->whereNull('deleted_at')
-            ->when($request->input('desde'), fn ($q, $v) => $q->whereDate('created_at', '>=', $v))
-            ->when($request->input('hasta'), fn ($q, $v) => $q->whereDate('created_at', '<=', $v))
+            ->when($request->input('desde'), function ($q, $v) use ($base) {
+                match ($base) {
+                    'informe' => $q->whereHas('informe', fn ($i) => $i->where('eliminado', false)->whereDate('redactado_at', '>=', $v)),
+                    'cierre' => $q->whereHas('cierre', fn ($c) => $c->where('eliminado', false)->whereDate('cerrado_at', '>=', $v)),
+                    'rechazo' => $q->whereDate('fecha_rechazada', '>=', $v),
+                    default => $q->whereDate('created_at', '>=', $v),
+                };
+            })
+            ->when($request->input('hasta'), function ($q, $v) use ($base) {
+                match ($base) {
+                    'informe' => $q->whereHas('informe', fn ($i) => $i->where('eliminado', false)->whereDate('redactado_at', '<=', $v)),
+                    'cierre' => $q->whereHas('cierre', fn ($c) => $c->where('eliminado', false)->whereDate('cerrado_at', '<=', $v)),
+                    'rechazo' => $q->whereDate('fecha_rechazada', '<=', $v),
+                    default => $q->whereDate('created_at', '<=', $v),
+                };
+            })
             ->when($request->input('tipo'), fn ($q, $v) => $q->where('tipo', $v))
             ->when($request->input('estado'), fn ($q, $v) => $this->aplicarEstado($q, $v))
             ->when($request->input('tecnico_id'), fn ($q, $v) => $q->where('tecnico_id', (int) $v))
@@ -165,12 +189,46 @@ class ReporteController extends Controller
                         ->where('cierres.notificacion_medio_id', (int) $request->input('medio_id'));
                 });
             })
+            ->when($request->input('dependencia_id'), function ($q) use ($request) {
+                $ids = $this->subarbolDependencia((int) $request->input('dependencia_id'));
+                $q->whereExists(function ($sub) use ($ids) {
+                    $sub->selectRaw('1')->from('solicitudes_informacion')
+                        ->whereColumn('solicitudes_informacion.denuncia_id', 'denuncias.id')
+                        ->where('solicitudes_informacion.eliminado', false)
+                        ->whereIn('solicitudes_informacion.dependencia_destino_id', $ids);
+                });
+            })
             ->when($request->input('busqueda'), function ($q) use ($request) {
                 $v = $request->input('busqueda');
                 $q->where(fn ($w) => $w->where('ticket', 'like', "%{$v}%")
                     ->orWhere('hechos', 'like', "%{$v}%"));
             })
             ->orderByDesc('created_at');
+    }
+
+    /**
+     * IDs del nodo + todos sus descendientes (árbol de dependencias).
+     * @return array<int>
+     */
+    private function subarbolDependencia(int $id): array
+    {
+        $todas = DependenciaExterna::query()->get(['id', 'parent_id']);
+        $hijos = [];
+        foreach ($todas as $d) {
+            $hijos[$d->parent_id ?? 0][] = $d->id;
+        }
+
+        $ids = [$id];
+        $cola = [$id];
+        while ($cola !== []) {
+            $actual = array_pop($cola);
+            foreach ($hijos[$actual] ?? [] as $h) {
+                $ids[] = $h;
+                $cola[] = $h;
+            }
+        }
+
+        return $ids;
     }
 
     private function aplicarEstado($q, string $estado)
@@ -210,6 +268,10 @@ class ReporteController extends Controller
             'categoria_id' => $request->input('categoria_id') ? (int) $request->input('categoria_id') : null,
             'clasificacion_id' => $request->input('clasificacion_id') ? (int) $request->input('clasificacion_id') : null,
             'medio_id' => $request->input('medio_id') ? (int) $request->input('medio_id') : null,
+            'dependencia_id' => $request->input('dependencia_id') ? (int) $request->input('dependencia_id') : null,
+            'fecha_base' => in_array($request->input('fecha_base'), ['ingreso', 'informe', 'cierre', 'rechazo'], true)
+                ? $request->input('fecha_base')
+                : null,
             'busqueda' => $request->input('busqueda') ?: null,
         ];
     }

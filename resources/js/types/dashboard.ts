@@ -26,6 +26,8 @@ export interface EmbudoItem {
 
 export interface EvolucionItem {
   periodo: string;
+  desde: string;
+  hasta: string;
   ingresadas: number;
   cerradas: number;
   rechazadas: number;

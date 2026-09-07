@@ -1,4 +1,5 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { TEMA } from '@/helpers/tema';
 import type { Rendimiento } from '@/types/dashboard';
 
 export default function GraficoCargaTecnicos({
@@ -15,13 +16,13 @@ export default function GraficoCargaTecnicos({
                     <CartesianGrid strokeDasharray="3 3" horizontal={false} />
                     <XAxis type="number" allowDecimals={false} tick={{ fontSize: 10 }} />
                     <YAxis type="category" dataKey="tecnico" width={150} tick={{ fontSize: 10 }} />
-                    <Tooltip cursor={{ fill: onSelect ? 'rgba(105,11,178,0.08)' : 'rgba(0,0,0,0.05)' }} />
+                    <Tooltip cursor={{ fill: onSelect ? TEMA.cursorHover : 'rgba(0,0,0,0.05)' }} />
                     <Legend wrapperStyle={{ fontSize: 11 }} />
                     <Bar
                         dataKey="enPlazo"
                         name="En plazo"
                         stackId="a"
-                        fill="#008F89"
+                        fill={TEMA.teal}
                         barSize={16}
                         onClick={(d) => {
                             const t = (d as unknown as { tecnico?: string })?.tecnico;
@@ -33,7 +34,7 @@ export default function GraficoCargaTecnicos({
                         dataKey="proximos"
                         name="Por vencer"
                         stackId="a"
-                        fill="#F5B400"
+                        fill={TEMA.dorado}
                         barSize={16}
                         onClick={(d) => {
                             const t = (d as unknown as { tecnico?: string })?.tecnico;
@@ -45,7 +46,7 @@ export default function GraficoCargaTecnicos({
                         dataKey="vencidos"
                         name="Vencidos"
                         stackId="a"
-                        fill="#F4007A"
+                        fill={TEMA.magenta}
                         radius={[0, 6, 6, 0]}
                         barSize={16}
                         onClick={(d) => {

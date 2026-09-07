@@ -1,18 +1,9 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LabelList } from 'recharts';
+import { TEMA } from '@/helpers/tema';
 import type { EmbudoItem } from '@/types/dashboard';
 
 /** Fases activas en rampa morada institucional; terminales en un solo gris. */
-const COLORES: Record<string, string> = {
-    ingresada: '#4B0090',
-    evaluacion_tecnica: '#5E1AA8',
-    admitida: '#6D28D9',
-    asignada: '#7C3AED',
-    investigacion: '#8B5CF6',
-    informe: '#A78BFA',
-    rechazada: '#6b7280',
-    cerrada: '#6b7280',
-    cerrada_archivada: '#6b7280',
-};
+const COLORES_ACTIVOS = [TEMA.primario(), '#5E1AA8', '#6D28D9', '#7C3AED', '#8B5CF6', '#A78BFA'];
 
 export default function GraficoEmbudo({ data, onSelect }: { data: EmbudoItem[]; onSelect?: (estado: string, label: string) => void }) {
     return (
@@ -22,7 +13,7 @@ export default function GraficoEmbudo({ data, onSelect }: { data: EmbudoItem[]; 
                     <CartesianGrid strokeDasharray="3 3" horizontal={false} />
                     <XAxis type="number" allowDecimals={false} tick={{ fontSize: 10 }} />
                     <YAxis type="category" dataKey="label" width={150} tick={{ fontSize: 10 }} />
-                    <Tooltip cursor={{ fill: onSelect ? 'rgba(105,11,178,0.08)' : 'rgba(0,0,0,0.05)' }} />
+                    <Tooltip cursor={{ fill: onSelect ? TEMA.cursorHover : 'rgba(0,0,0,0.05)' }} />
                     <Bar
                         dataKey="total"
                         name="Casos (clic para ver)"
@@ -35,8 +26,12 @@ export default function GraficoEmbudo({ data, onSelect }: { data: EmbudoItem[]; 
                         }}
                         style={onSelect ? { cursor: 'pointer' } : undefined}
                     >
-                        {data.map((d) => (
-                            <Cell key={d.estado} fill={COLORES[d.estado] ?? '#818cf8'} opacity={d.esTerminal ? 0.55 : 1} />
+                        {data.map((d, i) => (
+                            <Cell
+                                key={d.estado}
+                                fill={d.esTerminal ? TEMA.grisTerminal : (COLORES_ACTIVOS[i % COLORES_ACTIVOS.length] ?? TEMA.primario())}
+                                opacity={d.esTerminal ? 0.55 : 1}
+                            />
                         ))}
                         <LabelList dataKey="total" position="right" style={{ fontSize: 11, fontWeight: 700 }} />
                     </Bar>

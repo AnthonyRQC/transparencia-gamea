@@ -132,6 +132,7 @@ class DenunciaMasivaSeeder extends Seeder
         mt_srand(2026);
         $this->crearCasosPipeline();
         $this->crearCasosAsignados();
+        $this->crearCasosVolumen();
         $this->actualizarSiguienteTicket();
     }
 
@@ -469,7 +470,82 @@ class DenunciaMasivaSeeder extends Seeder
 
     private function actualizarSiguienteTicket(): void
     {
-        ConfiguracionSistema::where('clave', 'siguiente_numero_ticket')->update(['valor' => '85']);
+        ConfiguracionSistema::where('clave', 'siguiente_numero_ticket')->update(['valor' => '125']);
+    }
+
+    /**
+     * Volumen demo (tickets 85-124): 40 casos generados con textos realistas
+     * rotados (sin lorem ipsum, para no romper buscadores ni filtros).
+     * ~90% en plazo; un par en mora intencional para badges rojos.
+     */
+    private function crearCasosVolumen(): void
+    {
+        $tecnicos = User::where('rol', 'tecnico')->where('activo', true)->orderBy('id')->pluck('id')->toArray();
+        if ($tecnicos === []) {
+            return;
+        }
+
+        $estados = [
+            'investigacion', 'investigacion', 'investigacion',
+            'asignada', 'asignada',
+            'informe', 'informe',
+            'cerrada', 'cerrada', 'cerrada',
+            'admitida', 'cerrada_archivada', 'ingresada',
+        ];
+
+        for ($num = 85; $num <= 124; $num++) {
+            if ($num === 119) {
+                continue; // Se crea abajo como mora intencional.
+            }
+            $estado = $estados[$num % count($estados)];
+            $tec = $tecnicos[$num % count($tecnicos)];
+            // Negación (20d) más reciente que corrupción (45d) para ~90% en plazo.
+            $esNeg = $num % 4 === 0;
+            $cr = $esNeg ? 3 + ($num % 12) : 5 + ($num % 25);
+
+            $c = [
+                'ticket' => $this->ticket($num),
+                'estado' => $estado,
+                'tecnico_id' => in_array($estado, ['ingresada', 'admitida'], true) ? null : $tec,
+                'cr' => $cr,
+                'tipo' => $esNeg ? 'negacion' : 'corrupcion',
+            ];
+
+            if (! in_array($estado, ['ingresada'], true)) {
+                $c['adm'] = max(0, $cr - 2);
+            }
+            if (! in_array($estado, ['ingresada', 'admitida'], true)) {
+                $c['asg'] = max(0, $cr - 4);
+            }
+            if (in_array($estado, ['investigacion', 'informe', 'cerrada', 'cerrada_archivada'], true)) {
+                $c['inv'] = max(0, $cr - 6);
+                if ($num % 2 === 0) {
+                    $c['sol'] = true;
+                }
+                if ($num % 3 === 0) {
+                    $c['des'] = true;
+                }
+            }
+            if (in_array($estado, ['informe', 'cerrada', 'cerrada_archivada'], true)) {
+                $c['inf'] = max(0, (int) ($cr / 3));
+            }
+            if (in_array($estado, ['cerrada', 'cerrada_archivada'], true)) {
+                $c['crt'] = max(0, (int) ($cr / 4));
+            }
+            if ($estado === 'cerrada_archivada') {
+                $c['sub'] = 'archivada';
+                $c['clas'] = 'sin_indicios';
+            }
+
+            $this->crearDenuncia($c);
+        }
+
+        // Dos en mora intencional (fuera del 90% en plazo).
+        $this->crearDenuncia([
+            'ticket' => $this->ticket(119), 'estado' => 'investigacion',
+            'tecnico_id' => $tecnicos[0], 'cr' => 70, 'adm' => 65, 'asg' => 62,
+            'inv' => 58, 'sol' => true, 'tipo' => 'corrupcion',
+        ]);
     }
 
     private function crearCasosPipeline(): void

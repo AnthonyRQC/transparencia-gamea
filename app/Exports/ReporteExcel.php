@@ -42,7 +42,7 @@ class ReporteExcel implements FromCollection, WithHeadings, WithStyles, ShouldAu
         $sheet->getStyle("A1:{$ultima}1")->getFont()->setBold(true)->getColor()->setARGB('FFFFFF');
         $sheet->getStyle("A1:{$ultima}1")->getFill()
             ->setFillType(Fill::FILL_SOLID)
-            ->getStartColor()->setARGB('690BB2');
+            ->getStartColor()->setARGB('4B0090');
 
         return [];
     }

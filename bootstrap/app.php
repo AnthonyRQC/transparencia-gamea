@@ -18,9 +18,11 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
         ]);
 
-        // Time Machine: debe correr antes que el resto del grupo web
-        // para que Carbon::setTestNow() aplique a controllers y shares.
-        $middleware->web(prepend: [
+        // Time Machine: corre DENTRO del grupo web DESPUÉS de la sesión
+        // (append, no prepend: antes de StartSession no hay session() disponible
+        // y la fecha simulada se perdía en silencio). Sigue antes que los
+        // controllers, así Carbon::setTestNow() aplica a todo el request.
+        $middleware->web(append: [
             \App\Http\Middleware\SimularFecha::class,
         ]);
 

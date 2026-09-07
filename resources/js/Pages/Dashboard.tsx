@@ -119,6 +119,26 @@ export default function Dashboard(props: DashboardProps) {
                         esTecnico={esTecnico}
                         bandejaHref={route('denuncias.bandeja')}
                         misCasosHref={route('denuncias.mis-casos')}
+                        onDrillRechazadas={
+                            esJefe
+                                ? () =>
+                                      abrirDrill(
+                                          'Casos rechazados en el período',
+                                          { estado: 'rechazada', fecha_base: 'rechazo' },
+                                          'Mismos casos de la tarjeta (por fecha de rechazo).'
+                                      )
+                                : undefined
+                        }
+                        onDrillIngresadas={
+                            esJefe
+                                ? () =>
+                                      abrirDrill(
+                                          'Casos ingresados en el período',
+                                          { fecha_base: 'ingreso' },
+                                          'Mismos casos de la tarjeta (por fecha de ingreso).'
+                                      )
+                                : undefined
+                        }
                     />
                 </section>
 
@@ -161,6 +181,43 @@ export default function Dashboard(props: DashboardProps) {
                                           abrirDrill(`Casos en: ${label}`, { estado, sinRango: true }, 'Estado actual de cada caso (foto de hoy).')
                                     : undefined
                             }
+                            onDrillEvolucion={
+                                esJefe
+                                    ? (linea, item) => {
+                                          const base =
+                                              linea === 'ingresadas'
+                                                  ? ({ fecha_base: 'ingreso' } as const)
+                                                  : linea === 'cerradas'
+                                                    ? ({ fecha_base: 'cierre' } as const)
+                                                    : ({ estado: 'rechazada', fecha_base: 'rechazo' } as const);
+                                          const titulo =
+                                              linea === 'ingresadas'
+                                                  ? `Ingresadas: ${item.periodo}`
+                                                  : linea === 'cerradas'
+                                                    ? `Cerradas: ${item.periodo}`
+                                                    : `Rechazadas: ${item.periodo}`;
+                                          abrirDrill(titulo, { ...base, desde: item.desde, hasta: item.hasta }, `Casos del ${item.desde} al ${item.hasta}.`);
+                                      }
+                                    : undefined
+                            }
+                            onDrillLinea={
+                                esJefe
+                                    ? (linea) =>
+                                          abrirDrill(
+                                              linea === 'ingresadas'
+                                                  ? 'Ingresadas del período'
+                                                  : linea === 'cerradas'
+                                                    ? 'Cerradas del período'
+                                                    : 'Rechazadas del período',
+                                              linea === 'ingresadas'
+                                                  ? { fecha_base: 'ingreso' }
+                                                  : linea === 'cerradas'
+                                                    ? { fecha_base: 'cierre' }
+                                                    : { estado: 'rechazada', fecha_base: 'rechazo' },
+                                              'Casos del rango elegido en Filtros.'
+                                          )
+                                    : undefined
+                            }
                         />
                     </TabsContent>
                     <TabsContent value="resultados" className="mt-3">
@@ -172,8 +229,8 @@ export default function Dashboard(props: DashboardProps) {
                                     ? (id, label) =>
                                           abrirDrill(
                                               `Casos terminados en: ${label}`,
-                                              { clasificacion_id: id },
-                                              'El gráfico cuenta por fecha del informe; aquí se listan por fecha de ingreso en el rango.'
+                                              { clasificacion_id: id, fecha_base: 'informe' },
+                                              'Mismos casos del gráfico (por fecha del informe).'
                                           )
                                     : undefined
                             }
@@ -182,8 +239,18 @@ export default function Dashboard(props: DashboardProps) {
                                     ? (id, label) =>
                                           abrirDrill(
                                               `Cierres notificados por: ${label}`,
-                                              { medio_id: id },
-                                              'El gráfico cuenta por fecha de cierre; aquí se listan por fecha de ingreso en el rango.'
+                                              { medio_id: id, fecha_base: 'cierre' },
+                                              'Mismos casos del gráfico (por fecha de cierre).'
+                                          )
+                                    : undefined
+                            }
+                            onDrillDependencia={
+                                esJefe
+                                    ? (id, label) =>
+                                          abrirDrill(
+                                              `Casos con solicitudes a: ${label}`,
+                                              { dependencia_id: id },
+                                              'Casos con solicitudes a esta unidad o sus subordinadas.'
                                           )
                                     : undefined
                             }

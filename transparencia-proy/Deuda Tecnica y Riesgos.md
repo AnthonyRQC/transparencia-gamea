@@ -1,7 +1,7 @@
 # Deuda Técnica y Riesgos
 
 > **Propósito:** Registro vivo de deuda, riesgos y mejoras diferidas para trabajar a futuro. No es roadmap de sprints.
-> **Actualizado:** 2026-09-04. Stack: Laravel 13 / PHP 8.3.
+> **Actualizado:** 2026-09-06. Stack: Laravel 13 / PHP 8.3. Suite 88 tests.
 
 ## P0 — Bloquea demo / dashboard
 
@@ -13,6 +13,11 @@
 | 4 | `random_int` sin seed | `DenunciaMasivaSeeder.php:192,224,438` | Demo no reproducible | `srand(2026)` / faker seed | S |
 | 5 | `backup-transparencia-*.sql` versionado | raíz | Repo pesado, confunde fuente (fuente = seeders) | `.gitignore` + mover a backup local | S |
 | 6 | Alertas plazo no vivas (solo persistidas) | `HandleInertiaRequests.php:50`, `NotificacionController.php:16` | Campana no muestra “vence en N días” sin Time Machine + derivadas | Restaurar `AlertasPlazo` derivada (Sprint 9 → Eloquent) | M |
+
+## Resuelto en Sprint 12.1 (Sep 2026)
+- ✅ #1, #2, #3, #4: seeders relativos + fixes + `mt_srand(2026)` + volumen (124 casos).
+- ✅ #6: `AlertasPlazo` derivada + Time Machine (`/dev/tiempo`, fix sesión) + enlace Sidebar dev-only.
+- ✅ Parcial paleta: tokens institucionales en `app.css` + `helpers/tema.ts` (quedan Login/Perfil legacy y 19 páginas).
 
 ## P1 — Mantenibilidad
 
@@ -33,6 +38,8 @@
 | 14 | `setup-demo-publica/` versionado | raíz | Mover a docs operativas / gitignore | S |
 | 15 | Nombres dependencia legacy en seeder | `DenunciaMasivaSeeder.php:107-128` vs árbol 185 nodos | Resolver por `parent_id`/nombre hoja real | S |
 | 16 | Sin índice `users.activo` en agregaciones | `Consultas - Dashboard` §1 | Verificar índice + toggle inactivos | S |
+| 17 | Teclado en barras Recharts | `GraficoEmbudo/Barras/Carga/Evolucion` (solo `onClick`) | `tabIndex`+`role`+alternativa tabular (badge ya focuseable) | S |
+| 18 | Chips con fechas crudas + Reset→Limpiar | `FiltrosDashboard.tsx` | Fechas "7 ago → 5 sep", unificar etiquetas | S |
 
 ## Pendientes cliente (no deuda, no tocar sin consulta)
 

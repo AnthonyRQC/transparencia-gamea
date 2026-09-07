@@ -59,6 +59,7 @@ class ResultadosQuery
             ->toArray();
 
         $dependencias = array_map(fn ($d) => [
+            'id' => $d['id'],
             'label' => $d['nombre'],
             'value' => $d['total'],
         ], RollUpDependencias::top($cuentas, 8));

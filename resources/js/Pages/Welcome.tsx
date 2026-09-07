@@ -75,10 +75,10 @@ export default function Welcome({ auth, jacha_url, canLogin, canRegister }: Welc
                     animation: orbital-float 5s ease-in-out infinite 2s;
                 }
                 .glow-effect {
-                    box-shadow: 0 0 40px 10px rgba(105, 11, 178, 0.15);
+                    box-shadow: 0 0 40px 10px rgba(75, 0, 144, 0.15);
                 }
                 .glow-secondary {
-                    box-shadow: 0 0 30px 5px rgba(254, 205, 42, 0.2);
+                    box-shadow: 0 0 30px 5px rgba(245, 180, 0, 0.2);
                 }
             `}</style>
 

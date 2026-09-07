@@ -53,7 +53,7 @@ export default function Reportes({ denuncias, opciones, filtros }: Props) {
                         <div>
                             <h1 className="text-2xl font-bold tracking-tight leading-tight">Reportes</h1>
                             <p className="text-sm text-muted-foreground">
-                                Listado filtrable y exportación PDF / Excel institucional.
+                                Listado de casos con filtros. Busca, revisa y exporta a PDF o Excel.
                             </p>
                         </div>
                     </div>

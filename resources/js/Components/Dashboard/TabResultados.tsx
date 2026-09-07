@@ -8,9 +8,10 @@ interface Props {
     baseTemporal: Record<string, BaseTemporal>;
     onDrillClasificacion?: (id: number | undefined, label: string) => void;
     onDrillMedio?: (id: number | undefined, label: string) => void;
+    onDrillDependencia?: (id: number | undefined, label: string) => void;
 }
 
-export default function TabResultados({ resultados, baseTemporal, onDrillClasificacion, onDrillMedio }: Props) {
+export default function TabResultados({ resultados, baseTemporal, onDrillClasificacion, onDrillMedio, onDrillDependencia }: Props) {
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div className="border rounded-2xl bg-card p-4 space-y-2">
@@ -35,7 +36,15 @@ export default function TabResultados({ resultados, baseTemporal, onDrillClasifi
                     </div>
                     <BaseTemporalBadge base={baseTemporal['resultados.dependencias']} />
                 </div>
-                <GraficoBarras data={resultados.dependencias} height={220} unit="Solicitudes" />
+                <GraficoBarras
+                    data={resultados.dependencias}
+                    height={220}
+                    unit="Solicitudes"
+                    onSelect={onDrillDependencia ? (item) => onDrillDependencia(item.id, item.label) : undefined}
+                />
+                {onDrillDependencia && (
+                    <p className="text-[11px] text-muted-foreground">Clic en una unidad para ver los casos (incluye subordinadas).</p>
+                )}
             </div>
             <div className="border rounded-2xl bg-card p-4 space-y-2">
                 <div className="flex items-center justify-between gap-2 flex-wrap">
@@ -54,7 +63,7 @@ export default function TabResultados({ resultados, baseTemporal, onDrillClasifi
             <div className="border rounded-2xl border-dashed p-4 flex flex-col items-center justify-center gap-2 text-muted-foreground min-h-[240px]">
                 <Hourglass className="w-8 h-8" />
                 <p className="text-xs font-semibold uppercase tracking-wide">Próximamente</p>
-                <p className="text-[11px] text-center">Tiempos entre fases (Sprint 14)</p>
+                <p className="text-[11px] text-center">Tiempos promedio entre fases</p>
             </div>
         </div>
     );

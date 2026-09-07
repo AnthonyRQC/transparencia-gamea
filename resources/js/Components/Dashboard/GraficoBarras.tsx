@@ -1,7 +1,5 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LabelList } from 'recharts';
-
-/** Rampa monocromática institucional (categorías sin semántica): morado #4B0090 degradado. */
-const PALETA = ['#4B0090', '#5E1AA8', '#6D28D9', '#7C3AED', '#8B5CF6', '#A78BFA', '#C4B5FD', '#DDD6FE'];
+import { TEMA } from '@/helpers/tema';
 
 interface Props {
     data: Array<{ id?: number; label: string; value: number }>;
@@ -11,6 +9,7 @@ interface Props {
 }
 
 export default function GraficoBarras({ data, height = 200, unit = 'Casos', onSelect }: Props) {
+    const rampa = TEMA.rampaMorada();
     return (
         <div style={{ height }} className="w-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -18,7 +17,7 @@ export default function GraficoBarras({ data, height = 200, unit = 'Casos', onSe
                     <CartesianGrid strokeDasharray="3 3" horizontal={false} />
                     <XAxis type="number" allowDecimals={false} tick={{ fontSize: 10 }} />
                     <YAxis type="category" dataKey="label" width={160} tick={{ fontSize: 10 }} />
-                    <Tooltip cursor={{ fill: onSelect ? 'rgba(105,11,178,0.08)' : 'rgba(0,0,0,0.05)' }} />
+                    <Tooltip cursor={{ fill: onSelect ? TEMA.cursorHover : 'rgba(0,0,0,0.05)' }} />
                     <Bar
                         dataKey="value"
                         name={onSelect ? `${unit} (clic para ver)` : unit}
@@ -33,7 +32,7 @@ export default function GraficoBarras({ data, height = 200, unit = 'Casos', onSe
                         style={onSelect ? { cursor: 'pointer' } : undefined}
                     >
                         {data.map((_, i) => (
-                            <Cell key={i} fill={PALETA[i % PALETA.length]} />
+                            <Cell key={i} fill={rampa[i % rampa.length]} />
                         ))}
                         <LabelList dataKey="value" position="right" style={{ fontSize: 10, fontWeight: 700 }} />
                     </Bar>

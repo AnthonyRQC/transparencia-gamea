@@ -34,10 +34,10 @@ export default function BaseTemporalBadge({ base, className }: Props) {
     <TooltipProvider delayDuration={100}>
       <Tooltip>
         <TooltipTrigger asChild>
-          <button
-            type="button"
+          <span
+            tabIndex={0}
             className={cn(
-              'inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-semibold cursor-help select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50',
+              'inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-semibold cursor-help select-none outline-none focus-visible:ring-2 focus-visible:ring-primary/50',
               esEstado ? 'bg-primary/10 text-primary' : 'bg-secondary/40 text-muted-foreground',
               className
             )}
@@ -45,7 +45,7 @@ export default function BaseTemporalBadge({ base, className }: Props) {
             {esEstado ? <Pin className="w-3 h-3" /> : <CalendarDays className="w-3 h-3" />}
             {ETIQUETA[base]}
             <Info className="w-2.5 h-2.5 opacity-70" />
-          </button>
+          </span>
         </TooltipTrigger>
         <TooltipContent className="max-w-xs text-center text-[11px]">{DESCRIPCIONES[base]}</TooltipContent>
       </Tooltip>

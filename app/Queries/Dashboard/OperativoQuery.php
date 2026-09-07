@@ -123,6 +123,8 @@ class OperativoQuery
 
         return array_map(fn ($p) => [
             'periodo' => $p['periodo'],
+            'desde' => $p['desde'],
+            'hasta' => $p['hasta'],
             'ingresadas' => $ingresadas[$p['clave']] ?? 0,
             'cerradas' => $cerradas[$p['clave']] ?? 0,
             'rechazadas' => $rechazadas[$p['clave']] ?? 0,
@@ -137,7 +139,12 @@ class OperativoQuery
             $d = $desde->copy();
             while ($d->lte($hasta)) {
                 $clave = $d->format('Y-m-d');
-                $periodos[] = ['clave' => $clave, 'periodo' => $d->format('d/m')];
+                $periodos[] = [
+                    'clave' => $clave,
+                    'periodo' => $d->format('d/m'),
+                    'desde' => $clave,
+                    'hasta' => $clave,
+                ];
                 $d->addDay();
             }
             return $periodos;
@@ -147,7 +154,12 @@ class OperativoQuery
             $d = $desde->copy()->startOfWeek();
             while ($d->lte($hasta)) {
                 $clave = sprintf('%04d-W%02d', $d->isoWeekYear, $d->isoWeek);
-                $periodos[] = ['clave' => $clave, 'periodo' => 'Sem ' . $d->format('d/m')];
+                $periodos[] = [
+                    'clave' => $clave,
+                    'periodo' => 'Sem ' . $d->format('d/m'),
+                    'desde' => $d->copy()->format('Y-m-d'),
+                    'hasta' => $d->copy()->endOfWeek()->format('Y-m-d'),
+                ];
                 $d->addWeek();
             }
             return $periodos;
@@ -156,7 +168,12 @@ class OperativoQuery
         $d = $desde->copy()->startOfMonth();
         while ($d->lte($hasta)) {
             $clave = $d->format('Y-m');
-            $periodos[] = ['clave' => $clave, 'periodo' => $d->isoFormat('MMM YYYY')];
+            $periodos[] = [
+                'clave' => $clave,
+                'periodo' => $d->isoFormat('MMM YYYY'),
+                'desde' => $d->copy()->format('Y-m-d'),
+                'hasta' => $d->copy()->endOfMonth()->format('Y-m-d'),
+            ];
             $d->addMonth();
         }
 

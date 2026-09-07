@@ -1,15 +1,18 @@
+import { Button } from '@/Components/ui/button';
 import GraficoEmbudo from './GraficoEmbudo';
-import GraficoEvolucion from './GraficoEvolucion';
+import GraficoEvolucion, { type LineaEvolucion } from './GraficoEvolucion';
 import BaseTemporalBadge from './BaseTemporalBadge';
-import type { BaseTemporal, Operativo } from '@/types/dashboard';
+import type { BaseTemporal, EvolucionItem, Operativo } from '@/types/dashboard';
 
 interface Props {
     operativo: Operativo;
     baseTemporal: Record<string, BaseTemporal>;
     onDrillEstado?: (estado: string, label: string) => void;
+    onDrillEvolucion?: (linea: LineaEvolucion, item: EvolucionItem) => void;
+    onDrillLinea?: (linea: LineaEvolucion) => void;
 }
 
-export default function TabOperativo({ operativo, baseTemporal, onDrillEstado }: Props) {
+export default function TabOperativo({ operativo, baseTemporal, onDrillEstado, onDrillEvolucion, onDrillLinea }: Props) {
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div className="border rounded-2xl bg-card p-4 space-y-2">
@@ -41,7 +44,24 @@ export default function TabOperativo({ operativo, baseTemporal, onDrillEstado }:
                     </div>
                     <BaseTemporalBadge base={baseTemporal['operativo.evolucion']} />
                 </div>
-                <GraficoEvolucion data={operativo.evolucion} />
+                <GraficoEvolucion data={operativo.evolucion} onSelect={onDrillEvolucion} />
+                {onDrillLinea ? (
+                    <div className="flex flex-wrap gap-1.5">
+                        <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => onDrillLinea('ingresadas')}>
+                            Ver ingresadas
+                        </Button>
+                        <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => onDrillLinea('cerradas')}>
+                            Ver cerradas
+                        </Button>
+                        <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => onDrillLinea('rechazadas')}>
+                            Ver rechazadas
+                        </Button>
+                    </div>
+                ) : (
+                    onDrillEvolucion && (
+                        <p className="text-[11px] text-muted-foreground">Clic en un punto para ver los casos de ese período.</p>
+                    )
+                )}
             </div>
         </div>
     );

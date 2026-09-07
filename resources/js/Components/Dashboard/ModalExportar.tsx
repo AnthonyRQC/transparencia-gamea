@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from '@inertiajs/react';
-import { Download, FileText, FileSpreadsheet, ExternalLink, Loader2, FileDown, ChevronLeft, ChevronRight, Columns3 } from 'lucide-react';
+import { Download, FileText, FileSpreadsheet, ExternalLink, Loader2, FileDown, ChevronLeft, ChevronRight, Columns3, Eye } from 'lucide-react';
 import axios from 'axios';
 import { route } from 'ziggy-js';
 import { Button } from '@/Components/ui/button';
@@ -196,23 +196,24 @@ export default function ModalExportar({ filtros, open, onOpenChange }: Props) {
                     <div className="max-h-56 overflow-y-auto">
                         <Table>
                             <TableHeader>
-                                <TableRow>
-                                    <TableHead>Ticket</TableHead>
-                                    <TableHead>Tipo</TableHead>
-                                    <TableHead>Estado</TableHead>
-                                    <TableHead>F. Ingreso</TableHead>
-                                </TableRow>
+                            <TableRow>
+                                <TableHead>Ticket</TableHead>
+                                <TableHead>Tipo</TableHead>
+                                <TableHead>Estado</TableHead>
+                                <TableHead>F. Ingreso</TableHead>
+                                <TableHead className="w-12 text-right">Ver</TableHead>
+                            </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {cargando ? (
                                     <TableRow>
-                                        <TableCell colSpan={4} className="h-20 text-center">
+                                        <TableCell colSpan={5} className="h-20 text-center">
                                             <Loader2 className="w-5 h-5 animate-spin inline text-muted-foreground" />
                                         </TableCell>
                                     </TableRow>
                                 ) : rows.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={4} className="h-20 text-center text-muted-foreground text-sm">
+                                        <TableCell colSpan={5} className="h-20 text-center text-muted-foreground text-sm">
                                             Sin resultados para los filtros.
                                         </TableCell>
                                     </TableRow>
@@ -223,6 +224,15 @@ export default function ModalExportar({ filtros, open, onOpenChange }: Props) {
                                             <TableCell className="text-xs">{ETIQUETAS_TIPO[r.tipo] ?? r.tipo}</TableCell>
                                             <TableCell className="text-xs">{r.estado}</TableCell>
                                             <TableCell className="text-xs">{r.created_at}</TableCell>
+                                            <TableCell className="text-right">
+                                                <Link
+                                                    href={`${route('denuncias.bandeja')}?destacar=${r.ticket}`}
+                                                    title={`Ver ${r.ticket}`}
+                                                    className="inline-flex p-1.5 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
+                                                >
+                                                    <Eye className="w-4 h-4" />
+                                                </Link>
+                                            </TableCell>
                                         </TableRow>
                                     ))
                                 )}
@@ -245,13 +255,12 @@ export default function ModalExportar({ filtros, open, onOpenChange }: Props) {
                 </div>
 
                 <DialogFooter className="gap-2 sm:justify-between">
-                    <Link
-                        href={`${route('reportes.index')}?${queryParams()}`}
-                        className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
-                    >
-                        Abrir en Reportes
-                        <ExternalLink className="w-3.5 h-3.5" />
-                    </Link>
+                    <Button variant="outline" size="sm" asChild>
+                        <Link href={`${route('reportes.index')}?${queryParams()}`}>
+                            Abrir en Reportes para más detalle
+                            <ExternalLink className="w-3.5 h-3.5" />
+                        </Link>
+                    </Button>
                     <div className="flex gap-2">
                         <Label className="text-xs text-muted-foreground self-center hidden sm:block">
                             Se descargarán los {total}

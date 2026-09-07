@@ -12,6 +12,7 @@ import {
     FileSearch,
     Search,
     BookOpen,
+    FlaskConical,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Permiso } from '@/permissions';
@@ -127,6 +128,19 @@ export default function Sidebar({
             permiso: 'menu.catalogos',
         },
     ];
+
+    // Time Machine (solo local): enlace dev fuera del sistema de permisos.
+    const devTiempo = sidebarProps.devTiempo as { visible?: boolean; simFecha?: string | null } | undefined;
+    if (devTiempo?.visible) {
+        todosLosItems.push({
+            key: 'dev-tiempo',
+            label: devTiempo.simFecha ? `Tiempo: ${devTiempo.simFecha}` : 'Time Machine',
+            href: route('dev.tiempo'),
+            routeName: 'dev.tiempo',
+            icon: <FlaskConical className="w-5 h-5 shrink-0" />,
+            badge: devTiempo.simFecha ? 1 : undefined,
+        });
+    }
 
     const menuItems = todosLosItems.filter((item) => {
         if (!item.permiso) return true;

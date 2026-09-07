@@ -9,12 +9,12 @@
     /* Base Color Spaces (Space-separated OKLCH channels: Lightness Chroma Hue) */
     --background: 0.99 0.005 301.12;
     --foreground: 0.15 0.05 301.12;
-    --sidebar: 0.12 0.05 301.12;
+    --sidebar: 0.3299 0.1543 299.09;
     --sidebar-foreground: 0.97 0.01 301.12;
-    --sidebar-border: 0.18 0.05 301.12;
-    --sidebar-accent: 0.88 0.16 91.5;
-    --sidebar-muted: 0.18 0.05 301.12;
-    --sidebar-ring: 0.88 0.16 91.5;
+    --sidebar-border: 0.25 0.10 299.09;
+    --sidebar-accent: 0.8088 0.1665 82.31;
+    --sidebar-muted: 0.25 0.10 299.09;
+    --sidebar-ring: 0.8088 0.1665 82.31;
     
     --card: 1.00 0 0;
     --card-foreground: 0.15 0.05 301.12;
@@ -22,13 +22,13 @@
     --popover: 1.00 0 0;
     --popover-foreground: 0.15 0.05 301.12;
     
-    /* Primary brand color #690bb2 */
-    --primary: 0.4685 0.264 301.12;
+    /* Primary brand color #4B0090 (morado institucional) */
+    --primary: 0.3536 0.1919 297.03;
     --primary-foreground: 0.99 0.005 301.12;
     
-    /* Secondary brand color #fecd2a */
-    --secondary: 0.884 0.165 91.5;
-    --secondary-foreground: 0.15 0.05 301.12; /* Dark text for high contrast */
+    /* Secondary brand color #F5B400 (dorado institucional) */
+    --secondary: 0.8088 0.1665 82.31;
+    --secondary-foreground: 0.25 0.08 299.09; /* Dark purple text for contrast on gold */
     
     --muted: 0.96 0.015 301.12;
     --muted-foreground: 0.50 0.04 301.12;
@@ -36,12 +36,13 @@
     --accent: 0.95 0.025 301.12;
     --accent-foreground: 0.35 0.18 301.12;
     
-    --destructive: 0.58 0.18 20;
+    /* Alert brand color #F4007A (magenta: vencidos, peligro) */
+    --destructive: 0.6241 0.2517 2.53;
     --destructive-foreground: 0.99 0.005 301.12;
     
     --border: 0.92 0.015 301.12;
     --input: 0.92 0.015 301.12;
-    --ring: 0.4685 0.264 301.12;
+    --ring: 0.3536 0.1919 297.03;
     
     --radius: 0.6rem;
     
@@ -59,12 +60,12 @@
   .dark {
     --background: 0.10 0.03 301.12;
     --foreground: 0.97 0.01 301.12;
-    --sidebar: 0.06 0.04 301.12;
+    --sidebar: 0.16 0.08 299.09;
     --sidebar-foreground: 0.95 0.02 301.12;
-    --sidebar-border: 0.10 0.04 301.12;
-    --sidebar-accent: 0.88 0.16 91.5;
-    --sidebar-muted: 0.10 0.04 301.12;
-    --sidebar-ring: 0.88 0.16 91.5;
+    --sidebar-border: 0.22 0.08 299.09;
+    --sidebar-accent: 0.8088 0.1665 82.31;
+    --sidebar-muted: 0.22 0.08 299.09;
+    --sidebar-ring: 0.8088 0.1665 82.31;
     
     --card: 0.13 0.03 301.12;
     --card-foreground: 0.97 0.01 301.12;
@@ -72,11 +73,11 @@
     --popover: 0.13 0.03 301.12;
     --popover-foreground: 0.97 0.01 301.12;
     
-    /* Slightly lighter primary in dark mode for better contrast */
-    --primary: 0.58 0.24 301.12;
-    --primary-foreground: 0.99 0.005 301.12;
+    /* Lighter primary in dark mode for contrast on dark surfaces */
+    --primary: 0.6268 0.2325 303.90;
+    --primary-foreground: 0.16 0.08 299.09;
     
-    --secondary: 0.884 0.165 91.5;
+    --secondary: 0.8088 0.1665 82.31;
     --secondary-foreground: 0.10 0.03 301.12;
     
     --muted: 0.16 0.03 301.12;
@@ -85,12 +86,12 @@
     --accent: 0.18 0.03 301.12;
     --accent-foreground: 0.97 0.01 301.12;
     
-    --destructive: 0.50 0.18 20;
+    --destructive: 0.66 0.22 2.53;
     --destructive-foreground: 0.99 0.005 301.12;
     
     --border: 0.20 0.03 301.12;
     --input: 0.20 0.03 301.12;
-    --ring: 0.58 0.24 301.12;
+    --ring: 0.6268 0.2325 303.90;
   }
 }
 

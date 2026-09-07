@@ -21,6 +21,8 @@ interface Props {
     esTecnico: boolean;
     bandejaHref: string;
     misCasosHref: string;
+    onDrillRechazadas?: () => void;
+    onDrillIngresadas?: () => void;
 }
 
 interface CardDef {
@@ -33,17 +35,21 @@ interface CardDef {
     accent?: 'default' | 'red' | 'amber';
     href?: string;
     hrefTitulo?: string;
+    onClick?: () => void;
 }
 
 /**
- * Dos niveles: 5 primarias grandes (la foto de hoy + cumplimiento) y
- * 3 secundarias compactas. Números en Outfit semibold (no mono) y
- * etiquetas sin truncate para 1280px.
+ * Dos niveles por reactividad: fila 1 = foto de hoy (Abiertos, Por admitir,
+ * Por vencer, Vencidos, Sin técnico), fila 2 = reactivas al período
+ * (Cerrados a tiempo, Rechazadas, Qué ingresó). Números en Outfit semibold
+ * (no mono) y etiquetas sin truncate para 1280px.
  */
-export default function KPICards({ kpis, baseTemporal, esTecnico, bandejaHref, misCasosHref }: Props) {
+export default function KPICards({ kpis, baseTemporal, esTecnico, bandejaHref, misCasosHref, onDrillRechazadas, onDrillIngresadas }: Props) {
+    const bandeja = esTecnico ? misCasosHref : bandejaHref;
+    // Fila 1 — foto de hoy (no responden a fechas). Fila 2 — reactivas al período.
     const primarias: CardDef[] = [
-        { key: 'activos', label: 'Abiertos hoy', subtitulo: 'Todo lo no cerrado', value: kpis.activos, icon: FolderKanban, baseKey: 'kpis.activos' },
-        { key: 'pendientesAdmision', label: 'Por admitir', subtitulo: 'Plazo legal: 5 días', value: kpis.pendientesAdmision, icon: Inbox, baseKey: 'kpis.pendientesAdmision' },
+        { key: 'activos', label: 'Abiertos hoy', subtitulo: 'Todo lo no cerrado', value: kpis.activos, icon: FolderKanban, baseKey: 'kpis.activos', href: bandeja, hrefTitulo: 'Ver casos abiertos' },
+        { key: 'pendientesAdmision', label: 'Por admitir', subtitulo: 'Plazo legal: 5 días', value: kpis.pendientesAdmision, icon: Inbox, baseKey: 'kpis.pendientesAdmision', href: bandeja, hrefTitulo: 'Ver por admitir' },
         {
             key: 'proximosAVencer',
             label: 'Por vencer',
@@ -67,30 +73,30 @@ export default function KPICards({ kpis, baseTemporal, esTecnico, bandejaHref, m
             hrefTitulo: 'Ver casos vencidos',
         },
         {
-            key: 'cumplimiento',
-            label: 'Cerrados a tiempo',
-            subtitulo: kpis.cumplimiento == null ? 'Sin cierres en el período' : 'Del período elegido',
-            value: kpis.cumplimiento == null ? '—' : `${kpis.cumplimiento}%`,
-            icon: CheckCircle2,
-            baseKey: 'kpis.cumplimiento',
+            key: 'sinAsignar',
+            label: 'Sin técnico',
+            subtitulo: 'Toca asignar',
+            value: kpis.sinAsignar,
+            icon: UserX,
+            baseKey: 'kpis.sinAsignar',
+            accent: 'amber',
+            href: bandejaHref,
+            hrefTitulo: 'Ir a asignar',
         },
     ];
 
     const secundarias: CardDef[] = esTecnico
         ? []
         : [
-              { key: 'rechazadas', label: 'Rechazadas', subtitulo: 'Por fecha de rechazo', value: kpis.rechazadas, icon: XCircle, baseKey: 'kpis.rechazadas' },
               {
-                  key: 'sinAsignar',
-                  label: 'Sin técnico',
-                  subtitulo: 'Toca asignar',
-                  value: kpis.sinAsignar,
-                  icon: UserX,
-                  baseKey: 'kpis.sinAsignar',
-                  accent: 'amber',
-                  href: bandejaHref,
-                  hrefTitulo: 'Ir a asignar',
+                  key: 'cumplimiento',
+                  label: 'Cerrados a tiempo',
+                  subtitulo: kpis.cumplimiento == null ? 'Sin cierres en el período' : 'Del período elegido',
+                  value: kpis.cumplimiento == null ? '—' : `${kpis.cumplimiento}%`,
+                  icon: CheckCircle2,
+                  baseKey: 'kpis.cumplimiento',
               },
+              { key: 'rechazadas', label: 'Rechazadas', subtitulo: 'Por fecha de rechazo · clic para ver', value: kpis.rechazadas, icon: XCircle, baseKey: 'kpis.rechazadas', onClick: onDrillRechazadas },
           ];
 
     const totalSplit = kpis.split.corrupcion + kpis.split.negacion;
@@ -132,17 +138,31 @@ export default function KPICards({ kpis, baseTemporal, esTecnico, bandejaHref, m
             </>
         );
 
+        const interactiva = card.href || card.onClick;
+
         const cls = cn(
-            'border border-border rounded-xl bg-card flex flex-col min-w-0 transition-all',
+            'border border-border rounded-xl bg-card flex flex-col min-w-0 transition-all text-left w-full',
             grande ? 'p-4 space-y-2' : 'p-3 space-y-1.5',
-            card.href && 'hover:border-primary/50 hover:shadow-sm cursor-pointer'
+            interactiva && 'hover:border-primary/50 hover:shadow-sm cursor-pointer'
         );
 
-        return card.href ? (
-            <Link key={card.key} href={card.href} title={card.hrefTitulo ?? card.label} className={cls}>
-                {contenido}
-            </Link>
-        ) : (
+        if (card.href) {
+            return (
+                <Link key={card.key} href={card.href} title={card.hrefTitulo ?? card.label} className={cls}>
+                    {contenido}
+                </Link>
+            );
+        }
+
+        if (card.onClick) {
+            return (
+                <button key={card.key} type="button" onClick={card.onClick} title="Ver casos" className={cls}>
+                    {contenido}
+                </button>
+            );
+        }
+
+        return (
             <div key={card.key} className={cls}>
                 {contenido}
             </div>
@@ -152,13 +172,22 @@ export default function KPICards({ kpis, baseTemporal, esTecnico, bandejaHref, m
     return (
         <div className="space-y-2.5">
             <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 gap-2.5">
-                {primarias.map((c) => tarjeta(c, true))}
+                {primarias.filter((c) => !(esTecnico && c.key === 'sinAsignar')).map((c) => tarjeta(c, true))}
             </div>
             {secundarias.length > 0 && (
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                     {secundarias.map((c) => tarjeta(c, false))}
                     {/* Qué ingresó */}
-                    <div className="border border-border rounded-xl bg-card p-3 space-y-1.5 flex flex-col min-w-0">
+                    <button
+                        type="button"
+                        onClick={onDrillIngresadas}
+                        disabled={!onDrillIngresadas}
+                        title={onDrillIngresadas ? 'Ver casos ingresados en el rango' : undefined}
+                        className={cn(
+                            'border border-border rounded-xl bg-card p-3 space-y-1.5 flex flex-col min-w-0 text-left transition-all',
+                            onDrillIngresadas && 'hover:border-primary/50 hover:shadow-sm cursor-pointer'
+                        )}
+                    >
                         <div className="flex items-center justify-between gap-2">
                             <span className="text-xs font-semibold text-muted-foreground">Qué ingresó</span>
                             <span className="p-1 rounded-md bg-secondary/20 text-muted-foreground shrink-0">
@@ -172,8 +201,9 @@ export default function KPICards({ kpis, baseTemporal, esTecnico, bandejaHref, m
                                     {kpis.split.corrupcion} ({pctCorrupcion}%)
                                 </span>
                             </div>
-                            <div className="h-2.5 rounded-full bg-muted overflow-hidden">
+                            <div className="h-2.5 rounded-full bg-muted overflow-hidden flex">
                                 <div className="h-full bg-primary" style={{ width: `${pctCorrupcion}%` }} />
+                                <div className="h-full bg-teal-600 dark:bg-teal-400" style={{ width: `${pctNegacion}%` }} />
                             </div>
                             <div className="flex justify-between items-center text-xs font-bold">
                                 <span className="text-muted-foreground">Negación de información</span>
@@ -182,9 +212,9 @@ export default function KPICards({ kpis, baseTemporal, esTecnico, bandejaHref, m
                                 </span>
                             </div>
                         </div>
-                        <p className="text-[11px] leading-tight text-muted-foreground">Del período, sin filtro de tipo</p>
+                        <p className="text-[11px] leading-tight text-muted-foreground">Del período, sin filtro de tipo · clic para ver</p>
                         <BaseTemporalBadge base={baseTemporal['kpis.split']} />
-                    </div>
+                    </button>
                 </div>
             )}
         </div>

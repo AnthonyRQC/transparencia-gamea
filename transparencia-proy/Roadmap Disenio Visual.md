@@ -10,11 +10,10 @@
 2. **¿Se lo mostraría al Jefe mañana?** Si sí, el batch pasa. Si no, se anota qué falla.
 3. Comparar antes/después lado a lado en tu monitor 15" (light y dark).
 
-## Fase 0 — Base (1 batch)
-- [ ] `DESIGN.md` desde el código (`document`): tokens OKLCH, Outfit/Fira Code, dark mode, shadcn New York.
-- [ ] Migrar tokens: `--primary` → `#4B0090`, `--secondary` → dorado `#F5B400`, sidebar/header → `#431377`, semánticas a `#008F89`/`#F5B400`/`#F4007A` con contraste AA light+dark.
-- [ ] Arrastrar: `pdf.blade.php`, estilos del Excel, glows de Welcome, hex hardcodeados en gráficos → tokens.
-- Archivos: `resources/css/app.css`, `tailwind.config.js`, `pdf.blade.php`, `ReporteExcel.php`, `Grafico*.tsx`, `Welcome.tsx`.
+## Fase 0 — Base ✅ HECHA (Sep 2026, parte de Sprint 12.1)
+- [x] Tokens migrados en `app.css` (primary/secondary/sidebar/destructive + dark) + `helpers/tema.ts` para Recharts.
+- [x] Arrastrados: `pdf.blade.php`, Excel, glows Welcome, gráficos sin hex, DesignSystem actualizado.
+- [ ] `DESIGN.md` formal con `document` (pendiente, menor).
 
 ## Fase 1 — `clarify`: que se entienda (3 batches)
 - [ ] **Batch 1 — Dashboard:** chips con nombres reales ("Carlos Quispe", no "técnico 5"), fechas "7 ago → 5 sep", quitar jerga ("Sprint 14", "subordinadas", "Días: -12 d" → "Vencido hace 12 días").
