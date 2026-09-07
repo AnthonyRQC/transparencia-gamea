@@ -36,8 +36,9 @@
     --accent: 0.95 0.025 301.12;
     --accent-foreground: 0.35 0.18 301.12;
     
-    /* Alert brand color #F4007A (magenta: vencidos, peligro) */
-    --destructive: 0.6241 0.2517 2.53;
+    /* Alert brand color: button bg #C6006B (blanco encima: 5.81:1 AA).
+       El magenta puro #F4007A solo en rellenos gráficos (barras), nunca con texto encima. */
+    --destructive: 0.5363 0.2180 358.88;
     --destructive-foreground: 0.99 0.005 301.12;
     
     --border: 0.92 0.015 301.12;
