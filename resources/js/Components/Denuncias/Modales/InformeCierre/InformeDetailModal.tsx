@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/Components/ui/dialog';
 import { Separator } from '@/Components/ui/separator';
 import { FileText, Archive, History, ChevronDown, ChevronRight, Clock, User } from 'lucide-react';
@@ -63,17 +63,17 @@ export default function InformeDetailModal({ denuncia, open, onOpenChange }: Inf
             </h4>
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div>
-                <span className="text-muted-foreground">ClasificaciÃ³n:</span>
-                <p className="font-medium">{denuncia.informe_clasificacion || 'â€”'}</p>
+                <span className="text-muted-foreground">Clasificación:</span>
+                <p className="font-medium">{denuncia.informe_clasificacion || '—'}</p>
               </div>
               <div>
                 <span className="text-muted-foreground">Fojas:</span>
-                <p className="font-medium">{denuncia.informe_fojas || 'â€”'}</p>
+                <p className="font-medium">{denuncia.informe_fojas || '—'}</p>
               </div>
               <div className="flex items-center gap-1">
                 <User className="w-3 h-3 text-muted-foreground" />
                 <span className="text-muted-foreground">Redactado por:</span>
-                <span className="font-medium">{denuncia.informe_concluido_por || 'â€”'}</span>
+                <span className="font-medium">{denuncia.informe_concluido_por || '—'}</span>
               </div>
               {denuncia.informe_redactado_at && (
                 <div className="flex items-center gap-1">
@@ -86,12 +86,12 @@ export default function InformeDetailModal({ denuncia, open, onOpenChange }: Inf
               )}
               <div className="col-span-2">
                 <span className="text-muted-foreground">SITPRECO:</span>
-                <p className="font-mono text-xs font-medium">{denuncia.informe_sitpreco || 'â€”'}</p>
+                <p className="font-mono text-xs font-medium">{denuncia.informe_sitpreco || '—'}</p>
               </div>
             </div>
             {denuncia.informe_justificacion && (
               <div className="mt-3">
-                <h5 className="text-xs font-semibold text-muted-foreground mb-1">JustificaciÃ³n</h5>
+                <h5 className="text-xs font-semibold text-muted-foreground mb-1">Justificación</h5>
                 <p className="text-sm bg-muted/50 rounded-lg px-3 py-2 whitespace-pre-wrap break-words">{denuncia.informe_justificacion}</p>
               </div>
             )}
@@ -125,7 +125,7 @@ export default function InformeDetailModal({ denuncia, open, onOpenChange }: Inf
                     <div className="grid grid-cols-2 gap-3 text-sm">
                       <div>
                         <span className="text-muted-foreground">Concluido por:</span>
-                        <p className="font-medium">{denuncia.cierre_concluido_por || 'â€”'}</p>
+                        <p className="font-medium">{denuncia.cierre_concluido_por || '—'}</p>
                       </div>
                     </div>
                     {denuncia.cierre_cerrado_at && (
@@ -134,17 +134,17 @@ export default function InformeDetailModal({ denuncia, open, onOpenChange }: Inf
                       </p>
                     )}
                     <div>
-                      <h5 className="text-xs font-semibold text-muted-foreground mb-1">NotificaciÃ³n</h5>
+                      <h5 className="text-xs font-semibold text-muted-foreground mb-1">Notificación</h5>
                       <div className="text-sm bg-muted/50 rounded-lg px-3 py-2">
                         {denuncia.cierre_notificado_denunciante ? (
                           <div className="space-y-1">
-                            <p>Notificado por <span className="font-medium">{denuncia.cierre_notificacion_medio || 'â€”'}</span></p>
+                            <p>Notificado por <span className="font-medium">{denuncia.cierre_notificacion_medio || '—'}</span></p>
                             {denuncia.cierre_notificacion_fecha && <p>Fecha: {new Date(denuncia.cierre_notificacion_fecha).toLocaleDateString('es-BO')}</p>}
                             {denuncia.cierre_notificacion_descripcion && <p className="text-muted-foreground">{denuncia.cierre_notificacion_descripcion}</p>}
                           </div>
                         ) : (
                           <div className="space-y-1">
-                            <p className="italic text-muted-foreground">No se notificÃ³ al denunciante.</p>
+                            <p className="italic text-muted-foreground">No se notificó al denunciante.</p>
                             {denuncia.cierre_no_notificado_motivo && <p className="text-muted-foreground">Motivo: {denuncia.cierre_no_notificado_motivo}</p>}
                           </div>
                         )}
@@ -152,7 +152,7 @@ export default function InformeDetailModal({ denuncia, open, onOpenChange }: Inf
                     </div>
                     {denuncia.cierre_descripcion && (
                       <div>
-                        <h5 className="text-xs font-semibold text-muted-foreground mb-1">DescripciÃ³n del cierre</h5>
+                        <h5 className="text-xs font-semibold text-muted-foreground mb-1">Descripción del cierre</h5>
                         <p className="text-sm bg-muted/50 rounded-lg px-3 py-2 whitespace-pre-wrap break-words">{denuncia.cierre_descripcion}</p>
                       </div>
                     )}

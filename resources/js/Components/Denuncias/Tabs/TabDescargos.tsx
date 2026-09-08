@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { UserX, Bell, Plus } from 'lucide-react';
 import DescargoCard from '../Descargo/DescargoCard';
 import DescargoDetailModal from '../Descargo/DescargoDetailModal';
@@ -90,14 +90,14 @@ export default function TabDescargos({ descargos, canAct, ticket, denunciados = 
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors"
             >
               <Plus className="w-3.5 h-3.5" />
-              AÃ±adir descargo
+              Añadir descargo
             </button>
           </div>
         )}
         <ListaVacia
           icon={UserX}
           titulo="Sin descargos registrados"
-          descripcion={canAct ? 'AÃ±ada un descargo para iniciar el proceso de notificaciÃ³n al denunciado.' : 'No hay descargos registrados para esta denuncia.'}
+          descripcion={canAct ? 'Añada un descargo para iniciar el proceso de notificación al denunciado.' : 'No hay descargos registrados para esta denuncia.'}
         />
         {detailDescargo && (
           <DescargoDetailModal
@@ -138,7 +138,7 @@ export default function TabDescargos({ descargos, canAct, ticket, denunciados = 
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors"
             >
               <Plus className="w-3.5 h-3.5" />
-              AÃ±adir descargo
+              Añadir descargo
             </button>
           </>
         )}

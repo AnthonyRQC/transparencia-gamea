@@ -1,4 +1,4 @@
-﻿import { Building2, CircleCheck, Clock, RotateCcw, XCircle, Pencil, Trash2 } from 'lucide-react';
+import { Building2, CircleCheck, Clock, RotateCcw, XCircle, Pencil, Trash2 } from 'lucide-react';
 import PlazoProgress from '../Card/PlazoProgress';
 import { Badge } from '@/Components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/Components/ui/tooltip';
@@ -103,7 +103,7 @@ export default function SolicitudCard({ solicitud, canAct, onClick, onResponder,
         <div className="pt-2.5 border-t border-border/50 space-y-2 text-xs" onClick={(e) => e.stopPropagation()}>
           {!isCompletada && (onResponder || onAmpliar || onCancelar) && (
             <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-[10px] font-bold uppercase text-muted-foreground shrink-0">ðŸ“‹ TrÃ¡mite:</span>
+              <span className="text-[10px] font-bold uppercase text-muted-foreground shrink-0">📋 Trámite:</span>
               {onResponder && (
                 <TooltipProvider delayDuration={200}>
                   <Tooltip>
@@ -160,7 +160,7 @@ export default function SolicitudCard({ solicitud, canAct, onClick, onResponder,
 
           {(onEditar || onEliminar) && (
             <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-[10px] font-bold uppercase text-muted-foreground shrink-0">âš™ï¸ GestiÃ³n:</span>
+              <span className="text-[10px] font-bold uppercase text-muted-foreground shrink-0">⚙️ Gestión:</span>
               {onEditar && (
                 <TooltipProvider delayDuration={200}>
                   <Tooltip>

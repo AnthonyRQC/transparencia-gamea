@@ -293,9 +293,11 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
 
   const filterAndSort = (items: Denuncia[]): Denuncia[] => {
     let filtered = items;
-    if (search) {
+    if (search.trim()) {
+      const q = search.trim().toLowerCase();
       filtered = filtered.filter((d) =>
-        d.ticket.toLowerCase().includes(search.toLowerCase())
+        d.ticket.toLowerCase().includes(q) ||
+        (d.denunciante?.nombres && d.denunciante.nombres.toLowerCase().includes(q))
       );
     }
     if (filterTipo !== 'all') {
@@ -313,6 +315,28 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
       }
       return (a.plazo?.dias_restantes ?? 999) - (b.plazo?.dias_restantes ?? 999);
     });
+  };
+
+  const renderEmptyState = (icon: any, titulo: string, descripcion: string) => {
+    const tieneFiltros = search.trim() !== '' || filterTipo !== 'all';
+    if (tieneFiltros) {
+      return (
+        <ListaVacia
+          icon={Search}
+          titulo="Sin resultados para la búsqueda"
+          descripcion={`No se encontraron denuncias que coincidan con ${search.trim() ? `"${search.trim()}"` : 'los filtros seleccionados'}.`}
+          accionLabel="Limpiar filtros"
+          onAccion={() => { setSearch(''); setFilterTipo('all'); }}
+        />
+      );
+    }
+    return (
+      <ListaVacia
+        icon={icon}
+        titulo={titulo}
+        descripcion={descripcion}
+      />
+    );
   };
 
   const pageSize = 10;
@@ -370,11 +394,11 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
             const totalPaginas = Math.ceil(filtered.length / pageSize) || 1;
             const paginated = filtered.slice((pagina - 1) * pageSize, pagina * pageSize);
             return filtered.length === 0 ? (
-              <ListaVacia
-                icon={Inbox}
-                titulo="No hay denuncias por admitir"
-                descripcion="Todas las denuncias ingresadas han sido procesadas."
-              />
+              renderEmptyState(
+                Inbox,
+                "No hay denuncias por admitir",
+                "Todas las denuncias ingresadas han sido procesadas."
+              )
             ) : (
               <div>
                 <div className="space-y-3">
@@ -454,10 +478,10 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
                               <button
                                 type="button"
                                 onClick={(e) => { e.stopPropagation(); setModalDelegarEvaluacionTicket(d.ticket); }}
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-100 text-blue-700 text-xs font-semibold hover:bg-blue-200 transition-colors dark:bg-blue-900/30 dark:text-blue-300"
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted hover:bg-muted/80 text-foreground text-xs font-semibold border border-border transition-colors"
                               >
-                                <FileSearch className="w-3.5 h-3.5" />
-                                Delegar evaluación
+                                <ArrowRightLeft className="w-3.5 h-3.5" />
+                                Delegar eval.
                               </button>
                             </>
                           )}
@@ -482,11 +506,11 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
             const totalPaginas = Math.ceil(filtered.length / pageSize) || 1;
             const paginated = filtered.slice((pagina - 1) * pageSize, pagina * pageSize);
             return filtered.length === 0 ? (
-              <ListaVacia
-                icon={ClipboardList}
-                titulo="No hay denuncias por asignar"
-                descripcion="Todas las denuncias admitidas ya tienen un técnico asignado."
-              />
+              renderEmptyState(
+                ClipboardList,
+                "No hay denuncias por asignar",
+                "Todas las denuncias admitidas ya tienen un técnico asignado."
+              )
             ) : (
               <div>
                 <div className="space-y-3">
@@ -527,11 +551,11 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
             const totalPaginas = Math.ceil(filtered.length / pageSize) || 1;
             const paginated = filtered.slice((pagina - 1) * pageSize, pagina * pageSize);
             return filtered.length === 0 ? (
-              <ListaVacia
-                icon={Eye}
-                titulo="No hay denuncias en curso"
-                descripcion="Todas las denuncias admitidas ya fueron asignadas y están en proceso."
-              />
+              renderEmptyState(
+                Eye,
+                "No hay denuncias en curso",
+                "Todas las denuncias admitidas ya fueron asignadas y están en proceso."
+              )
             ) : (
               <div>
                 <div className="space-y-3">
@@ -561,11 +585,11 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
             const totalPaginas = Math.ceil(filtered.length / pageSize) || 1;
             const paginated = filtered.slice((pagina - 1) * pageSize, pagina * pageSize);
             return filtered.length === 0 ? (
-              <ListaVacia
-                icon={Archive}
-                titulo="No hay denuncias en el historial"
-                descripcion="No hay denuncias rechazadas o cerradas registradas."
-              />
+              renderEmptyState(
+                Archive,
+                "No hay denuncias en el historial",
+                "No hay denuncias rechazadas o cerradas registradas."
+              )
             ) : (
               <div>
                 <div className="space-y-3">

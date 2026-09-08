@@ -10,6 +10,7 @@ import ModalConsultarCodigo from '@/Components/Denuncias/ModalConsultarCodigo';
 import ModalEditarDenuncia from '@/Components/Denuncias/ModalEditarDenuncia';
 import ModalConfirmarEliminar from '@/Components/Denuncias/ModalConfirmarEliminar';
 import Paginacion from '@/Components/Denuncias/Paginacion';
+import ListaVacia from '@/Components/Denuncias/ListaVacia';
 import { Input } from '@/Components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
 import { Button } from '@/Components/ui/button';
@@ -243,11 +244,13 @@ export default function ConsultarCasos({ denuncias, tecnicos, filters }: PagePro
         <p className="text-xs text-muted-foreground">{denuncias.length} resultado(s)</p>
 
         {denuncias.length === 0 && (
-          <div className="text-center py-16 text-muted-foreground">
-            <Search className="w-10 h-10 mx-auto mb-3 opacity-40" />
-            <p className="font-semibold">Sin resultados</p>
-            <p className="text-sm">Ajuste los filtros o intente con otros términos de búsqueda.</p>
-          </div>
+          <ListaVacia
+            icon={Search}
+            titulo="Sin resultados para la búsqueda"
+            descripcion="No se encontraron denuncias con los filtros aplicados. Intente ajustar los criterios o limpiar los filtros."
+            accionLabel="Limpiar filtros"
+            onAccion={limpiarFiltros}
+          />
         )}
 
         {/* Cards como tabla responsive */}
@@ -255,7 +258,7 @@ export default function ConsultarCasos({ denuncias, tecnicos, filters }: PagePro
           {paginatedDenuncias.map((d) => {
             const tecnico = d.tecnico ? tecnicos[d.tecnico] : null;
             const denombres = d.denunciante?.nombres || '—';
-            const denResumido = d.denunciados?.slice(0, 2).map(dd => dd.nombres || 'Anónimo').join(', ') || '—';
+            const denResumido = d.denunciados?.slice(0, 2).map(dd => dd.nombres || 'Sin identificar').join(', ') || '—';
 
             return (
               <div key={d.ticket} className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 rounded-lg border border-border px-4 py-3 bg-card hover:bg-muted/30 transition-colors">
@@ -263,10 +266,10 @@ export default function ConsultarCasos({ denuncias, tecnicos, filters }: PagePro
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="font-mono text-sm font-bold" title={`N° de denuncia: ${d.ticket}`}>{d.ticket}</span>
                     <TipoDenunciaBadge tipo={d.tipo} />
-                    <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full border ${
-                      d.estado === 'cerrada' ? 'bg-teal-500/10 text-teal-700 dark:text-teal-300 border-teal-500/30' :
-                      d.estado === 'rechazada' ? 'bg-pink-600/10 text-pink-700 dark:text-pink-300 border-pink-600/30' :
-                      'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 border-purple-200'
+                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${
+                      d.estado === 'cerrada' ? 'bg-[#008F89]/10 text-[#008F89] border-[#008F89]/30' :
+                      d.estado === 'rechazada' ? 'bg-[#F4007A]/10 text-[#F4007A] border-[#F4007A]/30' :
+                      'bg-primary/10 text-primary border-primary/20'
                     }`}>
                       {estadoLabels[d.estado] || d.estado}
                       {d.subestado === 'archivada' && ' (Archivada)'}
@@ -284,7 +287,7 @@ export default function ConsultarCasos({ denuncias, tecnicos, filters }: PagePro
                 <div className="flex items-center gap-1.5 shrink-0 flex-wrap sm:flex-nowrap">
                   <button
                     onClick={() => setSelectedDenuncia(d)}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-sky-100 text-sky-700 text-xs font-semibold hover:bg-sky-200 transition-colors dark:bg-sky-900/30 dark:text-sky-300 cursor-pointer"
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-xs font-semibold hover:bg-primary/20 transition-colors cursor-pointer"
                   >
                     <Eye className="w-3.5 h-3.5" />
                     Ver detalle

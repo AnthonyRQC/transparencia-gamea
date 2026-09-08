@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { router, usePage } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { toast } from 'sonner';
@@ -170,7 +170,7 @@ function InformePreview({ informe, canAct, onEdit, onDelete }: {
 
       {informe.justificacion && (
         <div>
-          <h5 className="text-xs font-semibold text-muted-foreground mb-1">JustificaciÃ³n</h5>
+          <h5 className="text-xs font-semibold text-muted-foreground mb-1">Justificación</h5>
           <p className="text-sm whitespace-pre-wrap break-words bg-muted/50 rounded-lg px-3 py-2">{informe.justificacion}</p>
         </div>
       )}
@@ -256,10 +256,10 @@ function InformeForm({ ticket, informe, tecnicoNombre, processing, setProcessing
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="clasificacion" className="after:content-['*'] after:text-destructive after:ml-0.5">ClasificaciÃ³n</Label>
+        <Label htmlFor="clasificacion" className="after:content-['*'] after:text-destructive after:ml-0.5">Clasificación</Label>
         <Select value={clasificacion} onValueChange={setClasificacion}>
           <SelectTrigger id="clasificacion">
-            <SelectValue placeholder="Seleccione clasificaciÃ³n" />
+            <SelectValue placeholder="Seleccione clasificación" />
           </SelectTrigger>
           <SelectContent>
             {clasificaciones.map((c) => (
@@ -270,7 +270,7 @@ function InformeForm({ ticket, informe, tecnicoNombre, processing, setProcessing
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="fojas" className="after:content-['*'] after:text-destructive after:ml-0.5">NÃºmero de Fojas</Label>
+        <Label htmlFor="fojas" className="after:content-['*'] after:text-destructive after:ml-0.5">Número de Fojas</Label>
         <Input
           id="fojas"
           type="number"
@@ -293,14 +293,14 @@ function InformeForm({ ticket, informe, tecnicoNombre, processing, setProcessing
           disabled
           readOnly
         />
-        <p className="text-[10px] text-muted-foreground">Este campo se asigna automÃ¡ticamente al usuario actual.</p>
+        <p className="text-[10px] text-muted-foreground">Este campo se asigna automáticamente al usuario actual.</p>
       </div>
 
       <div className="space-y-2">
         <Label htmlFor="sitpreco">
           SITPRECO
           <span className="text-[10px] text-muted-foreground ml-1 font-normal">
-            (opcional â€” cÃ³digo del sistema nacional de Bolivia)
+            (opcional — código del sistema nacional de Bolivia)
           </span>
         </Label>
         <Input
@@ -313,7 +313,7 @@ function InformeForm({ ticket, informe, tecnicoNombre, processing, setProcessing
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="justificacion" className="after:content-['*'] after:text-destructive after:ml-0.5">JustificaciÃ³n</Label>
+        <Label htmlFor="justificacion" className="after:content-['*'] after:text-destructive after:ml-0.5">Justificación</Label>
         <Textarea
           id="justificacion"
           value={justificacion}
@@ -326,7 +326,7 @@ function InformeForm({ ticket, informe, tecnicoNombre, processing, setProcessing
         <div className="flex items-center justify-between">
           <p className="text-[11px] text-muted-foreground">{justificacion.length}/5000</p>
           {justificacion.length > 0 && justificacion.trim().length < 20 && (
-            <p className="text-[11px] text-destructive font-medium">MÃ­nimo 20 caracteres</p>
+            <p className="text-[11px] text-destructive font-medium">Mínimo 20 caracteres</p>
           )}
         </div>
       </div>
@@ -336,7 +336,7 @@ function InformeForm({ ticket, informe, tecnicoNombre, processing, setProcessing
           Los archivos adjuntos al informe se gestionan desde el repositorio de archivos del caso.
         </p>
         <p className="text-xs text-muted-foreground">
-          Use el botÃ³n <strong>"Archivos del caso"</strong> en el detalle de la denuncia para subir archivos con contexto <strong>"Informe Final"</strong>.
+          Use el botón <strong>"Archivos del caso"</strong> en el detalle de la denuncia para subir archivos con contexto <strong>"Informe Final"</strong>.
         </p>
       </div>
 

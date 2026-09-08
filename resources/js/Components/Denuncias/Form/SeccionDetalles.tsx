@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { Input } from '@/Components/ui/input';
 import { Label } from '@/Components/ui/label';
 import {
@@ -36,10 +36,10 @@ export default function SeccionDetalles({ data, onChange, categorias, errors }: 
                 Detalles del Incidente
             </Label>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* CategorÃ­a */}
+                {/* Categoría */}
                 <div className="space-y-1.5">
                     <Label htmlFor="categoria" className={cn('text-xs font-medium', errors['detalles.categoria'] ? 'text-destructive' : 'text-muted-foreground')}>
-                        CategorÃ­a <span className="text-destructive">*</span>
+                        Categoría <span className="text-destructive">*</span>
                     </Label>
                     <Select
                         value={data.categoria}
@@ -49,7 +49,7 @@ export default function SeccionDetalles({ data, onChange, categorias, errors }: 
                         }}
                     >
                         <SelectTrigger id="categoria" className={cn(errors['detalles.categoria'] && 'border-destructive/50')}>
-                            <SelectValue placeholder="Seleccionar categorÃ­a" />
+                            <SelectValue placeholder="Seleccionar categoría" />
                         </SelectTrigger>
                         <SelectContent>
                             {Object.entries(categorias).map(([key, label]) => (
@@ -65,7 +65,7 @@ export default function SeccionDetalles({ data, onChange, categorias, errors }: 
                     {esOtro && (
                         <div className="mt-2">
                             <Input
-                                placeholder="Especifique la categorÃ­a"
+                                placeholder="Especifique la categoría"
                                 value={data.categoria_otro}
                                 onChange={(e) => onChange('categoria_otro', e.target.value)}
                                 className="text-sm"
@@ -102,7 +102,7 @@ export default function SeccionDetalles({ data, onChange, categorias, errors }: 
                         <Label htmlFor="hora" className="text-xs font-medium text-muted-foreground">
                             Hora (opcional)
                         </Label>
-                        <FieldHelp text="Si no la recuerda exacta, indique un aproximado en 'RelaciÃ³n de Hechos'." />
+                        <FieldHelp text="Si no la recuerda exacta, indique un aproximado en 'Relación de Hechos'." />
                     </div>
                     <Input
                         id="hora"

@@ -1,4 +1,4 @@
-﻿import { CircleCheck, Bell, RotateCcw, FileText, Pencil, Trash2, XCircle } from 'lucide-react';
+import { CircleCheck, Bell, RotateCcw, FileText, Pencil, Trash2, XCircle } from 'lucide-react';
 import PlazoProgress from '../Card/PlazoProgress';
 import { Badge } from '@/Components/ui/badge';
 import { Avatar, AvatarFallback } from '@/Components/ui/avatar';
@@ -109,7 +109,7 @@ export default function DescargoCard({ descargo, canAct, onClick, onNotificar, o
             <span className="text-[11px] text-muted-foreground italic">Sin plazo</span>
           )
         ) : (
-          <span className="text-[11px] text-muted-foreground italic">Pendiente de notificaciÃ³n</span>
+          <span className="text-[11px] text-muted-foreground italic">Pendiente de notificación</span>
         )}
 
       </div>
@@ -118,7 +118,7 @@ export default function DescargoCard({ descargo, canAct, onClick, onNotificar, o
         <div className="pt-2.5 border-t border-border/50 space-y-2 text-xs" onClick={(e) => e.stopPropagation()}>
           {(onNotificar || onResponder || onAmpliar || onCancelar) && (
             <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-[10px] font-bold uppercase text-muted-foreground shrink-0">âš–ï¸ TrÃ¡mite:</span>
+              <span className="text-[10px] font-bold uppercase text-muted-foreground shrink-0">⚖️ Trámite:</span>
               {descargo.estado === 'pendiente_notif' && onNotificar && (
                 <TooltipProvider delayDuration={200}>
                   <Tooltip>
@@ -132,7 +132,7 @@ export default function DescargoCard({ descargo, canAct, onClick, onNotificar, o
                         Notificar
                       </button>
                     </TooltipTrigger>
-                    <TooltipContent side="top">Registrar la notificaciÃ³n realizada al denunciado.</TooltipContent>
+                    <TooltipContent side="top">Registrar la notificación realizada al denunciado.</TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
               )}
@@ -149,7 +149,7 @@ export default function DescargoCard({ descargo, canAct, onClick, onNotificar, o
                         Responder
                       </button>
                     </TooltipTrigger>
-                    <TooltipContent side="top">Registrar la recepciÃ³n del descargo o justificativo presentado.</TooltipContent>
+                    <TooltipContent side="top">Registrar la recepción del descargo o justificativo presentado.</TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
               )}
@@ -166,7 +166,7 @@ export default function DescargoCard({ descargo, canAct, onClick, onNotificar, o
                         Ampliar
                       </button>
                     </TooltipTrigger>
-                    <TooltipContent side="top">Ampliar el plazo legal para la presentaciÃ³n de descargos.</TooltipContent>
+                    <TooltipContent side="top">Ampliar el plazo legal para la presentación de descargos.</TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
               )}
@@ -183,7 +183,7 @@ export default function DescargoCard({ descargo, canAct, onClick, onNotificar, o
                         Cancelar
                       </button>
                     </TooltipTrigger>
-                    <TooltipContent side="top">Anular o dejar sin efecto el trÃ¡mite de descargo.</TooltipContent>
+                    <TooltipContent side="top">Anular o dejar sin efecto el trámite de descargo.</TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
               )}
@@ -192,7 +192,7 @@ export default function DescargoCard({ descargo, canAct, onClick, onNotificar, o
 
           {(onEditar || onEliminar) && (
             <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-[10px] font-bold uppercase text-muted-foreground shrink-0">âš™ï¸ GestiÃ³n:</span>
+              <span className="text-[10px] font-bold uppercase text-muted-foreground shrink-0">⚙️ Gestión:</span>
               {onEditar && (
                 <TooltipProvider delayDuration={200}>
                   <Tooltip>

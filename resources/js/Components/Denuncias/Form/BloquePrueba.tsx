@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { Plus, Trash2, FileText, User, Box } from 'lucide-react';
 import { Input } from '@/Components/ui/input';
 import { Label } from '@/Components/ui/label';
@@ -126,21 +126,21 @@ export default function BloquePrueba({ items, onChange, errors }: BloquePruebaPr
                                     <SelectValue placeholder="Tipo de evidencia" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="fisica">Prueba FÃ­sica</SelectItem>
+                                    <SelectItem value="fisica">Prueba Física</SelectItem>
                                     <SelectItem value="testigo">Testigo</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
 
-                        {/* Prueba FÃ­sica */}
+                        {/* Prueba Física */}
                         {item.tipo === 'fisica' && (
                             <div className="space-y-1.5">
                                 <Label className={cn('text-xs font-medium', getError(index, 'descripcion') ? 'text-destructive' : 'text-muted-foreground')}>
-                                    DescripciÃ³n de la prueba <span className="text-muted-foreground font-normal">(opcional)</span>
+                                    Descripción de la prueba <span className="text-muted-foreground font-normal">(opcional)</span>
                                 </Label>
                                 <div className="relative">
                                     <Textarea
-                                        placeholder="Describa la prueba fÃ­sica: quÃ© es, dÃ³nde se encuentra, cÃ³mo identificarla"
+                                        placeholder="Describa la prueba física: qué es, dónde se encuentra, cómo identificarla"
                                         rows={2}
                                         value={item.descripcion}
                                         onChange={(e) => updateItem(item.id, { descripcion: e.target.value })}
@@ -161,11 +161,11 @@ export default function BloquePrueba({ items, onChange, errors }: BloquePruebaPr
                             <div className="space-y-3">
                                 <div className="space-y-1.5">
                                     <Label className={cn('text-xs font-medium', getError(index, 'descripcion') ? 'text-destructive' : 'text-muted-foreground')}>
-                                        DescripciÃ³n <span className="text-muted-foreground font-normal">(opcional)</span>
+                                        Descripción <span className="text-muted-foreground font-normal">(opcional)</span>
                                     </Label>
                                     <div className="relative">
                                         <Textarea
-                                            placeholder="Describa quÃ© presenciÃ³ el testigo o quÃ© informaciÃ³n puede aportar"
+                                            placeholder="Describa qué presenció el testigo o qué información puede aportar"
                                             rows={2}
                                             value={item.descripcion}
                                             onChange={(e) => updateItem(item.id, { descripcion: e.target.value })}
@@ -202,7 +202,7 @@ export default function BloquePrueba({ items, onChange, errors }: BloquePruebaPr
                                     </div>
                                     <div className="space-y-1.5">
                                         <Label className={cn('text-xs font-medium', getError(index, 'testigo_telefono') ? 'text-destructive' : 'text-muted-foreground')}>
-                                            TelÃ©fono de Contacto <span className="text-destructive">*</span>
+                                            Teléfono de Contacto <span className="text-destructive">*</span>
                                         </Label>
                                         <div className="relative">
                                             <Input
@@ -232,7 +232,7 @@ export default function BloquePrueba({ items, onChange, errors }: BloquePruebaPr
                 className="flex items-center gap-2 text-xs font-semibold text-primary hover:text-primary/80 transition-colors cursor-pointer"
             >
                 <Plus className="w-3.5 h-3.5" />
-                AÃ±adir otra prueba / testigo
+                Añadir otra prueba / testigo
             </button>
 
         </div>

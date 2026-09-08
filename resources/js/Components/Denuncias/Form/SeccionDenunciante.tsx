@@ -1,4 +1,4 @@
-﻿import { Input } from '@/Components/ui/input';
+import { Input } from '@/Components/ui/input';
 import { Label } from '@/Components/ui/label';
 import FieldHelp from './FieldHelp';
 import InputError from '../Shared/InputError';
@@ -28,16 +28,16 @@ export default function SeccionDenunciante({ escenario, data, onChange, errors }
                     <Label className="text-sm font-semibold text-foreground">Datos de contacto (opcional)</Label>
                 </div>
                 <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg px-3 py-2 leading-relaxed">
-                    Si proporciona un correo electrÃ³nico o telÃ©fono podrÃ¡ recibir actualizaciones del caso.
-                    Si no, solo podrÃ¡ consultarlo con el cÃ³digo del sistema o presencialmente en la UTLCC.
+                    Si proporciona un correo electrónico o teléfono podrá recibir actualizaciones del caso.
+                    Si no, solo podrá consultarlo con el código del sistema o presencialmente en la UTLCC.
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
                         <div className="flex items-center gap-1.5">
                             <Label htmlFor="email-anonimo" className="text-xs font-medium text-muted-foreground">
-                                Correo electrÃ³nico
+                                Correo electrónico
                             </Label>
-                            <FieldHelp text="Correo electrÃ³nico para notificaciones del caso." />
+                            <FieldHelp text="Correo electrónico para notificaciones del caso." />
                         </div>
                         <div className="relative">
                             <Input
@@ -58,9 +58,9 @@ export default function SeccionDenunciante({ escenario, data, onChange, errors }
                     <div className="space-y-1.5">
                         <div className="flex items-center gap-1.5">
                             <Label htmlFor="telefono-anonimo" className="text-xs font-medium text-muted-foreground">
-                                TelÃ©fono / Celular
+                                Teléfono / Celular
                             </Label>
-                            <FieldHelp text="8 dÃ­gitos, sin cÃ³digo de paÃ­s. Ej: 70123456" />
+                            <FieldHelp text="8 dígitos, sin código de país. Ej: 70123456" />
                         </div>
                         <div className="relative">
                             <Input
@@ -96,7 +96,7 @@ export default function SeccionDenunciante({ escenario, data, onChange, errors }
                     <div className="relative">
                         <Input
                             id="nombres"
-                            placeholder="Juan PÃ©rez Mamani"
+                            placeholder="Juan Pérez Mamani"
                             value={data.nombres}
                             onChange={(e) => onChange('nombres', e.target.value)}
                             className={cn(errors['denunciante.nombres'] && 'border-destructive/50 pr-8')}
@@ -112,9 +112,9 @@ export default function SeccionDenunciante({ escenario, data, onChange, errors }
                 <div className="space-y-1.5">
                     <div className="flex items-center gap-1.5">
                         <Label htmlFor="ci" className={cn('text-xs font-medium', errors['denunciante.ci'] ? 'text-destructive' : 'text-muted-foreground')}>
-                            CÃ©dula de Identidad <span className="text-muted-foreground font-normal">(opcional)</span>
+                            Cédula de Identidad <span className="text-muted-foreground font-normal">(opcional)</span>
                         </Label>
-                        <FieldHelp text="Ingrese el nÃºmero sin puntos ni guiones. Ej: 1234567" />
+                        <FieldHelp text="Ingrese el número sin puntos ni guiones. Ej: 1234567" />
                     </div>
                     <div className="relative">
                         <Input
@@ -135,9 +135,9 @@ export default function SeccionDenunciante({ escenario, data, onChange, errors }
                 <div className="space-y-1.5">
                     <div className="flex items-center gap-1.5">
                         <Label htmlFor="email" className={cn('text-xs font-medium', errors['denunciante.email'] ? 'text-destructive' : 'text-muted-foreground')}>
-                            Correo electrÃ³nico <span className="text-muted-foreground font-normal">(opcional)</span>
+                            Correo electrónico <span className="text-muted-foreground font-normal">(opcional)</span>
                         </Label>
-                        <FieldHelp text="Correo electrÃ³nico vÃ¡lido para notificaciones del caso." />
+                        <FieldHelp text="Correo electrónico válido para notificaciones del caso." />
                     </div>
                     <div className="relative">
                         <Input
@@ -158,9 +158,9 @@ export default function SeccionDenunciante({ escenario, data, onChange, errors }
                 <div className="space-y-1.5">
                     <div className="flex items-center gap-1.5">
                         <Label htmlFor="telefono" className={cn('text-xs font-medium', errors['denunciante.telefono'] ? 'text-destructive' : 'text-muted-foreground')}>
-                            TelÃ©fono / Celular <span className="text-muted-foreground font-normal">(opcional)</span>
+                            Teléfono / Celular <span className="text-muted-foreground font-normal">(opcional)</span>
                         </Label>
-                        <FieldHelp text="8 dÃ­gitos, sin cÃ³digo de paÃ­s. Ej: 70123456" />
+                        <FieldHelp text="8 dígitos, sin código de país. Ej: 70123456" />
                     </div>
                     <div className="relative">
                         <Input

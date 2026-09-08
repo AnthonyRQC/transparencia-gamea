@@ -1,4 +1,4 @@
-﻿import { Trash2, Plus } from 'lucide-react';
+import { Trash2, Plus } from 'lucide-react';
 import { Input } from '@/Components/ui/input';
 import { Label } from '@/Components/ui/label';
 import { Textarea } from '@/Components/ui/textarea';
@@ -90,11 +90,11 @@ export default function BloqueDenunciado({ items, onChange, errors }: BloqueDenu
 
                         <div className="flex items-center justify-between gap-4 pr-8">
                             <Label className="text-xs font-medium text-muted-foreground">
-                                Â¿Conoce la identidad de esta persona?
+                                ¿Conoce la identidad de esta persona?
                             </Label>
                             <div className="flex items-center gap-2">
                                 <span className="text-xs text-muted-foreground">
-                                    {item.conoce_identidad ? 'SÃ­' : 'No'}
+                                    {item.conoce_identidad ? 'Sí' : 'No'}
                                 </span>
                                 <Switch
                                     checked={item.conoce_identidad}
@@ -148,13 +148,13 @@ export default function BloqueDenunciado({ items, onChange, errors }: BloqueDenu
                             <div className="space-y-1.5">
                                 <div className="flex items-center gap-1.5">
                                     <Label className={cn('text-xs font-medium', getError(index, 'descripcion') ? 'text-destructive' : 'text-muted-foreground')}>
-                                        DescripciÃ³n fÃ­sica y vestimenta <span className="text-destructive">*</span>
+                                        Descripción física y vestimenta <span className="text-destructive">*</span>
                                     </Label>
-                                    <FieldHelp text="Indique rasgos fÃ­sicos visibles (estatura, complexiÃ³n, color de cabello) y vestimenta que llevaba al momento del hecho." />
+                                    <FieldHelp text="Indique rasgos físicos visibles (estatura, complexión, color de cabello) y vestimenta que llevaba al momento del hecho." />
                                 </div>
                                 <div className="relative">
                                     <Textarea
-                                        placeholder="Indique rasgos fÃ­sicos visibles (estatura, complexiÃ³n, color de cabello) y vestimenta que llevaba al momento del hecho."
+                                        placeholder="Indique rasgos físicos visibles (estatura, complexión, color de cabello) y vestimenta que llevaba al momento del hecho."
                                         rows={3}
                                         value={item.descripcion}
                                         onChange={(e) => updateItem(item.id, 'descripcion', e.target.value)}
@@ -179,7 +179,7 @@ export default function BloqueDenunciado({ items, onChange, errors }: BloqueDenu
                 className="flex items-center gap-2 text-xs font-semibold text-primary hover:text-primary/80 transition-colors cursor-pointer"
             >
                 <Plus className="w-3.5 h-3.5" />
-                AÃ±adir otro denunciado
+                Añadir otro denunciado
             </button>
         </div>
     );

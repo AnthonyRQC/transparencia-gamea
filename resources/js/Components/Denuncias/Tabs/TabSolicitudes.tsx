@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { FileSearch, Plus } from 'lucide-react';
 import SolicitudCard from '../Solicitud/SolicitudCard';
 import SolicitudDetailModal from '../Solicitud/SolicitudDetailModal';
@@ -88,8 +88,8 @@ export default function TabSolicitudes({ solicitudes, canAct, ticket, onNuevaSol
         )}
         <ListaVacia
           icon={FileSearch}
-          titulo="Sin solicitudes de informaciÃ³n"
-          descripcion={canAct ? 'Cree una solicitud a una dependencia externa para recabar documentaciÃ³n.' : 'El tÃ©cnico no ha creado solicitudes aÃºn.'}
+          titulo="Sin solicitudes de información"
+          descripcion={canAct ? 'Cree una solicitud a una dependencia externa para recabar documentación.' : 'El técnico no ha creado solicitudes aún.'}
         />
         {detailSolicitud && (
           <SolicitudDetailModal

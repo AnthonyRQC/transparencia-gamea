@@ -1,4 +1,4 @@
-﻿import { Textarea } from '@/Components/ui/textarea';
+import { Textarea } from '@/Components/ui/textarea';
 import { Label } from '@/Components/ui/label';
 import FieldHelp from './FieldHelp';
 import InputError from '../Shared/InputError';
@@ -19,13 +19,13 @@ export default function SeccionRelacionHechos({ value, onChange, error }: Seccio
         <div className="space-y-3">
             <div className="flex items-center gap-1.5">
                 <Label className={cn('text-sm font-semibold', error ? 'text-destructive' : 'text-foreground')}>
-                    RelaciÃ³n de Hechos <span className="text-destructive">*</span>
+                    Relación de Hechos <span className="text-destructive">*</span>
                 </Label>
-                <FieldHelp text="Describa con claridad: quÃ© pasÃ³, cÃ³mo sucediÃ³, dÃ³nde ocurriÃ³, cuÃ¡ndo fue y quiÃ©nes participaron." />
+                <FieldHelp text="Describa con claridad: qué pasó, cómo sucedió, dónde ocurrió, cuándo fue y quiénes participaron." />
             </div>
             <div className="relative">
                 <Textarea
-                    placeholder="Describa los hechos con claridad. Incluya toda la informaciÃ³n relevante: quÃ© pasÃ³, cÃ³mo sucediÃ³, dÃ³nde ocurriÃ³, cuÃ¡ndo fue y quiÃ©nes participaron."
+                    placeholder="Describa los hechos con claridad. Incluya toda la información relevante: qué pasó, cómo sucedió, dónde ocurrió, cuándo fue y quiénes participaron."
                     rows={6}
                     value={value}
                     onChange={(e) => {

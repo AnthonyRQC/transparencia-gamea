@@ -47,6 +47,7 @@ export default function Buscar() {
   const showResult = encontrado && denuncia;
   const showNotFound = encontrado === false && error === 'no_encontrado';
   const showFormatError = encontrado === false && error === 'invalido';
+  const showServerError = encontrado === false && error && error !== 'no_encontrado' && error !== 'invalido';
   const showInitial = encontrado === false && !error;
 
   const confidencialidadItems = [
@@ -126,6 +127,23 @@ export default function Buscar() {
           {showNotFound && !processing && (
             <section className="bg-card border rounded-2xl p-6 sm:p-8 shadow-sm">
               <EstadoNoEncontrado onReintentar={handleReintentar} />
+            </section>
+          )}
+
+          {showServerError && !processing && (
+            <section className="bg-card border rounded-2xl p-6 sm:p-8 shadow-sm text-center space-y-3">
+              <AlertTriangle className="w-10 h-10 text-amber-500 mx-auto" />
+              <h3 className="font-bold text-base">Error al consultar el caso</h3>
+              <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+                Ocurrió un problema al procesar su solicitud. Por favor, verifique el ticket e intente nuevamente.
+              </p>
+              <button
+                type="button"
+                onClick={handleReintentar}
+                className="mt-2 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors cursor-pointer"
+              >
+                Reintentar
+              </button>
             </section>
           )}
 

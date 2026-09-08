@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Separator } from '@/Components/ui/separator';
 import { ChevronDown, ChevronRight, History, FileSearch, UserCheck } from 'lucide-react';
+import ListaVacia from '../Shared/ListaVacia';
 
 interface EvaluacionEntry {
   id: number;
@@ -25,8 +26,8 @@ const recomendacionLabel: Record<string, string> = {
 };
 
 const recomendacionColor: Record<string, string> = {
-  admitir: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
-  rechazar: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
+  admitir: 'bg-teal-500/10 text-teal-700 border border-teal-500/30 dark:text-teal-300',
+  rechazar: 'bg-pink-600/10 text-pink-700 border border-pink-600/30 dark:text-pink-300',
 };
 
 function formatDate(d?: string): string {
@@ -41,13 +42,11 @@ export default function TabEvaluacionPrevia({ evaluaciones = [] }: TabEvaluacion
 
   if (evaluaciones.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 text-center">
-        <FileSearch className="w-12 h-12 text-muted-foreground/30 mb-3" />
-        <p className="text-sm font-semibold text-muted-foreground">Sin evaluación técnica previa</p>
-        <p className="text-xs text-muted-foreground/60 mt-1">
-          Esta denuncia no pasó por evaluación técnica.
-        </p>
-      </div>
+      <ListaVacia
+        icon={FileSearch}
+        titulo="Sin evaluación técnica previa"
+        descripcion="Esta denuncia no requirió evaluación técnica preliminar."
+      />
     );
   }
 

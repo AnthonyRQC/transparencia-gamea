@@ -29,24 +29,24 @@ interface ResultadoSeguimientoProps {
 }
 
 const clasificacionColors: Record<string, string> = {
-  penal: 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400',
-  civil: 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-400',
-  administrativo: 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400',
-  sin_indicios: 'bg-slate-100 text-slate-700 dark:bg-slate-950 dark:text-slate-400',
-  medida_correctiva: 'bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-400',
-  archivado: 'bg-gray-100 text-gray-700 dark:bg-gray-950 dark:text-gray-400',
+  penal: 'bg-pink-600/10 text-pink-700 border border-pink-600/30 dark:text-pink-300',
+  civil: 'bg-purple-100 text-[#4B0090] border border-purple-200 dark:bg-purple-900/30 dark:text-purple-300',
+  administrativo: 'bg-amber-100 text-amber-800 border border-amber-300 dark:bg-amber-900/30 dark:text-amber-300',
+  sin_indicios: 'bg-slate-100 text-slate-700 border border-slate-200 dark:bg-slate-800 dark:text-slate-300',
+  medida_correctiva: 'bg-teal-500/10 text-teal-700 border border-teal-500/30 dark:text-teal-300',
+  archivado: 'bg-muted text-muted-foreground border border-border',
 };
 
-const DEFAULT_CLASIF_COLOR = 'bg-muted text-muted-foreground';
+const DEFAULT_CLASIF_COLOR = 'bg-muted text-muted-foreground border border-border';
 
 const estadoBadge: Record<string, { label: string; color: string }> = {
-  ingresada: { label: 'En Evaluación', color: 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-400' },
-  admitida: { label: 'Admitida', color: 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400' },
-  asignada: { label: 'En Investigación', color: 'bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-400' },
-  investigacion: { label: 'En Investigación', color: 'bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-400' },
-  informe: { label: 'Informe Final', color: 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400' },
-  cerrada: { label: 'Cerrada', color: 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400' },
-  rechazada: { label: 'Rechazada', color: 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400' },
+  ingresada: { label: 'En Evaluación', color: 'bg-purple-100 text-[#4B0090] border border-purple-200 dark:bg-purple-900/30 dark:text-purple-300' },
+  admitida: { label: 'Admitida', color: 'bg-teal-500/10 text-teal-700 border border-teal-500/30 dark:text-teal-300' },
+  asignada: { label: 'En Investigación', color: 'bg-purple-100 text-[#4B0090] border border-purple-200 dark:bg-purple-900/30 dark:text-purple-300' },
+  investigacion: { label: 'En Investigación', color: 'bg-purple-100 text-[#4B0090] border border-purple-200 dark:bg-purple-900/30 dark:text-purple-300' },
+  informe: { label: 'Informe Final', color: 'bg-amber-100 text-amber-800 border border-amber-300 dark:bg-amber-900/30 dark:text-amber-300' },
+  cerrada: { label: 'Cerrada', color: 'bg-teal-500/10 text-teal-700 border border-teal-500/30 dark:text-teal-300' },
+  rechazada: { label: 'Rechazada', color: 'bg-pink-600/10 text-pink-700 border border-pink-600/30 dark:text-pink-300' },
 };
 
 function formatDate(dateStr: string | null): string {

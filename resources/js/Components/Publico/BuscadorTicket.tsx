@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { router } from '@inertiajs/react';
 import { Search } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface BuscadorTicketProps {
   processing: boolean;
@@ -38,6 +39,9 @@ export default function BuscadorTicket({ processing, onProcessingChange }: Busca
         preserveState: true,
         preserveScroll: true,
         only: ['encontrado', 'denuncia', 'error'],
+        onError: () => {
+          toast.error('No se pudo conectar con el servidor. Por favor, revise su conexión o intente en unos minutos.');
+        },
         onFinish: () => onProcessingChange(false),
       }
     );

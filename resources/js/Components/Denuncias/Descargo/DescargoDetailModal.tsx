@@ -1,4 +1,4 @@
-﻿import { User, Building2, Clock, Bell, RotateCcw, CircleCheck, FileText, History, Pencil, Trash2, ChevronDown, ChevronRight } from 'lucide-react';
+import { User, Building2, Clock, Bell, RotateCcw, CircleCheck, FileText, History, Pencil, Trash2, ChevronDown, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/Components/ui/dialog';
 import { Badge } from '@/Components/ui/badge';
@@ -58,9 +58,9 @@ interface DescargoDetailModalProps {
 }
 
 const MEDIOS_LABEL: Record<string, string> = {
-  personal: 'NotificaciÃ³n Personal',
-  cedula: 'CÃ©dula de NotificaciÃ³n',
-  email: 'Correo ElectrÃ³nico',
+  personal: 'Notificación Personal',
+  cedula: 'Cédula de Notificación',
+  email: 'Correo Electrónico',
   otro: 'Otro Medio',
 };
 
@@ -107,7 +107,7 @@ export default function DescargoDetailModal({
     dependencia_denunciado: 'Dependencia',
     dependencia_destino: 'Dependencia destino',
     detalle: 'Detalle',
-    plazo_dias: 'Plazo (dÃ­as hÃ¡biles)',
+    plazo_dias: 'Plazo (días hábiles)',
   };
 
   return (
@@ -149,7 +149,7 @@ export default function DescargoDetailModal({
           )}
 
           {descargo.estado === 'pendiente_notif' && (
-            <p className="text-xs text-muted-foreground italic">Pendiente de notificaciÃ³n â€” no hay plazo activo</p>
+            <p className="text-xs text-muted-foreground italic">Pendiente de notificación — no hay plazo activo</p>
           )}
 
           <Separator />
@@ -158,7 +158,7 @@ export default function DescargoDetailModal({
             <section>
               <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1">
                 <Bell className="w-3.5 h-3.5 text-blue-500" />
-                NotificaciÃ³n
+                Notificación
               </h4>
               <div className="text-sm space-y-1">
                 <p><span className="text-muted-foreground">Fecha:</span> {formatDate(descargo.fecha_notificacion)}</p>
@@ -193,7 +193,7 @@ export default function DescargoDetailModal({
                   {[...ampliaciones].reverse().map((a, i) => (
                     <div key={i} className="bg-muted/30 rounded-lg px-3 py-2 text-sm space-y-1">
                       <div className="flex items-center justify-between text-xs text-muted-foreground">
-                        <span className="font-medium text-amber-600 dark:text-amber-400">+{a.dias} dÃ­as</span>
+                        <span className="font-medium text-amber-600 dark:text-amber-400">+{a.dias} días</span>
                         <span>{formatDateTime(a.fecha)}</span>
                       </div>
                       <p className="text-xs">{a.justificacion}</p>
