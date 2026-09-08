@@ -1,9 +1,9 @@
 import Checkbox from '@/Components/Form/Checkbox';
 import InputError from '@/Components/Form/InputError';
 import InputLabel from '@/Components/Form/InputLabel';
-import PrimaryButton from '@/Components/Buttons/PrimaryButton';
 import TextInput from '@/Components/Form/TextInput';
 import GuestLayout from '@/Layouts/GuestLayout';
+import { Button } from '@/Components/ui/button';
 import { Head, useForm } from '@inertiajs/react';
 import { FormEventHandler } from 'react';
 
@@ -30,13 +30,17 @@ export default function Login({
         <GuestLayout>
             <Head title="Iniciar sesión" />
 
+            <h1 className="mb-6 text-xl font-bold text-foreground tracking-tight">
+                Iniciar sesión
+            </h1>
+
             {status && (
-                <div className="mb-4 text-sm font-medium text-green-600">
+                <div className="mb-4 rounded-lg bg-teal-500/10 border border-teal-500/30 px-3 py-2 text-sm font-medium text-teal-800 dark:text-teal-300">
                     {status}
                 </div>
             )}
 
-            <form onSubmit={submit}>
+            <form onSubmit={submit} className="space-y-5">
                 <div>
                     <InputLabel htmlFor="username" value="Usuario" />
 
@@ -54,7 +58,7 @@ export default function Login({
                     <InputError message={errors.username} className="mt-2" />
                 </div>
 
-                <div className="mt-4">
+                <div>
                     <InputLabel htmlFor="password" value="Contraseña" />
 
                     <TextInput
@@ -70,8 +74,8 @@ export default function Login({
                     <InputError message={errors.password} className="mt-2" />
                 </div>
 
-                <div className="mt-4 block">
-                    <label className="flex items-center">
+                <div className="flex items-center justify-between">
+                    <label className="flex items-center gap-2 cursor-pointer">
                         <Checkbox
                             name="remember"
                             checked={data.remember}
@@ -82,16 +86,14 @@ export default function Login({
                                 )
                             }
                         />
-                        <span className="ms-2 text-sm text-gray-600">
+                        <span className="text-sm text-muted-foreground">
                             Recordarme
                         </span>
                     </label>
-                </div>
 
-                <div className="mt-4 flex items-center justify-end">
-                    <PrimaryButton className="ms-4" disabled={processing}>
-                        Ingresar
-                    </PrimaryButton>
+                    <Button type="submit" disabled={processing} id="btn-login">
+                        {processing ? 'Ingresando…' : 'Ingresar'}
+                    </Button>
                 </div>
             </form>
         </GuestLayout>

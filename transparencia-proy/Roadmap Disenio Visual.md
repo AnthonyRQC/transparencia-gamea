@@ -25,8 +25,8 @@
 - [ ] **Batch 5 — Paleta con semántica única:** morado proceso, teal positivo, magenta alerta, dorado aviso con texto oscuro; contraste AA verificado.
 
 ## Fase 3 — `distill` + `polish` (2 batches)
-- [ ] **Batch 6 — Quitar ruido:** un solo sistema de botones (jubilar `PrimaryButton/SecondaryButton/DangerButton` legacy), un empty state (`ListaVacia`), un formato de fecha (helper único).
-- [ ] **Batch 7 — Cierre:** Login/Perfil fuera de Breeze legacy (tokens + dark mode), pasada `polish`, detector limpio, re-critique para tendencia.
+- [x] **Batch 6 — Quitar ruido:** un solo sistema de botones (jubilar `PrimaryButton/SecondaryButton/DangerButton` legacy), un empty state (`ListaVacia`), un formato de fecha (helper único).
+- [x] **Batch 7 — Cierre:** Login/Perfil fuera de Breeze legacy (tokens + dark mode), pasada `polish`, detector limpio, re-critique para tendencia.
 
 ## Reglas
 - Un batch = un commit + build + suite verde + visto bueno visual. Nada de mezclar copy con colores.
