@@ -31,8 +31,8 @@ export default function TabResultados({ resultados, baseTemporal, onDrillClasifi
             <div className="border rounded-2xl bg-card p-4 space-y-2">
                 <div className="flex items-center justify-between gap-2 flex-wrap">
                     <div>
-                        <h3 className="font-bold text-sm">¿Qué unidades reciben más solicitudes?</h3>
-                        <p className="text-[11px] text-muted-foreground">Por fecha de envío · suma cada unidad con sus subordinadas.</p>
+                        <h3 className="font-bold text-sm">¿Qué dependencias reciben más solicitudes?</h3>
+                        <p className="text-[11px] text-muted-foreground">Por fecha de envío · suma cada dependencia con sus ramas.</p>
                     </div>
                     <BaseTemporalBadge base={baseTemporal['resultados.dependencias']} />
                 </div>
@@ -43,7 +43,7 @@ export default function TabResultados({ resultados, baseTemporal, onDrillClasifi
                     onSelect={onDrillDependencia ? (item) => onDrillDependencia(item.id, item.label) : undefined}
                 />
                 {onDrillDependencia && (
-                    <p className="text-[11px] text-muted-foreground">Clic en una unidad para ver los casos (incluye subordinadas).</p>
+                    <p className="text-[11px] text-muted-foreground">Clic en una dependencia para ver los casos (incluye todas sus ramas).</p>
                 )}
             </div>
             <div className="border rounded-2xl bg-card p-4 space-y-2">

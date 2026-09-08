@@ -40,12 +40,12 @@ export const COLUMNAS_EXCEL: Array<{ key: string; label: string; fija?: boolean 
     { key: 'clasificacion', label: 'Clasificación final' },
     { key: 'categoria', label: 'Categoría' },
     { key: 'estado', label: 'Estado' },
-    { key: 'fecha_admision', label: 'Fecha admisión' },
-    { key: 'fecha_rechazo', label: 'Fecha rechazo' },
+    { key: 'fecha_admision', label: 'Fecha de admisión' },
+    { key: 'fecha_rechazo', label: 'Fecha de rechazo' },
     { key: 'escenario', label: 'Escenario' },
-    { key: 'medio_cierre', label: 'Medio notificación cierre' },
-    { key: 'fecha_cierre', label: 'Fecha cierre' },
-    { key: 'dias_restantes', label: 'Días restantes' },
+    { key: 'medio_cierre', label: 'Medio de notificación de cierre' },
+    { key: 'fecha_cierre', label: 'Fecha de cierre' },
+    { key: 'dias_restantes', label: 'Días restantes de plazo' },
 ];
 
 const COLUMNAS_DEFAULT = [

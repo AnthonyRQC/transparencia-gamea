@@ -1,6 +1,7 @@
 import { Link } from '@inertiajs/react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/Components/ui/table';
 import { Badge } from '@/Components/ui/badge';
+import { formatearDiasPlazo } from '@/helpers/fechas';
 import type { Urgente } from '@/types/dashboard';
 
 const ETIQUETAS_ESTADO: Record<string, string> = {
@@ -39,7 +40,7 @@ export default function TablaCasosUrgentes({ urgentes, esTecnico }: Props) {
                     <TableRow>
                         <TableHead className="w-32">Ticket</TableHead>
                         <TableHead>Técnico</TableHead>
-                        <TableHead className="text-right">Días</TableHead>
+                        <TableHead className="text-right">Plazo / Vencimiento</TableHead>
                         <TableHead>Estado</TableHead>
                     </TableRow>
                 </TableHeader>
@@ -60,7 +61,9 @@ export default function TablaCasosUrgentes({ urgentes, esTecnico }: Props) {
                                 </TableCell>
                                 <TableCell className="text-xs">{u.tecnico}</TableCell>
                                 <TableCell className="text-right">
-                                    <Badge className={badgeColor[u.color] ?? badgeColor.gray}>{u.diasRestantes} d</Badge>
+                                    <Badge className={badgeColor[u.color] ?? badgeColor.gray}>
+                                        {formatearDiasPlazo(u.diasRestantes)}
+                                    </Badge>
                                 </TableCell>
                                 <TableCell className="text-xs">{ETIQUETAS_ESTADO[u.estado] ?? u.estado}</TableCell>
                             </TableRow>

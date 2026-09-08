@@ -15,14 +15,7 @@ import { toast } from 'sonner';
 import { route } from 'ziggy-js';
 import type { DashboardProps, FiltrosDashboard as FiltrosState } from '@/types/dashboard';
 import { PRESET_DEFAULT, rangoPreset } from '@/helpers/presetsFecha';
-
-/** "2026-09-05" → "5 sep 2026" para encabezados legibles. */
-function formatearFechaCorta(ymd: string | null): string | null {
-    if (!ymd) return null;
-    const d = new Date(ymd + 'T12:00:00');
-    if (Number.isNaN(d.getTime())) return ymd;
-    return d.toLocaleDateString('es-BO', { day: 'numeric', month: 'short', year: 'numeric' });
-}
+import { formatearRangoFechas } from '@/helpers/fechas';
 
 export default function Dashboard(props: DashboardProps) {
     const { kpis, operativo, resultados, rendimiento, base_temporal, opciones, esJefe, esTecnico, esRegistrador, filtros } = props;
@@ -147,9 +140,7 @@ export default function Dashboard(props: DashboardProps) {
                     <div className="flex items-center gap-2 flex-wrap">
                         <span className="text-xs font-extrabold uppercase tracking-widest text-primary">Período</span>
                         <span className="text-xs text-muted-foreground">
-                            {filtros.desde || filtros.hasta
-                                ? `${formatearFechaCorta(filtros.desde) ?? 'inicio'} → ${formatearFechaCorta(filtros.hasta) ?? 'hoy'}`
-                                : 'Todo el historial'}
+                            {formatearRangoFechas(filtros.desde, filtros.hasta)}
                         </span>
                         <div className="flex-1 h-px bg-border" />
                     </div>

@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { cn } from '@/lib/utils';
 import { ETIQUETAS_TIPO, type DashboardProps, type FiltrosDashboard } from '@/types/dashboard';
 import { ETIQUETAS_PRESET, PRESETS_FECHA, detectarPreset, rangoPreset, type PresetFechaKey } from '@/helpers/presetsFecha';
+import { formatearRangoFechas } from '@/helpers/fechas';
 
 interface Props {
     filtros: FiltrosDashboard;
@@ -57,17 +58,18 @@ export default function FiltrosDashboard({ filtros, opciones, esJefe, onChange }
     const chips: Array<{ key: string; label: string; clear: () => void }> = [];
     const presetActivo: PresetFechaKey = detectarPreset(filtros.desde, filtros.hasta);
     if (filtros.desde || filtros.hasta) {
+        const rangoTexto = formatearRangoFechas(filtros.desde, filtros.hasta);
         chips.push({
             key: 'rango',
-            label: `Fecha: ${ETIQUETAS_PRESET[presetActivo]} (${filtros.desde ?? 'inicio'} → ${filtros.hasta ?? 'hoy'})`,
+            label: `Fecha: ${ETIQUETAS_PRESET[presetActivo]} (${rangoTexto})`,
             clear: () => onChange({ ...filtros, desde: null, hasta: null }),
         });
     }
     if (filtros.tecnico_id) {
-        const t = opciones.tecnicos.find((x) => x.id === filtros.tecnico_id);
+        const t = opciones.tecnicos.find((x) => Number(x.id) === Number(filtros.tecnico_id));
         chips.push({
             key: 'tecnico',
-            label: `Técnico: ${t?.name ?? filtros.tecnico_id}`,
+            label: `Técnico: ${t?.name ?? 'Técnico'}`,
             clear: () => onChange({ ...filtros, tecnico_id: null }),
         });
     }
@@ -79,18 +81,18 @@ export default function FiltrosDashboard({ filtros, opciones, esJefe, onChange }
         });
     }
     if (filtros.categoria_id) {
-        const c = opciones.categorias.find((x) => x.id === filtros.categoria_id);
+        const c = opciones.categorias.find((x) => Number(x.id) === Number(filtros.categoria_id));
         chips.push({
             key: 'categoria',
-            label: `Categoría: ${c?.nombre ?? filtros.categoria_id}`,
+            label: `Categoría: ${c?.nombre ?? 'Categoría'}`,
             clear: () => onChange({ ...filtros, categoria_id: null }),
         });
     }
     if (filtros.clasificacion_id) {
-        const c = opciones.clasificaciones.find((x) => x.id === filtros.clasificacion_id);
+        const c = opciones.clasificaciones.find((x) => Number(x.id) === Number(filtros.clasificacion_id));
         chips.push({
             key: 'clasificacion',
-            label: `Clasificación: ${c?.nombre ?? filtros.clasificacion_id}`,
+            label: `Clasificación: ${c?.nombre ?? 'Clasificación'}`,
             clear: () => onChange({ ...filtros, clasificacion_id: null }),
         });
     }
@@ -134,7 +136,7 @@ export default function FiltrosDashboard({ filtros, opciones, esJefe, onChange }
             {chips.length > 0 && (
                 <Button variant="ghost" size="sm" onClick={() => onChange({ ...FILTROS_VACIOS, tab: 'operativo' })} className="gap-1 text-muted-foreground">
                     <RotateCcw className="w-3.5 h-3.5" />
-                    Reset
+                    Limpiar
                 </Button>
             )}
 
@@ -275,7 +277,7 @@ export default function FiltrosDashboard({ filtros, opciones, esJefe, onChange }
                                 </SelectContent>
                             </Select>
                             <p className="text-[11px] text-muted-foreground">
-                                El estado solo cambia los dos gráficos de arriba (fase y evolución); los números de arriba siempre muestran hoy.
+                                Aplica a los gráficos de fases y evolución temporal. Los indicadores superiores ("Hoy") muestran la situación actual en tiempo real.
                             </p>
                         </div>
                     </div>
