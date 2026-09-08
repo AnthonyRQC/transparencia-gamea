@@ -33,8 +33,8 @@ export default function GraficoEvolucion({
                             <stop offset="95%" stopColor={TEMA.teal} stopOpacity={0} />
                         </linearGradient>
                         <linearGradient id="gradRechazadas" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor={TEMA.grisLinea} stopOpacity={0.3} />
-                            <stop offset="95%" stopColor={TEMA.grisLinea} stopOpacity={0} />
+                            <stop offset="5%" stopColor={TEMA.magenta} stopOpacity={0.35} />
+                            <stop offset="95%" stopColor={TEMA.magenta} stopOpacity={0} />
                         </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" />
@@ -44,7 +44,7 @@ export default function GraficoEvolucion({
                     <Legend wrapperStyle={{ fontSize: 11 }} />
                     <Area type="monotone" dataKey="ingresadas" name="Ingresadas" stroke={TEMA.primario()} fill="url(#gradIngresadas)" strokeWidth={2} {...clickLinea('ingresadas')} />
                     <Area type="monotone" dataKey="cerradas" name="Cerradas" stroke={TEMA.teal} fill="url(#gradCerradas)" strokeWidth={2} {...clickLinea('cerradas')} />
-                    <Area type="monotone" dataKey="rechazadas" name="Rechazadas" stroke={TEMA.grisLinea} fill="url(#gradRechazadas)" strokeWidth={2} {...clickLinea('rechazadas')} />
+                    <Area type="monotone" dataKey="rechazadas" name="Rechazadas" stroke={TEMA.magenta} fill="url(#gradRechazadas)" strokeWidth={2} {...clickLinea('rechazadas')} />
                 </AreaChart>
             </ResponsiveContainer>
         </div>

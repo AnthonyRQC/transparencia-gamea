@@ -57,3 +57,43 @@ export function formatearDiasPlazo(dias: number, corto = false): string {
     if (dias === 1) return 'Vence mañana';
     return corto ? `${dias} d` : `En ${dias} días`;
 }
+
+/**
+ * Formatea una fecha ISO/timestamp a texto largo en español.
+ * "2026-09-05" o "2026-09-05T14:30:00" → "5 de septiembre de 2026"
+ */
+export function formatearFechaLarga(d: string | null | undefined): string | null {
+    if (!d) return null;
+    const date = new Date(d.length === 10 ? d + 'T12:00:00' : d);
+    if (isNaN(date.getTime())) return d;
+    return date.toLocaleDateString('es-BO', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+/**
+ * Formatea una fecha+hora ISO a texto compacto en español.
+ * "2026-09-05T14:30:00" → "5 sep 2026, 14:30"
+ */
+export function formatearFechaHora(d: string | null | undefined): string | null {
+    if (!d) return null;
+    const date = new Date(d);
+    if (isNaN(date.getTime())) return d;
+    return date.toLocaleDateString('es-BO', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+    });
+}
+
+/**
+ * Devuelve la fecha de hoy en formato "YYYY-MM-DD" (para valores por defecto de inputs date).
+ * Reemplaza el patrón: new Date().toISOString().split('T')[0]
+ */
+export function hoyISO(): string {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+}

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { formatearFechaLarga } from '@/helpers/fechas';
 import { Head, router, usePage } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import {
@@ -107,9 +108,7 @@ export default function Evaluaciones() {
                       </div>
                       <p className="text-xs text-muted-foreground">
                         Delegada por el Jefe el{' '}
-                        {new Date(e.delegada_at).toLocaleDateString('es-BO', {
-                          day: '2-digit', month: 'long', year: 'numeric',
-                        })}
+                        {formatearFechaLarga(e.delegada_at)}
                       </p>
                       <div className="pt-1">
                         <button
@@ -151,19 +150,17 @@ export default function Evaluaciones() {
                   >
                     <div className="flex items-center gap-2">
                       <span className="font-mono text-sm font-bold">{e.ticket}</span>
-                      <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${
+                      <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full border ${
                         e.recomendacion === 'admitir'
-                          ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
-                          : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
+                          ? 'bg-teal-500/10 text-teal-800 border-teal-500/30 dark:bg-teal-500/20 dark:text-teal-300'
+                          : 'bg-pink-600/10 text-pink-800 border-pink-600/30 dark:bg-pink-600/20 dark:text-pink-300'
                       }`}>
                         Recomienda: {e.recomendacion === 'admitir' ? 'Admitir' : 'Rechazar'}
                       </span>
                     </div>
                     <p className="text-xs text-muted-foreground">
                       Devuelta el{' '}
-                      {e.devuelta_at && new Date(e.devuelta_at).toLocaleDateString('es-BO', {
-                        day: '2-digit', month: 'long', year: 'numeric',
-                      })}
+                      {formatearFechaLarga(e.devuelta_at)}
                     </p>
                     {e.texto_evaluacion && (
                       <p className="text-sm whitespace-pre-wrap break-words bg-muted/30 rounded-lg px-3 py-2">

@@ -40,7 +40,7 @@ export default function GraficoBarras({ data, height = 200, unit = 'Casos', onSe
                         {data.map((_, i) => (
                             <Cell key={i} fill={rampa[i % rampa.length]} />
                         ))}
-                        <LabelList dataKey="value" position="right" style={{ fontSize: 10, fontWeight: 700 }} />
+                        <LabelList dataKey="value" position="right" className="fill-foreground" style={{ fontSize: 10, fontWeight: 700 }} />
                     </Bar>
                 </BarChart>
             </ResponsiveContainer>

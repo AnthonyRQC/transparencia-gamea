@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { hoyISO } from '@/helpers/fechas';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { toast } from 'sonner';
@@ -15,14 +16,14 @@ interface ModalNotificarDescargoProps {
 }
 
 export default function ModalNotificarDescargo({ descargoId, open, onOpenChange }: ModalNotificarDescargoProps) {
-  const [fechaNotificacion, setFechaNotificacion] = useState(new Date().toISOString().split('T')[0]);
+  const [fechaNotificacion, setFechaNotificacion] = useState(hoyISO());
   const [medio, setMedio] = useState('');
   const [plazoDias, setPlazoDias] = useState(10);
   const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
     if (open) {
-      setFechaNotificacion(new Date().toISOString().split('T')[0]);
+      setFechaNotificacion(hoyISO());
       setMedio('');
       setPlazoDias(10);
     }
@@ -75,7 +76,7 @@ export default function ModalNotificarDescargo({ descargoId, open, onOpenChange 
               type="date"
               value={fechaNotificacion}
               onChange={(e) => setFechaNotificacion(e.target.value)}
-              max={new Date().toISOString().split('T')[0]}
+              max={hoyISO()}
               className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
             />
           </div>

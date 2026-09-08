@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
+import { formatearFechaCorta } from '@/helpers/fechas';
 import { Head, router } from '@inertiajs/react';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 import {
   Inbox, CheckCircle2, ClipboardList, Eye, Archive,
   InboxIcon, X, UserPlus, RotateCcw, ArrowRightLeft, Search,
@@ -166,13 +168,13 @@ interface PageProps {
 }
 
 const contadorConfig = [
-  { key: 'ingresada', label: 'Ingresadas', icon: Inbox, color: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300' },
-  { key: 'evaluacion_tecnica', label: 'En evaluación', icon: FileSearch, color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300' },
-  { key: 'admitida', label: 'Admitidas', icon: CheckCircle2, color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' },
-  { key: 'asignada', label: 'Asignadas', icon: ClipboardList, color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' },
-  { key: 'investigacion', label: 'Investigación', icon: Eye, color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300' },
-  { key: 'informe', label: 'Informe Final', icon: FileText, color: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300' },
-  { key: 'cerrada', label: 'Cerradas', icon: Archive, color: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300' },
+  { key: 'ingresada', label: 'Ingresadas', icon: Inbox, color: 'bg-primary/10 text-primary border border-primary/20 dark:bg-primary/20 dark:text-primary-foreground' },
+  { key: 'evaluacion_tecnica', label: 'En evaluación', icon: FileSearch, color: 'bg-amber-500/15 text-amber-900 border border-amber-500/30 dark:bg-amber-500/20 dark:text-amber-300' },
+  { key: 'admitida', label: 'Admitidas', icon: CheckCircle2, color: 'bg-teal-500/10 text-teal-800 border border-teal-500/30 dark:bg-teal-500/20 dark:text-teal-300' },
+  { key: 'asignada', label: 'Asignadas', icon: ClipboardList, color: 'bg-primary/10 text-primary border border-primary/20 dark:bg-primary/20 dark:text-primary-foreground' },
+  { key: 'investigacion', label: 'Investigación', icon: Eye, color: 'bg-primary/10 text-primary border border-primary/20 dark:bg-primary/20 dark:text-primary-foreground' },
+  { key: 'informe', label: 'Informe Final', icon: FileText, color: 'bg-amber-500/15 text-amber-900 border border-amber-500/30 dark:bg-amber-500/20 dark:text-amber-300' },
+  { key: 'cerrada', label: 'Cerradas', icon: Archive, color: 'bg-teal-500/10 text-teal-800 border border-teal-500/30 dark:bg-teal-500/20 dark:text-teal-300' },
 ];
 
 export default function Bandeja({ denuncias, porAsignar, enCurso, historial, contadores, tecnicos, cargaTecnicos, solicitudesByTicket = {}, descargosByTicket = {}, evaluacionesByTicket = {}, canAct = false, destacar }: PageProps) {
@@ -421,17 +423,17 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
                         <div className="flex items-center gap-2 pt-1 flex-wrap">
                           {enEvaluacion ? (
                             <>
-                              <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-full bg-amber-100 text-amber-700 border border-amber-300 dark:bg-amber-900/30 dark:text-amber-300">
+                              <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-full bg-amber-500/15 text-amber-900 border border-amber-500/30 dark:bg-amber-500/20 dark:text-amber-300">
                                 <FileSearch className="w-3 h-3" />
                                 En evaluación por {d.evaluacion_tecnica_tecnico_nombre || 'técnico'}
                               </span>
                               <span className="text-[10px] text-muted-foreground">
-                                (delegada {d.evaluacion_tecnica_delegada_at ? new Date(d.evaluacion_tecnica_delegada_at).toLocaleDateString('es-BO', { day: '2-digit', month: 'short' }) : ''})
+                                (delegada {formatearFechaCorta(d.evaluacion_tecnica_delegada_at, true) ?? ''})
                               </span>
                               <button
                                 type="button"
                                 onClick={(e) => { e.stopPropagation(); setModalReasumirEvaluacionTicket(d.ticket); }}
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-100 text-amber-800 text-xs font-semibold hover:bg-amber-200 transition-colors dark:bg-amber-900/30 dark:text-amber-300"
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/15 text-amber-900 hover:bg-amber-500/25 border border-amber-500/30 text-xs font-semibold transition-colors dark:bg-amber-500/20 dark:text-amber-300 cursor-pointer"
                               >
                                 <Undo2 className="w-3.5 h-3.5" />
                                 Reasumir
@@ -455,7 +457,14 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
                                 <X className="w-3.5 h-3.5" />
                                 Rechazar
                               </button>
-                              <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-full bg-blue-100 text-blue-700 border border-blue-300 dark:bg-blue-900/30 dark:text-blue-300">
+                              <span className={cn(
+                                "inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-full border",
+                                d.evaluacion_tecnica_recomendacion === 'admitir'
+                                  ? "bg-teal-500/10 text-teal-800 border-teal-500/30 dark:bg-teal-500/20 dark:text-teal-300"
+                                  : d.evaluacion_tecnica_recomendacion === 'rechazar'
+                                    ? "bg-pink-600/10 text-pink-800 border-pink-600/30 dark:bg-pink-600/20 dark:text-pink-300"
+                                    : "bg-primary/10 text-primary border-primary/20 dark:bg-primary/20 dark:text-primary-foreground"
+                              )}>
                                 <FileSearch className="w-3 h-3" />
                                 Evaluada por {d.evaluacion_tecnica_tecnico_nombre || 'técnico'}
                                 {d.evaluacion_tecnica_recomendacion === 'admitir' ? ' · Recomienda admitir' : d.evaluacion_tecnica_recomendacion === 'rechazar' ? ' · Recomienda rechazar' : ''}
@@ -726,7 +735,7 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
                 <button
                   type="button"
                   onClick={() => { setModalTraspasoTicket(selectedDenuncia.ticket); }}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-amber-100 text-amber-800 text-xs font-semibold hover:bg-amber-200 transition-colors dark:bg-amber-900/30 dark:text-amber-300 border border-amber-300/40 cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-amber-500/15 text-amber-900 hover:bg-amber-500/25 text-xs font-semibold transition-colors dark:bg-amber-500/20 dark:text-amber-300 border border-amber-500/30 cursor-pointer"
                 >
                   <ArrowRightLeft className="w-3.5 h-3.5" />
                   Traspasar

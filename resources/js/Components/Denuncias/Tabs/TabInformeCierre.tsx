@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { formatearFechaCorta } from '@/helpers/fechas';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/Components/ui/tabs';
 import { FileText, Archive, Trash2 } from 'lucide-react';
 import FormInformeFinal from '../Modales/InformeCierre/FormInformeFinal';
@@ -157,7 +158,7 @@ export default function TabInformeCierre({ denuncia, tecnicoNombre = '—', canA
               <Trash2 className="w-4 h-4 text-destructive mt-0.5 shrink-0" />
               <div className="text-xs text-destructive">
                 <p className="font-semibold">Informe eliminado</p>
-                {informe.fecha_eliminacion && <p className="mt-0.5">Eliminado: {new Date(informe.fecha_eliminacion).toLocaleDateString('es-BO')}</p>}
+                {informe.fecha_eliminacion && <p className="mt-0.5">Eliminado: {formatearFechaCorta(informe.fecha_eliminacion)}</p>}
               </div>
             </div>
           )}
@@ -180,7 +181,7 @@ export default function TabInformeCierre({ denuncia, tecnicoNombre = '—', canA
               <Trash2 className="w-4 h-4 text-destructive mt-0.5 shrink-0" />
               <div className="text-xs text-destructive">
                 <p className="font-semibold">Cierre eliminado</p>
-                {cierre.fecha_eliminacion && <p className="mt-0.5">Eliminado: {new Date(cierre.fecha_eliminacion).toLocaleDateString('es-BO')}</p>}
+                {cierre.fecha_eliminacion && <p className="mt-0.5">Eliminado: {formatearFechaCorta(cierre.fecha_eliminacion)}</p>}
               </div>
             </div>
           )}

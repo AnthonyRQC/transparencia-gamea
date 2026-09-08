@@ -14,9 +14,9 @@ interface PlazoBadgeProps {
 }
 
 const colorStyles: Record<string, string> = {
-  green: 'bg-teal-500/10 text-teal-700 dark:text-teal-300 border-teal-500/30',
-  yellow: 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-300 border-yellow-500/30',
-  red: 'bg-pink-600/10 text-pink-700 dark:text-pink-300 border-pink-600/30',
+  green: 'bg-teal-500/10 text-teal-800 dark:text-teal-300 border-teal-500/30',
+  yellow: 'bg-amber-500/15 text-amber-900 dark:text-amber-300 border-amber-500/30',
+  red: 'bg-pink-600/10 text-pink-800 dark:text-pink-300 border-pink-600/30',
 };
 
 const labels: Record<string, string> = {

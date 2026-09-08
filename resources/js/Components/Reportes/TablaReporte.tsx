@@ -3,7 +3,7 @@ import { Eye } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/Components/ui/table';
 import { Badge } from '@/Components/ui/badge';
 import { ETIQUETAS_TIPO } from '@/types/dashboard';
-import { formatearDiasPlazo } from '@/helpers/fechas';
+import { formatearDiasPlazo, formatearFechaCorta } from '@/helpers/fechas';
 
 export interface ReporteRow {
     ticket: string;
@@ -19,9 +19,9 @@ export interface ReporteRow {
 }
 
 const badgeColor: Record<string, string> = {
-    green: 'bg-teal-500/10 text-teal-700 dark:text-teal-300 border-teal-500/30',
-    yellow: 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-300 border-yellow-500/30',
-    red: 'bg-pink-600/10 text-pink-700 dark:text-pink-300 border-pink-600/30',
+    green: 'bg-teal-500/10 text-teal-800 dark:text-teal-300 border-teal-500/30',
+    yellow: 'bg-amber-500/15 text-amber-900 dark:text-amber-300 border-amber-500/30',
+    red: 'bg-pink-600/10 text-pink-800 dark:text-pink-300 border-pink-600/30',
     gray: 'bg-muted text-muted-foreground border-border',
 };
 
@@ -30,10 +30,7 @@ interface Props {
     estados: Record<string, string>;
 }
 
-function formatDate(d?: string | null): string {
-    if (!d) return '—';
-    return new Date(d).toLocaleDateString('es-BO', { day: '2-digit', month: 'short', year: 'numeric' });
-}
+const formatDate = (d?: string | null): string => formatearFechaCorta(d) ?? '—';
 
 export default function TablaReporte({ rows, estados }: Props) {
     return (

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Separator } from '@/Components/ui/separator';
 import { ChevronDown, ChevronRight, History, FileSearch, UserCheck } from 'lucide-react';
 import ListaVacia from '../Shared/ListaVacia';
+import { formatearFechaLarga } from '@/helpers/fechas';
 
 interface EvaluacionEntry {
   id: number;
@@ -30,12 +31,7 @@ const recomendacionColor: Record<string, string> = {
   rechazar: 'bg-pink-600/10 text-pink-700 border border-pink-600/30 dark:text-pink-300',
 };
 
-function formatDate(d?: string): string {
-  if (!d) return '';
-  return new Date(d).toLocaleDateString('es-BO', {
-    day: '2-digit', month: 'long', year: 'numeric',
-  });
-}
+const formatDate = (d?: string): string => formatearFechaLarga(d) ?? '';
 
 export default function TabEvaluacionPrevia({ evaluaciones = [] }: TabEvaluacionPreviaProps) {
   const [expanded, setExpanded] = useState<Record<number, boolean>>({});

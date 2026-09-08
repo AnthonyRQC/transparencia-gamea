@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { formatearFechaLarga } from '@/helpers/fechas';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/Components/ui/sheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/Components/ui/tabs';
 import { Separator } from '@/Components/ui/separator';
@@ -171,21 +172,16 @@ const tipoPruebaLabel: Record<string, string> = {
 };
 
 const accionIcon: Record<string, React.ReactNode> = {
-  admitida: <CheckCircle2 className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />,
-  rechazada: <XCircle className="w-3.5 h-3.5 text-red-600 dark:text-red-400" />,
-  asignada: <UserPlus className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />,
+  admitida: <CheckCircle2 className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />,
+  rechazada: <XCircle className="w-3.5 h-3.5 text-destructive" />,
+  asignada: <UserPlus className="w-3.5 h-3.5 text-primary" />,
   traspaso: <ArrowRightLeft className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />,
-  investigacion: <History className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />,
+  investigacion: <History className="w-3.5 h-3.5 text-primary" />,
   reapertura: <RotateCcw className="w-3.5 h-3.5 text-primary" />,
   saltar_fase: <ArrowRightLeft className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />,
 };
 
-function formatDate(d?: string): string {
-  if (!d) return '';
-  return new Date(d).toLocaleDateString('es-BO', {
-    day: '2-digit', month: 'long', year: 'numeric',
-  });
-}
+const formatDate = (d?: string): string => formatearFechaLarga(d) ?? '';
 
 const estadosConTabs = ['asignada', 'investigacion', 'informe', 'cerrada'];
 
@@ -354,7 +350,7 @@ function SheetInfoContent({ denuncia, hechos, tecnicoInfo, tecnicoAnteriorInfo, 
             <div className="flex items-center gap-2">
               <p className="font-medium">{denuncia.denunciante?.nombres || '—'}</p>
               {denuncia.escenario && denuncia.escenario !== 'revelada' && (
-                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 border border-amber-300 dark:bg-amber-900/30 dark:text-amber-300">
+                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-900 border border-amber-500/30 dark:bg-amber-500/20 dark:text-amber-300">
                   {escenarioLabel[denuncia.escenario]}
                 </span>
               )}

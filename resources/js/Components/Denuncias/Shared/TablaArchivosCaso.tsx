@@ -1,6 +1,7 @@
 import { FileText, Trash2, Search } from 'lucide-react';
 import { Input } from '@/Components/ui/input';
 import { cn } from '@/lib/utils';
+import { formatearFechaCorta } from '@/helpers/fechas';
 
 interface ArchivoItem {
   id: number;
@@ -21,15 +22,12 @@ interface TablaArchivosCasoProps {
 }
 
 const contextoColor: Record<string, string> = {
-  general: 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300',
-  informe: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
-  cierre: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
+  general: 'bg-primary/10 text-primary border border-primary/20 dark:bg-primary/20 dark:text-primary-foreground',
+  informe: 'bg-amber-500/15 text-amber-900 border border-amber-500/30 dark:bg-amber-500/20 dark:text-amber-300',
+  cierre: 'bg-teal-500/10 text-teal-800 border border-teal-500/30 dark:bg-teal-500/20 dark:text-teal-300',
 };
 
-function formatDate(d?: string): string {
-  if (!d) return '';
-  return new Date(d).toLocaleDateString('es-BO', { day: '2-digit', month: 'short', year: 'numeric' });
-}
+const formatDate = (d?: string): string => formatearFechaCorta(d) ?? '';
 
 export default function TablaArchivosCaso({ archivos, onEliminar, search, onSearchChange }: TablaArchivosCasoProps) {
   const filtrados = archivos.filter((a) => {

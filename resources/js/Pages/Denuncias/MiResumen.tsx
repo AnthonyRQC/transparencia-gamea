@@ -26,10 +26,10 @@ export default function MiResumen({ contadores, tecnicoActual, tecnicos }: PageP
   };
 
   const cards = [
-    { label: 'Activos', valor: contadores.activos, icon: Activity, color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' },
-    { label: 'Vencidos', valor: contadores.vencidos, icon: AlertTriangle, color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' },
-    { label: 'Por vencer', valor: contadores.porVencer, icon: Clock, color: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300' },
-    { label: 'Cerrados', valor: contadores.cerrados, icon: Archive, color: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300' },
+    { label: 'Activos', valor: contadores.activos, icon: Activity, color: 'bg-primary/10 text-primary border border-primary/20 dark:bg-primary/20 dark:text-primary-foreground' },
+    { label: 'Vencidos', valor: contadores.vencidos, icon: AlertTriangle, color: 'bg-pink-600/10 text-pink-800 border border-pink-600/30 dark:bg-pink-600/20 dark:text-pink-300' },
+    { label: 'Por vencer', valor: contadores.porVencer, icon: Clock, color: 'bg-amber-500/15 text-amber-900 border border-amber-500/30 dark:bg-amber-500/20 dark:text-amber-300' },
+    { label: 'Cerrados', valor: contadores.cerrados, icon: Archive, color: 'bg-teal-500/10 text-teal-800 border border-teal-500/30 dark:bg-teal-500/20 dark:text-teal-300' },
   ];
 
   return (

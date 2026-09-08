@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { hoyISO } from '@/helpers/fechas';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { toast } from 'sonner';
@@ -16,13 +17,13 @@ interface ModalResponderSolicitudProps {
 
 export default function ModalResponderSolicitud({ solicitudId, open, onOpenChange }: ModalResponderSolicitudProps) {
   const [respuesta, setRespuesta] = useState('');
-  const [fechaRespuesta, setFechaRespuesta] = useState(new Date().toISOString().split('T')[0]);
+  const [fechaRespuesta, setFechaRespuesta] = useState(hoyISO());
   const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
     if (open) {
       setRespuesta('');
-      setFechaRespuesta(new Date().toISOString().split('T')[0]);
+      setFechaRespuesta(hoyISO());
     }
   }, [open]);
 

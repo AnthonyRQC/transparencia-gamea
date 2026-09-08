@@ -13,10 +13,10 @@ export default function PlazoProgress({ dias_restantes, color, texto, fecha_venc
   if (!dias_restantes !== undefined && !texto) return null;
 
   const barColor = color === 'red'
-    ? 'bg-red-500'
+    ? 'bg-pink-600'
     : color === 'green'
-      ? 'bg-green-500'
-      : 'bg-yellow-500';
+      ? 'bg-teal-600'
+      : 'bg-amber-500';
 
   const progressVal = color === 'red'
     ? 100
@@ -30,9 +30,9 @@ export default function PlazoProgress({ dias_restantes, color, texto, fecha_venc
         <TooltipTrigger asChild>
           <div className="flex items-center gap-2 cursor-help w-32">
             <span className={`text-[11px] font-semibold whitespace-nowrap ${
-              color === 'red' ? 'text-red-600 dark:text-red-400'
-              : color === 'green' ? 'text-green-600 dark:text-green-400'
-              : 'text-amber-600 dark:text-amber-400'
+              color === 'red' ? 'text-pink-800 dark:text-pink-300'
+              : color === 'green' ? 'text-teal-800 dark:text-teal-300'
+              : 'text-amber-900 dark:text-amber-300'
             }`}>
               {texto || ''}
             </span>

@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
+import { hoyISO } from '@/helpers/fechas';
 import { Head, router, usePage } from '@inertiajs/react';
 import { FilePlus2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -151,7 +152,7 @@ export default function RegistroDenuncia() {
             detalles: {
                 categoria: 'cohecho',
                 categoria_otro: '',
-                fecha: new Date().toISOString().split('T')[0],
+                fecha: hoyISO(),
                 hora: '10:30',
                 lugar: 'Edificio Central GAMEA, Piso 3',
             },
@@ -209,7 +210,7 @@ export default function RegistroDenuncia() {
             detalles: {
                 categoria: 'negacion_info',
                 categoria_otro: '',
-                fecha: new Date().toISOString().split('T')[0],
+                fecha: hoyISO(),
                 hora: '14:15',
                 lugar: 'Oficina de Recursos Humanos - Jach\'a Uta',
             },

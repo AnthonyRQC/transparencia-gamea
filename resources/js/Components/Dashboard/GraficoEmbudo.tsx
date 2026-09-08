@@ -33,7 +33,7 @@ export default function GraficoEmbudo({ data, onSelect }: { data: EmbudoItem[]; 
                                 opacity={d.esTerminal ? 0.55 : 1}
                             />
                         ))}
-                        <LabelList dataKey="total" position="right" style={{ fontSize: 11, fontWeight: 700 }} />
+                        <LabelList dataKey="total" position="right" className="fill-foreground" style={{ fontSize: 11, fontWeight: 700 }} />
                     </Bar>
                 </BarChart>
             </ResponsiveContainer>

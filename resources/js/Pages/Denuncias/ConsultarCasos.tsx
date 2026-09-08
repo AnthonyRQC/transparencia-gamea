@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
+import { formatearFechaCorta } from '@/helpers/fechas';
 import { Head, router, usePage } from '@inertiajs/react';
 import { Search, Eye, Key, ChevronDown, ChevronUp, Pencil, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -49,10 +50,8 @@ interface PageProps {
   filters: Record<string, string | string[] | undefined>;
 }
 
-function formatDate(d?: string): string {
-  if (!d) return '—';
-  return new Date(d).toLocaleDateString('es-BO', { day: '2-digit', month: 'short', year: 'numeric' });
-}
+/** @deprecated usa formatearFechaCorta del helper */
+const formatDate = (d?: string): string => formatearFechaCorta(d) ?? '—';
 
 export default function ConsultarCasos({ denuncias, tecnicos, filters }: PageProps) {
   const pageProps = usePage().props as unknown as any;
@@ -302,7 +301,7 @@ export default function ConsultarCasos({ denuncias, tecnicos, filters }: PagePro
                   </button>
                   <button
                     onClick={() => setCodigoModal({ ticket: d.ticket, token: d.token_consulta || '' })}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-amber-100 text-amber-700 text-xs font-semibold hover:bg-amber-200 transition-colors dark:bg-amber-900/30 dark:text-amber-300 cursor-pointer"
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-amber-500/15 text-amber-900 border border-amber-500/30 text-xs font-semibold hover:bg-amber-500/25 transition-colors dark:bg-amber-500/20 dark:text-amber-300 cursor-pointer"
                   >
                     <Key className="w-3.5 h-3.5" />
                     Código

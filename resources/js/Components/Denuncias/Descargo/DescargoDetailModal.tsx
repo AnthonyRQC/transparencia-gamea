@@ -211,38 +211,38 @@ export default function DescargoDetailModal({
               <>
                 {descargo.estado === 'pendiente_notif' && onNotificar && (
                   <button type="button" onClick={() => onNotificar(descargo.id)}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-blue-100 text-blue-700 text-xs font-semibold hover:bg-blue-200 transition-colors dark:bg-blue-900/30 dark:text-blue-300">
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary/10 text-primary border border-primary/20 text-xs font-semibold hover:bg-primary/20 transition-colors dark:bg-primary/20 dark:text-primary-foreground cursor-pointer">
                     <Bell className="w-3.5 h-3.5" /> Notificar
                   </button>
                 )}
                 {descargo.estado !== 'pendiente_notif' && descargo.estado !== 'respondido' && onResponder && (
                   <button type="button" onClick={() => onResponder(descargo.id)}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-green-100 text-green-700 text-xs font-semibold hover:bg-green-200 transition-colors dark:bg-green-900/30 dark:text-green-300">
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-teal-500/10 text-teal-800 border border-teal-500/30 text-xs font-semibold hover:bg-teal-500/20 transition-colors dark:bg-teal-500/20 dark:text-teal-300 cursor-pointer">
                     <CircleCheck className="w-3.5 h-3.5" /> Responder
                   </button>
                 )}
                 {descargo.estado === 'notificado' && onAmpliar && (
                   <button type="button" onClick={() => onAmpliar(descargo.id)}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-amber-100 text-amber-700 text-xs font-semibold hover:bg-amber-200 transition-colors dark:bg-amber-900/30 dark:text-amber-300">
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-amber-500/15 text-amber-900 border border-amber-500/30 text-xs font-semibold hover:bg-amber-500/25 transition-colors dark:bg-amber-500/20 dark:text-amber-300 cursor-pointer">
                     <RotateCcw className="w-3.5 h-3.5" /> Ampliar
                   </button>
                 )}
                 {descargo.estado !== 'respondido' && descargo.estado !== 'cancelado' && onCancelar && (
                   <button type="button" onClick={() => onCancelar(descargo.id)}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-red-100 text-red-700 text-xs font-semibold hover:bg-red-200 transition-colors dark:bg-red-900/30 dark:text-red-300">
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-pink-600/10 text-pink-800 border border-pink-600/30 text-xs font-semibold hover:bg-pink-600/20 transition-colors dark:bg-pink-600/20 dark:text-pink-300 cursor-pointer">
                     <Trash2 className="w-3.5 h-3.5" /> Cancelar
                   </button>
                 )}
                 <>
                   {onEditar && (
                     <button type="button" onClick={() => onEditar(descargo.id)}
-                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-blue-100 text-blue-700 text-xs font-semibold hover:bg-blue-200 transition-colors dark:bg-blue-900/30 dark:text-blue-300">
+                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-muted hover:bg-muted/80 text-foreground border border-border text-xs font-semibold transition-colors cursor-pointer">
                       <Pencil className="w-3.5 h-3.5" /> Editar
                     </button>
                   )}
                   {onEliminar && (
                     <button type="button" onClick={() => onEliminar(descargo.id)}
-                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-red-50 text-red-600 text-xs font-semibold hover:bg-red-100 transition-colors dark:bg-red-900/20 dark:text-red-400">
+                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-destructive hover:bg-destructive/10 border border-transparent hover:border-destructive/20 text-xs font-semibold transition-colors cursor-pointer">
                       <Trash2 className="w-3.5 h-3.5" /> Eliminar
                     </button>
                   )}

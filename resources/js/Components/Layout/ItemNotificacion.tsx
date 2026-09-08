@@ -1,5 +1,6 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
+import { formatearFechaHora } from '@/helpers/fechas';
 import {
   Bell, Clock, CheckCircle, XCircle, ArrowRightLeft,
   CalendarPlus, AlertTriangle, FileText, MailQuestion, MessageSquareWarning,
@@ -58,7 +59,7 @@ function timeAgo(dateStr: string): string {
   if (diffMin < 60) return `hace ${diffMin} min`;
   if (diffHr < 24) return `hace ${diffHr} h`;
   if (diffDay < 7) return `hace ${diffDay} día(s)`;
-  return date.toLocaleDateString('es-BO', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  return formatearFechaHora(dateStr) ?? dateStr;
 }
 
 export default function ItemNotificacion({ notificacion, onMarcarLeida, onNavegar }: ItemNotificacionProps) {

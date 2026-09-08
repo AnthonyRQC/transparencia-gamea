@@ -1,22 +1,17 @@
-import { ButtonHTMLAttributes } from 'react';
+/**
+ * @deprecated Usa `Button` de `@/Components/ui/button` directamente.
+ * Wrapper de compatibilidad: re-exporta `<Button variant="destructive">` de Shadcn.
+ */
+import { Button } from '@/Components/ui/button';
+import { type ComponentProps, forwardRef } from 'react';
 
-export default function DangerButton({
-    className = '',
-    disabled,
-    children,
-    ...props
-}: ButtonHTMLAttributes<HTMLButtonElement>) {
-    return (
-        <button
-            {...props}
-            className={
-                `inline-flex items-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white transition duration-150 ease-in-out hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 active:bg-red-700 ${
-                    disabled && 'opacity-25'
-                } ` + className
-            }
-            disabled={disabled}
-        >
+const DangerButton = forwardRef<HTMLButtonElement, ComponentProps<typeof Button>>(
+    ({ children, ...props }, ref) => (
+        <Button ref={ref} variant="destructive" {...props}>
             {children}
-        </button>
-    );
-}
+        </Button>
+    ),
+);
+DangerButton.displayName = 'DangerButton';
+
+export default DangerButton;

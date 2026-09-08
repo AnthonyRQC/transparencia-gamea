@@ -171,13 +171,13 @@ export default function DenunciaCard({ denuncia, plazo, tecnicos, onClick, class
             </span>
           )}
           {isRecentlyTraspasado && (
-            <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 border border-amber-300 dark:bg-amber-900/30 dark:text-amber-300">
+            <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-900 border border-amber-500/30 dark:bg-amber-500/20 dark:text-amber-300">
               <ArrowRightLeft className="w-3 h-3" />
               Reasignado
             </span>
           )}
           {totalAmpliacionesDias > 0 && (
-            <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700 border border-indigo-300 dark:bg-indigo-900/30 dark:text-indigo-300">
+            <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 dark:bg-primary/20 dark:text-primary-foreground">
               <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
               Ampliada +{totalAmpliacionesDias}d
             </span>
@@ -186,8 +186,8 @@ export default function DenunciaCard({ denuncia, plazo, tecnicos, onClick, class
             <span className={cn(
               "inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border shadow-2xs",
               denuncia.evaluacion_tecnica_recomendacion === 'admitir'
-                ? "bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800/60"
-                : "bg-rose-100 text-rose-800 border-rose-300 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800/60"
+                ? "bg-teal-500/10 text-teal-800 border-teal-500/30 dark:bg-teal-500/20 dark:text-teal-300"
+                : "bg-pink-600/10 text-pink-800 border-pink-600/30 dark:bg-pink-600/20 dark:text-pink-300"
             )}>
               <FileSearch className="w-3 h-3" />
               Evaluada: {denuncia.evaluacion_tecnica_recomendacion === 'admitir' ? 'Recomienda Admitir' : 'Recomienda Rechazar'}
@@ -200,7 +200,7 @@ export default function DenunciaCard({ denuncia, plazo, tecnicos, onClick, class
           <span className="text-muted-foreground/70 shrink-0">Denunciante:</span>
           <span className="truncate font-medium text-foreground">{denuncianteNombre}</span>
           {denuncia.escenario && denuncia.escenario !== 'revelada' && (
-            <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full shrink-0 bg-amber-100 text-amber-700 border border-amber-300 dark:bg-amber-900/30 dark:text-amber-300">
+            <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full shrink-0 bg-amber-500/15 text-amber-900 border border-amber-500/30 dark:bg-amber-500/20 dark:text-amber-300">
               {escenarioLabel[denuncia.escenario] || denuncia.escenario}
             </span>
           )}

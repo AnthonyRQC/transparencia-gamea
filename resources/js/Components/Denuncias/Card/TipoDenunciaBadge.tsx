@@ -12,11 +12,11 @@ interface TipoDenunciaBadgeProps {
 const tipoConfig: Record<string, { label: string; color: string }> = {
   corrupcion: {
     label: 'Corrupción',
-    color: 'bg-purple-100 text-purple-800 border-purple-300 dark:bg-purple-900/30 dark:text-purple-300',
+    color: 'bg-primary/10 text-primary border-primary/20 dark:bg-primary/20 dark:text-primary-foreground',
   },
   negacion: {
     label: 'Negación',
-    color: 'bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-900/30 dark:text-amber-300',
+    color: 'bg-amber-500/15 text-amber-900 border-amber-500/30 dark:bg-amber-500/20 dark:text-amber-300',
   },
 };
 

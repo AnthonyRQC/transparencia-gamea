@@ -39,13 +39,13 @@ export default function TecnicoCargaCard({ tecnico, selected, onSelect }: Tecnic
             {tecnico.activos} activo{tecnico.activos !== 1 ? 's' : ''}
           </span>
           {tecnico.por_vencer > 0 && (
-            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-600 dark:text-amber-400">
+            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-900 dark:text-amber-300">
               <AlertTriangle className="w-3 h-3" />
               {tecnico.por_vencer} por vencer
             </span>
           )}
           {tecnico.vencidos > 0 && (
-            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-red-600 dark:text-red-400">
+            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-pink-800 dark:text-pink-300">
               <AlertCircle className="w-3 h-3" />
               {tecnico.vencidos} vencido{tecnico.vencidos !== 1 ? 's' : ''}
             </span>

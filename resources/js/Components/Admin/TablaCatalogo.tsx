@@ -365,7 +365,7 @@ export default function TablaCatalogo({
                         size="icon"
                         onClick={() => handleToggle(item)}
                         title={isInactivo(item) ? 'Reactivar' : 'Desactivar'}
-                        className={isInactivo(item) ? 'text-green-600 hover:text-green-700' : 'text-destructive hover:text-destructive'}
+                        className={isInactivo(item) ? 'text-teal-700 hover:text-teal-800 dark:text-teal-400' : 'text-destructive hover:text-destructive'}
                     >
                         {isInactivo(item) ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
                     </Button>
@@ -436,7 +436,7 @@ export default function TablaCatalogo({
                     {inactive ? (
                         <Badge variant="outline" className="text-[10px] text-muted-foreground border-dashed">Inactivo</Badge>
                     ) : (
-                        <Badge variant="outline" className="text-[10px] text-green-600 border-green-300 dark:text-green-400 dark:border-green-700">Activo</Badge>
+                        <Badge variant="outline" className="text-[10px] text-teal-800 border-teal-300 dark:text-teal-300 dark:border-teal-700 bg-teal-500/10">Activo</Badge>
                     )}
                 </TableCell>
             );
@@ -448,7 +448,7 @@ export default function TablaCatalogo({
                     {inactive ? (
                         <Badge variant="outline" className="text-[10px] text-muted-foreground border-dashed">Inactivo</Badge>
                     ) : (
-                        <Badge variant="outline" className="text-[10px] text-green-600 border-green-300 dark:text-green-400 dark:border-green-700">Activo</Badge>
+                        <Badge variant="outline" className="text-[10px] text-teal-800 border-teal-300 dark:text-teal-300 dark:border-teal-700 bg-teal-500/10">Activo</Badge>
                     )}
                 </TableCell>
             );
@@ -538,7 +538,7 @@ export default function TablaCatalogo({
                                                             isInactivo(item) ? (
                                                                 <span className="text-muted-foreground">Inactivo</span>
                                                             ) : (
-                                                                <span className="text-green-600 font-medium">Activo</span>
+                                                                <span className="text-teal-800 dark:text-teal-300 font-medium">Activo</span>
                                                             )
                                                         ) : (
                                                             formatValue(item, col) || <span className="text-muted-foreground/50">—</span>
@@ -598,7 +598,7 @@ export default function TablaCatalogo({
                                         {isInactivo(node) ? (
                                             <Badge variant="outline" className="text-[9px] text-muted-foreground border-dashed">Inactivo</Badge>
                                         ) : (
-                                            <Badge variant="outline" className="text-[9px] text-green-600 border-green-300 dark:text-green-400 dark:border-green-700">Activo</Badge>
+                                            <Badge variant="outline" className="text-[9px] text-teal-800 border-teal-300 dark:text-teal-300 dark:border-teal-700 bg-teal-500/10">Activo</Badge>
                                         )}
                                         {columns.map(c => {
                                             if (c.key === 'solicitudes_count') {

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { formatearFechaLarga } from '@/helpers/fechas';
 import { Head, router } from '@inertiajs/react';
 import { toast } from 'sonner';
 import { route } from 'ziggy-js';
@@ -372,7 +373,7 @@ export default function MisCasos({ grouped, tecnicoActual, tecnicos, solicitudes
                         <span className="font-mono text-sm font-bold">{e.ticket}</span>
                       </div>
                       <p className="text-xs text-muted-foreground">
-                        Delegada el {new Date(e.delegada_at).toLocaleDateString('es-BO', { day: '2-digit', month: 'long', year: 'numeric' })}
+                        Delegada el {formatearFechaLarga(e.delegada_at)}
                       </p>
                       <div className="pt-1">
                         <button

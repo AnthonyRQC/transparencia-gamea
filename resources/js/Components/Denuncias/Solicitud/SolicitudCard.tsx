@@ -1,4 +1,5 @@
 import { Building2, CircleCheck, Clock, RotateCcw, XCircle, Pencil, Trash2 } from 'lucide-react';
+import { formatearFechaCorta } from '@/helpers/fechas';
 import PlazoProgress from '../Card/PlazoProgress';
 import { Badge } from '@/Components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/Components/ui/tooltip';
@@ -42,10 +43,7 @@ const estadoBadge: Record<string, { label: string; variant: 'default' | 'seconda
   cancelada: { label: 'Cancelada', variant: 'outline' },
 };
 
-function formatDate(d?: string): string {
-  if (!d) return '';
-  return new Date(d).toLocaleDateString('es-BO', { day: '2-digit', month: 'short', year: 'numeric' });
-}
+const formatDate = (d?: string): string => formatearFechaCorta(d) ?? '';
 
 function daysAgo(d?: string): string {
   if (!d) return '';
@@ -111,7 +109,7 @@ export default function SolicitudCard({ solicitud, canAct, onClick, onResponder,
                       <button
                         type="button"
                         onClick={() => onResponder(solicitud.id)}
-                        className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-green-100 text-green-700 text-[11px] font-semibold hover:bg-green-200 transition-colors dark:bg-green-900/30 dark:text-green-300"
+                        className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-teal-500/10 text-teal-800 border border-teal-500/30 text-[11px] font-semibold hover:bg-teal-500/20 transition-colors dark:bg-teal-500/20 dark:text-teal-300 cursor-pointer"
                       >
                         <CircleCheck className="w-3 h-3" />
                         Responder
@@ -128,7 +126,7 @@ export default function SolicitudCard({ solicitud, canAct, onClick, onResponder,
                       <button
                         type="button"
                         onClick={() => onAmpliar(solicitud.id)}
-                        className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-amber-100 text-amber-700 text-[11px] font-semibold hover:bg-amber-200 transition-colors dark:bg-amber-900/30 dark:text-amber-300"
+                        className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-amber-500/15 text-amber-900 border border-amber-500/30 text-[11px] font-semibold hover:bg-amber-500/25 transition-colors dark:bg-amber-500/20 dark:text-amber-300 cursor-pointer"
                       >
                         <RotateCcw className="w-3 h-3" />
                         Ampliar
@@ -145,7 +143,7 @@ export default function SolicitudCard({ solicitud, canAct, onClick, onResponder,
                       <button
                         type="button"
                         onClick={() => onCancelar(solicitud.id)}
-                        className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-red-50 text-red-600 text-[11px] font-semibold hover:bg-red-100 transition-colors dark:bg-red-900/20 dark:text-red-400"
+                        className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-pink-600/10 text-pink-800 border border-pink-600/30 text-[11px] font-semibold hover:bg-pink-600/20 transition-colors dark:bg-pink-600/20 dark:text-pink-300 cursor-pointer"
                       >
                         <XCircle className="w-3 h-3" />
                         Cancelar
@@ -168,7 +166,7 @@ export default function SolicitudCard({ solicitud, canAct, onClick, onResponder,
                       <button
                         type="button"
                         onClick={() => onEditar(solicitud.id)}
-                        className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-blue-100 text-blue-700 text-[11px] font-semibold hover:bg-blue-200 transition-colors dark:bg-blue-900/30 dark:text-blue-300"
+                        className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-muted hover:bg-muted/80 text-foreground border border-border text-[11px] font-semibold transition-colors cursor-pointer"
                       >
                         <Pencil className="w-3 h-3" />
                         Editar
@@ -185,7 +183,7 @@ export default function SolicitudCard({ solicitud, canAct, onClick, onResponder,
                       <button
                         type="button"
                         onClick={() => onEliminar(solicitud.id)}
-                        className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-red-50 text-red-600 text-[11px] font-semibold hover:bg-red-100 transition-colors dark:bg-red-900/20 dark:text-red-400"
+                        className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-destructive hover:bg-destructive/10 border border-transparent hover:border-destructive/20 text-[11px] font-semibold transition-colors cursor-pointer"
                       >
                         <Trash2 className="w-3 h-3" />
                         Eliminar

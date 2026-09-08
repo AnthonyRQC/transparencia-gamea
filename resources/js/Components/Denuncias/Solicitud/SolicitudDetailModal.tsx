@@ -1,5 +1,6 @@
 import { Building2, Clock, RotateCcw, XCircle, CircleCheck, FileText, History, Pencil, Trash2, ChevronDown, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
+import { formatearFechaLarga, formatearFechaHora } from '@/helpers/fechas';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/Components/ui/dialog';
 import { Badge } from '@/Components/ui/badge';
 import { Separator } from '@/Components/ui/separator';
@@ -56,17 +57,8 @@ interface SolicitudDetailModalProps {
   onEliminar?: (id: number) => void;
 }
 
-function formatDate(d?: string): string {
-  if (!d) return '';
-  return new Date(d).toLocaleDateString('es-BO', { day: '2-digit', month: 'long', year: 'numeric' });
-}
-
-function formatDateTime(d?: string): string {
-  if (!d) return '';
-  return new Date(d).toLocaleString('es-BO', {
-    day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit',
-  });
-}
+const formatDate = (d?: string): string => formatearFechaLarga(d) ?? '';
+const formatDateTime = (d?: string): string => formatearFechaHora(d) ?? '';
 
 const estadoBadgeVar: Record<string, { label: string; variant: 'default' | 'secondary' | 'outline' | 'destructive' }> = {
   pendiente: { label: 'Pendiente', variant: 'outline' },
@@ -202,19 +194,19 @@ export default function SolicitudDetailModal({
               <>
                 {onResponder && (
                   <button type="button" onClick={() => onResponder(solicitud.id)}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-green-100 text-green-700 text-xs font-semibold hover:bg-green-200 transition-colors dark:bg-green-900/30 dark:text-green-300">
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-teal-500/10 text-teal-800 border border-teal-500/30 text-xs font-semibold hover:bg-teal-500/20 transition-colors dark:bg-teal-500/20 dark:text-teal-300 cursor-pointer">
                     <CircleCheck className="w-3.5 h-3.5" /> Responder
                   </button>
                 )}
                 {onAmpliar && (
                   <button type="button" onClick={() => onAmpliar(solicitud.id)}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-amber-100 text-amber-700 text-xs font-semibold hover:bg-amber-200 transition-colors dark:bg-amber-900/30 dark:text-amber-300">
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-amber-500/15 text-amber-900 border border-amber-500/30 text-xs font-semibold hover:bg-amber-500/25 transition-colors dark:bg-amber-500/20 dark:text-amber-300 cursor-pointer">
                     <RotateCcw className="w-3.5 h-3.5" /> Ampliar
                   </button>
                 )}
                 {onCancelar && (
                   <button type="button" onClick={() => onCancelar(solicitud.id)}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-red-50 text-red-600 text-xs font-semibold hover:bg-red-100 transition-colors dark:bg-red-900/20 dark:text-red-400">
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-pink-600/10 text-pink-800 border border-pink-600/30 text-xs font-semibold hover:bg-pink-600/20 transition-colors dark:bg-pink-600/20 dark:text-pink-300 cursor-pointer">
                     <XCircle className="w-3.5 h-3.5" /> Cancelar
                   </button>
                 )}
@@ -224,13 +216,13 @@ export default function SolicitudDetailModal({
               <>
                 {onEditar && (
                   <button type="button" onClick={() => onEditar(solicitud.id)}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-blue-100 text-blue-700 text-xs font-semibold hover:bg-blue-200 transition-colors dark:bg-blue-900/30 dark:text-blue-300">
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-muted hover:bg-muted/80 text-foreground border border-border text-xs font-semibold transition-colors cursor-pointer">
                     <Pencil className="w-3.5 h-3.5" /> Editar
                   </button>
                 )}
                 {onEliminar && (
                   <button type="button" onClick={() => onEliminar(solicitud.id)}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-red-50 text-red-600 text-xs font-semibold hover:bg-red-100 transition-colors dark:bg-red-900/20 dark:text-red-400">
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-destructive hover:bg-destructive/10 border border-transparent hover:border-destructive/20 text-xs font-semibold transition-colors cursor-pointer">
                     <Trash2 className="w-3.5 h-3.5" /> Eliminar
                   </button>
                 )}

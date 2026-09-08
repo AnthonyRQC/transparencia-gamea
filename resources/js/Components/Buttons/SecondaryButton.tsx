@@ -1,24 +1,17 @@
-import { ButtonHTMLAttributes } from 'react';
+/**
+ * @deprecated Usa `Button` de `@/Components/ui/button` directamente.
+ * Wrapper de compatibilidad: re-exporta `<Button variant="outline">` de Shadcn.
+ */
+import { Button } from '@/Components/ui/button';
+import { type ComponentProps, forwardRef } from 'react';
 
-export default function SecondaryButton({
-    type = 'button',
-    className = '',
-    disabled,
-    children,
-    ...props
-}: ButtonHTMLAttributes<HTMLButtonElement>) {
-    return (
-        <button
-            {...props}
-            type={type}
-            className={
-                `inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-widest text-gray-700 shadow-sm transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 ${
-                    disabled && 'opacity-25'
-                } ` + className
-            }
-            disabled={disabled}
-        >
+const SecondaryButton = forwardRef<HTMLButtonElement, ComponentProps<typeof Button>>(
+    ({ children, ...props }, ref) => (
+        <Button ref={ref} variant="outline" {...props}>
             {children}
-        </button>
-    );
-}
+        </Button>
+    ),
+);
+SecondaryButton.displayName = 'SecondaryButton';
+
+export default SecondaryButton;

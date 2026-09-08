@@ -114,7 +114,7 @@ export default function KPICards({ kpis, baseTemporal, esTecnico, bandejaHref, m
                             card.accent === 'red'
                                 ? 'bg-destructive/10 text-destructive'
                                 : card.accent === 'amber'
-                                  ? 'bg-yellow-500/15 text-yellow-600 dark:text-yellow-400'
+                                  ? 'bg-amber-500/15 text-amber-800 dark:text-amber-300'
                                   : 'bg-primary/10 text-primary'
                         )}
                     >
