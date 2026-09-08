@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { toast } from 'sonner';
@@ -106,8 +106,26 @@ export default function ModalArchivosDelCaso({ ticket, open, onOpenChange, conte
   };
 
   return (
-    <Dialog open={open} onOpenChange={(v) => { if (!processing) onOpenChange(v); }}>
-      <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto">
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        if (!processing) {
+          if (!v && document.activeElement instanceof HTMLElement) {
+            document.activeElement.blur();
+          }
+          onOpenChange(v);
+        }
+      }}
+    >
+      <DialogContent
+        className="sm:max-w-lg max-h-[85vh] overflow-y-auto"
+        onCloseAutoFocus={(e) => {
+          e.preventDefault();
+          if (document.activeElement instanceof HTMLElement) {
+            document.activeElement.blur();
+          }
+        }}
+      >
         <DialogHeader>
           <DialogTitle>Archivos del caso</DialogTitle>
         </DialogHeader>
@@ -128,10 +146,10 @@ export default function ModalArchivosDelCaso({ ticket, open, onOpenChange, conte
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="archivo-descripcion">DescripciÃ³n (opcional)</Label>
+              <Label htmlFor="archivo-descripcion">Descripción (opcional)</Label>
               <Textarea
                 id="archivo-descripcion"
-                placeholder="Breve descripciÃ³n del archivo..."
+                placeholder="Breve descripción del archivo..."
                 value={descripcion}
                 onChange={(e) => setDescripcion(e.target.value)}
                 rows={2}

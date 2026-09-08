@@ -160,10 +160,10 @@ export default function ConsultarCasos({ denuncias, tecnicos, filters }: PagePro
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
             <div className="space-y-1">
               <p className="text-[10px] font-semibold text-muted-foreground uppercase">Búsqueda libre</p>
-              <Input placeholder="Ticket, hechos, nombres..." value={filterBusqueda} onChange={(e) => setFilterBusqueda(e.target.value)} />
+              <Input placeholder="N° de denuncia, hechos, nombres..." value={filterBusqueda} onChange={(e) => setFilterBusqueda(e.target.value)} />
             </div>
             <div className="space-y-1">
-              <p className="text-[10px] font-semibold text-muted-foreground uppercase">Ticket exacto</p>
+              <p className="text-[10px] font-semibold text-muted-foreground uppercase">N° de denuncia exacto</p>
               <Input placeholder="DEN-2026-XXXX" value={filterTicket} onChange={(e) => setFilterTicket(e.target.value)} style={{ textTransform: 'uppercase' }} />
             </div>
             <div className="space-y-1">
@@ -261,12 +261,12 @@ export default function ConsultarCasos({ denuncias, tecnicos, filters }: PagePro
               <div key={d.ticket} className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 rounded-lg border border-border px-4 py-3 bg-card hover:bg-muted/30 transition-colors">
                 <div className="min-w-0 flex-1 space-y-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-mono text-sm font-bold">{d.ticket}</span>
+                    <span className="font-mono text-sm font-bold" title={`N° de denuncia: ${d.ticket}`}>{d.ticket}</span>
                     <TipoDenunciaBadge tipo={d.tipo} />
-                    <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${
-                      d.estado === 'cerrada' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' :
-                      d.estado === 'rechazada' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' :
-                      'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300'
+                    <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full border ${
+                      d.estado === 'cerrada' ? 'bg-teal-500/10 text-teal-700 dark:text-teal-300 border-teal-500/30' :
+                      d.estado === 'rechazada' ? 'bg-pink-600/10 text-pink-700 dark:text-pink-300 border-pink-600/30' :
+                      'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 border-purple-200'
                     }`}>
                       {estadoLabels[d.estado] || d.estado}
                       {d.subestado === 'archivada' && ' (Archivada)'}

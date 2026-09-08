@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { toast } from 'sonner';
@@ -53,21 +53,46 @@ export default function AsignacionModal({ ticket, open, tecnicos: _tecnicos, car
     );
   };
 
+  const handleClose = () => {
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+    onOpenChange(false);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={(v) => { if (!processing) onOpenChange(v); }}>
-      <DialogContent className="sm:max-w-md">
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        if (!processing) {
+          if (!v && document.activeElement instanceof HTMLElement) {
+            document.activeElement.blur();
+          }
+          onOpenChange(v);
+        }
+      }}
+    >
+      <DialogContent
+        className="sm:max-w-md"
+        onCloseAutoFocus={(e) => {
+          e.preventDefault();
+          if (document.activeElement instanceof HTMLElement) {
+            document.activeElement.blur();
+          }
+        }}
+      >
         <DialogHeader>
-          <DialogTitle>Asignar tÃ©cnico</DialogTitle>
+          <DialogTitle>Asignar técnico</DialogTitle>
           <DialogDescription>
             {ticket
-              ? `Seleccione el tÃ©cnico para la denuncia ${ticket}.`
+              ? `Seleccione el técnico para la denuncia ${ticket}.`
               : 'Seleccione una denuncia para asignar.'}
           </DialogDescription>
         </DialogHeader>
 
         <div className="py-2">
           {carga.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-4">No hay tÃ©cnicos disponibles.</p>
+            <p className="text-sm text-muted-foreground text-center py-4">No hay técnicos disponibles.</p>
           ) : (
             <ScrollArea className="h-[280px] pr-2">
               <div className="space-y-2">
@@ -85,7 +110,7 @@ export default function AsignacionModal({ ticket, open, tecnicos: _tecnicos, car
         </div>
 
         <DialogFooter>
-          <Button variant="outline" disabled={processing} onClick={() => onOpenChange(false)}>
+          <Button variant="outline" disabled={processing} onClick={handleClose}>
             Cancelar
           </Button>
           <Button disabled={processing || !selectedTecnico || !ticket} onClick={handleSubmit}>
@@ -97,7 +122,7 @@ export default function AsignacionModal({ ticket, open, tecnicos: _tecnicos, car
             ) : (
               <>
                 <UserPlus className="w-4 h-4 mr-1.5" />
-                Asignar tÃ©cnico
+                Asignar técnico
               </>
             )}
           </Button>

@@ -14,15 +14,15 @@ interface PlazoBadgeProps {
 }
 
 const colorStyles: Record<string, string> = {
-  green: 'bg-green-100 text-green-800 border-green-300 dark:bg-green-900/30 dark:text-green-300',
-  yellow: 'bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-900/30 dark:text-yellow-300',
-  red: 'bg-red-100 text-red-800 border-red-300 dark:bg-red-900/30 dark:text-red-300',
+  green: 'bg-teal-500/10 text-teal-700 dark:text-teal-300 border-teal-500/30',
+  yellow: 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-300 border-yellow-500/30',
+  red: 'bg-pink-600/10 text-pink-700 dark:text-pink-300 border-pink-600/30',
 };
 
 const labels: Record<string, string> = {
-  green: 'En tiempo',
-  yellow: 'Por vencer',
-  red: 'Vencido',
+  green: 'en plazo',
+  yellow: 'por vencer',
+  red: 'vencido',
 };
 
 function formatDate(dateStr?: string): string {
@@ -44,10 +44,10 @@ export default function PlazoBadge({ plazo }: PlazoBadgeProps) {
     >
       <span className="w-1.5 h-1.5 rounded-full mr-1.5 inline-block shrink-0 bg-current" />
       {plazo.dias_restantes > 0
-        ? `${plazo.dias_restantes}d ${labels[plazo.color]}`
+        ? `${plazo.dias_restantes} d ${labels[plazo.color]}`
         : plazo.dias_restantes === 0
           ? 'Vence hoy'
-          : `Vencida hace ${Math.abs(plazo.dias_restantes)}d`}
+          : `Vencido hace ${Math.abs(plazo.dias_restantes)} días`}
     </Badge>
   );
 
@@ -62,8 +62,12 @@ export default function PlazoBadge({ plazo }: PlazoBadgeProps) {
         <TooltipContent side="top" className="text-xs flex items-center gap-1.5">
           <CalendarClock className="w-3.5 h-3.5 text-muted-foreground" />
           Vence el <strong>{formatDate(plazo.fecha_vencimiento)}</strong>
-          {plazo.dias_restantes >= 0 && (
+          {plazo.dias_restantes > 0 ? (
             <> — Quedan <strong>{plazo.dias_restantes} día{plazo.dias_restantes !== 1 ? 's' : ''}</strong></>
+          ) : plazo.dias_restantes === 0 ? (
+            <> — <strong>Vence hoy</strong></>
+          ) : (
+            <> — Vencido hace <strong>{Math.abs(plazo.dias_restantes)} día{Math.abs(plazo.dias_restantes) !== 1 ? 's' : ''}</strong></>
           )}
         </TooltipContent>
       </Tooltip>

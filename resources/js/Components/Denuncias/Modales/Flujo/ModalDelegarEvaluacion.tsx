@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { toast } from 'sonner';
@@ -46,27 +46,52 @@ export default function ModalDelegarEvaluacion({ ticket, open, tecnicos: _tecnic
       {
         preserveScroll: true,
         onSuccess: () => {
-          toast.success(`EvaluaciÃ³n delegada para ${ticket}`);
+          toast.success(`Evaluación delegada para ${ticket}`);
           setSelectedTecnico(null);
           setJustificacion('');
           onOpenChange(false);
         },
         onError: () => {
-          toast.error('Error al delegar evaluaciÃ³n');
+          toast.error('Error al delegar evaluación');
         },
         onFinish: () => setProcessing(false),
       }
     );
   };
 
+  const handleClose = () => {
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+    onOpenChange(false);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={(v) => { if (!processing) onOpenChange(v); }}>
-      <DialogContent className="sm:max-w-md">
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        if (!processing) {
+          if (!v && document.activeElement instanceof HTMLElement) {
+            document.activeElement.blur();
+          }
+          onOpenChange(v);
+        }
+      }}
+    >
+      <DialogContent
+        className="sm:max-w-md"
+        onCloseAutoFocus={(e) => {
+          e.preventDefault();
+          if (document.activeElement instanceof HTMLElement) {
+            document.activeElement.blur();
+          }
+        }}
+      >
         <DialogHeader>
-          <DialogTitle>Delegar evaluaciÃ³n a un tÃ©cnico</DialogTitle>
+          <DialogTitle>Delegar evaluación a un técnico</DialogTitle>
           <DialogDescription>
             {ticket
-              ? `Seleccione el tÃ©cnico que evaluarÃ¡ ${ticket} antes de la admisiÃ³n.`
+              ? `Seleccione el técnico que evaluará ${ticket} antes de la admisión.`
               : 'Seleccione una denuncia para delegar.'}
           </DialogDescription>
         </DialogHeader>
@@ -75,7 +100,7 @@ export default function ModalDelegarEvaluacion({ ticket, open, tecnicos: _tecnic
           <ScrollArea className="h-60">
             <div className="space-y-2 pr-3">
               {carga.length === 0 && (
-                <p className="text-sm text-muted-foreground italic">No hay tÃ©cnicos disponibles</p>
+                <p className="text-sm text-muted-foreground italic">No hay técnicos disponibles</p>
               )}
               {carga.map((t) => (
                 <TecnicoCargaCard
@@ -89,10 +114,10 @@ export default function ModalDelegarEvaluacion({ ticket, open, tecnicos: _tecnic
           </ScrollArea>
 
           <div className="space-y-2">
-            <Label htmlFor="justificacion-delegar">JustificaciÃ³n (opcional)</Label>
+            <Label htmlFor="justificacion-delegar">Justificación (opcional)</Label>
             <Textarea
               id="justificacion-delegar"
-              placeholder="Describa el motivo de la delegaciÃ³n..."
+              placeholder="Describa el motivo de la delegación..."
               value={justificacion}
               onChange={(e) => setJustificacion(e.target.value)}
               rows={3}
@@ -105,11 +130,11 @@ export default function ModalDelegarEvaluacion({ ticket, open, tecnicos: _tecnic
         </div>
 
         <DialogFooter>
-          <Button variant="outline" disabled={processing} onClick={() => onOpenChange(false)}>
+          <Button variant="outline" disabled={processing} onClick={handleClose}>
             Cancelar
           </Button>
           <Button disabled={processing || !selectedTecnico || !ticket} onClick={handleSubmit}>
-            {processing ? 'Delegando...' : 'Delegar evaluaciÃ³n'}
+            {processing ? 'Delegando...' : 'Delegar evaluación'}
           </Button>
         </DialogFooter>
       </DialogContent>

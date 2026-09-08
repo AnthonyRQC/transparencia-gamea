@@ -74,9 +74,34 @@ export default function TraspasoModal({ ticket, tecnicoActualId, open, tecnicos,
     );
   };
 
+  const handleClose = () => {
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+    onOpenChange(false);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={(v) => { if (!processing) onOpenChange(v); }}>
-      <DialogContent className="sm:max-w-md">
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        if (!processing) {
+          if (!v && document.activeElement instanceof HTMLElement) {
+            document.activeElement.blur();
+          }
+          onOpenChange(v);
+        }
+      }}
+    >
+      <DialogContent
+        className="sm:max-w-md"
+        onCloseAutoFocus={(e) => {
+          e.preventDefault();
+          if (document.activeElement instanceof HTMLElement) {
+            document.activeElement.blur();
+          }
+        }}
+      >
         <DialogHeader>
           <DialogTitle>Traspasar caso</DialogTitle>
           <DialogDescription>
@@ -130,7 +155,7 @@ export default function TraspasoModal({ ticket, tecnicoActualId, open, tecnicos,
         </div>
 
         <DialogFooter>
-          <Button variant="outline" disabled={processing} onClick={() => onOpenChange(false)}>
+          <Button variant="outline" disabled={processing} onClick={handleClose}>
             Cancelar
           </Button>
           <Button disabled={processing || !canSubmit} onClick={handleSubmit}>

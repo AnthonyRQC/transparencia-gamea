@@ -1,4 +1,4 @@
-﻿import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import PlazoBadge from './PlazoBadge';
 import TipoDenunciaBadge from './TipoDenunciaBadge';
 import SubestadoBadge from './SubestadoBadge';
@@ -59,15 +59,15 @@ interface DenunciaCardProps {
 }
 
 const plazoBorderColor: Record<string, string> = {
-  green: 'border-l-4 border-l-emerald-500 dark:border-l-emerald-400',
-  yellow: 'border-l-4 border-l-amber-500 dark:border-l-amber-400',
-  red: 'border-l-4 border-l-rose-500 dark:border-l-rose-400',
+  green: 'border-l-4 border-l-teal-600 dark:border-l-teal-400',
+  yellow: 'border-l-4 border-l-yellow-500 dark:border-l-yellow-400',
+  red: 'border-l-4 border-l-pink-600 dark:border-l-pink-500',
 };
 
 const escenarioLabel: Record<string, string> = {
   revelada: 'Identidad Revelada',
   reservada: 'Identidad Reservada',
-  anonimo: 'AnÃ³nimo',
+  anonimo: 'Anónimo',
 };
 
 function daysAgo(dateStr?: string | null): number {
@@ -98,7 +98,7 @@ function getContextualText(denuncia: DenunciaData): string {
     case 'asignada':
       return `Asignada ${fmt(denuncia.fecha_asignada || denuncia.created_at)}`;
     case 'investigacion':
-      return `En investigaciÃ³n ${fmt(denuncia.fecha_asignada || denuncia.created_at)}`;
+      return `En investigación ${fmt(denuncia.fecha_asignada || denuncia.created_at)}`;
     case 'informe':
       return `En informe final ${fmt(denuncia.fecha_asignada || denuncia.created_at)}`;
     case 'rechazada':
@@ -118,14 +118,14 @@ export default function DenunciaCard({ denuncia, plazo, tecnicos, onClick, class
     : plazo
     ? (plazoBorderColor[plazo.color] || 'border-l-4 border-l-border')
     : 'border-l-4 border-l-border';
-  const denuncianteNombre = denuncia.denunciante?.nombres || 'AnÃ³nimo';
+  const denuncianteNombre = denuncia.denunciante?.nombres || 'Anónimo';
   const tecnicoInfo = denuncia.tecnico && tecnicos ? tecnicos[denuncia.tecnico] : null;
   const isRecentlyTraspasado = denuncia.fecha_traspaso && daysAgo(denuncia.fecha_traspaso) < 7;
   const totalAmpliacionesDias = (denuncia.ampliaciones || []).reduce((sum, a) => sum + a.dias, 0);
   const contextualText = getContextualText(denuncia);
 
   const reabiertaText = denuncia.fecha_reapertura
-    ? `Reabierta ${fmt(denuncia.fecha_reapertura)}${denuncia.plazo_reapertura ? ` Â· Plazo: ${fmtDate(denuncia.plazo_reapertura)}` : ''}`
+    ? `Reabierta ${fmt(denuncia.fecha_reapertura)}${denuncia.plazo_reapertura ? ` · Plazo: ${fmtDate(denuncia.plazo_reapertura)}` : ''}`
     : null;
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -151,9 +151,11 @@ export default function DenunciaCard({ denuncia, plazo, tecnicos, onClick, class
       )}
     >
       <div className="flex-1 min-w-0 space-y-1.5">
-        {/* Fila 1: Ticket + tipoÂ·categoria + subestado + badges */}
+        {/* Fila 1: N° de denuncia + tipo · categoría + subestado + badges */}
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="font-mono text-sm font-bold text-foreground">{denuncia.ticket}</span>
+          <span className="font-mono text-sm font-bold text-foreground" title={`N° de denuncia: ${denuncia.ticket}`}>
+            {denuncia.ticket}
+          </span>
           <TipoDenunciaBadge
             tipo={denuncia.tipo}
             categoria={denuncia.detalles?.categoria}
@@ -203,7 +205,7 @@ export default function DenunciaCard({ denuncia, plazo, tecnicos, onClick, class
             </span>
           )}
         </p>
-        {/* Fila 3: TÃ©cnico + fecha contextual */}
+        {/* Fila 3: Técnico + fecha contextual */}
         <p className="text-sm text-muted-foreground flex items-center gap-1.5 flex-wrap">
           {tecnicoInfo ? (
             <>
@@ -212,13 +214,13 @@ export default function DenunciaCard({ denuncia, plazo, tecnicos, onClick, class
                 {tecnicoInfo.iniciales}
               </span>
               <span className="font-medium text-foreground">{tecnicoInfo.nombre}</span>
-              <span className="text-muted-foreground/40">Â·</span>
+              <span className="text-muted-foreground/40">·</span>
             </>
           ) : null}
           <Clock className="w-3 h-3 shrink-0" />
           <span>{reabiertaText || contextualText}</span>
         </p>
-        {/* Fila 3.5: ClasificaciÃ³n + SITPRECO (cerradas) */}
+        {/* Fila 3.5: Clasificación + SITPRECO (cerradas) */}
         {denuncia.estado === 'cerrada' && (
           <div className="flex items-center gap-2 flex-wrap">
             <ClasificacionBadge clasificacion={denuncia.informe_clasificacion} />

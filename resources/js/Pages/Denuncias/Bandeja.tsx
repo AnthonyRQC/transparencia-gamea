@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Head, router } from '@inertiajs/react';
 import { toast } from 'sonner';
 import {
   Inbox, CheckCircle2, ClipboardList, Eye, Archive,
-  InboxIcon, X, UserPlus, RotateCcw, ArrowRightLeft, Search
+  InboxIcon, X, UserPlus, RotateCcw, ArrowRightLeft, Search,
+  MoreHorizontal, FolderOpen, Pencil
 } from 'lucide-react';
 import { FileText, FileSearch, Undo2, CalendarArrowUp, Trash2 } from 'lucide-react';
 import { Input } from '@/Components/ui/input';
@@ -176,6 +177,8 @@ const contadorConfig = [
 
 export default function Bandeja({ denuncias, porAsignar, enCurso, historial, contadores, tecnicos, cargaTecnicos, solicitudesByTicket = {}, descargosByTicket = {}, evaluacionesByTicket = {}, canAct = false, destacar }: PageProps) {
   const [selectedDenuncia, setSelectedDenuncia] = useState<Denuncia | null>(null);
+  const [menuMasAbierto, setMenuMasAbierto] = useState(false);
+  const menuMasRef = useRef<HTMLDivElement>(null);
   const [modalAdmisionTicket, setModalAdmisionTicket] = useState<string | null>(null);
   const [modalRechazoTicket, setModalRechazoTicket] = useState<string | null>(null);
   const [modalAsignacionTicket, setModalAsignacionTicket] = useState<string | null>(null);
@@ -219,6 +222,22 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
   useEffect(() => {
     setPagina(1);
   }, [activeTab, search, filterTipo, sortBy]);
+
+  // Cerrar menú Más al hacer click afuera o cambiar/cerrar denuncia seleccionada
+  useEffect(() => {
+    if (!menuMasAbierto) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuMasRef.current && !menuMasRef.current.contains(e.target as Node)) {
+        setMenuMasAbierto(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [menuMasAbierto]);
+
+  useEffect(() => {
+    setMenuMasAbierto(false);
+  }, [selectedDenuncia]);
 
   // Auto-abrir sheet si viene desde notificación
   useEffect(() => {
@@ -307,14 +326,14 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
         <h1 className="text-3xl font-bold tracking-tight">Bandeja de Admisión</h1>
       </div>
       <p className="text-muted-foreground mb-6">
-        Gestión de denuncias. Click en una card para ver detalle y acciones.
+        Gestión de denuncias institucionales. Haz clic en un caso para ver su detalle y acciones.
       </p>
 
       <div className="flex flex-col sm:flex-row gap-2 mb-4">
         <div className="relative w-full sm:flex-1 sm:max-w-xs">
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="Buscar por ticket..."
+            placeholder="Buscar por N° de denuncia o denunciante..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-8 h-9 text-sm w-full"
@@ -632,147 +651,174 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
             if (desc) setModalEliminarDesc({ id: desc.id, nombre: desc.nombres_denunciado });
           }}
         >
-          <div className="w-full space-y-3">
-            {/* Sección 1: Decisión de Flujo */}
-            {(selectedDenuncia.estado === 'ingresada' || selectedDenuncia.estado === 'evaluacion_tecnica' || selectedDenuncia.estado === 'admitida' || (['asignada', 'investigacion', 'informe'].includes(selectedDenuncia.estado) && selectedDenuncia.tecnico) || ['rechazada', 'cerrada'].includes(selectedDenuncia.estado)) && (
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                  <span>⚡ Decisión de Flujo</span>
-                  <TooltipProvider delayDuration={200}>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span className="cursor-help text-muted-foreground/70 hover:text-foreground">ℹ️</span>
-                      </TooltipTrigger>
-                      <TooltipContent side="top">Acciones principales que modifican la fase o asignación del caso.</TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-                <div className="flex items-center gap-2 flex-wrap">
+          <div className="w-full flex items-center justify-between gap-2 flex-wrap">
+            {/* Acciones principales directas (según estado del caso) */}
+            <div className="flex items-center gap-2 flex-wrap">
+              {selectedDenuncia.estado === 'ingresada' && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => { setModalAdmisionTicket(selectedDenuncia.ticket); }}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors shadow-2xs cursor-pointer"
+                  >
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    Admitir
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setModalRechazoTicket(selectedDenuncia.ticket); }}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-destructive/10 text-destructive text-xs font-semibold hover:bg-destructive/20 transition-colors border border-destructive/20 cursor-pointer"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                    Rechazar
+                  </button>
+                </>
+              )}
+              {selectedDenuncia.estado === 'evaluacion_tecnica' && (
+                <button
+                  type="button"
+                  onClick={() => { setModalReasumirEvaluacionTicket(selectedDenuncia.ticket); }}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-amber-100 text-amber-800 text-xs font-semibold hover:bg-amber-200 transition-colors dark:bg-amber-900/30 dark:text-amber-300 border border-amber-300/40 cursor-pointer"
+                >
+                  <Undo2 className="w-3.5 h-3.5" />
+                  Reasumir evaluación
+                </button>
+              )}
+              {selectedDenuncia.estado === 'admitida' && (
+                <button
+                  type="button"
+                  onClick={() => { setModalAsignacionTicket(selectedDenuncia.ticket); }}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors shadow-2xs cursor-pointer"
+                >
+                  <UserPlus className="w-3.5 h-3.5" />
+                  Asignar técnico
+                </button>
+              )}
+              {['asignada', 'investigacion', 'informe'].includes(selectedDenuncia.estado) && selectedDenuncia.tecnico && (
+                <button
+                  type="button"
+                  onClick={() => { setModalTraspasoTicket(selectedDenuncia.ticket); }}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-amber-100 text-amber-800 text-xs font-semibold hover:bg-amber-200 transition-colors dark:bg-amber-900/30 dark:text-amber-300 border border-amber-300/40 cursor-pointer"
+                >
+                  <ArrowRightLeft className="w-3.5 h-3.5" />
+                  Traspasar
+                </button>
+              )}
+              {['rechazada', 'cerrada'].includes(selectedDenuncia.estado) && (
+                <button
+                  type="button"
+                  onClick={() => { setModalReabrirTicket(selectedDenuncia.ticket); }}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors cursor-pointer"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  Reabrir denuncia
+                </button>
+              )}
+            </div>
+
+            {/* Menú compacto de herramientas secundarias (sin Radix Portal ni bloqueos de body) */}
+            <div className="relative" ref={menuMasRef}>
+              <button
+                type="button"
+                onClick={() => setMenuMasAbierto((prev) => !prev)}
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-border bg-card hover:bg-muted text-xs font-semibold transition-colors cursor-pointer"
+                aria-expanded={menuMasAbierto}
+                aria-haspopup="true"
+                title="Más opciones del caso"
+              >
+                <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
+                <span>Más</span>
+              </button>
+
+              {menuMasAbierto && (
+                <div
+                  className="absolute bottom-full right-0 mb-2 w-52 rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-lg z-50 animate-in fade-in-0 zoom-in-95"
+                  role="menu"
+                >
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMenuMasAbierto(false);
+                      setModalArchivosTicket(selectedDenuncia.ticket);
+                    }}
+                    className="w-full flex items-center gap-2 px-2 py-1.5 text-xs text-left rounded-sm hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer"
+                  >
+                    <FolderOpen className="w-4 h-4 text-muted-foreground" />
+                    <span>Archivos del caso</span>
+                  </button>
+
+                  {selectedDenuncia.estado === 'ingresada' && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMenuMasAbierto(false);
+                        setModalDelegarEvaluacionTicket(selectedDenuncia.ticket);
+                      }}
+                      className="w-full flex items-center gap-2 px-2 py-1.5 text-xs text-left rounded-sm hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer"
+                    >
+                      <FileSearch className="w-4 h-4 text-muted-foreground" />
+                      <span>Delegar evaluación</span>
+                    </button>
+                  )}
+
+                  {['admitida', 'asignada', 'investigacion', 'informe'].includes(selectedDenuncia.estado) && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMenuMasAbierto(false);
+                        setModalAmpliarPlazoDenuncia(selectedDenuncia);
+                      }}
+                      className="w-full flex items-center gap-2 px-2 py-1.5 text-xs text-left rounded-sm hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer"
+                    >
+                      <CalendarArrowUp className="w-4 h-4 text-muted-foreground" />
+                      <span>Ampliar plazo</span>
+                    </button>
+                  )}
+
+                  {selectedDenuncia.estado === 'ingresada' && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMenuMasAbierto(false);
+                        setModalEditarDenuncia(selectedDenuncia);
+                      }}
+                      className="w-full flex items-center gap-2 px-2 py-1.5 text-xs text-left rounded-sm hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer"
+                    >
+                      <Pencil className="w-4 h-4 text-muted-foreground" />
+                      <span>Editar denuncia</span>
+                    </button>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMenuMasAbierto(false);
+                      setModalConciliarDenuncia(selectedDenuncia);
+                    }}
+                    className="w-full flex items-center gap-2 px-2 py-1.5 text-xs text-left rounded-sm hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer"
+                  >
+                    <CalendarArrowUp className="w-4 h-4 text-muted-foreground" />
+                    <span>Conciliar fechas</span>
+                  </button>
+
                   {selectedDenuncia.estado === 'ingresada' && (
                     <>
+                      <div className="-mx-1 my-1 h-px bg-muted" />
                       <button
                         type="button"
-                        onClick={() => { const t = selectedDenuncia.ticket; setSelectedDenuncia(null); setModalAdmisionTicket(t); }}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors"
+                        onClick={() => {
+                          setMenuMasAbierto(false);
+                          setModalEliminarDenunciaTicket(selectedDenuncia.ticket);
+                        }}
+                        className="w-full flex items-center gap-2 px-2 py-1.5 text-xs text-left rounded-sm text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
                       >
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        Admitir
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => { const t = selectedDenuncia.ticket; setSelectedDenuncia(null); setModalRechazoTicket(t); }}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-destructive/10 text-destructive text-xs font-semibold hover:bg-destructive/20 transition-colors"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                        Rechazar
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => { const t = selectedDenuncia.ticket; setSelectedDenuncia(null); setModalDelegarEvaluacionTicket(t); }}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-100 text-blue-700 text-xs font-semibold hover:bg-blue-200 transition-colors dark:bg-blue-900/30 dark:text-blue-300"
-                      >
-                        <FileSearch className="w-3.5 h-3.5" />
-                        Delegar evaluación
+                        <Trash2 className="w-4 h-4" />
+                        <span>Eliminar denuncia</span>
                       </button>
                     </>
                   )}
-                  {selectedDenuncia.estado === 'evaluacion_tecnica' && (
-                    <button
-                      type="button"
-                      onClick={() => { setModalReasumirEvaluacionTicket(selectedDenuncia.ticket); }}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-100 text-amber-800 text-xs font-semibold hover:bg-amber-200 transition-colors dark:bg-amber-900/30 dark:text-amber-300"
-                    >
-                      <Undo2 className="w-3.5 h-3.5" />
-                      Reasumir evaluación
-                    </button>
-                  )}
-                  {selectedDenuncia.estado === 'admitida' && (
-                    <button
-                      type="button"
-                      onClick={() => { const t = selectedDenuncia.ticket; setSelectedDenuncia(null); setModalAsignacionTicket(t); }}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors"
-                    >
-                      <UserPlus className="w-3.5 h-3.5" />
-                      Asignar técnico
-                    </button>
-                  )}
-                  {['asignada', 'investigacion', 'informe'].includes(selectedDenuncia.estado) && selectedDenuncia.tecnico && (
-                    <button
-                      type="button"
-                      onClick={() => { setModalTraspasoTicket(selectedDenuncia.ticket); }}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-100 text-amber-800 text-xs font-semibold hover:bg-amber-200 transition-colors dark:bg-amber-900/30 dark:text-amber-300"
-                    >
-                      <ArrowRightLeft className="w-3.5 h-3.5" />
-                      Traspasar
-                    </button>
-                  )}
-                  {['rechazada', 'cerrada'].includes(selectedDenuncia.estado) && (
-                    <button
-                      type="button"
-                      onClick={() => { setModalReabrirTicket(selectedDenuncia.ticket); }}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors"
-                    >
-                      <RotateCcw className="w-3.5 h-3.5" />
-                      Reabrir denuncia
-                    </button>
-                  )}
                 </div>
-              </div>
-            )}
-
-            {/* Sección 2: Herramientas y Plazos */}
-            <div className="space-y-1.5">
-              <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                <span>⚙️ Herramientas y Plazos</span>
-                <TooltipProvider delayDuration={200}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span className="cursor-help text-muted-foreground/70 hover:text-foreground">ℹ️</span>
-                    </TooltipTrigger>
-                    <TooltipContent side="top">Gestión de plazos, edición e inspección técnica de fechas.</TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-              <div className="flex items-center gap-2 flex-wrap">
-                {['admitida', 'asignada', 'investigacion', 'informe'].includes(selectedDenuncia.estado) && (
-                  <button
-                    type="button"
-                    onClick={() => { setModalAmpliarPlazoDenuncia(selectedDenuncia); }}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-100 text-indigo-800 text-xs font-semibold hover:bg-indigo-200 transition-colors dark:bg-indigo-900/30 dark:text-indigo-300"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                    Ampliar plazo
-                  </button>
-                )}
-                {selectedDenuncia.estado === 'ingresada' && (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => { setModalEditarDenuncia(selectedDenuncia); }}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-sky-100 text-sky-800 text-xs font-semibold hover:bg-sky-200 transition-colors dark:bg-sky-900/30 dark:text-sky-300"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
-                      Editar
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => { setModalEliminarDenunciaTicket(selectedDenuncia.ticket); }}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-100 text-rose-800 text-xs font-semibold hover:bg-rose-200 transition-colors dark:bg-rose-900/30 dark:text-rose-300"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                      Eliminar
-                    </button>
-                  </>
-                )}
-                <button
-                  type="button"
-                  onClick={() => { setModalConciliarDenuncia(selectedDenuncia); }}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-100 text-rose-800 text-xs font-semibold hover:bg-rose-200 transition-colors dark:bg-rose-900/30 dark:text-rose-300"
-                >
-                  <CalendarArrowUp className="w-3.5 h-3.5" />
-                  Conciliar fechas
-                </button>
-              </div>
+              )}
             </div>
           </div>
         </DenunciaSheet>
