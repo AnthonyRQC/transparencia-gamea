@@ -345,13 +345,17 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
     <AppLayout>
       <Head title="Bandeja de Admisión — Transparencia UTLCC" />
 
-      <div className="flex items-center gap-2 mb-1">
-        <InboxIcon className="w-7 h-7 text-primary" />
-        <h1 className="text-3xl font-bold tracking-tight">Bandeja de Admisión</h1>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+        <div className="flex items-center gap-3">
+          <InboxIcon className="w-7 h-7 sm:w-8 sm:h-8 text-primary shrink-0" />
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Bandeja de Admisión</h1>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+              Gestión de denuncias institucionales. Haz clic en un caso para ver su detalle y acciones.
+            </p>
+          </div>
+        </div>
       </div>
-      <p className="text-muted-foreground mb-6">
-        Gestión de denuncias institucionales. Haz clic en un caso para ver su detalle y acciones.
-      </p>
 
       <div className="flex flex-col sm:flex-row gap-2 mb-4">
         <div className="relative w-full sm:flex-1 sm:max-w-xs">

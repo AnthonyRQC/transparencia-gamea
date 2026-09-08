@@ -29,17 +29,25 @@ export default function Tiempo() {
     <AppLayout>
       <Head title="Time Machine (dev)" />
       <div className="max-w-xl space-y-6">
-        <div>
-          <h1 className="text-xl font-bold flex items-center gap-2">
-            <FlaskConical className="w-5 h-5" /> Time Machine <span className="text-xs font-mono text-muted-foreground">solo local</span>
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Simula la fecha del sistema sin tocar la BD. Plazos, badges, KPIs y alertas derivadas
-            responden a la fecha simulada. Hoy real: <span className="font-mono">{hoy}</span>
-            {simFecha && (
-              <> · Simulando: <span className="font-mono font-bold text-amber-600">{simFecha}</span></>
-            )}
-          </p>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+          <div className="flex items-center gap-3">
+            <FlaskConical className="w-7 h-7 sm:w-8 sm:h-8 text-primary shrink-0" />
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Time Machine</h1>
+                <span className="text-xs font-mono px-2 py-0.5 rounded bg-muted text-muted-foreground border border-border">
+                  solo local
+                </span>
+              </div>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+                Simula la fecha del sistema sin tocar la base de datos para probar plazos y alertas.
+                {' '}Hoy real: <span className="font-mono font-medium">{hoy}</span>
+                {simFecha && (
+                  <> · Simulando: <span className="font-mono font-bold text-amber-600 dark:text-amber-400">{simFecha}</span></>
+                )}
+              </p>
+            </div>
+          </div>
         </div>
 
         <div className="flex gap-2 items-end">

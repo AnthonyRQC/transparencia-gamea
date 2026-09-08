@@ -36,15 +36,20 @@ export default function MiResumen({ contadores, tecnicoActual, tecnicos }: PageP
     <AppLayout>
       <Head title="Mi Resumen — Transparencia UTLCC" />
 
-      <div className="flex items-center justify-between mb-1">
-        <div className="flex items-center gap-2">
-          <BarChart3 className="w-7 h-7 text-primary" />
-          <h1 className="text-3xl font-bold tracking-tight">Mi Resumen</h1>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+        <div className="flex items-center gap-3">
+          <BarChart3 className="w-7 h-7 sm:w-8 sm:h-8 text-primary shrink-0" />
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Mi Resumen</h1>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+              Indicadores personales de carga de trabajo, distribución de casos y cumplimiento de plazos.
+            </p>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 self-start sm:self-auto">
           <span className="text-xs text-muted-foreground font-medium">Ver como:</span>
           <Select value={tecnicoActual} onValueChange={handleTecnicoChange}>
-            <SelectTrigger className="w-44 h-8 text-sm">
+            <SelectTrigger className="w-44 h-8 text-sm cursor-pointer">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -55,9 +60,6 @@ export default function MiResumen({ contadores, tecnicoActual, tecnicos }: PageP
           </Select>
         </div>
       </div>
-      <p className="text-muted-foreground mb-6">
-        Indicadores personales del técnico. Los gráficos detallados se agregarán en Sprint 7.
-      </p>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {cards.map((c) => (

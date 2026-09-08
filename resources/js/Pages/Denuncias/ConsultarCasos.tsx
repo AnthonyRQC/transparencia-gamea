@@ -141,19 +141,27 @@ export default function ConsultarCasos({ denuncias, tecnicos, filters }: PagePro
     <AppLayout>
       <Head title="Consultar Casos — Transparencia UTLCC" />
 
-      <div className="flex items-center gap-2 mb-4">
-        <Search className="w-6 h-6 text-primary" />
-        <h1 className="text-2xl font-bold tracking-tight">Consultar casos</h1>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+        <div className="flex items-center gap-3">
+          <Search className="w-7 h-7 sm:w-8 sm:h-8 text-primary shrink-0" />
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Consultar Casos</h1>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+              Búsqueda avanzada y filtrado histórico en toda la base de denuncias.
+            </p>
+          </div>
+        </div>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => setShowFilters(!showFilters)}
+          className="gap-1.5 self-start sm:self-auto cursor-pointer"
+        >
+          {showFilters ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+          {showFilters ? 'Ocultar filtros' : 'Mostrar filtros'}
+        </Button>
       </div>
-
-      {/* Botón toggle filtros */}
-      <button
-        onClick={() => setShowFilters(!showFilters)}
-        className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors mb-3 cursor-pointer"
-      >
-        {showFilters ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-        {showFilters ? 'Ocultar filtros' : 'Mostrar filtros'}
-      </button>
 
       {/* Panel de 7 filtros */}
       {showFilters && (

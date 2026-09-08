@@ -16,7 +16,13 @@ export default function GraficoBarras({ data, height = 200, unit = 'Casos', onSe
                 <BarChart data={data} layout="vertical" margin={{ top: 4, right: 28, bottom: 0, left: 4 }}>
                     <CartesianGrid strokeDasharray="3 3" horizontal={false} />
                     <XAxis type="number" allowDecimals={false} tick={{ fontSize: 10 }} />
-                    <YAxis type="category" dataKey="label" width={160} tick={{ fontSize: 10 }} />
+                    <YAxis
+                        type="category"
+                        dataKey="label"
+                        width={150}
+                        tick={{ fontSize: 10 }}
+                        tickFormatter={(val: string) => (val && val.length > 22 ? `${val.slice(0, 20)}…` : val)}
+                    />
                     <Tooltip cursor={{ fill: onSelect ? TEMA.cursorHover : 'rgba(0,0,0,0.05)' }} />
                     <Bar
                         dataKey="value"

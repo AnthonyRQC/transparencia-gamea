@@ -51,14 +51,16 @@ export default function Catalogos() {
         <AppLayout>
             <Head title="Catálogos del Sistema — Transparencia UTLCC" />
 
-            <div className="flex flex-col gap-1 mb-6">
-                <div className="flex items-center gap-2">
-                    <BookOpen className="w-7 h-7 text-primary" />
-                    <h1 className="text-3xl font-bold tracking-tight">Catálogos del Sistema</h1>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+                <div className="flex items-center gap-3">
+                    <BookOpen className="w-7 h-7 sm:w-8 sm:h-8 text-primary shrink-0" />
+                    <div>
+                        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Catálogos del Sistema</h1>
+                        <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+                            Administración de catálogos maestros, tipologías y parámetros institucionales.
+                        </p>
+                    </div>
                 </div>
-                <p className="text-muted-foreground">
-                    Administración de catálogos del sistema. Cada pestaña agrupa un tipo de catálogo.
-                </p>
             </div>
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">

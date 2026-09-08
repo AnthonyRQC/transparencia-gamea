@@ -111,20 +111,27 @@ export default function NotificacionesIndex() {
 
       <div className="max-w-3xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2">
-            <Bell className="w-5 h-5 text-foreground" />
-            <h1 className="text-xl font-bold text-foreground">Notificaciones</h1>
-            <span className="text-xs text-muted-foreground ml-1">
-              ({total} en total)
-            </span>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+          <div className="flex items-center gap-3">
+            <Bell className="w-7 h-7 sm:w-8 sm:h-8 text-primary shrink-0" />
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Notificaciones</h1>
+                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+                  {total}
+                </span>
+              </div>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+                Historial de alertas y avisos del sistema sobre sus casos y actividades.
+              </p>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 self-start sm:self-auto">
             <Button
               variant="outline"
               size="sm"
               onClick={handleMarcarTodas}
-              className="flex items-center gap-1.5"
+              className="flex items-center gap-1.5 cursor-pointer"
             >
               <CheckCheck className="w-4 h-4" />
               Marcar todas como leídas
