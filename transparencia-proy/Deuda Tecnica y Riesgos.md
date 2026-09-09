@@ -1,7 +1,7 @@
 # Deuda Técnica y Riesgos
 
 > **Propósito:** Registro vivo de deuda, riesgos y mejoras diferidas para trabajar a futuro. No es roadmap de sprints.
-> **Actualizado:** 2026-09-06. Stack: Laravel 13 / PHP 8.3. Suite 88 tests.
+> **Actualizado:** 2026-09-08 (post Sprint 12.2). Stack: Laravel 13 / PHP 8.3. Suite 88 tests.
 
 ## P0 — Bloquea demo / dashboard
 
@@ -17,7 +17,17 @@
 ## Resuelto en Sprint 12.1 (Sep 2026)
 - ✅ #1, #2, #3, #4: seeders relativos + fixes + `mt_srand(2026)` + volumen (124 casos).
 - ✅ #6: `AlertasPlazo` derivada + Time Machine (`/dev/tiempo`, fix sesión) + enlace Sidebar dev-only.
-- ✅ Parcial paleta: tokens institucionales en `app.css` + `helpers/tema.ts` (quedan Login/Perfil legacy y 19 páginas).
+- ✅ Paleta parcial: tokens institucionales en `app.css` + `helpers/tema.ts`.
+
+## Resuelto en Sprint 12.2 — Rediseño Visual (8-sep-2026)
+- ✅ Sistema de botones unificado: `PrimaryButton`/`SecondaryButton`/`DangerButton` → wrappers de `Button` Shadcn.
+- ✅ Helper de fechas centralizado: `helpers/fechas.ts` (`formatearFechaCorta`, `formatearFechaLarga`, `formatearFechaHora`, `hoyISO`). Eliminadas 16 funciones inline.
+- ✅ Empty state unificado: `ListaVacia` en todas las páginas principales.
+- ✅ Login/Perfil fuera de Breeze legacy: tokens + dark mode. `AuthenticatedLayout` ya no se usa.
+- ✅ Form components (`TextInput`, `InputLabel`, `InputError`, `Checkbox`): tokens semánticos en vez de grays/indigo hardcoded.
+- ✅ 12 strings en inglés eliminados de la UI (UpdatePasswordForm, DeleteUserForm, perfil).
+- ✅ `DeleteUserForm`: `Modal` Breeze → `Dialog` Shadcn (bundle: 32 kB → 2.38 kB).
+- ✅ `DESIGN.md` formal actualizado con estado post-Sprint 12.2.
 
 ## P1 — Mantenibilidad
 
@@ -39,7 +49,8 @@
 | 15 | Nombres dependencia legacy en seeder | `DenunciaMasivaSeeder.php:107-128` vs árbol 185 nodos | Resolver por `parent_id`/nombre hoja real | S |
 | 16 | Sin índice `users.activo` en agregaciones | `Consultas - Dashboard` §1 | Verificar índice + toggle inactivos | S |
 | 17 | Teclado en barras Recharts | `GraficoEmbudo/Barras/Carga/Evolucion` (solo `onClick`) | `tabIndex`+`role`+alternativa tabular (badge ya focuseable) | S |
-| 18 | Chips con fechas crudas + Reset→Limpiar | `FiltrosDashboard.tsx` | Fechas "7 ago → 5 sep", unificar etiquetas | S |
+| ~~18~~ | ~~Chips con fechas crudas + Reset→Limpiar~~ | ~~`FiltrosDashboard.tsx`~~ | ✅ Resuelto Sprint 12.2 | — |
+| 19 | `AuthenticatedLayout.tsx` y `Modal.tsx` Breeze sin consumers | `resources/js/Layouts/` y `Components/` | Eliminar en limpieza futura (no bloquea) | S |
 
 ## Pendientes cliente (no deuda, no tocar sin consulta)
 

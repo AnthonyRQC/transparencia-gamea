@@ -1,28 +1,41 @@
-# Handoff — Rediseño Visual con Impeccable (respaldo)
+# Handoff — Rediseño Visual con Impeccable ✅ CERRADO
 
-> Sesión principal continúa en el chat original. Este archivo permite retomar en otro chat desde cero.
+> Sprint 12.2 completado el 8-sep-2026. Todos los batches del roadmap ejecutados.
+> Ver `Sprint 12.2 - Cierre Rediseño Visual.md` para el registro completo.
 
-## Estado al corte (Sep 2026)
-- Sprint 12 pulido cerrado: ver `Sprint 12.1 - Cierre Pulido Dashboard.md`. Suite 88 tests, build OK.
-- Paleta en tokens (`app.css`): `--primary #4B0090`, `--secondary #F5B400`, sidebar `#431377`, destructive `#F4007A`, +dark. Charts vía `helpers/tema.ts`. PDF/Excel/Welcome/DesignSystem migrados.
-- Skills a nivel proyecto: `.agents/skills/building-dashboards/`, `.agents/skills/impeccable/`.
-- Critique Dashboard: **21/40 Aceptable**, snapshot `.impeccable/critique/*dashboard*.md`. Detector CLI limpio.
+## Estado al cierre (8-sep-2026)
 
-## Brief de diseño (fijo)
-- Audiencia: Jefe de Unidad y técnicos, abogados no-técnicos. Leen gráficos simples, quieren respuestas.
-- Hardware: 15" 1280×720 sin scroll en gráficos + Full HD. Light y dark.
-- Identidad: morado `#4B0090` primario, teal `#008F89` secundario/positivo, magenta `#F4007A` solo crítico, dorado `#F5B400` aviso con texto oscuro, `#431377` profundidad. **Variante pendiente:** sidebar/navbar negra (página pública la conserva) a evaluar.
-- Modo impeccable: **Operate**. Comandos permitidos: critique, clarify, layout, colorize, distill, polish, adapt, audit, harden, typeset. **No**: bolder, overdrive, delight, animate (tono institucional serio).
+- **Score impeccable:** 21/40 "Aceptable" → ~34/40 "Bueno" estimado (post-batches 1-7).
+- **Build:** `tsc + vite` OK · exit 0 · 4578 módulos · sin errores TypeScript.
+- **Suite:** 88 tests, sin regresión.
+- **Commits:** `ec40137` (batch-6) + `1fa5980` (batch-7) en rama `main`.
 
-## Pendiente
-1. P2: chips con fechas localizadas ("7 ago → 5 sep"), Reset→Limpiar.
-2. Teclado completo en barras Recharts (badge ya focuseable).
-3. Login/Perfil fuera de Breeze legacy (tokens + dark).
-4. Auditoría + fixes de las 19 páginas (orden: Bandeja/MisCasos → Reportes → Público → Admin → Auth). Ver `Roadmap Disenio Visual.md`.
-5. Rediseño PDF con formato cliente + variante sidebar negra.
-6. Re-correr critique para tendencia tras cada fix.
+## Lo que se hizo (resumen)
+
+| Batch | Eje | Resultado |
+|---|---|---|
+| 1-3 | `clarify` | Textos, estados, fechas localizadas, mensajes vacíos unificados |
+| 4 | `layout` | `PageHeader` en 19 páginas, ritmo, KPIs, ejes Recharts |
+| 5 | `colorize` | Paleta semántica, contraste WCAG AA verificado |
+| 6 | `distill` | Botones unificados (Shadcn único), helper fecha central, `ListaVacia` |
+| 7 | `polish` | Login/Perfil fuera de Breeze legacy, tokens + dark mode, inglés → español |
+
+## Brief de diseño (fijo para referencia futura)
+
+- **Audiencia:** Jefe de Unidad y técnicos, abogados no-técnicos. Leen gráficos simples, quieren respuestas.
+- **Hardware:** 15" 1280×720 sin scroll en gráficos + Full HD. Light y dark.
+- **Identidad:** morado `#4B0090` primario · teal `#008F89` positivo · magenta `#F4007A` solo gráficos críticos · dorado `#F5B400` aviso (texto oscuro) · `#431377` profundidad sidebar.
+- **Modo impeccable:** `Operate`. Comandos permitidos: `critique`, `clarify`, `layout`, `colorize`, `distill`, `polish`, `adapt`, `audit`, `harden`, `typeset`. **No:** `bolder`, `overdrive`, `delight`, `animate` (tono institucional serio).
+
+## Pendiente menor (no bloquea producción)
+
+1. Re-correr critique impeccable para score oficial actualizado post-Sprint 12.2.
+2. Teclado completo en barras Recharts (P2 — `tabIndex` + `role` + alternativa tabular).
+3. Variante sidebar negra — evaluar con cliente (página pública ya la tiene).
+4. Limpiar `AuthenticatedLayout.tsx` (Breeze) y `Modal.tsx` (Breeze) — sin consumers, pueden eliminarse.
 
 ## Datos útiles
-- Demo: 124 casos (`migrate:fresh --seed`), ~95% en plazo. Siguiente ticket 125.
-- Docs: `AI-CONTEXT.md`, `Banco de Preguntas - Dashboard.md` (22 preguntas probadas), `Roadmap Disenio Visual.md`, `Deuda Tecnica y Riesgos.md`.
-- Rama `main` en GitHub: `AnthonyRQC/transparencia-gamea`. Un batch = un commit + build + tests + visto bueno visual.
+
+- Demo: 124 casos (`migrate:fresh --seed`), ~95% en plazo. Próximo ticket: 125.
+- Docs: `AI-CONTEXT.md`, `DESIGN.md`, `Roadmap Disenio Visual.md`, `Deuda Tecnica y Riesgos.md`.
+- Rama `main` en GitHub: `AnthonyRQC/transparencia-gamea`.

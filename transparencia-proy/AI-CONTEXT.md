@@ -17,6 +17,9 @@ Tailwind v3 · shadcn/ui (New York) · Laragon (Windows local, PHP 8.3.30)
 **Sprint 0 al 9.1** (funcionalidades frontend + mock data) — Cerrados ✅
 **Sprint 10 (Base de Datos Real)** — Cerrado ✅ (Julio 2026)
 **Migración Laravel 11 → 13** — Cerrada ✅ (01-sep-2026)
+**Sprint 12 — Dashboard y Reportes** — Cerrado ✅ (Sep 2026)
+**Sprint 12.1 — Pulido Dashboard** — Cerrado ✅ (Sep 2026)
+**Sprint 12.2 — Rediseño Visual (Impeccable)** — Cerrado ✅ (08-sep-2026)
 
 > **Migración Laravel 11 → 13 (01-sep-2026):** Hasta **Sprint 11 inclusive** se trabajó en **Laravel 11 / PHP 8.2.31** (Sprint 12 planeado en L11 — `31bcebd` *planeacion de sprint 12 finalizada*). Migrado directo a **Laravel 13 / PHP 8.3.30** antes de ejecutar Sprint 12. `composer.json` bump: `laravel/framework ^13.0`, `maatwebsite/excel ^4.0`, `phpunit ^12.0`, `collision ^9.0`, `tinker ^3.0`. Frontend intacto (Inertia v2 / React 18 / Tailwind v3). Tags: `pre-laravel13: 01bcc42` → `laravel-13: b91e404`. Ver `Notas Migración Laravel 13 - Cierre.md`.
 
@@ -41,8 +44,14 @@ Tailwind v3 · shadcn/ui (New York) · Laragon (Windows local, PHP 8.3.30)
 > gráficas/informes; el toggle "incluir inactivos" sirve de recordatorio de técnicos a
 > desactivar). Suite: **63 tests**. Ver `Notas Reestructuración BD - Catálogos y Árbol (Cierre).md`.
 
-Sprints pendientes: **13**, **14**, **16+** (Sprint 12 en curso — Dashboard).
+Sprints pendientes: **13**, **14**, **16+**.
 Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (13–25).
+
+> **Sprint 12.2 (08-sep-2026):** Rediseño visual completo con skill `impeccable`. Score: 21/40 → ~34/40.
+> Sistema de botones unificado (Shadcn único), helper fechas centralizado (`helpers/fechas.ts`),
+> `ListaVacia` único, Login/Perfil con tokens institucionales + dark mode, Form components
+> con tokens semánticos, UI 100% en español. Commits: `ec40137` + `1fa5980`.
+> Ver `Sprint 12.2 - Cierre Rediseño Visual.md` y `DESIGN.md` (raíz).
 
 ## Roles (post sesión con cliente, Junio 2026)
 - **Registrador** (antes "Recepcionista")
