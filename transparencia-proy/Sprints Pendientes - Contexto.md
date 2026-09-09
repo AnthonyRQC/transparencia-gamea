@@ -434,7 +434,11 @@ Panel administrativo único para **CRUD de todos los catálogos** del sistema. C
 
 ---
 
-## Sprint 13 (era 12) — Tablero Público Cerrados
+## Sprint 13 (era 12) — Tablero Público Cerrados ⚠️ DEPRECATED (09-sep-2026)
+
+> **Reemplazado por:** `Sprint 13 - Portal Panel Informativo (Plan).md`
+> (portal del panel físico: 13.1 muro / 13.2 generales email / 13.3 casos vinculados).
+> Decisiones en `Decisiones 12.5 - 13 (Log).md`. Se conserva esta sección por historia.
 
 **Estado:** Pendiente.
 **Origen:** Respuesta del cliente #27.
@@ -747,6 +751,14 @@ Sprint dedicado a **testing integral, limpieza técnica, documentación de usuar
 - **Limpieza de código** (remover mocks/debug, renombrar, documentar)
 - **Refactor de deuda técnica** detectada durante desarrollo
 - **Auditoría de seguridad** (sanitización, CSRF, rate limits, exposición de datos)
+- **Refactor diferido 12.5 R2** (decisión 09-sep-2026, ver `Decisiones 12.5 - 13 (Log).md`):
+  `Shared/FormDialog` (~20 modales) + `Shared/FiltrosCaso` + hook `useFiltroCasos`
+  (post-16, para no churnear con Roles).
+- **Deuda backend diferida** (ver `Deuda Tecnica y Riesgos.md`): N+1 en
+  `Queries/Dashboard/*`, índices (`users.activo`, `publicaciones.estado/cerrado_at`),
+  `CatalogoController:527` + seeders god, `43× as any` resto, split `routes/web.php`,
+  auditorías `technical-debt` + `database-optimization` + `owasp-security` +
+  `e2e-playwright-testing` como revisores.
 - **Documentación final:**
   - Manual de usuario para UTLCC
   - Manual técnico

@@ -61,6 +61,24 @@
 | ~~18~~ | ~~Chips con fechas crudas + Reset→Limpiar~~ | ~~`FiltrosDashboard.tsx`~~ | ✅ Resuelto Sprint 12.2 | — |
 | ~~19~~ | ~~`AuthenticatedLayout.tsx` y `Modal.tsx` Breeze sin consumers~~ | — | ✅ Eliminados en Sprint 12.3 | — |
 
+## Diferido a post-13/16 → 21 (decisión 09-sep-2026)
+
+> Ver `Decisiones 12.5 - 13 (Log).md` (D1, D5, D6). R1 del plan 12.5 va pre-13;
+> esto espera a que existan Roles (16) y Auditoría (17) para no invalidarse.
+
+| # | Deuda | Cuándo | Nota |
+|---|---|---|---|
+| R2.1 | `Shared/FormDialog` (~20 modales) | Piloto post-14 | Admisión/Rechazo/Asignación primero; si diverge, queda fuera |
+| R2.2 | `Shared/FiltrosCaso` + `useFiltroCasos` | Post-16 | Toca queries/filtros de 5 superficies; suite verde como red |
+| B1 | N+1 + índices (`users.activo`, estados) | 21 | Skills revisores: `technical-debt`, `database-optimization` |
+| B2 | God backend (`CatalogoController:527`, seeders) | 21 | Extraer Services/Queries |
+| B3 | `43× as any` resto + split `routes/web.php` | 21 | Layouts ya hechos en 12.3 |
+| B4 | OWASP + E2E Playwright | 21 | `owasp-security`, `e2e-playwright-testing` |
+
+**Guardarraíl pre-13 (no arrastrar deuda contagiosa):** no nuevos wrappers
+`formatDate`, no avatares manuales, importar de `constants/semantica.ts`,
+`helpers/fechas.ts` y shared nuevos; chips/badges solo vía mapas semánticos.
+
 ## Pendientes cliente (no deuda, no tocar sin consulta)
 
 - Archivar = ¿subestado `cerrada` o flujo propio?

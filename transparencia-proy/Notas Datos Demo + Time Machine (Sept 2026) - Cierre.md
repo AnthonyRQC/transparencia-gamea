@@ -34,5 +34,5 @@
 - `migrate:fresh --seed` OK · `php artisan test` **77 passed** · `npm run build` OK · rutas `dev.tiempo*` registradas.
 
 ## Para Sprint 12 (pulido con mock realista)
-- Presets de fecha + drill-down en gráficos (backlog `Sprint 12 - Dashboard y Reportes.md` §11/§18).
+- Presets de fecha + drill-down en gráficos (backlog `archivo/sprints-cerrados/Sprint 12 - Dashboard y Reportes.md` §11/§18).
 - La página `/dev/tiempo` sirve para demo ante el Jefe: viajar +30d muestra mora/urgentes sin ensuciar datos.

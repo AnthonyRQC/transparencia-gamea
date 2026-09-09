@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+
+<html lang="es"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"tertiary-fixed":"#ffdad6","on-tertiary":"#ffffff","on-tertiary-container":"#ff4f46","inverse-primary":"#b0c9e8","primary-fixed-dim":"#b0c9e8","outline":"#74777e","tertiary":"#310001","secondary":"#006a61","on-secondary-fixed":"#00201d","on-primary":"#ffffff","surface-container-high":"#e2e7ff","surface-variant":"#dae2fd","secondary-fixed-dim":"#6bd8cb","on-secondary-fixed-variant":"#005049","on-tertiary-fixed-variant":"#93000b","on-primary-container":"#7991af","on-primary-fixed":"#011d35","primary-fixed":"#d1e4ff","primary-container":"#0f2942","background":"#faf8ff","surface-container-lowest":"#ffffff","tertiary-fixed-dim":"#ffb4ab","on-error":"#ffffff","surface-container":"#eaedff","on-secondary-container":"#006f66","on-error-container":"#93000a","surface-bright":"#faf8ff","error":"#ba1a1a","surface-container-highest":"#dae2fd","on-surface":"#131b2e","outline-variant":"#c3c6ce","inverse-on-surface":"#eef0ff","secondary-fixed":"#89f5e7","surface-tint":"#49607c","error-container":"#ffdad6","tertiary-container":"#580004","on-secondary":"#ffffff","primary":"#001428","surface":"#faf8ff","on-tertiary-fixed":"#410002","on-surface-variant":"#43474d","secondary-container":"#86f2e4","inverse-surface":"#283044","on-primary-fixed-variant":"#314863","on-background":"#131b2e","surface-container-low":"#f2f3ff","surface-dim":"#d2d9f4"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"space-xs":"0.5rem","gutter-desktop":"1.5rem","container-md":"768px","space-xl":"2rem","space-3xl":"4rem","space-lg":"1.5rem","space-sm":"0.75rem","space-2xs":"0.25rem","space-md":"1rem","space-2xl":"3rem","container-sm":"640px","container-xl":"1280px","gutter-mobile":"1rem","container-lg":"1024px"},"fontFamily":{"body-lg":["Public Sans"],"label-md":["Public Sans"],"headline-md":["Public Sans"],"label-sm":["Public Sans"],"headline-lg-mobile":["Public Sans"],"body-md":["Public Sans"],"label-lg":["Public Sans"],"display-mobile":["Public Sans"],"headline-sm":["Public Sans"],"body-sm":["Public Sans"],"display":["Public Sans"],"headline-lg":["Public Sans"]},"fontSize":{"body-lg":["1.125rem",{"lineHeight":"1.6","fontWeight":"400"}],"label-md":["0.75rem",{"lineHeight":"1.2","letterSpacing":"0.035em","fontWeight":"600"}],"headline-md":["1.5rem",{"lineHeight":"1.3","letterSpacing":"-0.01em","fontWeight":"600"}],"label-sm":["0.6875rem",{"lineHeight":"1.2","letterSpacing":"0.05em","fontWeight":"700"}],"headline-lg-mobile":["1.625rem",{"lineHeight":"1.25","letterSpacing":"-0.015em","fontWeight":"700"}],"body-md":["1rem",{"lineHeight":"1.55","fontWeight":"400"}],"label-lg":["0.875rem",{"lineHeight":"1.2","letterSpacing":"0.025em","fontWeight":"600"}],"display-mobile":["2rem",{"lineHeight":"1.2","letterSpacing":"-0.02em","fontWeight":"700"}],"headline-sm":["1.25rem",{"lineHeight":"1.35","letterSpacing":"-0.005em","fontWeight":"600"}],"body-sm":["0.875rem",{"lineHeight":"1.5","fontWeight":"400"}],"display":["3rem",{"lineHeight":"1.15","letterSpacing":"-0.025em","fontWeight":"700"}],"headline-lg":["2.25rem",{"lineHeight":"1.2","letterSpacing":"-0.02em","fontWeight":"700"}]}}}};</script></head><body class="bg-background font-body-md text-body-md text-on-surface antialiased min-h-screen"><header class="fixed top-0 left-0 right-0 z-50 bg-surface/95 backdrop-blur-md shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="bg-primary text-on-primary py-1 px-gutter-desktop"><div class="max-w-container-xl mx-auto flex items-center justify-between text-label-sm font-label-sm"><span>Portal Oficial de la Administración Pública Municipal • República de Colombia</span><div class="flex items-center gap-space-md"><span class="text-on-primary/80">Sede Electrónica Certificada</span><span class="h-3 w-px bg-on-primary/20"></span><span class="text-on-primary/80">Accesibilidad AAA</span></div></div></div><div class="h-20 max-w-container-xl mx-auto px-gutter-desktop flex items-center justify-between gap-space-lg"><div class="flex items-center gap-space-sm flex-shrink-0"><img alt="Official municipal coat of arms / emblem icon for city hall (Alcaldía Municipal). Clean modern geometric crest with civic tower/crown silhouette and stylized laurels, institutional navy and gold accents, vector flat logo on transparent background.. Design context: - Primary color: #0f2942
+- Font: publicSans
+- Mode: light
+- Roundness: rounded-md
+. The logo should be visually consistent with these brand tokens." class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1VsVj5frcRPG5IvRvoaamwJZ9qbdMleauew-54HK8mljGBQ0MNf3RpFMzgCP80ReMj-EybS9VooHHyzhjgeGKHcDXQTOBZOCSHMC6Tl8vBFy2OaSuQFapFhMIzqH8e71yfmN5mGSJYCkDto_j5-ik0MU3Di8IZn4vljGIAgoLeRGAf4ZsA0zSdiiWeKiouItWDT1D4Gg9V_SZ8GEh0-N9n-P3YrF7uc82QxXYTZs4QM-HRBYu9dfVmmTdA"/><div class="flex flex-col"><span class="font-label-lg text-label-lg font-bold text-primary leading-tight tracking-tight uppercase">Alcaldía Municipal</span><span class="font-label-sm text-label-sm text-on-surface-variant">Portal Ciudadano</span></div></div><nav class="hidden xl:flex items-center gap-space-xs" data-active-classes="bg-primary-container text-on-primary font-semibold rounded-lg"><a class="px-space-sm py-space-xs rounded-lg font-label-lg text-label-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="tablon-de-avisos" href="#">Tablón de Avisos</a><a class="px-space-sm py-space-xs rounded-lg font-label-lg text-label-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="tramites-y-servicios" href="#">Trámites y Servicios</a><a class="px-space-sm py-space-xs rounded-lg font-label-lg text-label-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="gaceta-y-decretos" href="#">Gaceta y Decretos</a><a class="px-space-sm py-space-xs rounded-lg font-label-lg text-label-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="participacion-vecinal" href="#">Participación Vecinal</a><a class="px-space-sm py-space-xs rounded-lg font-label-lg text-label-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="transparencia" href="#">Transparencia</a></nav><div class="flex items-center gap-space-sm flex-shrink-0"><div class="relative hidden md:block w-48 lg:w-60"><span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[18px]">search</span><input class="w-full h-9 pl-9 pr-3 rounded-lg bg-surface-container-low text-body-sm font-body-sm text-on-surface placeholder:text-outline focus:outline-none focus:bg-surface-container-lowest focus:ring-2 focus:ring-secondary transition-all" placeholder="Buscar normativas, trámites..." type="text"/></div><a class="hidden sm:flex items-center gap-space-2xs px-space-sm py-2 rounded-lg bg-error text-on-error hover:bg-error/90 transition-colors font-label-md text-label-md" data-path="contacto-y-emergencias" href="#"><span class="material-symbols-outlined text-[16px]">call</span>Emergencias</a><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-20 bg-background"><div class="flex flex-col w-full">
+<!-- Bar Header Interna / Barra Superior de Acciones de Publicación -->
+<header class="w-full bg-surface-container-low shadow-sm">
+<div class="max-w-container-xl mx-auto px-gutter-desktop py-space-md">
+<!-- Fila Superior: Breadcrumb & Estado Criptográfico -->
+<div class="flex flex-wrap items-center justify-between gap-space-sm mb-space-sm">
+<nav aria-label="Migas de pan" class="flex items-center gap-space-xs font-label-md text-label-md text-on-surface-variant">
+<span class="flex items-center gap-1 hover:text-primary transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-[16px] text-secondary">admin_panel_settings</span>
+            Portal Administrativo
+          </span>
+<span class="material-symbols-outlined text-[14px] text-outline">chevron_right</span>
+<span class="hover:text-primary transition-colors cursor-pointer">Tablón Cívico</span>
+<span class="material-symbols-outlined text-[14px] text-outline">chevron_right</span>
+<span class="text-primary font-bold">Redactar Nueva Publicación</span>
+</nav>
+<div class="flex items-center gap-space-md">
+<div class="flex items-center gap-space-2xs px-space-sm py-1 bg-surface-container-lowest rounded-full shadow-sm text-label-sm font-label-sm text-secondary">
+<span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+<span>Borrador guardado automáticamente hace 2 min</span>
+</div>
+<div class="flex items-center gap-space-2xs px-space-sm py-1 bg-secondary-fixed/40 text-on-secondary-fixed rounded-full text-label-sm font-label-sm font-bold">
+<span class="material-symbols-outlined text-[14px] text-secondary">verified_user</span>
+<span>Firma Ley 527/99 Habilitada</span>
+</div>
+</div>
+</div>
+<!-- Fila Título y Botones de Acción -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+<div>
+<h1 class="font-headline-lg text-headline-lg font-bold text-primary tracking-tight">
+            Editor de Comunicados y Decretos Oficiales
+          </h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+            Sistema Unificado de Redacción Municipal para Gaceta, Tablón Digital y Notificaciones Cívicas
+          </p>
+</div>
+<div class="flex items-center flex-wrap gap-space-xs">
+<button class="flex items-center gap-space-2xs px-space-md py-2.5 bg-surface-container-lowest text-primary font-label-lg text-label-lg rounded-lg shadow-sm hover:bg-surface-container transition-all" type="button">
+<span class="material-symbols-outlined text-[18px] text-secondary">visibility</span>
+            Previsualizar en Tablón
+          </button>
+<button class="flex items-center gap-space-2xs px-space-md py-2.5 bg-surface-container-lowest text-primary font-label-lg text-label-lg rounded-lg shadow-sm hover:bg-surface-container transition-all" type="button">
+<span class="material-symbols-outlined text-[18px]">save</span>
+            Guardar Borrador
+          </button>
+<button class="flex items-center gap-space-2xs px-space-lg py-2.5 bg-primary text-on-primary font-label-lg text-label-lg font-bold rounded-lg shadow-md hover:bg-primary-container transition-all focus:outline-none focus:ring-2 focus:ring-secondary" type="button">
+<span class="material-symbols-outlined text-[20px] text-secondary-fixed">encrypted</span>
+            Firmar y Publicar Decreto
+          </button>
+</div>
+</div>
+</div>
+</header>
+<!-- Contenedor Principal en 2 Columnas -->
+<main class="max-w-container-xl mx-auto px-gutter-desktop py-space-xl w-full">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-start">
+<!-- COLUMNA PRINCIPAL (Izquierda ~65% - 8 cols) -->
+<div class="lg:col-span-8 flex flex-col gap-space-lg">
+<!-- SECCIÓN 1: Identificación y Metadatos Oficiales -->
+<section class="bg-surface-container-lowest p-space-xl rounded-xl shadow-sm">
+<div class="flex items-center gap-space-xs mb-space-md pb-space-xs bg-surface-container-low/50 px-3 py-2 rounded-lg">
+<span class="material-symbols-outlined text-primary text-[22px]">policy</span>
+<h2 class="font-headline-sm text-headline-sm text-primary font-bold">1. Identificación y Metadatos Oficiales</h2>
+</div>
+<!-- Selector de Tipo de Publicación (Pill Cards) -->
+<div class="mb-space-lg">
+<label class="block font-label-lg text-label-lg text-primary font-bold mb-space-xs">
+              Tipo de Instrumento o Acto Municipal <span class="text-error">*</span>
+</label>
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-space-xs">
+<!-- Card 1 -->
+<label class="flex items-center gap-space-xs p-space-sm rounded-lg bg-surface-container-low cursor-pointer hover:bg-surface-container transition-colors has-[:checked]:bg-primary-container has-[:checked]:text-on-primary">
+<input checked="" class="w-4 h-4 accent-secondary" name="tipo_publicacion" type="radio" value="decreto"/>
+<div class="min-w-0">
+<div class="font-label-md text-label-md font-bold leading-none mb-1">Decreto / Resolución</div>
+<div class="text-[11px] opacity-80 truncate">Actos de fuerza normativa</div>
+</div>
+</label>
+<!-- Card 2 -->
+<label class="flex items-center gap-space-xs p-space-sm rounded-lg bg-surface-container-low cursor-pointer hover:bg-surface-container transition-colors has-[:checked]:bg-primary-container has-[:checked]:text-on-primary">
+<input class="w-4 h-4 accent-secondary" name="tipo_publicacion" type="radio" value="aviso"/>
+<div class="min-w-0">
+<div class="font-label-md text-label-md font-bold leading-none mb-1">Aviso Operativo</div>
+<div class="text-[11px] opacity-80 truncate">Servicios y cortes vecinales</div>
+</div>
+</label>
+<!-- Card 3 -->
+<label class="flex items-center gap-space-xs p-space-sm rounded-lg bg-surface-container-low cursor-pointer hover:bg-surface-container transition-colors has-[:checked]:bg-primary-container has-[:checked]:text-on-primary">
+<input class="w-4 h-4 accent-secondary" name="tipo_publicacion" type="radio" value="licitacion"/>
+<div class="min-w-0">
+<div class="font-label-md text-label-md font-bold leading-none mb-1">Licitación Pública</div>
+<div class="text-[11px] opacity-80 truncate">Contratación y pliegos</div>
+</div>
+</label>
+<!-- Card 4 -->
+<label class="flex items-center gap-space-xs p-space-sm rounded-lg bg-surface-container-low cursor-pointer hover:bg-surface-container transition-colors has-[:checked]:bg-primary-container has-[:checked]:text-on-primary">
+<input class="w-4 h-4 accent-secondary" name="tipo_publicacion" type="radio" value="convocatoria"/>
+<div class="min-w-0">
+<div class="font-label-md text-label-md font-bold leading-none mb-1">Convocatoria / Subsidios</div>
+<div class="text-[11px] opacity-80 truncate">Becas y apoyos sociales</div>
+</div>
+</label>
+<!-- Card 5 -->
+<label class="flex items-center gap-space-xs p-space-sm rounded-lg bg-surface-container-low cursor-pointer hover:bg-surface-container transition-colors has-[:checked]:bg-primary-container has-[:checked]:text-on-primary sm:col-span-2 xl:col-span-2">
+<input class="w-4 h-4 accent-secondary" name="tipo_publicacion" type="radio" value="noticia"/>
+<div class="min-w-0">
+<div class="font-label-md text-label-md font-bold leading-none mb-1">Noticia • Evento Ciudadano</div>
+<div class="text-[11px] opacity-80 truncate">Agenda cívica, inauguraciones y actividades recreativas</div>
+</div>
+</label>
+</div>
+</div>
+<!-- Campos Radicado y Dependencia -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+<div>
+<label class="block font-label-lg text-label-lg text-on-surface font-semibold mb-1" for="radicado">
+                Número de Radicado / Expediente Oficial
+              </label>
+<div class="relative">
+<input class="w-full h-12 px-space-md rounded-lg bg-surface-container-low font-body-md text-body-md text-primary font-mono focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-secondary transition-all" id="radicado" type="text" value="SEC-HAC-2024-0391-DEC"/>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-secondary text-[20px]">tag</span>
+</div>
+<div class="flex items-center gap-space-2xs mt-1.5">
+<input checked="" class="w-4 h-4 accent-secondary rounded" id="toggle-firma" type="checkbox"/>
+<label class="font-label-sm text-label-sm text-on-surface-variant cursor-pointer" for="toggle-firma">
+                  Acreditar automáticamente con Firma Digital Ley 527
+                </label>
+</div>
+</div>
+<div>
+<label class="block font-label-lg text-label-lg text-on-surface font-semibold mb-1" for="dependencia">
+                Dependencia o Secretaría Emisora
+              </label>
+<select class="w-full h-12 px-space-md rounded-lg bg-surface-container-low font-body-md text-body-md text-on-surface focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-secondary transition-all" id="dependencia">
+<option selected="">Secretaría Distrital de Hacienda</option>
+<option>Despacho del Alcalde Mayor</option>
+<option>Secretaría de Movilidad y Tránsito</option>
+<option>Secretaría de Obras Públicas e Infraestructura</option>
+<option>Secretaría de Desarrollo Social y Comunitario</option>
+<option>Oficina Municipal para la Gestión del Riesgo</option>
+</select>
+<p class="font-label-sm text-label-sm text-outline mt-1.5">Sello institucional automático según la dependencia.</p>
+</div>
+</div>
+</section>
+<!-- SECCIÓN 2: Título y Síntesis Ciudadana -->
+<section class="bg-surface-container-lowest p-space-xl rounded-xl shadow-sm">
+<div class="flex items-center gap-space-xs mb-space-md pb-space-xs bg-surface-container-low/50 px-3 py-2 rounded-lg">
+<span class="material-symbols-outlined text-primary text-[22px]">title</span>
+<h2 class="font-headline-sm text-headline-sm text-primary font-bold">2. Título y Síntesis Ciudadana</h2>
+</div>
+<div class="space-y-space-md">
+<div>
+<div class="flex justify-between items-center mb-1">
+<label class="font-label-lg text-label-lg text-on-surface font-semibold" for="post-title">
+                  Título Público del Comunicado o Decreto <span class="text-error">*</span>
+</label>
+<span class="font-label-sm text-label-sm text-outline">Máx. 140 caracteres</span>
+</div>
+<input class="w-full h-13 px-space-md rounded-lg bg-surface-container-low font-headline-sm text-headline-sm text-primary font-bold focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-secondary transition-all placeholder:text-outline" id="post-title" type="text" value="Decreto 184: Ampliación del Plazo y Descuento del 15% para el Pago del Impuesto Predial Unificado 2024"/>
+</div>
+<div>
+<div class="flex justify-between items-center mb-1">
+<label class="font-label-lg text-label-lg text-on-surface font-semibold" for="post-summary">
+                  Resumen Ejecutivo / Bajada Ciudadana de Lectura Rápida
+                </label>
+<span class="font-label-sm text-label-sm text-outline">Recomendado: 2-3 líneas claras</span>
+</div>
+<textarea class="w-full p-space-md rounded-lg bg-surface-container-low font-body-md text-body-md text-on-surface focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-secondary transition-all" id="post-summary" rows="3">Por disposición de la Secretaría de Hacienda, todos los propietarios de predios residenciales y comerciales podrán acogerse al incentivo de pronto pago sin intereses de mora hasta el 31 de mayo de 2024 a través de la sede electrónica.</textarea>
+</div>
+</div>
+</section>
+<!-- SECCIÓN 3: Cuerpo del Comunicado y Formato Especializado -->
+<section class="bg-surface-container-lowest p-space-xl rounded-xl shadow-sm">
+<div class="flex items-center gap-space-xs mb-space-md pb-space-xs bg-surface-container-low/50 px-3 py-2 rounded-lg">
+<span class="material-symbols-outlined text-primary text-[22px]">edit_note</span>
+<h2 class="font-headline-sm text-headline-sm text-primary font-bold">3. Cuerpo del Comunicado Oficial</h2>
+</div>
+<!-- Barra de Herramientas WYSIWYG Estilo Institucional -->
+<div class="flex flex-wrap items-center gap-1 p-space-xs bg-surface-container-high rounded-t-lg">
+<button class="p-1.5 rounded hover:bg-surface-container-lowest text-primary" title="Negrita" type="button">
+<span class="material-symbols-outlined text-[18px]">format_bold</span>
+</button>
+<button class="p-1.5 rounded hover:bg-surface-container-lowest text-primary" title="Cursiva" type="button">
+<span class="material-symbols-outlined text-[18px]">format_italic</span>
+</button>
+<button class="p-1.5 rounded hover:bg-surface-container-lowest text-primary" title="Subrayado" type="button">
+<span class="material-symbols-outlined text-[18px]">format_underlined</span>
+</button>
+<span class="w-px h-5 bg-outline-variant mx-1"></span>
+<button class="p-1.5 rounded hover:bg-surface-container-lowest text-primary" title="Lista numerada" type="button">
+<span class="material-symbols-outlined text-[18px]">format_list_numbered</span>
+</button>
+<button class="p-1.5 rounded hover:bg-surface-container-lowest text-primary" title="Viñetas" type="button">
+<span class="material-symbols-outlined text-[18px]">format_list_bulleted</span>
+</button>
+<button class="p-1.5 rounded hover:bg-surface-container-lowest text-primary" title="Cita textual jurídica" type="button">
+<span class="material-symbols-outlined text-[18px]">format_quote</span>
+</button>
+<span class="w-px h-5 bg-outline-variant mx-1"></span>
+<button class="p-1.5 rounded hover:bg-surface-container-lowest text-primary" title="Insertar tabla" type="button">
+<span class="material-symbols-outlined text-[18px]">table_chart</span>
+</button>
+<button class="p-1.5 rounded hover:bg-surface-container-lowest text-primary" title="Insertar enlace gubernamental" type="button">
+<span class="material-symbols-outlined text-[18px]">link</span>
+</button>
+<button class="p-1.5 rounded hover:bg-surface-container-lowest text-primary" title="Llamado de advertencia" type="button">
+<span class="material-symbols-outlined text-[18px]">info</span>
+</button>
+<div class="ml-auto text-label-sm font-label-sm text-outline px-2">Modo: Estándar Accesible AAA</div>
+</div>
+<!-- Área de Edición -->
+<div class="min-h-[220px] p-space-md bg-surface-container-low rounded-b-lg font-body-md text-body-md text-on-surface focus-within:bg-surface-container-lowest transition-colors">
+<p class="mb-space-sm font-bold text-primary">EL ALCALDE MUNICIPAL, EN USO DE SUS FACULTADES CONSTITUCIONALES Y LEGALES, Y EN ESPECIAL LAS CONFERIDAS POR LA LEY 136 DE 1994,</p>
+<p class="mb-space-sm"><strong>DECRETA:</strong></p>
+<p class="mb-space-sm"><strong>ARTÍCULO 1°.</strong> Modifíquese de manera transitoria el calendario fiscal para la vigencia en curso respecto al Impuesto Predial Unificado. Los contribuyentes que efectúen la cancelación de la totalidad del gravamen antes del treinta y uno (31) de mayo gozarán de una rebaja del quince por ciento (15%) sobre el saldo neto consolidado.</p>
+<ul class="list-disc pl-space-lg space-y-1 mb-space-sm text-on-surface-variant">
+<li>Aplica para predios habitacionales de estratos 1, 2, 3, 4, 5 y 6.</li>
+<li>Habilitado el botón de pagos PSE en la pasarela municipal certificada sin costo transaccional.</li>
+<li>Atención presencial en los módulos de recaudo del Palacio Municipal en jornada continua de 07:30 a 16:30 hrs.</li>
+</ul>
+<p class="text-on-surface-variant">Publíquese en la Gaceta Oficial del Municipio y comuníquese para los fines pertinentes.</p>
+</div>
+</section>
+<!-- SECCIÓN 4: Módulo Dinámico para Publicaciones Sin Imagen (Stat Cards / Métricas Clave) -->
+<section class="bg-surface-container-lowest p-space-xl rounded-xl shadow-sm">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs mb-space-md pb-space-xs bg-surface-container-low/50 px-3 py-2 rounded-lg">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-secondary text-[22px]">analytics</span>
+<h2 class="font-headline-sm text-headline-sm text-primary font-bold">4. Módulo de Datos Clave (Sin Fotografía)</h2>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary"></div>
+<span class="ml-2 font-label-md text-label-md text-primary font-bold">Activar Stat Card</span>
+</label>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-space-md">
+            Permite a la publicación proyectar gran impacto y síntesis sin requerir fotografía decorativa. Ideal para decretos financieros, convocatorias y trámites.
+          </p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md p-space-md bg-surface-container-low rounded-xl">
+<!-- Métrica Destacada -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface font-semibold mb-1" for="stat-val">
+                Valor o Cifra Destacada
+              </label>
+<input class="w-full h-11 px-3 rounded-lg bg-surface-container-lowest font-headline-sm text-headline-sm font-bold text-secondary focus:outline-none focus:ring-2 focus:ring-secondary" id="stat-val" type="text" value="15% DCTO."/>
+<span class="text-[11px] text-outline mt-1 block">Ej. "15% Dcto", "$280M", "07:30 - 13:00"</span>
+</div>
+<!-- Etiqueta Descriptiva -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface font-semibold mb-1" for="stat-label">
+                Etiqueta Explicativa
+              </label>
+<input class="w-full h-11 px-3 rounded-lg bg-surface-container-lowest font-body-md text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-secondary" id="stat-label" type="text" value="Incentivo por Pronto Pago Predial"/>
+<span class="text-[11px] text-outline mt-1 block">Contextualiza el número destacado</span>
+</div>
+<!-- Botón de Acción Directo -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface font-semibold mb-1" for="stat-btn">
+                Botón de Acción Rápida (CTA)
+              </label>
+<input class="w-full h-11 px-3 rounded-lg bg-surface-container-lowest font-body-md text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-secondary" id="stat-btn" type="text" value="Pagar Predial en Línea"/>
+<span class="text-[11px] text-outline mt-1 block">Texto del botón público</span>
+</div>
+</div>
+</section>
+<!-- SECCIÓN 5: Documentos Oficiales Adjuntos y Validador Criptográfico -->
+<section class="bg-surface-container-lowest p-space-xl rounded-xl shadow-sm">
+<div class="flex items-center gap-space-xs mb-space-md pb-space-xs bg-surface-container-low/50 px-3 py-2 rounded-lg">
+<span class="material-symbols-outlined text-primary text-[22px]">attachment</span>
+<h2 class="font-headline-sm text-headline-sm text-primary font-bold">5. Acto Administrativo &amp; Validador Digital</h2>
+</div>
+<!-- Drag & Drop Zone -->
+<div class="p-space-lg rounded-xl bg-surface-container-low text-center flex flex-col items-center justify-center cursor-pointer hover:bg-surface-container transition-all mb-space-md">
+<div class="w-12 h-12 rounded-full bg-secondary-fixed/40 flex items-center justify-center text-secondary mb-space-xs">
+<span class="material-symbols-outlined text-[28px]">upload_file</span>
+</div>
+<div class="font-label-lg text-label-lg font-bold text-primary">
+              Arrastre aquí el documento oficial en formato PDF firmado o escaneado
+            </div>
+<p class="font-body-sm text-body-sm text-outline mt-1">Soporta decretos, pliegos, resoluciones y anexos cartográficos hasta 45 MB</p>
+</div>
+<!-- Archivo Adjunto Validado -->
+<div class="p-space-md rounded-xl bg-surface-container flex flex-col sm:flex-row sm:items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-10 h-10 rounded-lg bg-primary-container text-on-primary flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-[24px] text-secondary-fixed">picture_as_pdf</span>
+</div>
+<div class="min-w-0">
+<div class="font-label-lg text-label-lg font-bold text-primary truncate">Decreto-184-Ampliacion-Predial-2024-Firmado.pdf</div>
+<div class="flex items-center gap-space-xs text-[11px] text-on-surface-variant flex-wrap font-mono mt-0.5">
+<span class="bg-surface-container-lowest px-1.5 py-0.5 rounded font-bold">2.4 MB</span>
+<span class="text-outline">•</span>
+<span class="text-secondary font-bold">SHA-256: 8f4a91c3...e42b01</span>
+<span class="text-outline">•</span>
+<span class="text-secondary-fixed-variant font-bold flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[12px]">verified</span> Firma Válida
+                  </span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-space-2xs flex-shrink-0">
+<button class="px-space-sm py-1.5 text-label-md font-label-md text-primary bg-surface-container-lowest rounded-lg hover:bg-surface-container-high transition-colors" type="button">
+                Reemplazar
+              </button>
+<button class="p-1.5 text-error hover:bg-error-container rounded-lg transition-colors" title="Eliminar anexo" type="button">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div>
+</section>
+<!-- SECCIÓN 6: Soporte Multimedia (Opcional) -->
+<section class="bg-surface-container-lowest p-space-xl rounded-xl shadow-sm">
+<div class="flex items-center justify-between gap-space-xs mb-space-sm">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[22px]">photo_camera</span>
+<h2 class="font-headline-sm text-headline-sm text-primary font-bold">6. Soporte Fotográfico (Opcional)</h2>
+</div>
+<span class="px-space-sm py-0.5 bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm rounded-full">
+              No requerido para Decretos
+            </span>
+</div>
+<div class="p-space-md rounded-xl bg-surface-container-low flex flex-col md:flex-row items-center gap-space-md">
+<div class="w-full md:w-44 h-28 rounded-lg overflow-hidden flex-shrink-0 bg-surface-container-high relative">
+<img class="w-full h-full object-cover" data-alt="A clean modern municipal office interior in Colombia with institutional flags, legal books, and a neat mahogany desk in soft natural morning light. High quality, deep navy and warm wood tones, authentic civic atmosphere." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD5Hf2CLApm59lxAFRpNqiiRCInbzN8OvbF0hBYRL4SCjOTi5jDjSdQsDv_n1BlAPkoA9IcBINVhMdhoVHbz5sKxio5UQov7xqhTIimD-QBCRRhpgudG3w3FLtJlFoZ_w7UmMvXyT4I9dCLxrNshiJNZXICL1ibvPbYjg1oD6J5Tp2ZF_0K64AvwwYzhQi_1e2kFQAxXyj4BrlWW_uZjx9FjaNGvXuJqT53OKfqE8fDdCsuJbT-Q5Vi8g"/>
+<span class="absolute bottom-1 right-1 bg-primary/80 text-white text-[10px] px-1 rounded font-mono">1200x630</span>
+</div>
+<div class="flex-1">
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-space-xs">
+<strong>Aviso del Sistema:</strong> Si no se adjunta imagen fotográfica, la plataforma publicará automáticamente la plantilla heráldica institucional de alta legibilidad, optimizando la velocidad de carga para ciudadanos con conexiones de baja intensidad.
+              </p>
+<div class="flex items-center gap-space-xs">
+<button class="px-space-sm py-1.5 bg-surface-container-lowest text-primary text-label-md font-label-md rounded-lg shadow-sm hover:bg-surface-container-high" type="button">
+                  Cambiar Fotografía
+                </button>
+<button class="px-space-sm py-1.5 text-error text-label-md font-label-md hover:underline" type="button">
+                  Quitar Imagen (Modo Decreto Puro)
+                </button>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- COLUMNA LATERAL (Derecha ~35% - 4 cols) -->
+<aside class="lg:col-span-4 flex flex-col gap-space-lg">
+<!-- WIDGET 1: Nivel de Prioridad y Visualización -->
+<div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm">
+<h3 class="font-label-lg text-label-lg font-bold text-primary uppercase tracking-wider mb-space-md flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] text-secondary">flag</span>
+            Nivel de Prioridad Cívica
+          </h3>
+<div class="space-y-space-xs mb-space-md">
+<label class="flex items-center gap-space-xs p-space-sm rounded-lg bg-surface-container-low cursor-pointer hover:bg-surface-container transition-colors">
+<input class="w-4 h-4 accent-secondary" name="prioridad" type="radio" value="ordinario"/>
+<div>
+<span class="font-label-md text-label-md text-primary font-bold">Aviso Ordinario</span>
+<span class="block text-[11px] text-outline">Publicación regular en el flujo del tablón</span>
+</div>
+</label>
+<label class="flex items-center gap-space-xs p-space-sm rounded-lg bg-surface-container cursor-pointer hover:bg-surface-container-high transition-colors">
+<input checked="" class="w-4 h-4 accent-secondary" name="prioridad" type="radio" value="prioritario"/>
+<div>
+<span class="font-label-md text-label-md text-primary font-bold">Aviso Prioritario</span>
+<span class="block text-[11px] text-on-surface-variant">Destacado con tarjeta de acento teal y datos clave</span>
+</div>
+</label>
+<label class="flex items-center gap-space-xs p-space-sm rounded-lg bg-error-container/30 cursor-pointer hover:bg-error-container/50 transition-colors">
+<input class="w-4 h-4 accent-error" name="prioridad" type="radio" value="urgente"/>
+<div>
+<span class="font-label-md text-label-md text-error font-bold flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-error animate-ping"></span>
+                  Alerta Urgente / Crítica
+                </span>
+<span class="block text-[11px] text-on-error-container">Fijar de inmediato en el cintillo superior de emergencia</span>
+</div>
+</label>
+</div>
+<div class="pt-space-xs border-t border-surface-container-high">
+<label class="flex items-center justify-between cursor-pointer py-1">
+<span class="font-label-sm text-label-sm text-on-surface font-semibold">Anclar en carrusel de inicio</span>
+<input checked="" class="w-4 h-4 accent-secondary rounded" type="checkbox"/>
+</label>
+</div>
+</div>
+<!-- WIDGET 2: Segmentación Territorial y Sectores -->
+<div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm">
+<h3 class="font-label-lg text-label-lg font-bold text-primary uppercase tracking-wider mb-space-md flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] text-secondary">location_on</span>
+            Segmentación Territorial
+          </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-space-sm">
+            Seleccione las comunas o corregimientos que recibirán segmentación directa en filtros cívicos:
+          </p>
+<div class="space-y-1.5 mb-space-sm">
+<label class="flex items-center gap-2 p-1.5 hover:bg-surface-container-low rounded cursor-pointer">
+<input checked="" class="w-4 h-4 accent-secondary rounded" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-primary font-bold">Todo el Término Municipal (General)</span>
+</label>
+<label class="flex items-center gap-2 p-1.5 hover:bg-surface-container-low rounded cursor-pointer">
+<input class="w-4 h-4 accent-secondary rounded" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface">Comuna 1 • Casco Histórico y Centro</span>
+</label>
+<label class="flex items-center gap-2 p-1.5 hover:bg-surface-container-low rounded cursor-pointer">
+<input class="w-4 h-4 accent-secondary rounded" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface">Comuna 2 • Zona Norte y Expansión</span>
+</label>
+<label class="flex items-center gap-2 p-1.5 hover:bg-surface-container-low rounded cursor-pointer">
+<input class="w-4 h-4 accent-secondary rounded" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface">Comuna 3 • Corredor Industrial y Tecnológico</span>
+</label>
+<label class="flex items-center gap-2 p-1.5 hover:bg-surface-container-low rounded cursor-pointer">
+<input class="w-4 h-4 accent-secondary rounded" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface">Corregimientos y Veredas Rurales</span>
+</label>
+</div>
+</div>
+<!-- WIDGET 3: Programación y Vigencia Legal -->
+<div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm">
+<h3 class="font-label-lg text-label-lg font-bold text-primary uppercase tracking-wider mb-space-md flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] text-secondary">calendar_clock</span>
+            Programación y Vigencia
+          </h3>
+<div class="space-y-space-md">
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface font-semibold mb-1" for="fecha-pub">
+                Fecha y Hora de Publicación
+              </label>
+<input class="w-full h-10 px-space-sm rounded-lg bg-surface-container-low font-body-sm text-body-sm text-primary focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-secondary" id="fecha-pub" type="datetime-local" value="2024-05-10T08:00"/>
+<span class="text-[11px] text-secondary mt-1 block font-medium">Publicación inmediata tras firma</span>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface font-semibold mb-1" for="fecha-venc">
+                Vencimiento / Retiro del Aviso Activo
+              </label>
+<input class="w-full h-10 px-space-sm rounded-lg bg-surface-container-low font-body-sm text-body-sm text-primary focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-secondary" id="fecha-venc" type="datetime-local" value="2024-05-31T23:59"/>
+<span class="text-[11px] text-outline mt-1 block">Pasará a "Archivo Histórico de la Gaceta"</span>
+</div>
+</div>
+</div>
+<!-- WIDGET 4: Canales de Difusión Automática -->
+<div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm">
+<h3 class="font-label-lg text-label-lg font-bold text-primary uppercase tracking-wider mb-space-md flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] text-secondary">share</span>
+            Canales de Difusión Automática
+          </h3>
+<div class="space-y-space-sm">
+<label class="flex items-center justify-between p-2 rounded-lg bg-surface-container-low cursor-pointer">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-secondary">notifications_active</span>
+<span class="font-label-sm text-label-sm text-primary font-bold">Push a Ciudadanos (App Móvil)</span>
+</div>
+<input checked="" class="w-4 h-4 accent-secondary rounded" type="checkbox"/>
+</label>
+<label class="flex items-center justify-between p-2 rounded-lg bg-surface-container-low cursor-pointer">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-secondary">campaign</span>
+<span class="font-label-sm text-label-sm text-primary font-bold">Red Vecinal de WhatsApp</span>
+</div>
+<input checked="" class="w-4 h-4 accent-secondary rounded" type="checkbox"/>
+</label>
+<label class="flex items-center justify-between p-2 rounded-lg bg-surface-container-low cursor-pointer">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-secondary">gavel</span>
+<span class="font-label-sm text-label-sm text-primary font-bold">Indexar en Gaceta Oficial</span>
+</div>
+<input checked="" class="w-4 h-4 accent-secondary rounded" type="checkbox"/>
+</label>
+</div>
+</div>
+<!-- MINI PREVISUALIZACIÓN EN VIVO (Live Preview) -->
+<div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-md">
+<div class="flex items-center justify-between mb-space-md">
+<div class="flex items-center gap-1.5 font-label-md text-label-md font-bold text-primary">
+<span class="material-symbols-outlined text-secondary text-[18px]">preview</span>
+              Previsualización Tablón
+            </div>
+<span class="text-[10px] uppercase font-bold text-secondary bg-secondary-fixed/40 px-2 py-0.5 rounded">En Vivo</span>
+</div>
+<!-- Tarjeta Compacta en Tiempo Real (Estilo Cívico Sin Imagen con Stat Card) -->
+<article class="bg-surface-container-low rounded-xl p-space-md shadow-sm">
+<!-- Header de Tarjeta -->
+<div class="flex items-center justify-between gap-space-xs mb-space-xs">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-primary">account_balance</span>
+<span class="font-label-sm text-label-sm text-primary font-bold uppercase truncate max-w-[130px]">Hacienda</span>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm font-bold">
+                Decreto Oficial
+              </span>
+</div>
+<!-- Título Preview -->
+<h4 class="font-headline-sm text-headline-sm text-primary font-bold mb-1 leading-tight line-clamp-2">
+              Decreto 184: Ampliación de Plazo y Descuento del 15%
+            </h4>
+<!-- Extracto Preview -->
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 mb-space-sm">
+              Por disposición de la Secretaría de Hacienda, todos los propietarios de predios podrán acogerse al incentivo de pronto pago sin intereses.
+            </p>
+<!-- Stat Box de Impacto -->
+<div class="bg-surface-container-lowest rounded-lg p-space-sm flex items-center justify-between mb-space-sm">
+<div>
+<div class="font-headline-sm text-headline-sm font-bold text-secondary leading-none">15% DCTO.</div>
+<div class="text-[10px] text-outline font-semibold uppercase tracking-wider">Incentivo por Pronto Pago</div>
+</div>
+<span class="material-symbols-outlined text-secondary text-[24px]">percent</span>
+</div>
+<!-- Footer con CTA -->
+<div class="flex items-center justify-between pt-space-xs">
+<span class="text-[10px] text-outline font-mono">SEC-HAC-2024-0391</span>
+<button class="px-space-sm py-1 bg-primary text-on-primary font-label-sm text-label-sm font-bold rounded hover:bg-primary-container" type="button">
+                Pagar en Línea
+              </button>
+</div>
+</article>
+<p class="text-[11px] text-outline text-center mt-space-sm">
+            Así visualizarán los ciudadanos este anuncio en dispositivos móviles y de escritorio.
+          </p>
+</div>
+</aside>
+</div>
+</main>
+<!-- Banner Flotante Inferior de Seguridad y Firma -->
+<aside aria-label="Validación criptográfica" class="sticky bottom-0 left-0 right-0 bg-primary text-on-primary py-3 px-gutter-desktop shadow-xl z-40">
+<div class="max-w-container-xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-space-sm text-label-sm font-label-sm">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-secondary-fixed text-[20px]">security</span>
+<span>
+          Sesión de Funcionario: <strong>Carlos E. Restrepo (Subsecretario de Rentas)</strong> • Token Criptográfico Activo
+        </span>
+</div>
+<div class="flex items-center gap-space-md">
+<span class="text-on-primary/80 hidden md:inline">IP Servidor Municipal: 190.85.122.4</span>
+<button class="px-space-md py-1.5 bg-secondary text-on-secondary font-label-md text-label-md font-bold rounded hover:bg-secondary/90 transition-colors" type="button">
+          Firmar con Certificado Digital
+        </button>
+</div>
+</div>
+</aside>
+</div></main><footer class="w-full bg-primary-container text-on-primary-container pt-space-3xl pb-space-xl"><div class="max-w-container-xl mx-auto px-gutter-desktop"><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-space-xl mb-space-2xl"><div><div class="flex items-center gap-space-sm mb-space-md"><div class="w-7 h-7 rounded-md bg-surface-container-lowest flex items-center justify-center"><span class="material-symbols-outlined text-primary text-[18px]">account_balance</span></div><span class="font-headline-sm text-headline-sm text-on-primary font-bold tracking-tight">Alcaldía Municipal</span></div><p class="font-body-sm text-body-sm text-on-primary-container mb-space-md">Canal institucional y oficial de comunicación con la ciudadanía. Promoviendo el gobierno abierto, la participación democrática y la eficacia administrativa.</p><div class="flex items-center gap-space-xs text-label-sm font-label-sm text-on-primary-container"><span class="material-symbols-outlined text-[16px] text-secondary-fixed">verified</span><span>Entidad pública certificada ISO 9001</span></div></div><div><h4 class="font-label-lg text-label-lg font-bold text-on-primary uppercase tracking-wider mb-space-md">Atención al Ciudadano</h4><ul class="space-y-space-xs font-body-sm text-body-sm"><li><span class="font-semibold text-on-primary">Dirección Central:</span> Palacio Municipal, Cra. 7 # 12-40</li><li><span class="font-semibold text-on-primary">Horario de Atención:</span> Lun a Vie 8:00 a.m. - 4:30 p.m.</li><li><span class="font-semibold text-on-primary">Línea Gratuita Nacional:</span> 01 8000 915 200</li><li><span class="font-semibold text-on-primary">Correo Institucional:</span> contacto@alcaldia.gov.co</li><li><span class="font-semibold text-on-primary">Ventanilla Única:</span> ventanilla@alcaldia.gov.co</li></ul></div><div><h4 class="font-label-lg text-label-lg font-bold text-on-primary uppercase tracking-wider mb-space-md">Líneas de Emergencia</h4><ul class="space-y-space-xs font-body-sm text-body-sm"><li class="flex items-center justify-between pb-1"><span>Policía Nacional</span><span class="font-bold text-on-primary">123</span></li><li class="flex items-center justify-between pb-1"><span>Cuerpo de Bomberos</span><span class="font-bold text-on-primary">119</span></li><li class="flex items-center justify-between pb-1"><span>Defensa Civil</span><span class="font-bold text-on-primary">144</span></li><li class="flex items-center justify-between pb-1"><span>Gestión del Riesgo</span><span class="font-bold text-on-primary">(601) 345 6789</span></li><li class="flex items-center justify-between"><span>Atención a la Mujer</span><span class="font-bold text-on-primary">155</span></li></ul></div><div><h4 class="font-label-lg text-label-lg font-bold text-on-primary uppercase tracking-wider mb-space-md">Transparencia Activa</h4><ul class="space-y-space-xs font-body-sm text-body-sm"><li><a class="hover:text-on-primary transition-colors flex items-center gap-1" data-path="transparencia" href="#"><span class="material-symbols-outlined text-[14px]">arrow_forward</span>Mecanismos de Rendición de Cuentas</a></li><li><a class="hover:text-on-primary transition-colors flex items-center gap-1" data-path="gaceta-y-decretos" href="#"><span class="material-symbols-outlined text-[14px]">arrow_forward</span>Normativa y Actos Administrativos</a></li><li><a class="hover:text-on-primary transition-colors flex items-center gap-1" href="#"><span class="material-symbols-outlined text-[14px]">arrow_forward</span>Plan de Desarrollo Municipal</a></li><li><a class="hover:text-on-primary transition-colors flex items-center gap-1" href="#"><span class="material-symbols-outlined text-[14px]">arrow_forward</span>Presupuesto y Ejecución Fiscal</a></li><li><a class="hover:text-on-primary transition-colors flex items-center gap-1" href="#"><span class="material-symbols-outlined text-[14px]">arrow_forward</span>Portal de Datos Abiertos</a></li></ul></div></div><div class="pt-space-lg flex flex-col md:flex-row items-center justify-between text-label-sm font-label-sm text-on-primary-container/80 gap-space-sm"><p>© 2024 Alcaldía Municipal. Todos los derechos reservados. Nit: 899.999.001-2</p><div class="flex items-center gap-space-md"><a class="hover:text-on-primary transition-colors" href="#">Términos y Condiciones</a><a class="hover:text-on-primary transition-colors" href="#">Política de Privacidad y Tratamiento de Datos</a><a class="hover:text-on-primary transition-colors" href="#">Mapa del Sitio</a></div></div></div></footer></body></html>
