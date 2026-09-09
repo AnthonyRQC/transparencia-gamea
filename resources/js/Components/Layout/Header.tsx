@@ -4,6 +4,7 @@ import { route } from 'ziggy-js';
 import { Sun, Moon, LogOut, User, ChevronDown } from 'lucide-react';
 import InstitutionalLogo from './InstitutionalLogo';
 import CampanaNotificaciones from './CampanaNotificaciones';
+import type { SharedPageProps } from '@/types';
 
 interface HeaderProps {
     isDarkMode: boolean;
@@ -26,9 +27,8 @@ export default function Header({
     recientes: recientesSSE,
 }: HeaderProps) {
     const { props } = usePage();
-    const auth = (props as any).auth;
+    const { auth, notificaciones } = props as unknown as SharedPageProps;
     const user = auth?.user;
-    const notificaciones = (props as any).notificaciones;
     // Priorizar estado SSE (reactivo) sobre datos de Inertia (estáticos al cargar página)
     const noLeidas = noLeidasSSE ?? notificaciones?.no_leidas ?? 0;
     const recientes = recientesSSE ?? notificaciones?.recientes ?? [];

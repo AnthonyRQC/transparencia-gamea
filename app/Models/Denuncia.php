@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Helpers\UppercaseText;
+use App\Traits\UppercaseText;
 use App\Helpers\DiasHabiles;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

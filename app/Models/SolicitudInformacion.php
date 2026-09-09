@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use App\Helpers\DiasHabiles;
-use App\Helpers\UppercaseText;
+use App\Traits\UppercaseText;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

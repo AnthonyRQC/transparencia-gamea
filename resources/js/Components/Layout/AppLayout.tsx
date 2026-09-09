@@ -4,6 +4,7 @@ import { Toaster } from '@/Components/ui/sonner';
 import Header from './Header';
 import Sidebar from './Sidebar';
 import { useNotificacionesSSE } from '@/hooks/useNotificacionesSSE';
+import type { SharedPageProps } from '@/types';
 
 interface AppLayoutProps {
     children: React.ReactNode;
@@ -14,9 +15,7 @@ interface AppLayoutProps {
 
 export default function AppLayout({ children, headerBottom }: AppLayoutProps) {
     const { props } = usePage();
-    const auth = (props as any).auth;
-    const notificacionesInertia = (props as any).notificaciones;
-    const simFecha = (props as any).simFecha as string | null | undefined;
+    const { auth, notificaciones: notificacionesInertia, simFecha } = props as unknown as SharedPageProps;
 
     const [isDarkMode, setIsDarkMode] = useState(() => {
         if (typeof window !== 'undefined') {

@@ -1,4 +1,5 @@
 import { usePage } from '@inertiajs/react';
+import type { SharedPageProps } from '@/types';
 
 interface InstitutionalLogoProps {
     size?: 'sm' | 'md' | 'lg';
@@ -6,7 +7,7 @@ interface InstitutionalLogoProps {
 }
 
 export default function InstitutionalLogo({ size = 'md', className = '' }: InstitutionalLogoProps) {
-    const { logo_url } = usePage().props as { logo_url?: string };
+    const { logo_url } = usePage().props as unknown as SharedPageProps;
 
     const sizeClasses: Record<string, string> = {
         sm: 'w-8 h-8',
