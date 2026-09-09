@@ -14,7 +14,7 @@ Definida en `resources/css/app.css` como variables OKLCH (espacio perceptual uni
 | `--primary` | `#4B0090` morado | Proceso / marca / links activos | blanco encima **12.34 : 1** ✅ AAA |
 | `--primary` dark | `#A855F7` aprox | Igual en dark mode | — |
 | `--secondary` | `#F5B400` dorado | Aviso / acento sidebar | texto morado oscuro **7.14 : 1** ✅ / blanco **1.84 : 1** ❌ **prohibido** |
-| `--sidebar` | `#431377` | Fondo sidebar | blanco **13.14 : 1** ✅ AAA |
+| `--sidebar` | `#1E0A33` morado casi negro | Fondo sidebar + header (igual en light y dark) | blanco **~14 : 1** ✅ AAA |
 | `--destructive` | `#C6006B` | Alerta / botón peligro | blanco **5.81 : 1** ✅ AA |
 | teal `#008F89` | — | Solo rellenos gráficos / positivo | texto `teal-700` sobre claro; nunca blanco encima (3.97 ❌) |
 | magenta `#F4007A` | — | Solo barras "vencido" en Recharts | jamás como color de botón o texto |
@@ -83,7 +83,7 @@ Props: `icon`, `titulo`, `descripcion`. No crear mensajes vacíos inline en pág
 
 ### Diálogos / Modales
 Usar **`Dialog`** de Shadcn (`resources/js/Components/ui/dialog.tsx`).
-El `Modal.tsx` Breeze legacy (`resources/js/Components/Modal.tsx`) ya no tiene consumers activos.
+El `Modal.tsx` Breeze legacy fue **eliminado en Sprint 12.3** (cero consumers).
 
 ---
 
@@ -94,9 +94,11 @@ El `Modal.tsx` Breeze legacy (`resources/js/Components/Modal.tsx`) ya no tiene c
 | `AppLayout` | `Components/Layout/AppLayout.tsx` | Layout principal autenticado (sidebar + header + dark mode + SSE) |
 | `GuestLayout` | `Layouts/GuestLayout.tsx` | Login y páginas públicas (bg-background, tarjeta bg-card) |
 | `Header` | `Components/Layout/Header.tsx` | Header institucional unificado |
-| `Sidebar` | `Components/Layout/Sidebar.tsx` | Navegación lateral colapsable |
+| `Sidebar` | `Components/Layout/Sidebar.tsx` | Navegación lateral colapsable (colapsado: iconos centrados `gap-0 px-0`; logo UTLCC secundario en footer sobre pastilla blanca) |
 
-> `AuthenticatedLayout.tsx` (Breeze) ya no se usa en ninguna página del sistema. Conservado por si se necesita en el futuro, pero no agrega ruido al bundle.
+**Regla cromática (Sprint 12.3, gusto del cliente):** navbar + sidebar en morado casi negro `#1E0A33`, idéntico en light y dark (formal). La página pública conserva su header oscuro propio.
+
+> `AuthenticatedLayout.tsx` (Breeze) fue **eliminado en Sprint 12.3** (cero consumers; `AppLayout` es el único layout autenticado).
 
 ### Patrón de página estándar
 ```tsx
@@ -130,3 +132,4 @@ Usar siempre tokens semánticos (`text-foreground`, `bg-card`, `border-border`, 
 4. **Compute-or-defer.** Si no hay base para un porcentaje o tasa, mostrar "—" en vez de 0% o error.
 5. **Un batch = un commit + build + tests + visto bueno visual.** Todo reversible con `git revert`.
 6. **Modo impeccable: Operate.** Comandos: `critique`, `clarify`, `layout`, `colorize`, `distill`, `polish`, `adapt`, `audit`, `harden`, `typeset`. No `bolder`, `overdrive`, `delight`, `animate` (tono institucional serio).
+7. **Jerarquía de logos:** GAMEA (`logo_url`) es principal (header + banner sidebar, intactos). UTLCC (`utlcc_logo_url`, SVG canónico + fallback PNG) es secundario: footer del sidebar expandido y pie de login, siempre sobre pastilla blanca (el morado del logo no contrasta sobre el sidebar oscuro). Nunca en el header interno.

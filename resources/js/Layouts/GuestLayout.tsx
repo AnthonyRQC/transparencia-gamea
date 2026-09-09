@@ -1,8 +1,11 @@
 import ApplicationLogo from '@/Components/ApplicationLogo';
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { PropsWithChildren } from 'react';
+import type { SharedPageProps } from '@/types';
 
 export default function Guest({ children }: PropsWithChildren) {
+    const { utlcc_logo_url } = usePage().props as unknown as SharedPageProps;
+
     return (
         <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4">
             {/* Logo institucional */}
@@ -23,6 +26,19 @@ export default function Guest({ children }: PropsWithChildren) {
             <p className="mt-6 text-xs text-muted-foreground text-center">
                 Sistema de Transparencia — UTLCC · GAMEA
             </p>
+            {utlcc_logo_url && (
+                <div className="mt-3 rounded-xl bg-white px-4 py-2 shadow-sm">
+                    <img
+                        src={utlcc_logo_url}
+                        alt="UTLCC — Unidad de Transparencia y Lucha Contra la Corrupción"
+                        className="h-9 w-auto object-contain"
+                        loading="lazy"
+                        onError={(e) => {
+                            e.currentTarget.src = '/LOGO-UTLCC.png';
+                        }}
+                    />
+                </div>
+            )}
         </div>
     );
 }

@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Permiso } from '@/permissions';
+import type { SharedPageProps } from '@/types';
 
 interface MenuItem {
     key: string;
@@ -38,12 +39,12 @@ export default function Sidebar({
     isSidebarOpenMobile,
     onCloseSidebarMobile,
 }: SidebarProps) {
-    const sidebarProps = usePage().props as Record<string, any>;
-    const auth = sidebarProps.auth as { user?: { rol: string; permisos?: Permiso[] } } | undefined;
+    const sidebarProps = usePage().props as unknown as SharedPageProps;
+    const auth = sidebarProps.auth;
     const user = auth?.user;
     const { logo_url } = sidebarProps;
     const noLeidas = sidebarProps.notificaciones?.no_leidas ?? 0;
-    const permisos = user?.permisos ?? [];
+    const permisos = (user?.permisos ?? []) as Permiso[];
 
     const todosLosItems: MenuItem[] = [
         {
@@ -245,11 +246,12 @@ export default function Sidebar({
                             onClick={onCloseSidebarMobile}
                             title={isSidebarCollapsed ? item.label : undefined}
                             className={cn(
-                                'w-full flex items-center gap-3 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer relative group/link focus:outline-none',
+                                'w-full flex items-center rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer relative group/link focus:outline-none',
                                 active
                                     ? 'bg-sidebar-muted text-sidebar-accent'
                                     : 'text-sidebar-foreground/70 hover:bg-sidebar-muted/50 hover:text-sidebar-foreground',
-                                isSidebarCollapsed ? 'justify-center py-2' : 'px-3 py-2'
+                                // Colapsado: centrado real (sin gap ni padding lateral; el label oculto no ocupa espacio)
+                                isSidebarCollapsed ? 'justify-center gap-0 px-0 py-2' : 'gap-3 px-3 py-2'
                             )}
                         >
                             {/* Active indicator bar */}
@@ -313,6 +315,20 @@ export default function Sidebar({
 
             {/* Footer */}
             <div className="shrink-0 border-t border-sidebar-border/60">
+                {/* Logo UTLCC (secundario; GAMEA sigue en el banner superior). Solo expandido. */}
+                {!isSidebarCollapsed && sidebarProps.utlcc_logo_url && (
+                    <div className="mx-3 mt-3 rounded-xl bg-white/95 px-3 py-2 shadow-sm">
+                        <img
+                            src={sidebarProps.utlcc_logo_url}
+                            alt="UTLCC — Unidad de Transparencia y Lucha Contra la Corrupción"
+                            className="h-8 w-auto mx-auto object-contain"
+                            loading="lazy"
+                            onError={(e) => {
+                                e.currentTarget.src = '/LOGO-UTLCC.png';
+                            }}
+                        />
+                    </div>
+                )}
                 <div
                     className={cn(
                         'text-center transition-all duration-300',

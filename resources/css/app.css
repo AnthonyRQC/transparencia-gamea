@@ -9,11 +9,12 @@
     /* Base Color Spaces (Space-separated OKLCH channels: Lightness Chroma Hue) */
     --background: 0.99 0.005 301.12;
     --foreground: 0.15 0.05 301.12;
-    --sidebar: 0.3299 0.1543 299.09;
+    /* Morado casi negro formal #1E0A33 (Sprint 12.3): igual en light y dark */
+    --sidebar: 0.2033 0.0772 302.33;
     --sidebar-foreground: 0.97 0.01 301.12;
-    --sidebar-border: 0.25 0.10 299.09;
+    --sidebar-border: 0.2600 0.0900 301.00;
     --sidebar-accent: 0.8088 0.1665 82.31;
-    --sidebar-muted: 0.25 0.10 299.09;
+    --sidebar-muted: 0.2600 0.0900 301.00;
     --sidebar-ring: 0.8088 0.1665 82.31;
     
     --card: 1.00 0 0;
@@ -61,11 +62,12 @@
   .dark {
     --background: 0.10 0.03 301.12;
     --foreground: 0.97 0.01 301.12;
-    --sidebar: 0.16 0.08 299.09;
+    /* Mismo morado casi negro que en light (Sprint 12.3) */
+    --sidebar: 0.2033 0.0772 302.33;
     --sidebar-foreground: 0.95 0.02 301.12;
-    --sidebar-border: 0.22 0.08 299.09;
+    --sidebar-border: 0.2600 0.0900 301.00;
     --sidebar-accent: 0.8088 0.1665 82.31;
-    --sidebar-muted: 0.22 0.08 299.09;
+    --sidebar-muted: 0.2600 0.0900 301.00;
     --sidebar-ring: 0.8088 0.1665 82.31;
     
     --card: 0.13 0.03 301.12;

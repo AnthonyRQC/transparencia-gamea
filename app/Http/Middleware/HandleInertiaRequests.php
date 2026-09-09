@@ -40,6 +40,7 @@ class HandleInertiaRequests extends Middleware
                 ] : null,
             ],
             'logo_url' => asset('LOGO-OFICIAL-EL-ALTO.png'),
+            'utlcc_logo_url' => asset('LOGO-UTLCC.svg'),
             'jacha_url' => asset('jacha.jpg'),
             'success' => session('success'),
             'ticket' => session('ticket'),
