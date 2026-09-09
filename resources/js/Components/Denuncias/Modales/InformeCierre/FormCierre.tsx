@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { formatearFechaHora, formatearFechaLarga } from '@/helpers/fechas';
 import { router, usePage } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { toast } from 'sonner';
@@ -115,7 +116,7 @@ export default function FormCierre({ ticket, cierre, informeExiste, tecnicoNombr
                 {cierre.ediciones.map((ed, i) => (
                   <div key={i} className="text-sm bg-muted/50 rounded-lg px-3 py-2">
                     <p className="text-xs text-muted-foreground">
-                      {new Date(ed.fecha).toLocaleDateString('es-BO', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                      {formatearFechaHora(ed.fecha) ?? ''}
                       {ed.usuario !== 'sistema' ? ` — ${ed.usuario}` : ''}
                     </p>
                     {ed.cambios.map((c, j) => (
@@ -166,7 +167,7 @@ function CierrePreview({ cierre, canAct, onEdit, onDelete }: {
 
       {cierre.cerrado_at && (
         <p className="text-xs text-muted-foreground">
-          Cerrado: {new Date(cierre.cerrado_at).toLocaleDateString('es-BO', { day: '2-digit', month: 'long', year: 'numeric' })}
+          Cerrado: {formatearFechaLarga(cierre.cerrado_at) ?? ''}
         </p>
       )}
 
@@ -175,7 +176,7 @@ function CierrePreview({ cierre, canAct, onEdit, onDelete }: {
         {cierre.notificado_denunciante ? (
           <div className="text-sm bg-muted/50 rounded-lg px-3 py-2 space-y-1">
             <p><span className="text-muted-foreground">Medio:</span> {cierre.notificacion_medio || '—'}</p>
-            {cierre.notificacion_fecha && <p><span className="text-muted-foreground">Fecha:</span> {new Date(cierre.notificacion_fecha).toLocaleDateString('es-BO', { day: '2-digit', month: 'long', year: 'numeric' })}</p>}
+            {cierre.notificacion_fecha && <p><span className="text-muted-foreground">Fecha:</span> {formatearFechaLarga(cierre.notificacion_fecha) ?? ''}</p>}
             {cierre.notificacion_descripcion && <p><span className="text-muted-foreground">Detalle:</span> {cierre.notificacion_descripcion}</p>}
           </div>
         ) : (

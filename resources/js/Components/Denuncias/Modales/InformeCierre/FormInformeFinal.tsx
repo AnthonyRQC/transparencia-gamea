@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { formatearFechaHora, formatearFechaLarga } from '@/helpers/fechas';
 import { router, usePage } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { toast } from 'sonner';
@@ -103,8 +104,8 @@ export default function FormInformeFinal({ ticket, informe, tecnicoNombre, canAc
                 {informe.ediciones.map((ed, i) => (
                   <div key={i} className="text-sm bg-muted/50 rounded-lg px-3 py-2">
                     <p className="text-xs text-muted-foreground">
-                      {new Date(ed.fecha).toLocaleDateString('es-BO', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                      {ed.usuario !== 'sistema' ? ` â€” ${ed.usuario}` : ''}
+                      {formatearFechaHora(ed.fecha) ?? ''}
+                      {ed.usuario !== 'sistema' ? ` — ${ed.usuario}` : ''}
                     </p>
                     {ed.cambios.map((c, j) => (
                       <p key={j} className="text-xs mt-0.5">{c}</p>
@@ -164,7 +165,7 @@ function InformePreview({ informe, canAct, onEdit, onDelete }: {
 
       {informe.redactado_at && (
         <p className="text-xs text-muted-foreground">
-          Redactado: {new Date(informe.redactado_at).toLocaleDateString('es-BO', { day: '2-digit', month: 'long', year: 'numeric' })}
+          Redactado: {formatearFechaLarga(informe.redactado_at) ?? ''}
         </p>
       )}
 

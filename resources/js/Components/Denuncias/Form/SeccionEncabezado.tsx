@@ -1,9 +1,7 @@
+import { formatearFechaLarga, hoyISO } from '@/helpers/fechas';
+
 export default function SeccionEncabezado() {
-    const today = new Date().toLocaleDateString('es-BO', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-    });
+    const today = formatearFechaLarga(hoyISO()) ?? '';
 
     return (
         <div className="flex items-center justify-between py-3 px-5 bg-muted/30 rounded-xl border border-border/60">

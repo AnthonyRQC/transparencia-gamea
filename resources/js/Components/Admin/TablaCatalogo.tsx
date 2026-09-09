@@ -1,4 +1,5 @@
 import { useState, useEffect, Fragment } from 'react';
+import { formatearFechaHora } from '@/helpers/fechas';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { Plus, Pencil, ToggleLeft, ToggleRight, Trash2, Lock, ChevronDown, ChevronUp, ChevronRight, CircleDot } from 'lucide-react';
@@ -71,8 +72,7 @@ function formatValue(item: CatalogoItem, col: ColumnConfig): string {
         return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : val;
     }
     if (col.type === 'datetime' && typeof val === 'string') {
-        const d = new Date(val);
-        return d.toLocaleDateString('es-BO', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        return formatearFechaHora(val) ?? val;
     }
     if (col.type === 'count' && typeof val === 'number') return String(val);
     if (col.type === 'status') {

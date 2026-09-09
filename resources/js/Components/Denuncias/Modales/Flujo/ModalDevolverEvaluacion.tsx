@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { formatearFechaCorta } from '@/helpers/fechas';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { toast } from 'sonner';
@@ -80,7 +81,7 @@ export default function ModalDevolverEvaluacion({ evaluacion, denuncia, open, on
           <DialogTitle>Devolver evaluación de la denuncia</DialogTitle>
           <DialogDescription>
             {evaluacion.ticket} — Delegada por el Jefe el{' '}
-            {new Date(evaluacion.delegada_at).toLocaleDateString('es-BO')}
+            {formatearFechaCorta(evaluacion.delegada_at) ?? ''}
           </DialogDescription>
         </DialogHeader>
 

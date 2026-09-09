@@ -7,7 +7,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/Components/ui/input';
 import { Button } from '@/Components/ui/button';
 import AppLayout from '@/Components/Layout/AppLayout';
+import PageHeader from '@/Components/Layout/PageHeader';
 import ItemNotificacion from '@/Components/Layout/ItemNotificacion';
+import ListaVacia from '@/Components/Denuncias/ListaVacia';
 
 interface Notificacion {
   id: number;
@@ -111,22 +113,16 @@ export default function NotificacionesIndex() {
 
       <div className="max-w-3xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-          <div className="flex items-center gap-3">
-            <Bell className="w-7 h-7 sm:w-8 sm:h-8 text-primary shrink-0" />
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Notificaciones</h1>
-                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
-                  {total}
-                </span>
-              </div>
-              <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-                Historial de alertas y avisos del sistema sobre sus casos y actividades.
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 self-start sm:self-auto">
+        <PageHeader
+          icon={<Bell className="shrink-0" />}
+          titulo="Notificaciones"
+          tituloExtra={
+            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+              {total}
+            </span>
+          }
+          subtitulo="Historial de alertas y avisos del sistema sobre sus casos y actividades."
+          acciones={
             <Button
               variant="outline"
               size="sm"
@@ -136,8 +132,8 @@ export default function NotificacionesIndex() {
               <CheckCheck className="w-4 h-4" />
               Marcar todas como leídas
             </Button>
-          </div>
-        </div>
+          }
+        />
 
         {/* Filtros */}
         <div className="bg-card border border-border rounded-xl p-4 mb-6">
@@ -199,13 +195,11 @@ export default function NotificacionesIndex() {
 
         {/* Lista */}
         {items.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 text-center">
-            <SearchX className="w-12 h-12 text-muted-foreground/30 mb-4" />
-            <p className="text-base font-semibold text-muted-foreground">Sin resultados</p>
-            <p className="text-sm text-muted-foreground/60 mt-1">
-              No se encontraron notificaciones con esos filtros.
-            </p>
-          </div>
+          <ListaVacia
+            icon={SearchX}
+            titulo="Sin resultados"
+            descripcion="No se encontraron notificaciones con esos filtros."
+          />
         ) : (
           <div className="bg-card border border-border rounded-xl overflow-hidden divide-y divide-border/60">
             {items.map((n) => (

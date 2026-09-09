@@ -2,8 +2,8 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { TEMA } from '@/helpers/tema';
 import type { EmbudoItem } from '@/types/dashboard';
 
-/** Fases activas en rampa morada institucional; terminales en un solo gris. */
-const COLORES_ACTIVOS = [TEMA.primario(), '#5E1AA8', '#6D28D9', '#7C3AED', '#8B5CF6', '#A78BFA'];
+/** Fases activas en rampa morada institucional (dark-aware); terminales en un solo gris. */
+const COLORES_ACTIVOS = [TEMA.primario(), ...TEMA.rampaMorada().slice(1, 6)];
 
 export default function GraficoEmbudo({ data, onSelect }: { data: EmbudoItem[]; onSelect?: (estado: string, label: string) => void }) {
     return (

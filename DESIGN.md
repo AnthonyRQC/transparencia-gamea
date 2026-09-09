@@ -52,7 +52,11 @@ Todos usan **`Button` de Shadcn/UI** (`resources/js/Components/ui/button.tsx`).
 | `ghost` | Acciones en contexto (dentro de tablas, dropdowns) |
 | `secondary` | Menos énfasis que default, más que outline |
 
-> `PrimaryButton`, `SecondaryButton`, `DangerButton` en `resources/js/Components/Buttons/` son **thin wrappers** de compatibilidad. No usarlos en código nuevo.
+> Los wrappers Breeze fueron **eliminados en Sprint 12.4** (cero imports vivos). Solo `Button` Shadcn.
+
+### Cabeceras
+- **`PageHeader`** (`Components/Layout/PageHeader.tsx`): cabecera canónica interna. Props `icon`, `titulo`, `tituloExtra?` (contador/badge junto al título), `subtitulo?`, `acciones?`. La usan las 12 páginas con `AppLayout` (Dashboard, Bandeja, MisCasos, MiResumen, Evaluaciones, ConsultarCasos, RegistroDenuncia, Reportes, Notificaciones, Catálogos, Perfil, Dev/Tiempo).
+- **`PublicHeader`** (`Components/Publico/PublicHeader.tsx`): cabecera pública canónica (`bg-sidebar` #1E0A33). Prop `acciones`. La usan Welcome y Seguimiento/Buscar.
 
 ### Formularios (Login / Perfil)
 Todos los inputs heredan de los Form components en `resources/js/Components/Form/`:
@@ -79,7 +83,7 @@ No hardcodear `#4B0090` ni ningún hex en props de Recharts.
 
 ### Estado vacío
 Componente único: **`resources/js/Components/Denuncias/Shared/ListaVacia.tsx`**
-Props: `icon`, `titulo`, `descripcion`. No crear mensajes vacíos inline en páginas principales.
+Props: `icon`, `titulo`, `descripcion`, `accionLabel?`, `onAccion?`. No crear mensajes vacíos inline en páginas principales (Notificaciones migrado en 12.4). Excepciones: tablas usan fila vacía `colSpan` (TablaReporte) y la superficie pública usa sus estados propios (`EstadoVacio`, `EstadoNoEncontrado`, tono ciudadano).
 
 ### Diálogos / Modales
 Usar **`Dialog`** de Shadcn (`resources/js/Components/ui/dialog.tsx`).
@@ -96,7 +100,7 @@ El `Modal.tsx` Breeze legacy fue **eliminado en Sprint 12.3** (cero consumers).
 | `Header` | `Components/Layout/Header.tsx` | Header institucional unificado |
 | `Sidebar` | `Components/Layout/Sidebar.tsx` | Navegación lateral colapsable (colapsado: iconos centrados `gap-0 px-0`; logo UTLCC secundario en footer sobre pastilla blanca) |
 
-**Regla cromática (Sprint 12.3, gusto del cliente):** navbar + sidebar en morado casi negro `#1E0A33`, idéntico en light y dark (formal). La página pública conserva su header oscuro propio.
+**Regla cromática (Sprint 12.3, gusto del cliente):** navbar + sidebar en morado casi negro `#1E0A33`, idéntico en light y dark (formal). La superficie pública usa el mismo header (`PublicHeader`, Sprint 12.4).
 
 > `AuthenticatedLayout.tsx` (Breeze) fue **eliminado en Sprint 12.3** (cero consumers; `AppLayout` es el único layout autenticado).
 

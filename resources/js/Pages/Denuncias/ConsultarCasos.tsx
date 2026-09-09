@@ -4,6 +4,7 @@ import { Head, router, usePage } from '@inertiajs/react';
 import { Search, Eye, Key, ChevronDown, ChevronUp, Pencil, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import AppLayout from '@/Components/Layout/AppLayout';
+import PageHeader from '@/Components/Layout/PageHeader';
 import DenunciaSheet from '@/Components/Denuncias/DenunciaSheet';
 import TipoDenunciaBadge from '@/Components/Denuncias/TipoDenunciaBadge';
 import PlazoBadge from '@/Components/Denuncias/PlazoBadge';
@@ -140,27 +141,23 @@ export default function ConsultarCasos({ denuncias, tecnicos, filters }: PagePro
     <AppLayout>
       <Head title="Consultar Casos — Transparencia UTLCC" />
 
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-        <div className="flex items-center gap-3">
-          <Search className="w-7 h-7 sm:w-8 sm:h-8 text-primary shrink-0" />
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Consultar Casos</h1>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-              Búsqueda avanzada y filtrado histórico en toda la base de denuncias.
-            </p>
-          </div>
-        </div>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => setShowFilters(!showFilters)}
-          className="gap-1.5 self-start sm:self-auto cursor-pointer"
-        >
-          {showFilters ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-          {showFilters ? 'Ocultar filtros' : 'Mostrar filtros'}
-        </Button>
-      </div>
+      <PageHeader
+        icon={<Search className="shrink-0" />}
+        titulo="Consultar Casos"
+        subtitulo="Búsqueda avanzada y filtrado histórico en toda la base de denuncias."
+        acciones={
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setShowFilters(!showFilters)}
+            className="gap-1.5 cursor-pointer"
+          >
+            {showFilters ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+            {showFilters ? 'Ocultar filtros' : 'Mostrar filtros'}
+          </Button>
+        }
+      />
 
       {/* Panel de 7 filtros */}
       {showFilters && (
@@ -274,8 +271,8 @@ export default function ConsultarCasos({ denuncias, tecnicos, filters }: PagePro
                     <span className="font-mono text-sm font-bold" title={`N° de denuncia: ${d.ticket}`}>{d.ticket}</span>
                     <TipoDenunciaBadge tipo={d.tipo} />
                     <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${
-                      d.estado === 'cerrada' ? 'bg-[#008F89]/10 text-[#008F89] border-[#008F89]/30' :
-                      d.estado === 'rechazada' ? 'bg-[#F4007A]/10 text-[#F4007A] border-[#F4007A]/30' :
+                      d.estado === 'cerrada' ? 'bg-teal-500/10 text-teal-800 border-teal-500/30 dark:bg-teal-500/20 dark:text-teal-300' :
+                      d.estado === 'rechazada' ? 'bg-destructive/10 text-destructive border-destructive/30' :
                       'bg-primary/10 text-primary border-primary/20'
                     }`}>
                       {estadoLabels[d.estado] || d.estado}
@@ -310,7 +307,7 @@ export default function ConsultarCasos({ denuncias, tecnicos, filters }: PagePro
                   {d.estado === 'ingresada' && (
                     <button
                       onClick={() => setModalEditarDenuncia(d)}
-                      className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-100 text-slate-800 text-xs font-semibold hover:bg-slate-200 transition-colors dark:bg-slate-800 dark:text-slate-200 cursor-pointer"
+                      className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-muted text-foreground text-xs font-semibold hover:bg-accent transition-colors border border-border cursor-pointer"
                       title="Editar denuncia"
                     >
                       <Pencil className="w-3.5 h-3.5" />

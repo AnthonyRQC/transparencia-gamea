@@ -1,4 +1,5 @@
 import { CircleCheck, Bell, RotateCcw, FileText, Pencil, Trash2, XCircle } from 'lucide-react';
+import { formatearFechaCorta } from '@/helpers/fechas';
 import PlazoProgress from '../Card/PlazoProgress';
 import { Badge } from '@/Components/ui/badge';
 import { Avatar, AvatarFallback } from '@/Components/ui/avatar';
@@ -51,8 +52,7 @@ function getInitials(name: string): string {
 }
 
 function formatDate(d?: string): string {
-  if (!d) return '';
-  return new Date(d).toLocaleDateString('es-BO', { day: '2-digit', month: 'short', year: 'numeric' });
+  return formatearFechaCorta(d) ?? '';
 }
 
 export default function DescargoCard({ descargo, canAct, onClick, onNotificar, onResponder, onAmpliar, onEditar, onEliminar, onCancelar }: DescargoCardProps) {

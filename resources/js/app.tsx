@@ -20,6 +20,7 @@ createInertiaApp({
         root.render(<App {...props} />);
     },
     progress: {
-        color: '#4B5563',
+        // Morado institucional (token --primary #4B0090)
+        color: '#4B0090',
     },
 });

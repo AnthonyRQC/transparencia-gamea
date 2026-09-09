@@ -2,6 +2,7 @@ import { Badge } from '@/Components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/Components/ui/tooltip';
 import { CalendarClock } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { formatearFechaLarga } from '@/helpers/fechas';
 
 interface PlazoInfo {
   dias_restantes: number;
@@ -26,9 +27,7 @@ const labels: Record<string, string> = {
 };
 
 function formatDate(dateStr?: string): string {
-  if (!dateStr) return '';
-  const d = new Date(dateStr + 'T12:00:00');
-  return d.toLocaleDateString('es-BO', { day: '2-digit', month: 'long', year: 'numeric' });
+  return formatearFechaLarga(dateStr) ?? '';
 }
 
 export default function PlazoBadge({ plazo }: PlazoBadgeProps) {

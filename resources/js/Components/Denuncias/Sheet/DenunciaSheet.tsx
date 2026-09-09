@@ -317,7 +317,7 @@ export default function DenunciaSheet({
             <button
               type="button"
               onClick={() => onAbrirArchivos(denuncia.ticket)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 text-slate-700 text-xs font-semibold hover:bg-slate-200 transition-colors dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted text-foreground text-xs font-semibold hover:bg-accent transition-colors border border-border"
             >
               <FolderOpen className="w-3.5 h-3.5" />
               Archivos del caso

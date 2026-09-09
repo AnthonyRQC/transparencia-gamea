@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils';
+import { formatearFechaCorta } from '@/helpers/fechas';
 import PlazoBadge from './PlazoBadge';
 import TipoDenunciaBadge from './TipoDenunciaBadge';
 import SubestadoBadge from './SubestadoBadge';
@@ -85,8 +86,7 @@ function fmt(dateStr?: string | null): string {
 }
 
 function fmtDate(dateStr?: string | null): string {
-  if (!dateStr) return '';
-  return new Date(dateStr).toLocaleDateString('es-BO', { day: '2-digit', month: 'short' });
+  return formatearFechaCorta(dateStr, true) ?? '';
 }
 
 function getContextualText(denuncia: DenunciaData): string {
@@ -231,7 +231,7 @@ export default function DenunciaCard({ denuncia, plazo, tecnicos, onClick, class
             )}
             {denuncia.cierre_cerrado_at && (
               <span className="text-[11px] text-muted-foreground">
-                {new Date(denuncia.cierre_cerrado_at).toLocaleDateString('es-BO', { day: '2-digit', month: 'short', year: 'numeric' })}
+                {formatearFechaCorta(denuncia.cierre_cerrado_at) ?? ''}
               </span>
             )}
           </div>

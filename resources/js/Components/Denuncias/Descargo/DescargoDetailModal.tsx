@@ -1,4 +1,5 @@
 import { User, Building2, Clock, Bell, RotateCcw, CircleCheck, FileText, History, Pencil, Trash2, ChevronDown, ChevronRight } from 'lucide-react';
+import { formatearFechaLarga } from '@/helpers/fechas';
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/Components/ui/dialog';
 import { Badge } from '@/Components/ui/badge';
@@ -65,8 +66,7 @@ const MEDIOS_LABEL: Record<string, string> = {
 };
 
 function formatDate(d?: string): string {
-  if (!d) return '';
-  return new Date(d).toLocaleDateString('es-BO', { day: '2-digit', month: 'long', year: 'numeric' });
+  return formatearFechaLarga(d) ?? '';
 }
 
 function formatDateTime(d?: string): string {

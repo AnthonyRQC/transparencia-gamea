@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { formatearFechaLarga } from '@/helpers/fechas';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { toast } from 'sonner';
@@ -44,10 +45,7 @@ interface ModalAmpliacionPlazoProps {
 }
 
 function formatDate(d?: string): string {
-  if (!d) return '';
-  return new Date(d).toLocaleDateString('es-BO', {
-    day: '2-digit', month: 'long', year: 'numeric',
-  });
+  return formatearFechaLarga(d) ?? '';
 }
 
 function getPlazoBase(tipo: string): number {

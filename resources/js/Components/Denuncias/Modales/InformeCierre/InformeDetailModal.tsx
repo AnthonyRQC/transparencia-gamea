@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { formatearFechaCorta, formatearFechaLarga } from '@/helpers/fechas';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/Components/ui/dialog';
 import { Separator } from '@/Components/ui/separator';
 import { FileText, Archive, History, ChevronDown, ChevronRight, Clock, User } from 'lucide-react';
@@ -80,7 +81,7 @@ export default function InformeDetailModal({ denuncia, open, onOpenChange }: Inf
                   <Clock className="w-3 h-3 text-muted-foreground" />
                   <span className="text-muted-foreground">Fecha:</span>
                   <span className="font-medium">
-                    {new Date(denuncia.informe_redactado_at).toLocaleDateString('es-BO', { day: '2-digit', month: 'long', year: 'numeric' })}
+                    {formatearFechaLarga(denuncia.informe_redactado_at) ?? ''}
                   </span>
                 </div>
               )}
@@ -130,7 +131,7 @@ export default function InformeDetailModal({ denuncia, open, onOpenChange }: Inf
                     </div>
                     {denuncia.cierre_cerrado_at && (
                       <p className="text-xs text-muted-foreground">
-                        Cerrado: {new Date(denuncia.cierre_cerrado_at).toLocaleDateString('es-BO', { day: '2-digit', month: 'long', year: 'numeric' })}
+                        Cerrado: {formatearFechaLarga(denuncia.cierre_cerrado_at) ?? ''}
                       </p>
                     )}
                     <div>
@@ -139,7 +140,7 @@ export default function InformeDetailModal({ denuncia, open, onOpenChange }: Inf
                         {denuncia.cierre_notificado_denunciante ? (
                           <div className="space-y-1">
                             <p>Notificado por <span className="font-medium">{denuncia.cierre_notificacion_medio || '—'}</span></p>
-                            {denuncia.cierre_notificacion_fecha && <p>Fecha: {new Date(denuncia.cierre_notificacion_fecha).toLocaleDateString('es-BO')}</p>}
+                            {denuncia.cierre_notificacion_fecha && <p>Fecha: {formatearFechaCorta(denuncia.cierre_notificacion_fecha) ?? ''}</p>}
                             {denuncia.cierre_notificacion_descripcion && <p className="text-muted-foreground">{denuncia.cierre_notificacion_descripcion}</p>}
                           </div>
                         ) : (
