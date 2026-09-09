@@ -4,6 +4,7 @@ import { Head, router, usePage } from '@inertiajs/react';
 import { FilePlus2 } from 'lucide-react';
 import { toast } from 'sonner';
 import AppLayout from '@/Components/Layout/AppLayout';
+import PageHeader from '@/Components/Layout/PageHeader';
 import { Separator } from '@/Components/ui/separator';
 import {
     Select,
@@ -355,17 +356,11 @@ export default function RegistroDenuncia() {
         >
             <Head title="Registrar Denuncia — Transparencia UTLCC" />
 
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-                <div className="flex items-center gap-3">
-                    <FilePlus2 className="w-7 h-7 sm:w-8 sm:h-8 text-primary shrink-0" />
-                    <div>
-                        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Registrar Denuncia</h1>
-                        <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-                            Formulario oficial de ingreso de denuncias institucionales por corrupción o negación de información.
-                        </p>
-                    </div>
-                </div>
-            </div>
+            <PageHeader
+                icon={<FilePlus2 className="shrink-0" />}
+                titulo="Registrar Denuncia"
+                subtitulo="Formulario oficial de ingreso de denuncias institucionales por corrupción o negación de información."
+            />
 
             <div className={`max-w-4xl mx-auto w-full space-y-6 ${form.tipo ? 'pb-20' : ''}`}>
                 

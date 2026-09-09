@@ -6,6 +6,7 @@ import {
   FileSearch, CheckCircle2, List, FileText, SearchX
 } from 'lucide-react';
 import AppLayout from '@/Components/Layout/AppLayout';
+import PageHeader from '@/Components/Layout/PageHeader';
 import ListaVacia from '@/Components/Denuncias/ListaVacia';
 import TabsDenuncias from '@/Components/Denuncias/TabsDenuncias';
 import DenunciaSheet from '@/Components/Denuncias/DenunciaSheet';
@@ -65,17 +66,11 @@ export default function Evaluaciones() {
     <AppLayout>
       <Head title="Evaluaciones — Transparencia UTLCC" />
 
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-        <div className="flex items-center gap-3">
-          <FileSearch className="w-7 h-7 sm:w-8 sm:h-8 text-primary shrink-0" />
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Evaluaciones Delegadas</h1>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-              Evaluaciones técnicas previas delegadas por el Jefe de Unidad.
-            </p>
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        icon={<FileSearch className="shrink-0" />}
+        titulo="Evaluaciones Delegadas"
+        subtitulo="Evaluaciones técnicas previas delegadas por el Jefe de Unidad."
+      />
 
       <TabsDenuncias tabs={tabs} defaultValue="pendientes">
         {(value) => {

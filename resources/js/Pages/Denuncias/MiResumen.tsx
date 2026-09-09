@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
 import AppLayout from '@/Components/Layout/AppLayout';
+import PageHeader from '@/Components/Layout/PageHeader';
 import ContadorCard from '@/Components/Denuncias/ContadorCard';
 
 interface Contadores {
@@ -36,30 +37,26 @@ export default function MiResumen({ contadores, tecnicoActual, tecnicos }: PageP
     <AppLayout>
       <Head title="Mi Resumen — Transparencia UTLCC" />
 
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-        <div className="flex items-center gap-3">
-          <BarChart3 className="w-7 h-7 sm:w-8 sm:h-8 text-primary shrink-0" />
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Mi Resumen</h1>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-              Indicadores personales de carga de trabajo, distribución de casos y cumplimiento de plazos.
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2 self-start sm:self-auto">
-          <span className="text-xs text-muted-foreground font-medium">Ver como:</span>
-          <Select value={tecnicoActual} onValueChange={handleTecnicoChange}>
-            <SelectTrigger className="w-44 h-8 text-sm cursor-pointer">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {Object.entries(tecnicos).map(([id, t]) => (
-                <SelectItem key={id} value={id}>{t.nombre}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
+      <PageHeader
+        icon={<BarChart3 className="shrink-0" />}
+        titulo="Mi Resumen"
+        subtitulo="Indicadores personales de carga de trabajo, distribución de casos y cumplimiento de plazos."
+        acciones={
+          <>
+            <span className="text-xs text-muted-foreground font-medium">Ver como:</span>
+            <Select value={tecnicoActual} onValueChange={handleTecnicoChange}>
+              <SelectTrigger className="w-44 h-8 text-sm cursor-pointer">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(tecnicos).map(([id, t]) => (
+                  <SelectItem key={id} value={id}>{t.nombre}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </>
+        }
+      />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {cards.map((c) => (

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Head, router } from '@inertiajs/react';
 import { LayoutDashboard, Download, RefreshCw, BarChart3, Users } from 'lucide-react';
 import AppLayout from '@/Components/Layout/AppLayout';
+import PageHeader from '@/Components/Layout/PageHeader';
 import KPICards from '@/Components/Dashboard/KPICards';
 import FiltrosDashboard from '@/Components/Dashboard/FiltrosDashboard';
 import TabOperativo from '@/Components/Dashboard/TabOperativo';
@@ -78,23 +79,20 @@ export default function Dashboard(props: DashboardProps) {
 
             <div className="flex flex-col gap-4">
                 {/* Cabecera */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 flex-wrap">
-                    <div className="flex items-center gap-3">
-                        <LayoutDashboard className="w-7 h-7 sm:w-8 sm:h-8 text-primary shrink-0" />
-                        <div>
-                            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Dashboard</h1>
-                            <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-                                {esJefe ? 'Supervisión global de la unidad' : esTecnico ? 'Mi rendimiento personal' : 'Vista general del sistema'}
-                            </p>
-                        </div>
-                    </div>
-                    {esJefe && (
-                        <Button variant="outline" size="sm" onClick={() => setExportOpen(true)} className="gap-1.5 self-start sm:self-auto cursor-pointer">
-                            <Download className="w-4 h-4" />
-                            Exportar
-                        </Button>
-                    )}
-                </div>
+                <PageHeader
+                    icon={<LayoutDashboard className="shrink-0" />}
+                    titulo="Dashboard"
+                    subtitulo={esJefe ? 'Supervisión global de la unidad' : esTecnico ? 'Mi rendimiento personal' : 'Vista general del sistema'}
+                    acciones={
+                        esJefe ? (
+                            <Button variant="outline" size="sm" onClick={() => setExportOpen(true)} className="gap-1.5 cursor-pointer">
+                                <Download className="w-4 h-4" />
+                                Exportar
+                            </Button>
+                        ) : undefined
+                    }
+                    className="mb-0"
+                />
 
                 {/* Chips de filtros + Sheet */}
                 <FiltrosDashboard filtros={filtros} opciones={opciones} esJefe={esJefe} onChange={aplicarFiltros} />

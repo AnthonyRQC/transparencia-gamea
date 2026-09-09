@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Head, router } from '@inertiajs/react';
 import { BarChart3 } from 'lucide-react';
 import AppLayout from '@/Components/Layout/AppLayout';
+import PageHeader from '@/Components/Layout/PageHeader';
 import FiltrosReporte, { type ReportesFiltros, type ReportesOpciones } from '@/Components/Reportes/FiltrosReporte';
 import TablaReporte, { type ReporteRow } from '@/Components/Reportes/TablaReporte';
 import BotonExportar from '@/Components/Reportes/BotonExportar';
@@ -47,18 +48,13 @@ export default function Reportes({ denuncias, opciones, filtros }: Props) {
             <Head title="Reportes — Transparencia UTLCC" />
 
             <div className="flex flex-col gap-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 flex-wrap">
-                    <div className="flex items-center gap-3">
-                        <BarChart3 className="w-7 h-7 sm:w-8 sm:h-8 text-primary shrink-0" />
-                        <div>
-                            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Reportes</h1>
-                            <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-                                Listado de casos con filtros. Busca, revisa y exporta a PDF o Excel.
-                            </p>
-                        </div>
-                    </div>
-                    <BotonExportar filtros={filtros} />
-                </div>
+                <PageHeader
+                    icon={<BarChart3 className="shrink-0" />}
+                    titulo="Reportes"
+                    subtitulo="Listado de casos con filtros. Busca, revisa y exporta a PDF o Excel."
+                    acciones={<BotonExportar filtros={filtros} />}
+                    className="mb-0"
+                />
 
                 <FiltrosReporte opciones={opciones} filtros={filtros} />
 

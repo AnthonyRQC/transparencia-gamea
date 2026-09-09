@@ -3,6 +3,7 @@ import { Head, usePage } from '@inertiajs/react';
 import { BookOpen, Tag, Calendar, Building, Mail, FileCheck, Shield, AlertTriangle, Layers } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/Components/ui/tabs';
 import AppLayout from '@/Components/Layout/AppLayout';
+import PageHeader from '@/Components/Layout/PageHeader';
 import TablaCatalogo from '@/Components/Admin/TablaCatalogo';
 
 interface CatalogoItem {
@@ -51,17 +52,11 @@ export default function Catalogos() {
         <AppLayout>
             <Head title="Catálogos del Sistema — Transparencia UTLCC" />
 
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-                <div className="flex items-center gap-3">
-                    <BookOpen className="w-7 h-7 sm:w-8 sm:h-8 text-primary shrink-0" />
-                    <div>
-                        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Catálogos del Sistema</h1>
-                        <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-                            Administración de catálogos maestros, tipologías y parámetros institucionales.
-                        </p>
-                    </div>
-                </div>
-            </div>
+            <PageHeader
+                icon={<BookOpen className="shrink-0" />}
+                titulo="Catálogos del Sistema"
+                subtitulo="Administración de catálogos maestros, tipologías y parámetros institucionales."
+            />
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <TabsList className="mb-6 flex overflow-x-auto flex-nowrap w-full justify-start h-auto" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
