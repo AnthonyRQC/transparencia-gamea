@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Head, Link } from '@inertiajs/react';
+import PublicHeader from '@/Components/Publico/PublicHeader';
 import InstitutionalLogo from '@/Components/Layout/InstitutionalLogo';
 import {
     Search,
@@ -50,7 +51,7 @@ export default function Welcome({ auth, jacha_url, canLogin, canRegister }: Welc
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-[#070b19] text-foreground transition-colors duration-300 flex flex-col font-sans relative overflow-x-hidden">
+        <div className="min-h-screen bg-background text-foreground transition-colors duration-300 flex flex-col font-sans relative overflow-x-hidden">
             <Head title="Seguimiento Ciudadano - Transparencia" />
 
             <style>{`
@@ -85,66 +86,55 @@ export default function Welcome({ auth, jacha_url, canLogin, canRegister }: Welc
             <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-primary/5 blur-[120px] pointer-events-none -z-10" />
             <div className="absolute bottom-[20%] left-[-10%] w-[40%] h-[40%] rounded-full bg-secondary/5 blur-[100px] pointer-events-none -z-10" />
 
-            <header className="border-b border-border bg-slate-950 text-slate-50 sticky top-0 z-50 px-3 py-3 sm:px-6 sm:py-4 flex items-center justify-between">
-                <Link href={route('home')} className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1 group">
-                    <InstitutionalLogo size="sm" />
-                    <div className="min-w-0">
-                        <h1 className="text-sm xs:text-base sm:text-lg font-bold tracking-tight text-slate-50 leading-tight truncate group-hover:text-slate-200 transition-colors">
-                            <span className="sm:hidden">GAMEA</span>
-                            <span className="hidden sm:inline">Gobierno Autónomo Municipal de El Alto</span>
-                        </h1>
-                        <p className="hidden xs:block text-[10px] sm:text-xs text-slate-400 font-medium leading-none mt-0.5 truncate">
-                            Unidad de Transparencia y Lucha Contra la Corrupción · UTLCC
-                        </p>
-                    </div>
-                </Link>
+            <PublicHeader
+                acciones={
+                    <>
+                        <button
+                            onClick={handleToggleDarkMode}
+                            className="p-2 sm:px-3 sm:py-2 rounded-lg bg-sidebar-muted text-sidebar-foreground font-semibold text-xs sm:text-sm shadow hover:scale-105 active:scale-95 transition-all duration-200 flex items-center gap-2 cursor-pointer border border-sidebar-border"
+                            aria-label="Alternar modo oscuro"
+                        >
+                            {isDarkMode ? (
+                                <>
+                                    <Sun className="w-4 h-4 text-sidebar-accent" />
+                                    <span className="hidden md:inline">Claro</span>
+                                </>
+                            ) : (
+                                <>
+                                    <Moon className="w-4 h-4 text-sidebar-accent" />
+                                    <span className="hidden md:inline">Oscuro</span>
+                                </>
+                            )}
+                        </button>
 
-                <div className="flex items-center gap-2 sm:gap-4 shrink-0">
-                    <button
-                        onClick={handleToggleDarkMode}
-                        className="p-2 sm:px-3 sm:py-2 rounded-lg bg-slate-800 text-slate-200 font-semibold text-xs sm:text-sm shadow hover:scale-105 active:scale-95 transition-all duration-200 flex items-center gap-2 cursor-pointer border border-slate-700"
-                        aria-label="Alternar modo oscuro"
-                    >
-                        {isDarkMode ? (
-                            <>
-                                <Sun className="w-4 h-4 text-secondary" />
-                                <span className="hidden md:inline">Claro</span>
-                            </>
+                        <Link
+                            href={route('design-system')}
+                            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-sidebar-border text-sidebar-foreground/70 text-xs font-semibold hover:bg-sidebar-muted transition-colors"
+                        >
+                            <Palette className="w-3.5 h-3.5" />
+                            Guía de Estilos
+                        </Link>
+
+                        {auth.user ? (
+                            <Link
+                                href={route('dashboard')}
+                                className="px-4 py-1.5 rounded-full bg-primary text-primary-foreground text-xs sm:text-sm font-bold shadow-md hover:scale-105 transition-all duration-200 flex items-center gap-1.5"
+                            >
+                                <LayoutDashboard className="w-3.5 h-3.5" />
+                                Panel
+                            </Link>
                         ) : (
-                            <>
-                                <Moon className="w-4 h-4 text-primary" />
-                                <span className="hidden md:inline">Oscuro</span>
-                            </>
+                            <Link
+                                href={route('login')}
+                                className="px-4 py-1.5 rounded-full bg-primary text-primary-foreground text-xs sm:text-sm font-bold shadow-md hover:scale-105 transition-all duration-200 flex items-center gap-1.5"
+                            >
+                                <Lock className="w-3.5 h-3.5" />
+                                Acceder
+                            </Link>
                         )}
-                    </button>
-
-                    <Link
-                        href={route('design-system')}
-                        className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-700 text-slate-300 text-xs font-semibold hover:bg-slate-800 transition-colors"
-                    >
-                        <Palette className="w-3.5 h-3.5" />
-                        Guía de Estilos
-                    </Link>
-
-                    {auth.user ? (
-                        <Link
-                            href={route('dashboard')}
-                            className="px-4 py-1.5 rounded-full bg-primary text-primary-foreground text-xs sm:text-sm font-bold shadow-md hover:scale-105 transition-all duration-200 flex items-center gap-1.5"
-                        >
-                            <LayoutDashboard className="w-3.5 h-3.5" />
-                            Panel
-                        </Link>
-                    ) : (
-                        <Link
-                            href={route('login')}
-                            className="px-4 py-1.5 rounded-full bg-primary text-primary-foreground text-xs sm:text-sm font-bold shadow-md hover:scale-105 transition-all duration-200 flex items-center gap-1.5"
-                        >
-                            <Lock className="w-3.5 h-3.5" />
-                            Acceder
-                        </Link>
-                    )}
-                </div>
-            </header>
+                    </>
+                }
+            />
 
             <main className="flex-1 max-w-6xl mx-auto w-full px-4 py-8 sm:py-16 space-y-16">
 

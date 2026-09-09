@@ -33,7 +33,7 @@ const clasificacionColors: Record<string, string> = {
   penal: 'bg-pink-600/10 text-pink-800 border border-pink-600/30 dark:bg-pink-600/20 dark:text-pink-300',
   civil: 'bg-primary/10 text-primary border border-primary/20 dark:bg-primary/20 dark:text-primary-foreground',
   administrativo: 'bg-amber-500/15 text-amber-900 border border-amber-500/30 dark:bg-amber-500/20 dark:text-amber-300',
-  sin_indicios: 'bg-slate-100 text-slate-700 border border-slate-200 dark:bg-slate-800 dark:text-slate-300',
+  sin_indicios: 'bg-muted text-muted-foreground border border-border',
   medida_correctiva: 'bg-teal-500/10 text-teal-800 border border-teal-500/30 dark:bg-teal-500/20 dark:text-teal-300',
   archivado: 'bg-muted text-muted-foreground border border-border',
 };
