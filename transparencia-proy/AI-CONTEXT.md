@@ -20,6 +20,7 @@ Tailwind v3 · shadcn/ui (New York) · Laragon (Windows local, PHP 8.3.30)
 **Sprint 12 — Dashboard y Reportes** — Cerrado ✅ (Sep 2026)
 **Sprint 12.1 — Pulido Dashboard** — Cerrado ✅ (Sep 2026)
 **Sprint 12.2 — Rediseño Visual (Impeccable)** — Cerrado ✅ (08-sep-2026)
+**Sprint 12.3 — Pulido pre-13** — Cerrado ✅ (09-sep-2026)
 
 > **Migración Laravel 11 → 13 (01-sep-2026):** Hasta **Sprint 11 inclusive** se trabajó en **Laravel 11 / PHP 8.2.31** (Sprint 12 planeado en L11 — `31bcebd` *planeacion de sprint 12 finalizada*). Migrado directo a **Laravel 13 / PHP 8.3.30** antes de ejecutar Sprint 12. `composer.json` bump: `laravel/framework ^13.0`, `maatwebsite/excel ^4.0`, `phpunit ^12.0`, `collision ^9.0`, `tinker ^3.0`. Frontend intacto (Inertia v2 / React 18 / Tailwind v3). Tags: `pre-laravel13: 01bcc42` → `laravel-13: b91e404`. Ver `Notas Migración Laravel 13 - Cierre.md`.
 
@@ -52,6 +53,15 @@ Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (13–
 > `ListaVacia` único, Login/Perfil con tokens institucionales + dark mode, Form components
 > con tokens semánticos, UI 100% en español. Commits: `ec40137` + `1fa5980`.
 > Ver `Sprint 12.2 - Cierre Rediseño Visual.md` y `DESIGN.md` (raíz).
+>
+> **Sprint 12.3 (09-sep-2026):** Pulido pre-13. Re-critique oficial **25/40** (diseño, detector limpio;
+> gap en consistencia/densidad/copy, P0/P1 a backlog). Limpieza Breeze final
+> (`AuthenticatedLayout`, `Modal`, shim `UppercaseText` → 19 modelos a `Traits`),
+> `routes/dev.php`, `/design-system` solo-local, `SharedPageProps` sin `as any` en Layouts,
+> sidebar/header morado casi negro `#1E0A33` fijo light+dark, iconos colapsados centrados,
+> logo UTLCC (`LOGO-UTLCC.svg` + fallback PNG) en footer sidebar + login. Commits:
+> `3000beb` (A+B) + `c5ab5cc` (D) + `b2ec9b6` (C). Suite 88 tests verde.
+> Ver `Sprint 12.3 - Cierre Pulido pre-13.md`.
 
 ## Roles (post sesión con cliente, Junio 2026)
 - **Registrador** (antes "Recepcionista")
@@ -179,7 +189,7 @@ Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (13–
 3. **Sprint 13** — Tablero Público Cerrados (pendiente, siguiente)
 4. **Sprint 14** — Tiempos entre Fases (pendiente)
 
-**Estado inmediato:** Sprint 12.1 cerrado (pulido completo + paleta institucional en tokens). Suite: **88 tests**. Siguiente: Sprint 13.
+**Estado inmediato:** Sprint 12.3 cerrado (re-critique 25/40 oficial + limpieza Breeze + morado #1E0A33 + logo UTLCC). Suite: **88 tests**. Siguiente: Sprint 13.
 **Demo fresca (Sep 2026):** seeders con fechas relativas a hoy — 124 casos (85 activos: ~95% en plazo; 31 cerradas, 29 cumplidas). Siguiente ticket: 125. Time Machine solo-local en `/dev/tiempo` (+ enlace Sidebar dev-only) + alertas derivadas vivas (`AlertasPlazo`). Deuda/riesgos en `Deuda Tecnica y Riesgos.md`. Banco de 22 preguntas probadas en `Banco de Preguntas - Dashboard.md`. Rediseño visual con impeccable en `Roadmap Disenio Visual.md` (Fase 0 tokens hecha).
 
 > 🗂️ **Para Sprint 13:** ver `Sprints Pendientes - Contexto.md`. Dashboard ya usa `Queries/Dashboard/*` y `DiasHabiles` con feriados.
