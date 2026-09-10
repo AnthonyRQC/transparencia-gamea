@@ -1,11 +1,11 @@
 import React from 'react';
 import { Head, router, usePage } from '@inertiajs/react';
 import { route } from 'ziggy-js';
-import { Bell, CheckCheck, ChevronLeft, ChevronRight, SearchX } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Bell, CheckCheck, SearchX } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
 import { Input } from '@/Components/ui/input';
 import { Button } from '@/Components/ui/button';
+import Paginacion from '@/Components/Denuncias/Paginacion';
 import AppLayout from '@/Components/Layout/AppLayout';
 import PageHeader from '@/Components/Layout/PageHeader';
 import ItemNotificacion from '@/Components/Layout/ItemNotificacion';
@@ -90,7 +90,7 @@ export default function NotificacionesIndex() {
       leida: filtroLeida || undefined,
       fecha_desde: filtroDesde || undefined,
       fecha_hasta: filtroHasta || undefined,
-    }));
+    }), {}, { preserveState: true, preserveScroll: true });
   };
 
   const limpiarFiltros = () => {
@@ -98,14 +98,14 @@ export default function NotificacionesIndex() {
     setFiltroLeida('');
     setFiltroDesde('');
     setFiltroHasta('');
-    router.get(route('notificaciones.index'));
+    router.get(route('notificaciones.index'), {}, { preserveState: true, preserveScroll: true });
   };
 
   const irPagina = (page: number) => {
     aplicarFiltros(page);
   };
 
-  const { items, page, total_pages, total } = notificaciones;
+  const { items, page, total_pages, total, per_page } = notificaciones;
 
   return (
     <AppLayout>
@@ -214,52 +214,14 @@ export default function NotificacionesIndex() {
         )}
 
         {/* Paginación */}
-        {total_pages > 1 && (
-          <div className="flex items-center justify-center gap-1 mt-6">
-            <button
-              onClick={() => irPagina(page - 1)}
-              disabled={page <= 1}
-              className={cn(
-                'flex items-center gap-1 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors',
-                page <= 1
-                  ? 'text-muted-foreground/30 cursor-not-allowed'
-                  : 'text-foreground hover:bg-muted cursor-pointer',
-              )}
-            >
-              <ChevronLeft className="w-4 h-4" />
-              Anterior
-            </button>
-
-            {Array.from({ length: total_pages }, (_, i) => i + 1).map((p) => (
-              <button
-                key={p}
-                onClick={() => irPagina(p)}
-                className={cn(
-                  'w-8 h-8 text-sm font-medium rounded-lg transition-colors',
-                  p === page
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-foreground hover:bg-muted cursor-pointer',
-                )}
-              >
-                {p}
-              </button>
-            ))}
-
-            <button
-              onClick={() => irPagina(page + 1)}
-              disabled={page >= total_pages}
-              className={cn(
-                'flex items-center gap-1 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors',
-                page >= total_pages
-                  ? 'text-muted-foreground/30 cursor-not-allowed'
-                  : 'text-foreground hover:bg-muted cursor-pointer',
-              )}
-            >
-              Siguiente
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
-        )}
+        <Paginacion
+          mode="server"
+          paginaActual={page}
+          totalPaginas={total_pages}
+          totalElementos={total}
+          elementosPorPagina={per_page}
+          onPaginaChange={irPagina}
+        />
 
       </div>
     </AppLayout>
