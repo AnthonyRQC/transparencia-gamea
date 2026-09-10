@@ -51,10 +51,6 @@ function getInitials(name: string): string {
   return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
 }
 
-function formatDate(d?: string): string {
-  return formatearFechaCorta(d) ?? '';
-}
-
 export default function DescargoCard({ descargo, canAct, onClick, onNotificar, onResponder, onAmpliar, onEditar, onEliminar, onCancelar }: DescargoCardProps) {
   const badge = estadoBadge[descargo.estado] || estadoBadge.pendiente_notif;
   const isVencido = descargo.estado === 'notificado' && descargo.fecha_vencimiento && new Date(descargo.fecha_vencimiento) < new Date();
@@ -85,7 +81,7 @@ export default function DescargoCard({ descargo, canAct, onClick, onNotificar, o
 
       {descargo.fecha_notificacion && (
         <p className="text-[11px] text-muted-foreground">
-          Notificado: {formatDate(descargo.fecha_notificacion)}
+          Notificado: {formatearFechaCorta(descargo.fecha_notificacion) ?? ''}
           {descargo.medio ? ` Â· ${descargo.medio}` : ''}
         </p>
       )}

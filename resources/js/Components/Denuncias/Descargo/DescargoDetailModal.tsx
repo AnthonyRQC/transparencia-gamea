@@ -1,5 +1,5 @@
 import { User, Building2, Clock, Bell, RotateCcw, CircleCheck, FileText, History, Pencil, Trash2, ChevronDown, ChevronRight } from 'lucide-react';
-import { formatearFechaLarga } from '@/helpers/fechas';
+import { formatearFechaHora, formatearFechaLarga } from '@/helpers/fechas';
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/Components/ui/dialog';
 import { Badge } from '@/Components/ui/badge';
@@ -65,17 +65,6 @@ const MEDIOS_LABEL: Record<string, string> = {
   otro: 'Otro Medio',
 };
 
-function formatDate(d?: string): string {
-  return formatearFechaLarga(d) ?? '';
-}
-
-function formatDateTime(d?: string): string {
-  if (!d) return '';
-  return new Date(d).toLocaleString('es-BO', {
-    day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit',
-  });
-}
-
 function getInitials(name: string): string {
   return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
 }
@@ -137,10 +126,10 @@ export default function DescargoDetailModal({
         <div className="space-y-4">
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
             {descargo.fecha_notificacion && (
-              <span className="flex items-center gap-1"><Bell className="w-3 h-3" /> {formatDateTime(descargo.fecha_notificacion)}</span>
+              <span className="flex items-center gap-1"><Bell className="w-3 h-3" /> {formatearFechaHora(descargo.fecha_notificacion) ?? ''}</span>
             )}
             {descargo.fecha_respuesta && (
-              <span className="flex items-center gap-1"><CircleCheck className="w-3 h-3 text-green-500" /> {formatDateTime(descargo.fecha_respuesta)}</span>
+              <span className="flex items-center gap-1"><CircleCheck className="w-3 h-3 text-green-500" /> {formatearFechaHora(descargo.fecha_respuesta) ?? ''}</span>
             )}
           </div>
 
@@ -161,7 +150,7 @@ export default function DescargoDetailModal({
                 Notificación
               </h4>
               <div className="text-sm space-y-1">
-                <p><span className="text-muted-foreground">Fecha:</span> {formatDate(descargo.fecha_notificacion)}</p>
+                <p><span className="text-muted-foreground">Fecha:</span> {formatearFechaLarga(descargo.fecha_notificacion) ?? ''}</p>
                 {descargo.medio && <p><span className="text-muted-foreground">Medio:</span> {MEDIOS_LABEL[descargo.medio] || descargo.medio}</p>}
                 
               </div>
@@ -194,7 +183,7 @@ export default function DescargoDetailModal({
                     <div key={i} className="bg-muted/30 rounded-lg px-3 py-2 text-sm space-y-1">
                       <div className="flex items-center justify-between text-xs text-muted-foreground">
                         <span className="font-medium text-amber-600 dark:text-amber-400">+{a.dias} días</span>
-                        <span>{formatDateTime(a.fecha)}</span>
+                        <span>{formatearFechaHora(a.fecha) ?? ''}</span>
                       </div>
                       <p className="text-xs">{a.justificacion}</p>
                     </div>
@@ -268,7 +257,7 @@ export default function DescargoDetailModal({
                     <div key={i} className="text-xs bg-muted/30 rounded-lg px-3 py-2 space-y-0.5">
                       <div className="flex items-center justify-between text-muted-foreground">
                         <span className="font-medium">{campoLabel[e.campo] || e.campo}</span>
-                        <span>{formatDateTime(e.fecha)}</span>
+                        <span>{formatearFechaHora(e.fecha) ?? ''}</span>
                       </div>
                       <div className="text-muted-foreground">
                         <span className="line-through">{String(e.anterior ?? 'â€”')}</span>

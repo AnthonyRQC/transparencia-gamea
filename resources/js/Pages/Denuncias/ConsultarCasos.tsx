@@ -51,9 +51,6 @@ interface PageProps {
   filters: Record<string, string | string[] | undefined>;
 }
 
-/** @deprecated usa formatearFechaCorta del helper */
-const formatDate = (d?: string): string => formatearFechaCorta(d) ?? '—';
-
 export default function ConsultarCasos({ denuncias, tecnicos, filters }: PageProps) {
   const pageProps = usePage().props as unknown as any;
   const solicitudesByTicket = pageProps.solicitudesByTicket || {};
@@ -281,7 +278,7 @@ export default function ConsultarCasos({ denuncias, tecnicos, filters }: PagePro
                     <PlazoBadge plazo={(d.plazo || null) as any} />
                   </div>
                   <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-muted-foreground">
-                    <span>{formatDate(d.created_at)}</span>
+                    <span>{formatearFechaCorta(d.created_at) ?? '—'}</span>
                     <span>Denunciante: {denombres}</span>
                     <span>Denunciado(s): {denResumido}</span>
                     {tecnico && <span>Técnico: {tecnico.nombre}</span>}

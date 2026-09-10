@@ -27,8 +27,6 @@ const contextoColor: Record<string, string> = {
   cierre: 'bg-teal-500/10 text-teal-800 border border-teal-500/30 dark:bg-teal-500/20 dark:text-teal-300',
 };
 
-const formatDate = (d?: string): string => formatearFechaCorta(d) ?? '';
-
 export default function TablaArchivosCaso({ archivos, onEliminar, search, onSearchChange }: TablaArchivosCasoProps) {
   const filtrados = archivos.filter((a) => {
     if (!search) return true;
@@ -66,7 +64,7 @@ export default function TablaArchivosCaso({ archivos, onEliminar, search, onSear
               <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
                 <span>{a.tamano}</span>
                 <span>·</span>
-                <span>{formatDate(a.fecha_subida)}</span>
+                <span>{formatearFechaCorta(a.fecha_subida) ?? ''}</span>
                 <span className={cn('text-[10px] font-semibold px-1.5 py-0.5 rounded', contextoColor[a.contexto] || '')}>
                   {a.contexto}
                 </span>

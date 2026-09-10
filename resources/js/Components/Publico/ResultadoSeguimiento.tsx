@@ -50,8 +50,6 @@ const estadoBadge: Record<string, { label: string; color: string }> = {
   rechazada: { label: 'Rechazada', color: 'bg-pink-600/10 text-pink-800 border border-pink-600/30 dark:bg-pink-600/20 dark:text-pink-300' },
 };
 
-const formatDate = (dateStr: string | null): string => formatearFechaLarga(dateStr) ?? '—';
-
 export default function ResultadoSeguimiento({ denuncia }: ResultadoSeguimientoProps) {
   const badge = estadoBadge[denuncia.estado] ?? { label: denuncia.estado, color: 'bg-muted text-muted-foreground' };
 
@@ -94,18 +92,18 @@ export default function ResultadoSeguimiento({ denuncia }: ResultadoSeguimientoP
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
             <div>
               <p className="text-muted-foreground">Fecha de ingreso</p>
-              <p className="font-semibold text-foreground">{formatDate(denuncia.fecha_ingreso)}</p>
+              <p className="font-semibold text-foreground">{formatearFechaLarga(denuncia.fecha_ingreso) ?? '—'}</p>
             </div>
             {denuncia.fecha_vencimiento && !isRechazada && !denuncia.fecha_cierre && (
               <div>
                 <p className="text-muted-foreground">Fecha estimada de cierre</p>
-                <p className="font-semibold text-foreground">{formatDate(denuncia.fecha_vencimiento)}</p>
+                <p className="font-semibold text-foreground">{formatearFechaLarga(denuncia.fecha_vencimiento) ?? '—'}</p>
               </div>
             )}
             {denuncia.fecha_cierre && (
               <div>
                 <p className="text-muted-foreground">Fecha de cierre</p>
-                <p className="font-semibold text-foreground">{formatDate(denuncia.fecha_cierre)}</p>
+                <p className="font-semibold text-foreground">{formatearFechaLarga(denuncia.fecha_cierre) ?? '—'}</p>
               </div>
             )}
             {clasifInfo && (

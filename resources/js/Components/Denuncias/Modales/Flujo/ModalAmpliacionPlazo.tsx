@@ -44,10 +44,6 @@ interface ModalAmpliacionPlazoProps {
   tecnicos?: Record<string, TecnicoOption>;
 }
 
-function formatDate(d?: string): string {
-  return formatearFechaLarga(d) ?? '';
-}
-
 function getPlazoBase(tipo: string): number {
   if (tipo === 'corrupcion') return 45;
   if (tipo === 'negacion') return 20;
@@ -141,7 +137,7 @@ export default function ModalAmpliacionPlazo({ denuncia, open, onOpenChange, tec
             {' · '}
             {denuncia.ticket}
             {' · '}
-            Ingresada: {formatDate(denuncia.created_at)}
+            Ingresada: {formatearFechaLarga(denuncia.created_at) ?? ''}
           </DialogDescription>
         </DialogHeader>
 

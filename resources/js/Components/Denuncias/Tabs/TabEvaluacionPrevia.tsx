@@ -31,8 +31,6 @@ const recomendacionColor: Record<string, string> = {
   rechazar: 'bg-pink-600/10 text-pink-700 border border-pink-600/30 dark:text-pink-300',
 };
 
-const formatDate = (d?: string): string => formatearFechaLarga(d) ?? '';
-
 export default function TabEvaluacionPrevia({ evaluaciones = [] }: TabEvaluacionPreviaProps) {
   const [expanded, setExpanded] = useState<Record<number, boolean>>({});
 
@@ -70,7 +68,7 @@ export default function TabEvaluacionPrevia({ evaluaciones = [] }: TabEvaluacion
                     <UserCheck className="w-3.5 h-3.5 text-blue-500" />
                     <span className="font-medium">{e.tecnico_nombre}</span>
                     <span className="text-xs text-muted-foreground">
-                      delegado el {formatDate(e.delegada_at)}
+                      delegado el {formatearFechaLarga(e.delegada_at) ?? ''}
                     </span>
                   </div>
                   {e.justificacion_delegacion && (
@@ -86,7 +84,7 @@ export default function TabEvaluacionPrevia({ evaluaciones = [] }: TabEvaluacion
                     <div className="space-y-1.5">
                       <div className="flex items-center gap-2 text-sm">
                         <History className="w-3.5 h-3.5 text-amber-500" />
-                        <span className="font-medium">Devuelta el {formatDate(e.devuelta_at)}</span>
+                        <span className="font-medium">Devuelta el {formatearFechaLarga(e.devuelta_at) ?? ''}</span>
                         {e.recomendacion && (
                           <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${recomendacionColor[e.recomendacion] || ''}`}>
                             Recomienda: {recomendacionLabel[e.recomendacion] || e.recomendacion}

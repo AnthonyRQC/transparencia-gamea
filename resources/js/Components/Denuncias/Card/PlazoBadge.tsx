@@ -26,10 +26,6 @@ const labels: Record<string, string> = {
   red: 'vencido',
 };
 
-function formatDate(dateStr?: string): string {
-  return formatearFechaLarga(dateStr) ?? '';
-}
-
 export default function PlazoBadge({ plazo }: PlazoBadgeProps) {
   if (!plazo) return null;
 
@@ -60,7 +56,7 @@ export default function PlazoBadge({ plazo }: PlazoBadgeProps) {
         </TooltipTrigger>
         <TooltipContent side="top" className="text-xs flex items-center gap-1.5">
           <CalendarClock className="w-3.5 h-3.5 text-muted-foreground" />
-          Vence el <strong>{formatDate(plazo.fecha_vencimiento)}</strong>
+          Vence el <strong>{formatearFechaLarga(plazo.fecha_vencimiento) ?? ''}</strong>
           {plazo.dias_restantes > 0 ? (
             <> — Quedan <strong>{plazo.dias_restantes} día{plazo.dias_restantes !== 1 ? 's' : ''}</strong></>
           ) : plazo.dias_restantes === 0 ? (

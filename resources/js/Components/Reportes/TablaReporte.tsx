@@ -30,8 +30,6 @@ interface Props {
     estados: Record<string, string>;
 }
 
-const formatDate = (d?: string | null): string => formatearFechaCorta(d) ?? '—';
-
 export default function TablaReporte({ rows, estados }: Props) {
     return (
         <div className="border border-border rounded-xl bg-card overflow-x-auto">
@@ -77,7 +75,7 @@ export default function TablaReporte({ rows, estados }: Props) {
                                             <span className="text-muted-foreground text-xs">—</span>
                                         )}
                                     </TableCell>
-                                    <TableCell className="text-xs">{formatDate(r.created_at)}</TableCell>
+                                    <TableCell className="text-xs">{formatearFechaCorta(r.created_at) ?? '—'}</TableCell>
                                     <TableCell className="text-right">
                                         <Link
                                             href="/denuncias"

@@ -1,5 +1,4 @@
 import { Building2, CircleCheck, Clock, RotateCcw, XCircle, Pencil, Trash2 } from 'lucide-react';
-import { formatearFechaCorta } from '@/helpers/fechas';
 import PlazoProgress from '../Card/PlazoProgress';
 import { Badge } from '@/Components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/Components/ui/tooltip';
@@ -42,8 +41,6 @@ const estadoBadge: Record<string, { label: string; variant: 'default' | 'seconda
   ampliada: { label: 'Ampliada', variant: 'secondary' },
   cancelada: { label: 'Cancelada', variant: 'outline' },
 };
-
-const formatDate = (d?: string): string => formatearFechaCorta(d) ?? '';
 
 function daysAgo(d?: string): string {
   if (!d) return '';

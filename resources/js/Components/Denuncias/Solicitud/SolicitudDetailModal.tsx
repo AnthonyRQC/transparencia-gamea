@@ -57,9 +57,6 @@ interface SolicitudDetailModalProps {
   onEliminar?: (id: number) => void;
 }
 
-const formatDate = (d?: string): string => formatearFechaLarga(d) ?? '';
-const formatDateTime = (d?: string): string => formatearFechaHora(d) ?? '';
-
 const estadoBadgeVar: Record<string, { label: string; variant: 'default' | 'secondary' | 'outline' | 'destructive' }> = {
   pendiente: { label: 'Pendiente', variant: 'outline' },
   respondida: { label: 'Respondida', variant: 'default' },
@@ -110,12 +107,12 @@ export default function SolicitudDetailModal({
 
         <div className="space-y-4">
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {formatDateTime(solicitud.fecha_envio)}</span>
+            <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {formatearFechaHora(solicitud.fecha_envio) ?? ''}</span>
             {solicitud.fecha_respuesta && (
-              <span className="flex items-center gap-1"><CircleCheck className="w-3 h-3 text-green-500" /> {formatDateTime(solicitud.fecha_respuesta)}</span>
+              <span className="flex items-center gap-1"><CircleCheck className="w-3 h-3 text-green-500" /> {formatearFechaHora(solicitud.fecha_respuesta) ?? ''}</span>
             )}
             {solicitud.fecha_cancelacion && (
-              <span className="flex items-center gap-1"><XCircle className="w-3 h-3 text-red-400" /> {formatDateTime(solicitud.fecha_cancelacion)}</span>
+              <span className="flex items-center gap-1"><XCircle className="w-3 h-3 text-red-400" /> {formatearFechaHora(solicitud.fecha_cancelacion) ?? ''}</span>
             )}
           </div>
 
@@ -128,7 +125,7 @@ export default function SolicitudDetailModal({
           <div className="text-[11px] text-muted-foreground flex items-center gap-3">
             <span>Plazo original: <strong>{plazoOriginal}d hábiles</strong></span>
             {countAmplDias > 0 && <span>Ampliado: <strong>+{countAmplDias}d hábiles</strong></span>}
-            <span>Vence: <strong>{formatDate(solicitud.fecha_vencimiento)}</strong></span>
+            <span>Vence: <strong>{formatearFechaLarga(solicitud.fecha_vencimiento) ?? ''}</strong></span>
           </div>
 
           <Separator />
@@ -177,7 +174,7 @@ export default function SolicitudDetailModal({
                     <div key={i} className="bg-muted/30 rounded-lg px-3 py-2 text-sm space-y-1">
                       <div className="flex items-center justify-between text-xs text-muted-foreground">
                         <span className="font-medium text-amber-600 dark:text-amber-400">+{a.dias} días</span>
-                        <span>{formatDateTime(a.fecha)}</span>
+                        <span>{formatearFechaHora(a.fecha) ?? ''}</span>
                       </div>
                       <p className="text-xs">{a.justificacion}</p>
                     </div>
@@ -247,7 +244,7 @@ export default function SolicitudDetailModal({
                     <div key={i} className="text-xs bg-muted/30 rounded-lg px-3 py-2 space-y-0.5">
                       <div className="flex items-center justify-between text-muted-foreground">
                         <span className="font-medium">{campoLabel[e.campo] || e.campo}</span>
-                        <span>{formatDateTime(e.fecha)}</span>
+                        <span>{formatearFechaHora(e.fecha) ?? ''}</span>
                       </div>
                       <div className="text-muted-foreground">
                         <span className="line-through">{String(e.anterior ?? 'â€”')}</span>
