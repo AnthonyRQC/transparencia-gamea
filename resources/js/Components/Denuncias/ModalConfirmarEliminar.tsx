@@ -1,1 +1,1 @@
-﻿export { default } from "./Modales/General/ModalConfirmarEliminar";
+﻿export { default } from "./Shared/ConfirmDialog";

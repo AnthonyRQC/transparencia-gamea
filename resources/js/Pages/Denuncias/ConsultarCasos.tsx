@@ -1,8 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { formatearFechaCorta } from '@/helpers/fechas';
 import { Head, router, usePage } from '@inertiajs/react';
-import { Search, Eye, Key, ChevronDown, ChevronUp, Pencil, Trash2 } from 'lucide-react';
-import { toast } from 'sonner';
+import { Search, Eye, Key, ChevronDown, ChevronUp, Pencil } from 'lucide-react';
 import AppLayout from '@/Components/Layout/AppLayout';
 import PageHeader from '@/Components/Layout/PageHeader';
 import DenunciaSheet from '@/Components/Denuncias/DenunciaSheet';
@@ -10,7 +9,6 @@ import TipoDenunciaBadge from '@/Components/Denuncias/TipoDenunciaBadge';
 import PlazoBadge from '@/Components/Denuncias/PlazoBadge';
 import ModalConsultarCodigo from '@/Components/Denuncias/ModalConsultarCodigo';
 import ModalEditarDenuncia from '@/Components/Denuncias/ModalEditarDenuncia';
-import ModalConfirmarEliminar from '@/Components/Denuncias/ModalConfirmarEliminar';
 import Paginacion from '@/Components/Denuncias/Paginacion';
 import ListaVacia from '@/Components/Denuncias/ListaVacia';
 import { Input } from '@/Components/ui/input';
@@ -54,27 +52,6 @@ export default function ConsultarCasos({ denuncias, tecnicos, filters }: PagePro
   const [selectedDenuncia, setSelectedDenuncia] = useState<Denuncia | null>(null);
   const [codigoModal, setCodigoModal] = useState<{ ticket: string; token: string } | null>(null);
   const [modalEditarDenuncia, setModalEditarDenuncia] = useState<Denuncia | null>(null);
-  const [modalEliminarDenuncia, setModalEliminarDenuncia] = useState<Denuncia | null>(null);
-  const [deleting, setDeleting] = useState(false);
-
-  const handleEliminarDenuncia = () => {
-    if (!modalEliminarDenuncia) return;
-    setDeleting(true);
-    router.post(
-      route('denuncias.eliminar', { ticket: modalEliminarDenuncia.ticket }),
-      {},
-      {
-        preserveScroll: false,
-        onSuccess: () => {
-          toast.success(`Denuncia ${modalEliminarDenuncia.ticket} eliminada correctamente`);
-          setModalEliminarDenuncia(null);
-          router.reload();
-        },
-        onError: () => toast.error('Error al eliminar la denuncia'),
-        onFinish: () => setDeleting(false),
-      }
-    );
-  };
   const [filterBusqueda, setFilterBusqueda] = useState(filters.busqueda as string || '');
   const [filterTicket, setFilterTicket] = useState(filters.ticket as string || '');
   const [filterEstado, setFilterEstado] = useState<string[]>((filters.estado as string) ? (filters.estado as string).split(',') : []);

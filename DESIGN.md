@@ -1,6 +1,6 @@
 # DESIGN.md — Sistema UTLCC / GAMEA
 
-> Fuente de verdad visual. Actualizado post Sprint 12.2 (Sep 2026). Modo impeccable: **Operate**.
+> Fuente de verdad visual. Actualizado post Sprint 12.5 R1 (Sep 2026). Modo impeccable: **Operate**.
 > Audiencia: Jefe de Unidad y técnicos, abogados no-técnicos. Hardware: 15" 1280×720 sin scroll + Full HD, light y dark.
 
 ---
@@ -70,9 +70,9 @@ Función única en **`resources/js/helpers/fechas.ts`**:
 
 | Función | Formato de salida | Usar cuando |
 |---|---|---|
-| `formatearFechaCorta(d)` | `12 sep. 2026` | Tablas, chips compactos |
-| `formatearFechaLarga(d)` | `12 de septiembre de 2026` | Detalles, modales, informes |
-| `formatearFechaHora(d)` | `12 de septiembre de 2026, 14:35` | Timestamps de actividad |
+| `formatearFechaCorta(d)` | `5 sep 2026` | Tablas, chips compactos |
+| `formatearFechaLarga(d)` | `5 de septiembre de 2026` | Detalles, modales, informes |
+| `formatearFechaHora(d)` | `05/09/2026, 14:30` | Timestamps de actividad |
 | `hoyISO()` | `2026-09-08` | Valor inicial de `<input type="date">` |
 
 > Nunca usar `new Date().toLocaleDateString(...)` inline. Toda lógica de fecha pasa por `fechas.ts`.
@@ -88,6 +88,41 @@ Props: `icon`, `titulo`, `descripcion`, `accionLabel?`, `onAccion?`. No crear me
 ### Diálogos / Modales
 Usar **`Dialog`** de Shadcn (`resources/js/Components/ui/dialog.tsx`).
 El `Modal.tsx` Breeze legacy fue **eliminado en Sprint 12.3** (cero consumers).
+
+### Badges y semantica
+Fuente unica: **`resources/js/Components/Denuncias/Shared/semantica.ts`** (Sprint 12.5 R1.1).
+Mapas: `PLAZO_COLOR`, `CLASIFICACION_COLOR`, `SOLICITUD_ESTADO`, `DESCARGO_ESTADO`,
+`ESCENARIO_LABEL`, `RECOMENDACION_COLOR`/`RECOMENDACION_LABEL`, `ETIQUETAS_ESTADO_CORTO`,
+`BOTON_CANCELAR_CARD`/`BOTON_CANCELAR_MODAL`, `PLAZO_BORDE`, `RESUMEN_COLOR`.
+`ETIQUETAS_TIPO` vive en `resources/js/constants/estados.ts` (re-export en `types/dashboard.ts`).
+Regla fija: **`pink-600 -> destructive` en badges** (el magenta queda solo para graficos Recharts).
+Excepciones: barra solida `PlazoProgress` (por diseno) y tabs de `MisCasos` (no son estados).
+
+### Avatares
+Unico: **`resources/js/Components/Denuncias/Shared/TecnicoAvatar.tsx`** (R1.3).
+Primera letra del nombre en mayuscula. Props: `nombre`, `color` (clase dinamica),
+`colorHex` (hex inline), `size` (`xs`=20px, `sm`=28px, `md`=36px), `tone` (`color`|`muted`),
+`className`. No envolver en button/tooltip (el caller conserva su wrapper).
+No crear avatares manuales ni `getInitials` (eliminados).
+
+### Paginacion
+Unica: **`resources/js/Components/Denuncias/Shared/Paginacion.tsx`** (R1.4).
+`mode="client"` (Anterior/Pagina X de Y/Siguiente + contador, prop `itemLabel`) y
+`mode="server"` (botones numerados; el padre hace `router.get` con `preserveState`/`preserveScroll`).
+No crear paginaciones inline (Notificaciones migrada).
+
+### Dialogos de confirmacion
+Unico: **`resources/js/Components/Denuncias/Shared/ConfirmDialog.tsx`**
+(`variant=confirm|delete|deactivate`, R1.5). Barrels `Denuncias/ModalConfirmar*.tsx`
+por compatibilidad. Copies verbatim por variante (riesgo legal/auditoria).
+No crear nuevos dialogos de confirmacion.
+
+### Reglas de no-duplicacion (R1)
+1. Fechas solo via `helpers/fechas.ts` (prohibido `formatDate`/`formatDateTime` locales).
+2. Badges, colores y etiquetas solo via `semantica.ts` (+ `constants/estados.ts`).
+3. Avatares solo `TecnicoAvatar`. 4. Paginacion solo `Paginacion`.
+5. Confirmaciones solo `ConfirmDialog`. 6. Vacios solo `ListaVacia`
+(tablas: fila `colSpan`; superficie publica: estados propios).
 
 ---
 

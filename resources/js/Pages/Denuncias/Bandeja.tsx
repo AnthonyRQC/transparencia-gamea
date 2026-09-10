@@ -1000,8 +1000,9 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
         cargaTecnicos={cargaTecnicos}
       />
       <ModalConfirmar
-        isOpen={modalReasumirEvaluacionTicket !== null}
-        onClose={() => setModalReasumirEvaluacionTicket(null)}
+        variant="confirm"
+        open={modalReasumirEvaluacionTicket !== null}
+        onOpenChange={(v) => { if (!v) setModalReasumirEvaluacionTicket(null); }}
         onConfirm={() => {
           if (!modalReasumirEvaluacionTicket) return;
           const ticket = modalReasumirEvaluacionTicket;
@@ -1014,8 +1015,8 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
             onError: () => toast.error('Error al reasumir evaluación'),
           });
         }}
-        title="¿Reasumir evaluación?"
-        message="El técnico ya no tendrá esta delegación. La denuncia volverá a 'Por admitir'."
+        titulo="¿Reasumir evaluación?"
+        descripcion="El técnico ya no tendrá esta delegación. La denuncia volverá a 'Por admitir'."
         confirmText="Sí, reasumir"
         cancelText="Cancelar"
       />
@@ -1027,8 +1028,9 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
       />
 
       <ModalConfirmar
-        isOpen={modalEliminarDenunciaTicket !== null}
-        onClose={() => setModalEliminarDenunciaTicket(null)}
+        variant="confirm"
+        open={modalEliminarDenunciaTicket !== null}
+        onOpenChange={(v) => { if (!v) setModalEliminarDenunciaTicket(null); }}
         onConfirm={() => {
           if (!modalEliminarDenunciaTicket) return;
           const ticket = modalEliminarDenunciaTicket;
@@ -1043,8 +1045,8 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
             onError: () => toast.error('Error al eliminar denuncia'),
           });
         }}
-        title="¿Eliminar denuncia?"
-        message="Esta denuncia se ocultará del sistema. Los datos se conservarán para auditoría."
+        titulo="¿Eliminar denuncia?"
+        descripcion="Esta denuncia se ocultará del sistema. Los datos se conservarán para auditoría."
         confirmText="Sí, eliminar"
         cancelText="Cancelar"
       />

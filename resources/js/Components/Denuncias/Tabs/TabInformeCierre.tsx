@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/Components/ui/tabs';
 import { FileText, Archive, Trash2 } from 'lucide-react';
 import FormInformeFinal from '../Modales/InformeCierre/FormInformeFinal';
 import FormCierre from '../Modales/InformeCierre/FormCierre';
-import ModalConfirmarEliminar from '../Modales/General/ModalConfirmarEliminar';
+import ModalConfirmarEliminar from '@/Components/Denuncias/ModalConfirmarEliminar';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { toast } from 'sonner';

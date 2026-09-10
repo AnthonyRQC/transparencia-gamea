@@ -19,7 +19,7 @@ import {
     TableRow,
 } from '@/Components/ui/table';
 import ModalEditarItem from './ModalEditarItem';
-import ModalConfirmarDesactivar from './ModalConfirmarDesactivar';
+import ConfirmDialog from '@/Components/Denuncias/Shared/ConfirmDialog';
 
 interface ColumnConfig {
     key: string;
@@ -797,7 +797,8 @@ export default function TablaCatalogo({
                 padre_options={es_arbol ? padreOptionsFiltrados : []}
             />
 
-            <ModalConfirmarDesactivar
+            <ConfirmDialog
+                variant="deactivate"
                 open={confirmOpen}
                 onOpenChange={(open) => {
                     setConfirmOpen(open);
@@ -810,7 +811,7 @@ export default function TablaCatalogo({
                     : confirmItem && !isInactivo(confirmItem)
                         ? 'Desactivar elemento'
                         : 'Reactivar elemento'}
-                nombreItem={confirmItem ? String(confirmItem.nombre ?? confirmItem.clave ?? confirmItem.id) : ''}
+                itemNombre={confirmItem ? String(confirmItem.nombre ?? confirmItem.clave ?? confirmItem.id) : ''}
                 dependencias={confirmMode === 'eliminar' ? [] : confirmItem && !isInactivo(confirmItem) ? getDependencias(confirmItem) : []}
                 processing={processing}
             />

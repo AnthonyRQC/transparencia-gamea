@@ -523,8 +523,9 @@ export default function RegistroDenuncia() {
             </div>
 
             <ModalConfirmar
-                isOpen={showCancelConfirm}
-                onClose={() => setShowCancelConfirm(false)}
+                variant="confirm"
+                open={showCancelConfirm}
+                onOpenChange={(v) => { if (!v) setShowCancelConfirm(false); }}
                 onConfirm={() => {
                     setForm(initialForm);
                     toast.info('Formulario cancelado y restablecido');
