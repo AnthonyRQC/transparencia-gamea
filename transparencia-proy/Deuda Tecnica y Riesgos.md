@@ -74,6 +74,7 @@
 | B2 | God backend (`CatalogoController:527`, seeders) | 21 | Extraer Services/Queries |
 | B3 | `43× as any` resto + split `routes/web.php` | 21 | Layouts ya hechos en 12.3 |
 | B4 | OWASP + E2E Playwright | 21 | `owasp-security`, `e2e-playwright-testing` |
+| B5 | Avatar: color paleta oficial + hash fallback | 18 | D7: hook `creating` + picker Perfil + migrar `bg-*` legacy; `TecnicoAvatar` resuelve clave → clase |
 
 **Guardarraíl pre-13 (no arrastrar deuda contagiosa):** no nuevos wrappers
 `formatDate`, no avatares manuales, importar de `constants/semantica.ts`,

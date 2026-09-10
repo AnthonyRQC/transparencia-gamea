@@ -64,3 +64,16 @@
   (query `cerrada` + `with clasificacion` + índice `estado/cerrado_at`) +
   guardarraíl: no nuevos wrappers `formatDate`, no avatares manuales, importar de
   los shared nuevos.
+
+## D7 — Color de avatar a paleta oficial, todo en Sprint 18 (10-sep-2026)
+
+- **Hallazgo:** `users.color` guarda clases Tailwind arbitrarias (`bg-purple-500`,
+  `bg-blue-500`… en `UserSeeder`) fuera de la paleta oficial y sin `safelist` en
+  `tailwind.config.js` → probablemente sin CSS generado en build; además `Header`
+  lo consume como hex en `style={{ backgroundColor }}` → cae a `bg-sidebar-accent`.
+- **Decisión:** nada ahora; todo en Sprint 18 (Panel Usuario / gestión de usuarios):
+  hook `creating` asigna random de paleta oficial (guardar **clave**, no clase CSS),
+  picker en Perfil (hoy avatar read-only), migración de legacy `bg-*`,
+  `TecnicoAvatar` resuelve clave → clase literal (garantiza CSS en build + dark).
+- **Paleta propuesta** (texto blanco, literales en fuente): `bg-primary`,
+  `bg-teal-600`, `bg-amber-500`, `bg-[#431377]`, `bg-secondary`, `bg-slate-500`.

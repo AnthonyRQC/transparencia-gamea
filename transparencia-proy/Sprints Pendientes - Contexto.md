@@ -595,6 +595,12 @@ Se implementa después de tener la BD (Sprint 9.2), los roles (Sprint 16) y la a
 
 #### 1. Perfil
 - Avatar/iniciales (read-only)
+- **Avatar: color de paleta oficial (decisión D7 10-sep-2026, ver `Decisiones 12.5 - 13 (Log).md`):**
+  auto-asignar random al crear usuario (hook `creating`, guardar **clave** de paleta,
+  no clase CSS) + picker en Perfil + migrar legacy `bg-*` de `UserSeeder`
+  (hoy arbitrarios y sin safelist → sin CSS en build; `Header` los usa como hex).
+  `TecnicoAvatar` resuelve clave → clase literal. Paleta propuesta: `bg-primary`,
+  `bg-teal-600`, `bg-amber-500`, `bg-[#431377]`, `bg-secondary`, `bg-slate-500`.
 - Nombre completo (editable)
 - Email de contacto (editable)
 - Teléfono (editable)
