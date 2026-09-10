@@ -194,7 +194,7 @@ Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (13–
 > (semántica/fechas/avatar/paginación/confirm); R2 + auditoría backend → Sprint 21.
 > Decisiones en `Decisiones 12.5 - 13 (Log).md`.
 
-**Estado inmediato:** Sprint 12.3 cerrado (re-critique 25/40 oficial + limpieza Breeze + morado #1E0A33 + logo UTLCC). Suite: **88 tests**. Pre-13: R1 del plan 12.5. Siguiente: Sprint 13 Portal (cortes 13.1 muro / 13.2 generales / 13.3 casos).
+**Estado inmediato:** Sprint 12.3 cerrado + R1 del plan 12.5 cerrado (10-sep-2026: semantica/avatar/paginacion/dialogos; ver `Sprint 12.5 - Cierre R1 Refactor Mantenibilidad.md`). Suite: **88 tests**. Siguiente: Sprint 13 Portal (cortes 13.1 muro / 13.2 generales / 13.3 casos).
 **Demo fresca (Sep 2026):** seeders con fechas relativas a hoy — 124 casos (85 activos: ~95% en plazo; 31 cerradas, 29 cumplidas). Siguiente ticket: 125. Time Machine solo-local en `/dev/tiempo` (+ enlace Sidebar dev-only) + alertas derivadas vivas (`AlertasPlazo`). Deuda/riesgos en `Deuda Tecnica y Riesgos.md`. Banco de 22 preguntas probadas en `Banco de Preguntas - Dashboard.md`. Rediseño visual con impeccable en `archivo/roadmap/Roadmap Disenio Visual.md` (Fase 0 tokens hecha).
 
 > 🗂️ **Para Sprint 13:** ver `Sprint 13 - Portal Panel Informativo (Plan).md` (spec vigente) + `Decisiones 12.5 - 13 (Log).md`. El §13 de `Sprints Pendientes - Contexto.md` está DEPRECATED. Dashboard ya usa `Queries/Dashboard/*` y `DiasHabiles` con feriados.
