@@ -1,6 +1,7 @@
 # Sprint 13 — Portal Panel Informativo (Plan)
 
-> **Estado:** PLANIFICADO (no ejecutado) · **Fecha plan:** 09-sep-2026
+> **Estado:** PLANIFICADO (no ejecutado) · **Fecha plan:** 09-sep-2026 ·
+> **Congelado:** D8 10-sep-2026 (ver `Decisiones 12.5 - 13 (Log).md`) — sin dudas abiertas.
 > **Origen:** digitalizar el panel físico colgado afuera de la UTLCC (hojas de avisos:
 > instructivos generales, respuestas a notas de otras unidades/direcciones/dependencias,
 > notificaciones a denunciantes, comunicados a la población y de la unidad).
@@ -31,46 +32,55 @@
 
 | Corte | Contenido | Reusa |
 |---|---|---|
-| **13.1 Muro público** | Grid filtrable + cards por tipo/prioridad + paginación + historial/archivo por vigencia. Filtros: tipo + búsqueda (radicado/expediente/palabra) | `R1.1 semantica` (chips/badges), `R1.2 fechas`, `R1.4 Paginacion`, `ListaVacia`, `FiltrosCaso` (patrón, no el componente R2 aún) |
-| **13.2 Generales (email simple)** | Form Jefe: título + cuerpo breve + tipo + prioridad + adjuntos + vigencia hasta. Regla: exige `cuerpo o PDF` | `R1.5 ConfirmDialog`, `R2.1 FormDialog` (patrón; componente cuando exista), `helpers/fechas.ts` |
-| **13.3 Casos (estructurada)** | Botón en denuncia admitida/rechazada/cerrada → borrador precargado con whitelist → revisión y aprobación Jefe → publica. 1 caso → N avisos (admitida / rechazada / estado final / informe) | `SeguimientoController`, `TableroCasosCerrados` (13-viejo como base del query) |
+| **13.1 Muro público + catálogos** | Sección en Welcome bajo consulta (info/preguntas al final): grid filtrable (tipo + texto + fecha, server-side) + cards por tipo + `Paginacion server` (6-9 por página) + botón en `/seguimiento` ("ver avisos de mi caso" → `?buscar=` parcial, sin PIN). Migración + seed `tipos_publicacion` (7) y `prioridades_publicacion` (3) + 2 pestañas en Panel Catálogos | `R1.1 semantica` (chips/badges), `R1.2 fechas`, `R1.4 Paginacion`, `ListaVacia` |
+| **13.2 Generales (email simple)** | Página `/admin/publicaciones` (Jefe + Registrador): tabla con flechas para `orden` de fijadas + form (tipo, prioridad, CITE, fecha_doc, emisor default UTLCC, destinatario, ref/título, resumen, cuerpo, PDF opcional + warning `ConfirmDialog`, referencia_externa). Regla: exige `cuerpo o PDF` | `R1.5 ConfirmDialog`, `PageHeader`, `helpers/fechas.ts` |
+| **13.3 Casos (estructurada)** | Checkbox default-on en `ModalAdmision`/`ModalRechazo` + borrador auto en cierre (evento admitida/rechazada/cerrada) → borrador editable (downgrade destinatario, PDF, referencia_externa) → publica Jefe o Registrador. Unicidad (denuncia,evento) → banner Sheet + badge "Sin aviso". Publicado editable con fecha de actualización | `SeguimientoController`, `TableroCasosCerrados` (13-viejo como base del query) |
 
 ## 3. Modelo BD (propuesta mínima)
 
 ```
 tipos_publicacion        — catálogo (clave UNIQUE, nombre MAYÚSCULAS, activa,
-                           fecha_desactivacion, desactivado_por_id). Seed:
-                           instructivo, respuesta_nota, notificacion_caso,
-                           comunicado_poblacion, comunicado_unidad.
+                           fecha_desactivacion, desactivado_por_id). Seed (7):
+                           admitida, rechazada, cierre_caso, instructivo,
+                           respuesta_nota, comunicado, otro.
 prioridades_publicacion  — catálogo (ordinario, prioritario, urgente; protegidas).
-publicaciones            — id, tipo_id FK, prioridad_id FK, titulo (máx 140),
+publicaciones            — id, tipo_id FK, prioridad_id FK, cite (texto libre,
+                           searchable), fecha_documento date, emisor (texto,
+                           default UTLCC), destinatario_display (texto),
+                           ref_titulo (máx 140), resumen nullable,
                            cuerpo nullable, denuncia_id nullable FK → denuncias,
-                           evento nullable (admitida/rechazada/final/informe),
+                           evento nullable (admitida/rechazada/cerrada),
                            publicado_por_id FK → users, publicado_at,
-                           vence_at nullable (→ archivo automático), archivada bool.
+                           fijada bool default false, orden int default 0,
+                           UNIQUE (denuncia_id, evento) donde aplica.
 publicacion_archivos     — id, publicacion_id FK, path (disco PÚBLICO),
                            mime (pdf/jpg/png), tamano, hash SHA256.
 ```
 
-> **Notas:** `denuncia_id` + `evento` permiten N avisos por caso. Adjuntos en disco
+> **Notas:** `denuncia_id` + `evento` permiten N avisos por caso (unicidad =
+> indicador "sin aviso"). `referencia_externa` va en `ref_titulo`/`resumen`
+> (texto libre: SIPRECO/RA/CITE/HR, sin validación). Adjuntos en disco
 > público (distinto de `denuncias_archivos`, que es privado). Límite sugerido:
-> 10–20 MB, máx 3–5 archivos. Tipos/prioridades se gestionan en Panel Catálogos
-> (7 → 9 pestañas, mismo patrón que `clasificaciones`/`medios_notificacion`).
+> 20 MB, máx 3-5 archivos. Muro permanente (sin `vence_at`, sin archivo):
+> fijadas por `orden` manual, resto por `publicado_at` desc. Tipos/prioridades
+> se gestionan en Panel Catálogos (7 → 9 pestañas, mismo patrón que
+> `clasificaciones`/`medios_notificacion`).
 
 ## 4. Whitelist de anonimización (muro + PDFs listados)
 
-**Permitido:** ticket parcial (`DEN-2026-XXXX`), tipo denuncia, evento/estado,
+**Permitido:** ticket DEN completo (`DEN-2026-0001`, sin PIN en ningún lado), tipo denuncia, evento/estado,
 clasificación final (si cerrada), fechas publicación/cierre, dependencia emisora,
 radicado/expediente del aviso.
 **Prohibido:** denunciante, denunciados, hechos, token/PIN, archivos privados del caso.
 
 ## 5. Validaciones
 
-- `titulo` requerido, máx 140. `tipo_id` + `prioridad_id` requeridos.
-- `cuerpo` o ≥1 adjunto requerido (uno de los dos).
-- `denuncia_id` solo con `tipo = notificacion_caso` + `evento` válido.
-- Solo Jefe publica/despublica/archiva (frontend por permisos `useCan`, formal en Sprint 16).
-- `vence_at` > `publicado_at` cuando se informa.
+- `ref_titulo` requerido, máx 140. `tipo_id` + `prioridad_id` requeridos.
+- `cuerpo` o ≥1 adjunto requerido (uno de los dos) + warning si no hay PDF.
+- `denuncia_id` solo con `tipo` de caso + `evento` válido (admitida/rechazada/cerrada).
+- Publican Jefe + Registrador (frontend `useCan`, formal en Sprint 16); trazabilidad
+  en `publicado_por_id`. Sin `vence_at`: muro permanente.
+- Ticket DEN completo visible y buscable (sin PIN en ningún lado).
 
 ## 6. Gates por corte (igual que 12.5)
 

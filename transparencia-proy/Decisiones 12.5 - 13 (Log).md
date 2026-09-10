@@ -66,7 +66,6 @@
   los shared nuevos.
 
 ## D7 — Color de avatar a paleta oficial, todo en Sprint 18 (10-sep-2026)
-
 - **Hallazgo:** `users.color` guarda clases Tailwind arbitrarias (`bg-purple-500`,
   `bg-blue-500`… en `UserSeeder`) fuera de la paleta oficial y sin `safelist` en
   `tailwind.config.js` → probablemente sin CSS generado en build; además `Header`
@@ -77,3 +76,25 @@
   `TecnicoAvatar` resuelve clave → clase literal (garantiza CSS en build + dark).
 - **Paleta propuesta** (texto blanco, literales en fuente): `bg-primary`,
   `bg-teal-600`, `bg-amber-500`, `bg-[#431377]`, `bg-secondary`, `bg-slate-500`.
+
+## D3-rev — Publican Jefe + Registrador (10-sep-2026, revierte D3)
+
+- D3 decía solo-Jefe para avisos de caso. Decisión final: Jefe + Registrador
+  publican todo (generales y casos); el flujo sigue borrador → publicar con
+  `publicado_por_id` como trazabilidad. Equipo de 5, sin cuello de botella.
+
+## D8 — Congelamiento spec Sprint 13 (10-sep-2026, sin dudas abiertas)
+
+1. Welcome sin página nueva (hero → consulta → panel → info → preguntas).
+2. Ticket DEN completo visible/buscable; externos a `referencia_externa` libre.
+3. Tipos seed (7): admitida, rechazada, cierre_caso, instructivo, respuesta_nota,
+   comunicado, otro. Prioridades (3): ordinario, prioritario, urgente.
+4. PDF-first, cuerpo-o-PDF, warning sin-adjunto (`ConfirmDialog confirm`).
+5. Destinatario auto por escenario + downgrade puntual en el aviso.
+6. Triggers admitida/rechazada/cerrada (checkbox default-on; borrador auto en cierre).
+7. Unicidad (caso,evento) → banner Sheet + badge "Sin aviso".
+8. Muro permanente (sin `vence_at`); fijadas por `orden` manual, resto recientes;
+   botón seguimiento con parcial (sin PIN).
+9. 14 campos de aviso (con `emisor` default UTLCC); publicado editable con
+   fecha de actualización.
+10. Fases 13.1 → 13.2 → 13.3. Detalle en `Sprint 13 - Portal Panel Informativo (Plan).md`.
