@@ -3,6 +3,7 @@ import { Separator } from '@/Components/ui/separator';
 import { ChevronDown, ChevronRight, History, FileSearch, UserCheck } from 'lucide-react';
 import ListaVacia from '../Shared/ListaVacia';
 import { formatearFechaLarga } from '@/helpers/fechas';
+import { RECOMENDACION_COLOR as recomendacionColor, RECOMENDACION_LABEL as recomendacionLabel } from '../Shared/semantica';
 
 interface EvaluacionEntry {
   id: number;
@@ -20,16 +21,6 @@ interface EvaluacionEntry {
 interface TabEvaluacionPreviaProps {
   evaluaciones?: EvaluacionEntry[];
 }
-
-const recomendacionLabel: Record<string, string> = {
-  admitir: 'Admitir',
-  rechazar: 'Rechazar',
-};
-
-const recomendacionColor: Record<string, string> = {
-  admitir: 'bg-teal-500/10 text-teal-700 border border-teal-500/30 dark:text-teal-300',
-  rechazar: 'bg-pink-600/10 text-pink-700 border border-pink-600/30 dark:text-pink-300',
-};
 
 export default function TabEvaluacionPrevia({ evaluaciones = [] }: TabEvaluacionPreviaProps) {
   const [expanded, setExpanded] = useState<Record<number, boolean>>({});
@@ -86,7 +77,7 @@ export default function TabEvaluacionPrevia({ evaluaciones = [] }: TabEvaluacion
                         <History className="w-3.5 h-3.5 text-amber-500" />
                         <span className="font-medium">Devuelta el {formatearFechaLarga(e.devuelta_at) ?? ''}</span>
                         {e.recomendacion && (
-                          <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${recomendacionColor[e.recomendacion] || ''}`}>
+                          <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full border ${recomendacionColor[e.recomendacion] || ''}`}>
                             Recomienda: {recomendacionLabel[e.recomendacion] || e.recomendacion}
                           </span>
                         )}

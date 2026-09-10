@@ -18,14 +18,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/Components/ui/button';
 import { Separator } from '@/Components/ui/separator';
 import { route } from 'ziggy-js';
+import { ETIQUETAS_ESTADO_CORTO as estadoLabels } from '@/Components/Denuncias/Shared/semantica';
 
 const ESTADOS = ['ingresada', 'evaluacion_tecnica', 'admitida', 'rechazada', 'asignada', 'investigacion', 'informe', 'cerrada'];
-
-const estadoLabels: Record<string, string> = {
-  ingresada: 'Ingresada', evaluacion_tecnica: 'En evaluación', admitida: 'Admitida',
-  rechazada: 'Rechazada', asignada: 'Asignada', investigacion: 'Investigación',
-  informe: 'Informe Final', cerrada: 'Cerrada',
-};
 
 interface Denunciante { nombres?: string; ci?: string; email?: string; telefono?: string }
 interface DenunciadoItem { conoce_identidad: boolean; nombres?: string; dependencia?: string; descripcion?: string }

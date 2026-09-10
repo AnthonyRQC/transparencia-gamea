@@ -1,6 +1,7 @@
 import { CircleCheck, Bell, RotateCcw, FileText, Pencil, Trash2, XCircle } from 'lucide-react';
 import { formatearFechaCorta } from '@/helpers/fechas';
 import PlazoProgress from '../Card/PlazoProgress';
+import { DESCARGO_ESTADO as estadoBadge, BOTON_CANCELAR_CARD } from '../Shared/semantica';
 import { Badge } from '@/Components/ui/badge';
 import { Avatar, AvatarFallback } from '@/Components/ui/avatar';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/Components/ui/tooltip';
@@ -37,15 +38,6 @@ interface DescargoCardProps {
   onEliminar?: (id: number) => void;
   onCancelar?: (id: number) => void;
 }
-
-const estadoBadge: Record<string, { label: string; variant: 'default' | 'secondary' | 'outline' | 'destructive' }> = {
-  pendiente_notif: { label: 'Pendiente de notificar', variant: 'outline' },
-  notificado: { label: 'Notificado', variant: 'secondary' },
-  respondido: { label: 'Respondido', variant: 'default' },
-  vencido: { label: 'Vencido', variant: 'destructive' },
-  ampliado: { label: 'Ampliado', variant: 'secondary' },
-  cancelado: { label: 'Cancelado', variant: 'outline' },
-};
 
 function getInitials(name: string): string {
   return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
@@ -173,7 +165,7 @@ export default function DescargoCard({ descargo, canAct, onClick, onNotificar, o
                       <button
                         type="button"
                         onClick={() => onCancelar(descargo.id)}
-                        className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-pink-600/10 text-pink-800 border border-pink-600/30 text-[11px] font-semibold hover:bg-pink-600/20 transition-colors dark:bg-pink-600/20 dark:text-pink-300 cursor-pointer"
+                        className={BOTON_CANCELAR_CARD}
                       >
                         <XCircle className="w-3 h-3" />
                         Cancelar

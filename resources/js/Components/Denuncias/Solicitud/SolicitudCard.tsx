@@ -1,6 +1,7 @@
 import { Building2, CircleCheck, Clock, RotateCcw, XCircle, Pencil, Trash2 } from 'lucide-react';
 import PlazoProgress from '../Card/PlazoProgress';
 import { Badge } from '@/Components/ui/badge';
+import { BOTON_CANCELAR_CARD, SOLICITUD_ESTADO as estadoBadge } from '../Shared/semantica';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/Components/ui/tooltip';
 
 interface SolicitudArchivo {
@@ -33,14 +34,6 @@ interface SolicitudCardProps {
   onEditar?: (id: number) => void;
   onEliminar?: (id: number) => void;
 }
-
-const estadoBadge: Record<string, { label: string; variant: 'default' | 'secondary' | 'outline' | 'destructive' }> = {
-  pendiente: { label: 'Pendiente', variant: 'outline' },
-  respondida: { label: 'Respondida', variant: 'default' },
-  vencida: { label: 'Vencida', variant: 'destructive' },
-  ampliada: { label: 'Ampliada', variant: 'secondary' },
-  cancelada: { label: 'Cancelada', variant: 'outline' },
-};
 
 function daysAgo(d?: string): string {
   if (!d) return '';
@@ -140,7 +133,7 @@ export default function SolicitudCard({ solicitud, canAct, onClick, onResponder,
                       <button
                         type="button"
                         onClick={() => onCancelar(solicitud.id)}
-                        className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-pink-600/10 text-pink-800 border border-pink-600/30 text-[11px] font-semibold hover:bg-pink-600/20 transition-colors dark:bg-pink-600/20 dark:text-pink-300 cursor-pointer"
+                        className={BOTON_CANCELAR_CARD}
                       >
                         <XCircle className="w-3 h-3" />
                         Cancelar

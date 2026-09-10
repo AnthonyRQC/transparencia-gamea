@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import AppLayout from '@/Components/Layout/AppLayout';
 import PageHeader from '@/Components/Layout/PageHeader';
 import ContadorCard from '@/Components/Denuncias/ContadorCard';
+import { RESUMEN_COLOR } from '@/Components/Denuncias/Shared/semantica';
 
 interface Contadores {
   activos: number;
@@ -27,10 +28,10 @@ export default function MiResumen({ contadores, tecnicoActual, tecnicos }: PageP
   };
 
   const cards = [
-    { label: 'Activos', valor: contadores.activos, icon: Activity, color: 'bg-primary/10 text-primary border border-primary/20 dark:bg-primary/20 dark:text-primary-foreground' },
-    { label: 'Vencidos', valor: contadores.vencidos, icon: AlertTriangle, color: 'bg-pink-600/10 text-pink-800 border border-pink-600/30 dark:bg-pink-600/20 dark:text-pink-300' },
-    { label: 'Por vencer', valor: contadores.porVencer, icon: Clock, color: 'bg-amber-500/15 text-amber-900 border border-amber-500/30 dark:bg-amber-500/20 dark:text-amber-300' },
-    { label: 'Cerrados', valor: contadores.cerrados, icon: Archive, color: 'bg-teal-500/10 text-teal-800 border border-teal-500/30 dark:bg-teal-500/20 dark:text-teal-300' },
+    { label: 'Activos', valor: contadores.activos, icon: Activity, color: RESUMEN_COLOR.activos },
+    { label: 'Vencidos', valor: contadores.vencidos, icon: AlertTriangle, color: RESUMEN_COLOR.vencidos },
+    { label: 'Por vencer', valor: contadores.porVencer, icon: Clock, color: RESUMEN_COLOR.porVencer },
+    { label: 'Cerrados', valor: contadores.cerrados, icon: Archive, color: RESUMEN_COLOR.cerrados },
   ];
 
   return (

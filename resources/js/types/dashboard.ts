@@ -90,7 +90,4 @@ export interface DashboardProps {
   filtros: FiltrosDashboard;
 }
 
-export const ETIQUETAS_TIPO: Record<string, string> = {
-  corrupcion: 'CORRUPCIÓN',
-  negacion: 'NEGACIÓN DE INFORMACIÓN',
-};
+export { ETIQUETAS_TIPO } from '@/constants/estados';

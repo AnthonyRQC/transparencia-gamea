@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/Components/u
 import { Badge } from '@/Components/ui/badge';
 import { Separator } from '@/Components/ui/separator';
 import PlazoProgress from '../Card/PlazoProgress';
+import { SOLICITUD_ESTADO as estadoBadgeVar, BOTON_CANCELAR_MODAL } from '../Shared/semantica';
 
 interface SolicitudAmpliacion {
   dias: number;
@@ -56,14 +57,6 @@ interface SolicitudDetailModalProps {
   onEditar?: (id: number) => void;
   onEliminar?: (id: number) => void;
 }
-
-const estadoBadgeVar: Record<string, { label: string; variant: 'default' | 'secondary' | 'outline' | 'destructive' }> = {
-  pendiente: { label: 'Pendiente', variant: 'outline' },
-  respondida: { label: 'Respondida', variant: 'default' },
-  vencida: { label: 'Vencida', variant: 'destructive' },
-  ampliada: { label: 'Ampliada', variant: 'secondary' },
-  cancelada: { label: 'Cancelada', variant: 'outline' },
-};
 
 export default function SolicitudDetailModal({
   solicitud, open, onOpenChange, canAct,
@@ -203,7 +196,7 @@ export default function SolicitudDetailModal({
                 )}
                 {onCancelar && (
                   <button type="button" onClick={() => onCancelar(solicitud.id)}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-pink-600/10 text-pink-800 border border-pink-600/30 text-xs font-semibold hover:bg-pink-600/20 transition-colors dark:bg-pink-600/20 dark:text-pink-300 cursor-pointer">
+                    className={BOTON_CANCELAR_MODAL}>
                     <XCircle className="w-3.5 h-3.5" /> Cancelar
                   </button>
                 )}

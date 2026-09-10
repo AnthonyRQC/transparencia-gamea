@@ -12,6 +12,7 @@ import TabsDenuncias from '@/Components/Denuncias/TabsDenuncias';
 import DenunciaSheet from '@/Components/Denuncias/DenunciaSheet';
 import ModalDevolverEvaluacion from '@/Components/Denuncias/ModalDevolverEvaluacion';
 import { cn } from '@/lib/utils';
+import { RECOMENDACION_COLOR, RECOMENDACION_LABEL } from '@/Components/Denuncias/Shared/semantica';
 
 interface Evaluacion {
   id: number;
@@ -147,10 +148,14 @@ export default function Evaluaciones() {
                       <span className="font-mono text-sm font-bold">{e.ticket}</span>
                       <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full border ${
                         e.recomendacion === 'admitir'
-                          ? 'bg-teal-500/10 text-teal-800 border-teal-500/30 dark:bg-teal-500/20 dark:text-teal-300'
-                          : 'bg-pink-600/10 text-pink-800 border-pink-600/30 dark:bg-pink-600/20 dark:text-pink-300'
+                          ? RECOMENDACION_COLOR.admitir
+                          : e.recomendacion === 'rechazar'
+                            ? RECOMENDACION_COLOR.rechazar
+                            : ''
                       }`}>
-                        Recomienda: {e.recomendacion === 'admitir' ? 'Admitir' : 'Rechazar'}
+                        {e.recomendacion === 'admitir' || e.recomendacion === 'rechazar'
+                          ? `Recomienda: ${RECOMENDACION_LABEL[e.recomendacion]}`
+                          : 'Sin recomendación'}
                       </span>
                     </div>
                     <p className="text-xs text-muted-foreground">

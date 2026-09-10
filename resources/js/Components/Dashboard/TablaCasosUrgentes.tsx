@@ -2,23 +2,13 @@ import { Link } from '@inertiajs/react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/Components/ui/table';
 import { Badge } from '@/Components/ui/badge';
 import { formatearDiasPlazo } from '@/helpers/fechas';
+import { ETIQUETAS_ESTADO_CORTO, PLAZO_COLOR } from '@/Components/Denuncias/Shared/semantica';
 import type { Urgente } from '@/types/dashboard';
 
-const ETIQUETAS_ESTADO: Record<string, string> = {
-    ingresada: 'Ingresada',
-    evaluacion_tecnica: 'En evaluación',
-    admitida: 'Admitida',
-    asignada: 'Asignada',
-    investigacion: 'Investigación',
-    informe: 'Informe Final',
-    rechazada: 'Rechazada',
-    cerrada: 'Cerrada',
-};
+const ETIQUETAS_ESTADO = ETIQUETAS_ESTADO_CORTO;
 
 const badgeColor: Record<string, string> = {
-    green: 'bg-teal-500/10 text-teal-800 dark:text-teal-300 border-teal-500/30',
-    yellow: 'bg-amber-500/15 text-amber-900 dark:text-amber-300 border-amber-500/30',
-    red: 'bg-pink-600/10 text-pink-800 dark:text-pink-300 border-pink-600/30',
+    ...PLAZO_COLOR,
     gray: 'bg-muted text-muted-foreground border-border',
 };
 

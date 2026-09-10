@@ -10,6 +10,7 @@ import TabSolicitudes from '../Tabs/TabSolicitudes';
 import TabDescargos from '../Tabs/TabDescargos';
 import TabInformeCierre from '../Tabs/TabInformeCierre';
 import TabEvaluacionPrevia from '../Tabs/TabEvaluacionPrevia';
+import { ESCENARIO_LABEL as escenarioLabel } from '../Shared/semantica';
 import { CheckCircle2, History, UserPlus, ArrowRightLeft, RotateCcw, XCircle, X as XIcon, FileSearch, UserX, FileText, ScrollText, FolderOpen, ChevronDown } from 'lucide-react';
 
 interface PlazoInfo {
@@ -158,12 +159,6 @@ interface DenunciaSheetProps {
   // Sprint 7.6 — Archivos del caso
   onAbrirArchivos?: (ticket: string) => void;
 }
-
-const escenarioLabel: Record<string, string> = {
-  revelada: 'Identidad Revelada',
-  reservada: 'Identidad Reservada',
-  anonimo: 'Anónimo',
-};
 
 const tipoPruebaLabel: Record<string, string> = {
   archivo: 'Archivo',

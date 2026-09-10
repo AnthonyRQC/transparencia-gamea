@@ -2,6 +2,7 @@ import { ShieldCheck, FileText, Clock, AlertTriangle } from 'lucide-react';
 import { usePage } from '@inertiajs/react';
 import StepperProgreso from '@/Components/Publico/StepperProgreso';
 import { formatearFechaLarga } from '@/helpers/fechas';
+import { CLASIFICACION_COLOR as clasificacionColors, DEFAULT_CLASIFICACION_COLOR as DEFAULT_CLASIF_COLOR } from '@/Components/Denuncias/Shared/semantica';
 
 interface DenunciaPublica {
   ticket: string;
@@ -29,25 +30,15 @@ interface ResultadoSeguimientoProps {
   denuncia: DenunciaPublica;
 }
 
-const clasificacionColors: Record<string, string> = {
-  penal: 'bg-pink-600/10 text-pink-800 border border-pink-600/30 dark:bg-pink-600/20 dark:text-pink-300',
-  civil: 'bg-primary/10 text-primary border border-primary/20 dark:bg-primary/20 dark:text-primary-foreground',
-  administrativo: 'bg-amber-500/15 text-amber-900 border border-amber-500/30 dark:bg-amber-500/20 dark:text-amber-300',
-  sin_indicios: 'bg-muted text-muted-foreground border border-border',
-  medida_correctiva: 'bg-teal-500/10 text-teal-800 border border-teal-500/30 dark:bg-teal-500/20 dark:text-teal-300',
-  archivado: 'bg-muted text-muted-foreground border border-border',
-};
-
-const DEFAULT_CLASIF_COLOR = 'bg-muted text-muted-foreground border border-border';
-
 const estadoBadge: Record<string, { label: string; color: string }> = {
   ingresada: { label: 'En Evaluación', color: 'bg-primary/10 text-primary border border-primary/20 dark:bg-primary/20 dark:text-primary-foreground' },
+  evaluacion_tecnica: { label: 'En Evaluación Técnica', color: 'bg-primary/10 text-primary border border-primary/20 dark:bg-primary/20 dark:text-primary-foreground' },
   admitida: { label: 'Admitida', color: 'bg-teal-500/10 text-teal-800 border border-teal-500/30 dark:bg-teal-500/20 dark:text-teal-300' },
   asignada: { label: 'En Investigación', color: 'bg-primary/10 text-primary border border-primary/20 dark:bg-primary/20 dark:text-primary-foreground' },
   investigacion: { label: 'En Investigación', color: 'bg-primary/10 text-primary border border-primary/20 dark:bg-primary/20 dark:text-primary-foreground' },
   informe: { label: 'Informe Final', color: 'bg-amber-500/15 text-amber-900 border border-amber-500/30 dark:bg-amber-500/20 dark:text-amber-300' },
   cerrada: { label: 'Cerrada', color: 'bg-teal-500/10 text-teal-800 border border-teal-500/30 dark:bg-teal-500/20 dark:text-teal-300' },
-  rechazada: { label: 'Rechazada', color: 'bg-pink-600/10 text-pink-800 border border-pink-600/30 dark:bg-pink-600/20 dark:text-pink-300' },
+  rechazada: { label: 'Rechazada', color: 'bg-destructive/10 text-destructive border border-destructive/30 dark:bg-destructive/20 dark:text-destructive' },
 };
 
 export default function ResultadoSeguimiento({ denuncia }: ResultadoSeguimientoProps) {

@@ -9,6 +9,7 @@ import {
   MoreHorizontal, FolderOpen, Pencil
 } from 'lucide-react';
 import { FileText, FileSearch, Undo2, CalendarArrowUp, Trash2 } from 'lucide-react';
+import { RECOMENDACION_COLOR } from '@/Components/Denuncias/Shared/semantica';
 import { Input } from '@/Components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/Components/ui/tooltip';
@@ -455,9 +456,9 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
                               <span className={cn(
                                 "inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-full border",
                                 d.evaluacion_tecnica_recomendacion === 'admitir'
-                                  ? "bg-teal-500/10 text-teal-800 border-teal-500/30 dark:bg-teal-500/20 dark:text-teal-300"
+                                  ? RECOMENDACION_COLOR.admitir
                                   : d.evaluacion_tecnica_recomendacion === 'rechazar'
-                                    ? "bg-pink-600/10 text-pink-800 border-pink-600/30 dark:bg-pink-600/20 dark:text-pink-300"
+                                    ? RECOMENDACION_COLOR.rechazar
                                     : "bg-primary/10 text-primary border-primary/20 dark:bg-primary/20 dark:text-primary-foreground"
                               )}>
                                 <FileSearch className="w-3 h-3" />

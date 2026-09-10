@@ -6,6 +6,7 @@ import { Badge } from '@/Components/ui/badge';
 import { Separator } from '@/Components/ui/separator';
 import { Avatar, AvatarFallback } from '@/Components/ui/avatar';
 import PlazoProgress from '../Card/PlazoProgress';
+import { DESCARGO_ESTADO as estadoBadgeVar, BOTON_CANCELAR_MODAL } from '../Shared/semantica';
 
 interface DescargoAmpliacion {
   dias: number;
@@ -68,15 +69,6 @@ const MEDIOS_LABEL: Record<string, string> = {
 function getInitials(name: string): string {
   return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
 }
-
-const estadoBadgeVar: Record<string, { label: string; variant: 'default' | 'secondary' | 'outline' | 'destructive' }> = {
-  pendiente_notif: { label: 'Pendiente de notificar', variant: 'outline' },
-  notificado: { label: 'Notificado', variant: 'secondary' },
-  respondido: { label: 'Respondido', variant: 'default' },
-  vencido: { label: 'Vencido', variant: 'destructive' },
-  ampliado: { label: 'Ampliado', variant: 'secondary' },
-  cancelado: { label: 'Cancelado', variant: 'outline' },
-};
 
 export default function DescargoDetailModal({
   descargo, open, onOpenChange, canAct,
@@ -218,7 +210,7 @@ export default function DescargoDetailModal({
                 )}
                 {descargo.estado !== 'respondido' && descargo.estado !== 'cancelado' && onCancelar && (
                   <button type="button" onClick={() => onCancelar(descargo.id)}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-pink-600/10 text-pink-800 border border-pink-600/30 text-xs font-semibold hover:bg-pink-600/20 transition-colors dark:bg-pink-600/20 dark:text-pink-300 cursor-pointer">
+                    className={BOTON_CANCELAR_MODAL}>
                     <Trash2 className="w-3.5 h-3.5" /> Cancelar
                   </button>
                 )}

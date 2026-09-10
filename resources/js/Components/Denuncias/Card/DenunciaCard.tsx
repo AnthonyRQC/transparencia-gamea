@@ -5,6 +5,7 @@ import TipoDenunciaBadge from './TipoDenunciaBadge';
 import SubestadoBadge from './SubestadoBadge';
 import ClasificacionBadge from '../Card/ClasificacionBadge';
 import { User, Clock, ArrowRightLeft, FileSearch } from 'lucide-react';
+import { ESCENARIO_LABEL as escenarioLabel, PLAZO_BORDE as plazoBorderColor, RECOMENDACION_COLOR } from '../Shared/semantica';
 
 interface PlazoInfo {
   dias_restantes: number;
@@ -58,18 +59,6 @@ interface DenunciaCardProps {
   children?: React.ReactNode;
   isNew?: boolean;
 }
-
-const plazoBorderColor: Record<string, string> = {
-  green: 'border-l-4 border-l-teal-600 dark:border-l-teal-400',
-  yellow: 'border-l-4 border-l-yellow-500 dark:border-l-yellow-400',
-  red: 'border-l-4 border-l-pink-600 dark:border-l-pink-500',
-};
-
-const escenarioLabel: Record<string, string> = {
-  revelada: 'Identidad Revelada',
-  reservada: 'Identidad Reservada',
-  anonimo: 'Anónimo',
-};
 
 function daysAgo(dateStr?: string | null): number {
   if (!dateStr) return Infinity;
@@ -184,10 +173,8 @@ export default function DenunciaCard({ denuncia, plazo, tecnicos, onClick, class
           )}
           {denuncia.evaluacion_tecnica_recomendacion && (
             <span className={cn(
-              "inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border shadow-2xs",
-              denuncia.evaluacion_tecnica_recomendacion === 'admitir'
-                ? "bg-teal-500/10 text-teal-800 border-teal-500/30 dark:bg-teal-500/20 dark:text-teal-300"
-                : "bg-pink-600/10 text-pink-800 border-pink-600/30 dark:bg-pink-600/20 dark:text-pink-300"
+"inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border shadow-2xs",
+              RECOMENDACION_COLOR[denuncia.evaluacion_tecnica_recomendacion] ?? ''
             )}>
               <FileSearch className="w-3 h-3" />
               Evaluada: {denuncia.evaluacion_tecnica_recomendacion === 'admitir' ? 'Recomienda Admitir' : 'Recomienda Rechazar'}

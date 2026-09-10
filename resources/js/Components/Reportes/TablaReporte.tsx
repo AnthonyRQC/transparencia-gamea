@@ -4,6 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/Components/ui/badge';
 import { ETIQUETAS_TIPO } from '@/types/dashboard';
 import { formatearDiasPlazo, formatearFechaCorta } from '@/helpers/fechas';
+import { PLAZO_COLOR } from '@/Components/Denuncias/Shared/semantica';
 
 export interface ReporteRow {
     ticket: string;
@@ -19,9 +20,7 @@ export interface ReporteRow {
 }
 
 const badgeColor: Record<string, string> = {
-    green: 'bg-teal-500/10 text-teal-800 dark:text-teal-300 border-teal-500/30',
-    yellow: 'bg-amber-500/15 text-amber-900 dark:text-amber-300 border-amber-500/30',
-    red: 'bg-pink-600/10 text-pink-800 dark:text-pink-300 border-pink-600/30',
+    ...PLAZO_COLOR,
     gray: 'bg-muted text-muted-foreground border-border',
 };
 

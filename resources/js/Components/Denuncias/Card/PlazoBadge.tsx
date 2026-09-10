@@ -3,6 +3,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/Comp
 import { CalendarClock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { formatearFechaLarga } from '@/helpers/fechas';
+import { PLAZO_COLOR as colorStyles } from '../Shared/semantica';
 
 interface PlazoInfo {
   dias_restantes: number;
@@ -13,12 +14,6 @@ interface PlazoInfo {
 interface PlazoBadgeProps {
   plazo: PlazoInfo | null;
 }
-
-const colorStyles: Record<string, string> = {
-  green: 'bg-teal-500/10 text-teal-800 dark:text-teal-300 border-teal-500/30',
-  yellow: 'bg-amber-500/15 text-amber-900 dark:text-amber-300 border-amber-500/30',
-  red: 'bg-pink-600/10 text-pink-800 dark:text-pink-300 border-pink-600/30',
-};
 
 const labels: Record<string, string> = {
   green: 'en plazo',
