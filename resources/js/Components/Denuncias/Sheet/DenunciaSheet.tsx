@@ -10,6 +10,7 @@ import TabSolicitudes from '../Tabs/TabSolicitudes';
 import TabDescargos from '../Tabs/TabDescargos';
 import TabInformeCierre from '../Tabs/TabInformeCierre';
 import TabEvaluacionPrevia from '../Tabs/TabEvaluacionPrevia';
+import TecnicoAvatar from '../Shared/TecnicoAvatar';
 import { ESCENARIO_LABEL as escenarioLabel } from '../Shared/semantica';
 import { CheckCircle2, History, UserPlus, ArrowRightLeft, RotateCcw, XCircle, X as XIcon, FileSearch, UserX, FileText, ScrollText, FolderOpen, ChevronDown } from 'lucide-react';
 
@@ -502,9 +503,7 @@ function SheetInfoContent({ denuncia, hechos, tecnicoInfo, tecnicoAnteriorInfo, 
               <TooltipProvider delayDuration={300}>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <span className={`w-7 h-7 rounded-full ${tecnicoInfo.color} text-white text-[10px] font-bold flex items-center justify-center cursor-help`}>
-                      {tecnicoInfo.iniciales}
-                    </span>
+                    <TecnicoAvatar nombre={tecnicoInfo.nombre} color={tecnicoInfo.color} size="sm" className="cursor-help" />
                   </TooltipTrigger>
                   <TooltipContent side="top">Ver carga de trabajo</TooltipContent>
                 </Tooltip>

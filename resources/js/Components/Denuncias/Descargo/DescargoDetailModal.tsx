@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/Components/ui/dialog';
 import { Badge } from '@/Components/ui/badge';
 import { Separator } from '@/Components/ui/separator';
-import { Avatar, AvatarFallback } from '@/Components/ui/avatar';
+import TecnicoAvatar from '../Shared/TecnicoAvatar';
 import PlazoProgress from '../Card/PlazoProgress';
 import { DESCARGO_ESTADO as estadoBadgeVar, BOTON_CANCELAR_MODAL } from '../Shared/semantica';
 
@@ -66,10 +66,6 @@ const MEDIOS_LABEL: Record<string, string> = {
   otro: 'Otro Medio',
 };
 
-function getInitials(name: string): string {
-  return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-}
-
 export default function DescargoDetailModal({
   descargo, open, onOpenChange, canAct,
   onNotificar, onResponder, onAmpliar, onEditar, onEliminar, onCancelar,
@@ -97,11 +93,7 @@ export default function DescargoDetailModal({
         <DialogHeader>
           <div className="flex items-center justify-between gap-2 pr-6">
             <div className="flex items-center gap-2 min-w-0">
-              <Avatar className="w-8 h-8">
-                <AvatarFallback className="text-xs font-bold bg-primary/10 text-primary">
-                  {getInitials(descargo.nombres_denunciado)}
-                </AvatarFallback>
-              </Avatar>
+<TecnicoAvatar nombre={descargo.nombres_denunciado} size="sm" tone="muted" />
               <div className="min-w-0">
                 <DialogTitle className="truncate text-lg">{descargo.nombres_denunciado}</DialogTitle>
                 {descargo.dependencia_denunciado && (

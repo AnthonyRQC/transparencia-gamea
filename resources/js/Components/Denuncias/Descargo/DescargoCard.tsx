@@ -3,7 +3,7 @@ import { formatearFechaCorta } from '@/helpers/fechas';
 import PlazoProgress from '../Card/PlazoProgress';
 import { DESCARGO_ESTADO as estadoBadge, BOTON_CANCELAR_CARD } from '../Shared/semantica';
 import { Badge } from '@/Components/ui/badge';
-import { Avatar, AvatarFallback } from '@/Components/ui/avatar';
+import TecnicoAvatar from '../Shared/TecnicoAvatar';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/Components/ui/tooltip';
 
 interface DescargoDocumento {
@@ -39,10 +39,6 @@ interface DescargoCardProps {
   onCancelar?: (id: number) => void;
 }
 
-function getInitials(name: string): string {
-  return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-}
-
 export default function DescargoCard({ descargo, canAct, onClick, onNotificar, onResponder, onAmpliar, onEditar, onEliminar, onCancelar }: DescargoCardProps) {
   const badge = estadoBadge[descargo.estado] || estadoBadge.pendiente_notif;
   const isVencido = descargo.estado === 'notificado' && descargo.fecha_vencimiento && new Date(descargo.fecha_vencimiento) < new Date();
@@ -54,11 +50,7 @@ export default function DescargoCard({ descargo, canAct, onClick, onNotificar, o
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2 min-w-0">
-          <Avatar className="w-7 h-7">
-            <AvatarFallback className="text-[10px] font-bold bg-primary/10 text-primary">
-              {getInitials(descargo.nombres_denunciado)}
-            </AvatarFallback>
-          </Avatar>
+<TecnicoAvatar nombre={descargo.nombres_denunciado} size="sm" tone="muted" />
           <div className="min-w-0">
             <p className="text-sm font-semibold truncate">{descargo.nombres_denunciado}</p>
             {descargo.dependencia_denunciado && (

@@ -4,6 +4,7 @@ import PlazoBadge from './PlazoBadge';
 import TipoDenunciaBadge from './TipoDenunciaBadge';
 import SubestadoBadge from './SubestadoBadge';
 import ClasificacionBadge from '../Card/ClasificacionBadge';
+import TecnicoAvatar from '../Shared/TecnicoAvatar';
 import { User, Clock, ArrowRightLeft, FileSearch } from 'lucide-react';
 import { ESCENARIO_LABEL as escenarioLabel, PLAZO_BORDE as plazoBorderColor, RECOMENDACION_COLOR } from '../Shared/semantica';
 
@@ -196,10 +197,8 @@ export default function DenunciaCard({ denuncia, plazo, tecnicos, onClick, class
         <p className="text-sm text-muted-foreground flex items-center gap-1.5 flex-wrap">
           {tecnicoInfo ? (
             <>
-              <span className="text-muted-foreground/70 shrink-0">Asignado a:</span>
-              <span className={cn('w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold text-white shrink-0', tecnicoInfo.color)}>
-                {tecnicoInfo.iniciales}
-              </span>
+<span className="text-muted-foreground/70 shrink-0">Asignado a:</span>
+              <TecnicoAvatar nombre={tecnicoInfo.nombre} color={tecnicoInfo.color} size="xs" />
               <span className="font-medium text-foreground">{tecnicoInfo.nombre}</span>
               <span className="text-muted-foreground/40">·</span>
             </>

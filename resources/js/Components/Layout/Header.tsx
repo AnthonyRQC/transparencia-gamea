@@ -4,6 +4,7 @@ import { route } from 'ziggy-js';
 import { Sun, Moon, LogOut, User, ChevronDown } from 'lucide-react';
 import InstitutionalLogo from './InstitutionalLogo';
 import CampanaNotificaciones from './CampanaNotificaciones';
+import TecnicoAvatar from '@/Components/Denuncias/Shared/TecnicoAvatar';
 import type { SharedPageProps } from '@/types';
 
 interface HeaderProps {
@@ -116,12 +117,12 @@ export default function Header({
                         onClick={() => setDropdownOpen((o) => !o)}
                         className="flex items-center gap-2 p-1 sm:pl-2 sm:pr-2 rounded-lg hover:bg-sidebar-muted transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-sidebar-ring/40"
                     >
-                        <div
-                            className="w-8 h-8 rounded-full bg-sidebar-accent text-sidebar font-bold text-sm flex items-center justify-center shrink-0"
-                            style={user?.color ? { backgroundColor: user.color } : {}}
-                        >
-                            {user?.iniciales || (user?.name ? user.name.charAt(0).toUpperCase() : 'U')}
-                        </div>
+                        <TecnicoAvatar
+                            nombre={user?.name || 'Usuario'}
+                            colorHex={user?.color}
+                            size="sm"
+                            className="bg-sidebar-accent text-sidebar text-sm"
+                        />
                         <div className="hidden lg:flex flex-col items-start min-w-0">
                             <span className="text-sm font-semibold text-sidebar-foreground truncate max-w-[140px]">
                                 {user?.name || 'Usuario'}

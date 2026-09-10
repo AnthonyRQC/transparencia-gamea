@@ -1,5 +1,6 @@
 import { cn } from '@/lib/utils';
 import { AlertTriangle, AlertCircle } from 'lucide-react';
+import TecnicoAvatar from '../Shared/TecnicoAvatar';
 
 interface TecnicoCarga {
   id: string;
@@ -29,9 +30,7 @@ export default function TecnicoCargaCard({ tecnico, selected, onSelect }: Tecnic
           : 'border-border bg-card hover:border-primary/30 hover:shadow-xs'
       )}
     >
-      <div className={cn('w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0', tecnico.color)}>
-        {tecnico.iniciales}
-      </div>
+      <TecnicoAvatar nombre={tecnico.nombre} color={tecnico.color} size="md" />
       <div className="flex-1 min-w-0">
         <p className="text-sm font-semibold">{tecnico.nombre}</p>
         <div className="flex items-center gap-3 mt-1">
