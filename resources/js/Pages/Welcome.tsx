@@ -22,6 +22,26 @@ import {
     Eye
 } from 'lucide-react';
 import { Button } from '@/Components/ui/button';
+import PanelInformativo from '@/Components/Publico/PanelInformativo';
+
+interface PanelAviso {
+    id: number;
+    tipo: string | null;
+    tipo_nombre: string | null;
+    prioridad: string | null;
+    cite: string | null;
+    fecha_documento: string | null;
+    emisor: string | null;
+    destinatario: string | null;
+    titulo: string;
+    resumen: string | null;
+    referencia_externa: string | null;
+    ticket: string | null;
+    evento: string | null;
+    fijada: boolean;
+    publicado_at: string | null;
+    archivos: Array<{ nombre: string; tamano: string | null }>;
+}
 
 interface WelcomeProps {
     auth: {
@@ -30,9 +50,27 @@ interface WelcomeProps {
     jacha_url?: string;
     canLogin: boolean;
     canRegister: boolean;
+    panel?: {
+        avisos: {
+            data: PanelAviso[];
+            current_page: number;
+            last_page: number;
+            per_page: number;
+            total: number;
+        };
+        tipos: Array<{ id: number; clave: string; nombre: string }>;
+        recientes: boolean;
+        filtros: {
+            tipo?: string;
+            buscar?: string;
+            desde?: string;
+            hasta?: string;
+            historial?: boolean;
+        };
+    };
 }
 
-export default function Welcome({ auth, jacha_url, canLogin, canRegister }: WelcomeProps) {
+export default function Welcome({ auth, jacha_url, canLogin, canRegister, panel }: WelcomeProps) {
     const [isDarkMode, setIsDarkMode] = useState(() => {
         if (typeof window !== 'undefined') {
             return localStorage.getItem('dark_mode') === 'true';
@@ -198,6 +236,8 @@ export default function Welcome({ auth, jacha_url, canLogin, canRegister }: Welc
                         </div>
                     </div>
                 </section>
+
+                {panel && <PanelInformativo panel={panel} />}
 
                 <section className="space-y-6 pt-2">
                     <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-center">Información y Preguntas Frecuentes</h3>

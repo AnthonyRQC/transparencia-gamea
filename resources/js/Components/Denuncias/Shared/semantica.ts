@@ -63,7 +63,19 @@ export const RECOMENDACION_LABEL: Record<string, string> = {
   rechazar: 'Rechazar',
 };
 
-/** Etiquetas cortas de estado (TablaCasosUrgentes, ConsultarCasos). */
+/** Prioridad de publicación del panel (Sprint 13.1). */
+export const PRIORIDAD_PUBLICACION_COLOR: Record<string, string> = {
+  ordinario: 'bg-muted text-muted-foreground border border-border',
+  prioritario: 'bg-amber-500/15 text-amber-900 border border-amber-500/30 dark:bg-amber-500/20 dark:text-amber-300',
+  urgente: 'bg-destructive/10 text-destructive border border-destructive/30 dark:bg-destructive/20 dark:text-destructive',
+};
+
+/** Evento de aviso ligado a caso (Sprint 13.1). */
+export const EVENTO_CASO_LABEL: Record<string, string> = {
+  admitida: 'Admitida',
+  rechazada: 'Rechazada',
+  cerrada: 'Cerrada',
+};
 export const ETIQUETAS_ESTADO_CORTO: Record<string, string> = {
   ingresada: 'Ingresada',
   evaluacion_tecnica: 'En evaluación',

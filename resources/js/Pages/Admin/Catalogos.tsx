@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Head, usePage } from '@inertiajs/react';
-import { BookOpen, Tag, Calendar, Building, Mail, FileCheck, Shield, AlertTriangle, Layers } from 'lucide-react';
+import { BookOpen, Tag, Calendar, Building, Mail, FileCheck, Shield, AlertTriangle, Layers, Megaphone, Flag } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/Components/ui/tabs';
 import AppLayout from '@/Components/Layout/AppLayout';
 import PageHeader from '@/Components/Layout/PageHeader';
@@ -38,6 +38,8 @@ const ICONS: Record<string, React.ElementType> = {
     dependencias: Building,
     medios_notificacion: Mail,
     clasificaciones: FileCheck,
+    tipos_publicacion: Megaphone,
+    prioridades_publicacion: Flag,
     estados: Shield,
     tipos_denuncia: AlertTriangle,
 };

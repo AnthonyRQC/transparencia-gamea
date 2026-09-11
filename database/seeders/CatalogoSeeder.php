@@ -8,6 +8,8 @@ use App\Models\ConfiguracionSistema;
 use App\Models\DependenciaExterna;
 use App\Models\Feriado;
 use App\Models\MedioNotificacion;
+use App\Models\PrioridadPublicacion;
+use App\Models\TipoPublicacion;
 use Illuminate\Database\Seeder;
 
 class CatalogoSeeder extends Seeder
@@ -18,6 +20,8 @@ class CatalogoSeeder extends Seeder
         $this->crearDependencias();
         $this->crearClasificaciones();
         $this->crearMediosNotificacion();
+        $this->crearTiposPublicacion();
+        $this->crearPrioridadesPublicacion();
         $this->crearFeriados();
 
         ConfiguracionSistema::create([
@@ -78,6 +82,36 @@ class CatalogoSeeder extends Seeder
 
         foreach ($medios as $medio) {
             MedioNotificacion::create($medio);
+        }
+    }
+
+    private function crearTiposPublicacion(): void
+    {
+        $tipos = [
+            ['clave' => 'admitida', 'nombre' => 'ADMITIDA'],
+            ['clave' => 'rechazada', 'nombre' => 'RECHAZADA'],
+            ['clave' => 'cierre_caso', 'nombre' => 'CIERRE DE CASO'],
+            ['clave' => 'instructivo', 'nombre' => 'INSTRUCTIVO'],
+            ['clave' => 'respuesta_nota', 'nombre' => 'RESPUESTA A NOTA'],
+            ['clave' => 'comunicado', 'nombre' => 'COMUNICADO'],
+            ['clave' => 'otro', 'nombre' => 'OTRO'],
+        ];
+
+        foreach ($tipos as $tipo) {
+            TipoPublicacion::create($tipo);
+        }
+    }
+
+    private function crearPrioridadesPublicacion(): void
+    {
+        $prioridades = [
+            ['clave' => 'ordinario', 'nombre' => 'ORDINARIO'],
+            ['clave' => 'prioritario', 'nombre' => 'PRIORITARIO'],
+            ['clave' => 'urgente', 'nombre' => 'URGENTE'],
+        ];
+
+        foreach ($prioridades as $prioridad) {
+            PrioridadPublicacion::create($prioridad);
         }
     }
 

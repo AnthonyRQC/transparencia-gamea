@@ -9,6 +9,8 @@ use App\Models\ConfiguracionSistema;
 use App\Models\DependenciaExterna;
 use App\Models\Feriado;
 use App\Models\MedioNotificacion;
+use App\Models\PrioridadPublicacion;
+use App\Models\TipoPublicacion;
 use App\Helpers\DiasHabiles;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
@@ -19,10 +21,11 @@ use Inertia\Inertia;
 
 class CatalogoController extends Controller
 {
-    private const TABLE_BASED = ['categorias', 'unidades', 'feriados', 'clasificaciones', 'medios_notificacion'];
+    private const TABLE_BASED = ['categorias', 'unidades', 'feriados', 'clasificaciones', 'medios_notificacion', 'tipos_publicacion', 'prioridades_publicacion'];
     private const CONFIG_BASED = ['tipos_denuncia', 'estados'];
     private const READ_ONLY_TYPES = ['tipos_denuncia', 'estados'];
     private const PROTECTED_CLASIFICACIONES = ['penal', 'civil', 'administrativo', 'sin_indicios', 'medida_correctiva', 'archivado'];
+    private const PROTECTED_PRIORIDADES = ['ordinario', 'prioritario', 'urgente'];
 
     public function index()
     {
@@ -74,6 +77,43 @@ class CatalogoController extends Controller
                     ['key' => 'activa', 'label' => 'Estado', 'type' => 'boolean'],
                 ],
                 'usos_label' => 'informe(s)',
+            ],
+            'tipos_publicacion' => [
+                'label' => 'Tipos de Publicación',
+                'items' => TipoPublicacion::withCount('publicaciones')->orderBy('nombre')->get()->map(fn($t) => [
+                    'id' => $t->id,
+                    'clave' => $t->clave,
+                    'nombre' => $t->nombre,
+                    'descripcion' => $t->descripcion,
+                    'activa' => $t->activa,
+                    'usos' => $t->publicaciones_count,
+                ])->toArray(),
+                'columns' => [
+                    ['key' => 'nombre', 'label' => 'Nombre', 'type' => 'text'],
+                    ['key' => 'descripcion', 'label' => 'Descripción', 'type' => 'textarea'],
+                    ['key' => 'usos', 'label' => 'Avisos', 'type' => 'count'],
+                    ['key' => 'activa', 'label' => 'Estado', 'type' => 'boolean'],
+                ],
+                'usos_label' => 'aviso(s)',
+            ],
+            'prioridades_publicacion' => [
+                'label' => 'Prioridades de Publicación',
+                'items' => PrioridadPublicacion::withCount('publicaciones')->orderBy('nombre')->get()->map(fn($p) => [
+                    'id' => $p->id,
+                    'clave' => $p->clave,
+                    'nombre' => $p->nombre,
+                    'descripcion' => $p->descripcion,
+                    'activa' => $p->activa,
+                    'protegido' => in_array($p->clave, self::PROTECTED_PRIORIDADES, true),
+                    'usos' => $p->publicaciones_count,
+                ])->toArray(),
+                'columns' => [
+                    ['key' => 'nombre', 'label' => 'Nombre', 'type' => 'text'],
+                    ['key' => 'descripcion', 'label' => 'Descripción', 'type' => 'textarea'],
+                    ['key' => 'usos', 'label' => 'Avisos', 'type' => 'count'],
+                    ['key' => 'activa', 'label' => 'Estado', 'type' => 'boolean'],
+                ],
+                'usos_label' => 'aviso(s)',
             ],
             'estados' => [
                 'label' => 'Estados',
@@ -165,6 +205,32 @@ class CatalogoController extends Controller
                         ...$data,
                         'clave' => Str::slug(Str::upper($data['nombre']), '_'),
                     ]);
+                } elseif ($tipo === 'tipos_publicacion') {
+                    $inactiva = TipoPublicacion::where('nombre', $data['nombre'])
+                        ->where('activa', false)->first();
+                    if ($inactiva) {
+                        $inactiva->update(['activa' => true, 'fecha_desactivacion' => null, 'desactivado_por_id' => null]);
+                        $this->logBitacora('tipos_publicacion', $inactiva->id, 'reactivar', ['nombre' => $data['nombre']]);
+                        DB::commit();
+                        return back()->with('success', 'Tipo de publicación reactivado correctamente.');
+                    }
+                    TipoPublicacion::create([
+                        ...$data,
+                        'clave' => Str::slug(Str::upper($data['nombre']), '_'),
+                    ]);
+                } elseif ($tipo === 'prioridades_publicacion') {
+                    $inactiva = PrioridadPublicacion::where('nombre', $data['nombre'])
+                        ->where('activa', false)->first();
+                    if ($inactiva) {
+                        $inactiva->update(['activa' => true, 'fecha_desactivacion' => null, 'desactivado_por_id' => null]);
+                        $this->logBitacora('prioridades_publicacion', $inactiva->id, 'reactivar', ['nombre' => $data['nombre']]);
+                        DB::commit();
+                        return back()->with('success', 'Prioridad reactivada correctamente.');
+                    }
+                    PrioridadPublicacion::create([
+                        ...$data,
+                        'clave' => Str::slug(Str::upper($data['nombre']), '_'),
+                    ]);
                 }
                 DB::commit();
             } catch (\Exception $e) {
@@ -203,9 +269,11 @@ class CatalogoController extends Controller
                     'feriados' => Feriado::findOrFail((int) $id),
                     'clasificaciones' => Clasificacion::findOrFail((int) $id),
                     'medios_notificacion' => MedioNotificacion::findOrFail((int) $id),
+                    'tipos_publicacion' => TipoPublicacion::findOrFail((int) $id),
+                    'prioridades_publicacion' => PrioridadPublicacion::findOrFail((int) $id),
                 };
 
-                if ($tipo === 'categorias' || $tipo === 'clasificaciones' || $tipo === 'medios_notificacion') {
+                if ($tipo === 'categorias' || $tipo === 'clasificaciones' || $tipo === 'medios_notificacion' || $tipo === 'tipos_publicacion' || $tipo === 'prioridades_publicacion') {
                     $data['clave'] = Str::slug(Str::upper($data['nombre']), '_');
                 }
 
@@ -270,12 +338,21 @@ class CatalogoController extends Controller
                 }
             }
 
+            if ($tipo === 'prioridades_publicacion') {
+                $prioridad = PrioridadPublicacion::findOrFail((int) $id);
+                if (in_array($prioridad->clave, self::PROTECTED_PRIORIDADES, true)) {
+                    return back()->withErrors(['error' => 'Esta prioridad está protegida y no se puede eliminar.']);
+                }
+            }
+
             match ($tipo) {
                 'categorias' => $this->desactivarCategoria((int) $id),
                 'unidades' => $this->desactivarUnidad((int) $id),
                 'feriados' => $this->desactivarFeriado((int) $id),
                 'clasificaciones' => $this->desactivarClasificacion((int) $id),
                 'medios_notificacion' => $this->desactivarMedio((int) $id),
+                'tipos_publicacion' => $this->desactivarTipoPublicacion((int) $id),
+                'prioridades_publicacion' => $this->desactivarPrioridadPublicacion((int) $id),
             };
 
             return back()->with('success', 'Elemento desactivado correctamente.');
@@ -293,6 +370,8 @@ class CatalogoController extends Controller
                 'feriados' => $this->reactivarFeriado((int) $id),
                 'clasificaciones' => $this->reactivarClasificacion((int) $id),
                 'medios_notificacion' => $this->reactivarMedio((int) $id),
+                'tipos_publicacion' => $this->reactivarTipoPublicacion((int) $id),
+                'prioridades_publicacion' => $this->reactivarPrioridadPublicacion((int) $id),
             };
         }
 
@@ -408,6 +487,48 @@ class CatalogoController extends Controller
         $this->logBitacora('medios_notificacion', $id, 'reactivar', ['nombre' => $medio->nombre]);
     }
 
+    private function desactivarTipoPublicacion(int $id): void
+    {
+        $tipo = TipoPublicacion::findOrFail($id);
+        $tipo->update([
+            'activa' => false,
+            'fecha_desactivacion' => now(),
+            'desactivado_por_id' => auth()->id(),
+        ]);
+        $this->logBitacora('tipos_publicacion', $id, 'desactivar', [
+            'nombre' => $tipo->nombre,
+            'avisos_asociados' => $tipo->publicaciones()->count(),
+        ]);
+    }
+
+    private function reactivarTipoPublicacion(int $id): void
+    {
+        $tipo = TipoPublicacion::findOrFail($id);
+        $tipo->update(['activa' => true, 'fecha_desactivacion' => null, 'desactivado_por_id' => null]);
+        $this->logBitacora('tipos_publicacion', $id, 'reactivar', ['nombre' => $tipo->nombre]);
+    }
+
+    private function desactivarPrioridadPublicacion(int $id): void
+    {
+        $prioridad = PrioridadPublicacion::findOrFail($id);
+        $prioridad->update([
+            'activa' => false,
+            'fecha_desactivacion' => now(),
+            'desactivado_por_id' => auth()->id(),
+        ]);
+        $this->logBitacora('prioridades_publicacion', $id, 'desactivar', [
+            'nombre' => $prioridad->nombre,
+            'avisos_asociados' => $prioridad->publicaciones()->count(),
+        ]);
+    }
+
+    private function reactivarPrioridadPublicacion(int $id): void
+    {
+        $prioridad = PrioridadPublicacion::findOrFail($id);
+        $prioridad->update(['activa' => true, 'fecha_desactivacion' => null, 'desactivado_por_id' => null]);
+        $this->logBitacora('prioridades_publicacion', $id, 'reactivar', ['nombre' => $prioridad->nombre]);
+    }
+
     private function desactivarFeriado(int $id): void
     {
         $feriado = Feriado::findOrFail($id);
@@ -436,6 +557,8 @@ class CatalogoController extends Controller
                 'feriados' => 'Feriado',
                 'clasificaciones' => 'Clasificacion',
                 'medios_notificacion' => 'MedioNotificacion',
+                'tipos_publicacion' => 'TipoPublicacion',
+                'prioridades_publicacion' => 'PrioridadPublicacion',
                 default => ucfirst($tipo),
             },
             'entidad_id' => $id,
@@ -571,6 +694,16 @@ class CatalogoController extends Controller
             ],
             'medios_notificacion' => [
                 'nombre' => 'required|string|max:255',
+                'activa' => 'boolean',
+            ],
+            'tipos_publicacion' => [
+                'nombre' => 'required|string|max:255',
+                'descripcion' => 'nullable|string',
+                'activa' => 'boolean',
+            ],
+            'prioridades_publicacion' => [
+                'nombre' => 'required|string|max:255',
+                'descripcion' => 'nullable|string',
                 'activa' => 'boolean',
             ],
             default => [

@@ -1,4 +1,4 @@
-import { ShieldCheck, FileText, Clock, AlertTriangle } from 'lucide-react';
+import { ShieldCheck, FileText, Clock, AlertTriangle, Megaphone } from 'lucide-react';
 import { usePage } from '@inertiajs/react';
 import StepperProgreso from '@/Components/Publico/StepperProgreso';
 import { formatearFechaLarga } from '@/helpers/fechas';
@@ -144,6 +144,13 @@ export default function ResultadoSeguimiento({ denuncia }: ResultadoSeguimientoP
           Sistema de Gestión de Denuncias — UTLCC GAMEA.
           Ley N° 974 de Transparencia y Lucha Contra la Corrupción.
         </p>
+        <a
+          href={`${route('home')}?buscar=${encodeURIComponent(denuncia.ticket)}#panel`}
+          className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline"
+        >
+          <Megaphone className="w-3.5 h-3.5" />
+          Consulte si hay avisos de su caso en el panel
+        </a>
       </div>
     </div>
   );
