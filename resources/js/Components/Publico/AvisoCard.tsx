@@ -1,4 +1,4 @@
-import { FileText, Pin } from 'lucide-react';
+import { Download, FileText, Pin } from 'lucide-react';
 import { Badge } from '@/Components/ui/badge';
 import { formatearFechaCorta, formatearFechaLarga } from '@/helpers/fechas';
 import { EVENTO_CASO_LABEL, PRIORIDAD_PUBLICACION_COLOR } from '@/Components/Denuncias/Shared/semantica';
@@ -19,7 +19,7 @@ export interface AvisoPublico {
   evento: string | null;
   fijada: boolean;
   publicado_at: string | null;
-  archivos: Array<{ nombre: string; tamano: string | null }>;
+  archivos: Array<{ id: number; nombre: string; tamano: string | null }>;
 }
 
 export default function AvisoCard({ aviso }: { aviso: AvisoPublico }) {
@@ -95,12 +95,17 @@ export default function AvisoCard({ aviso }: { aviso: AvisoPublico }) {
 
       {aviso.archivos.length > 0 && (
         <div className="space-y-1.5">
-          {aviso.archivos.map((a, i) => (
-            <div key={i} className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/40 rounded-lg px-2.5 py-1.5">
+          {aviso.archivos.map((a) => (
+            <a
+              key={a.id}
+              href={route('panel.descargar', { id: a.id })}
+              className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/40 hover:bg-muted/70 rounded-lg px-2.5 py-1.5 transition-colors"
+            >
               <FileText className="w-3.5 h-3.5 shrink-0 text-primary" />
               <span className="truncate font-medium text-foreground">{a.nombre}</span>
               {a.tamano && <span className="shrink-0">· {a.tamano}</span>}
-            </div>
+              <Download className="w-3.5 h-3.5 shrink-0 ml-auto text-primary" />
+            </a>
           ))}
         </div>
       )}

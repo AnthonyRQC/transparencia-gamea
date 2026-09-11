@@ -40,7 +40,7 @@ interface PanelAviso {
     evento: string | null;
     fijada: boolean;
     publicado_at: string | null;
-    archivos: Array<{ nombre: string; tamano: string | null }>;
+    archivos: Array<{ id: number; nombre: string; tamano: string | null }>;
 }
 
 interface WelcomeProps {

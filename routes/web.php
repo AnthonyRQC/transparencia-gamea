@@ -177,6 +177,28 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('/catalogos/{tipo}/{id}/reactivar', [CatalogoController::class, 'reactivar'])->name('catalogos.reactivar');
 });
 
+// ----- Publicaciones / Panel informativo (Sprint 13) -----
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/publicaciones', [PublicacionController::class, 'index'])->name('publicaciones.index');
+    Route::post('/publicaciones', [PublicacionController::class, 'store'])->name('publicaciones.store');
+    Route::post('/publicaciones/{id}', [PublicacionController::class, 'update'])->name('publicaciones.update');
+    Route::post('/publicaciones/{id}/publicar', [PublicacionController::class, 'publicar'])->name('publicaciones.publicar');
+    Route::post('/publicaciones/{id}/despublicar', [PublicacionController::class, 'despublicar'])->name('publicaciones.despublicar');
+    Route::post('/publicaciones/{id}/fijar', [PublicacionController::class, 'fijar'])->name('publicaciones.fijar');
+    Route::post('/publicaciones/{id}/desfijar', [PublicacionController::class, 'desfijar'])->name('publicaciones.desfijar');
+    Route::post('/publicaciones/{id}/mover', [PublicacionController::class, 'mover'])->name('publicaciones.mover');
+    Route::post('/publicaciones/{id}/eliminar', [PublicacionController::class, 'destroy'])->name('publicaciones.destroy');
+    Route::get('/publicaciones/archivos/{id}/descargar', [PublicacionController::class, 'descargarArchivo'])->name('publicaciones.descargar');
+    Route::post('/publicaciones/archivos/{id}/quitar', [PublicacionController::class, 'quitarArchivo'])->name('publicaciones.quitar');
+});
+
+// Descarga pública de adjuntos (solo avisos publicados, sin auth)
+Route::get('/panel/archivos/{id}/descargar', [PublicacionController::class, 'descargarPublico'])
+    ->middleware('throttle:60,1')
+    ->name('panel.descargar');
+
+// API — Notificaciones
+
 // API — Notificaciones
 Route::get('/api/notificaciones/count', [NotificacionController::class, 'count'])
     ->middleware('auth');

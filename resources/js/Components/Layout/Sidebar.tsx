@@ -12,6 +12,7 @@ import {
     FileSearch,
     Search,
     BookOpen,
+    Megaphone,
     FlaskConical,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -127,6 +128,14 @@ export default function Sidebar({
             routeName: 'admin.catalogos',
             icon: <BookOpen className="w-5 h-5 shrink-0" />,
             permiso: 'menu.catalogos',
+        },
+        {
+            key: 'publicaciones',
+            label: 'Avisos',
+            href: route('admin.publicaciones.index'),
+            routeName: 'admin.publicaciones.*',
+            icon: <Megaphone className="w-5 h-5 shrink-0" />,
+            permiso: 'menu.publicaciones',
         },
     ];
 

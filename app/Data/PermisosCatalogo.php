@@ -20,6 +20,7 @@ class PermisosCatalogo
         'menu.reportes' => 'Ver reportes',
         'menu.feriados' => 'Ver admin de feriados',
         'menu.catalogos' => 'Ver admin de catálogos',
+        'menu.publicaciones' => 'Ver admin de avisos',
 
         'caso.admitir' => 'Admitir denuncia',
         'caso.rechazar' => 'Rechazar denuncia',
@@ -69,6 +70,11 @@ class PermisosCatalogo
         'admin.feriados' => 'Administrar feriados',
         'admin.catalogo' => 'Administrar catálogos',
 
+        'publicacion.crear' => 'Crear aviso',
+        'publicacion.editar' => 'Editar aviso',
+        'publicacion.eliminar' => 'Eliminar aviso',
+        'publicacion.publicar' => 'Publicar/despublicar aviso',
+
         'notificacion.ver' => 'Ver notificaciones',
     ];
 
@@ -85,6 +91,11 @@ class PermisosCatalogo
             'consulta.codigo',
             'archivo.ver',
             'notificacion.ver',
+            'menu.publicaciones',
+            'publicacion.crear',
+            'publicacion.editar',
+            'publicacion.eliminar',
+            'publicacion.publicar',
         ],
 
         'jefe' => [
@@ -113,6 +124,11 @@ class PermisosCatalogo
             'admin.catalogo',
             'menu.catalogos',
             'notificacion.ver',
+            'menu.publicaciones',
+            'publicacion.crear',
+            'publicacion.editar',
+            'publicacion.eliminar',
+            'publicacion.publicar',
         ],
 
         'tecnico' => [

@@ -53,6 +53,11 @@ export type Permiso =
   | 'admin.feriados'
   | 'admin.catalogo'
   | 'menu.catalogos'
+  | 'menu.publicaciones'
+  | 'publicacion.crear'
+  | 'publicacion.editar'
+  | 'publicacion.eliminar'
+  | 'publicacion.publicar'
   | 'notificacion.ver';
 
 export type Rol = 'registrador' | 'jefe' | 'tecnico';
@@ -70,6 +75,11 @@ export const PERMISOS_POR_ROL: Record<Rol, Permiso[]> = {
     'consulta.codigo',
     'archivo.ver',
     'notificacion.ver',
+    'menu.publicaciones',
+    'publicacion.crear',
+    'publicacion.editar',
+    'publicacion.eliminar',
+    'publicacion.publicar',
   ],
   jefe: [
     'menu.dashboard',
@@ -97,6 +107,11 @@ export const PERMISOS_POR_ROL: Record<Rol, Permiso[]> = {
     'admin.catalogo',
     'menu.catalogos',
     'notificacion.ver',
+    'menu.publicaciones',
+    'publicacion.crear',
+    'publicacion.editar',
+    'publicacion.eliminar',
+    'publicacion.publicar',
   ],
   tecnico: [
     'menu.dashboard',
