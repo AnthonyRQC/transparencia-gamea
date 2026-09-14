@@ -218,6 +218,11 @@ class Denuncia extends Model
         return $this->hasMany(DenunciaArchivo::class);
     }
 
+    public function publicaciones(): HasMany
+    {
+        return $this->hasMany(Publicacion::class);
+    }
+
     public function bitacora(): HasMany
     {
         return $this->hasMany(Bitacora::class);

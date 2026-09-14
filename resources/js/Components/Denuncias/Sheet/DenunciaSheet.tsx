@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { Link } from '@inertiajs/react';
+import { route } from 'ziggy-js';
 import { formatearFechaLarga } from '@/helpers/fechas';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/Components/ui/sheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/Components/ui/tabs';
@@ -11,8 +13,9 @@ import TabDescargos from '../Tabs/TabDescargos';
 import TabInformeCierre from '../Tabs/TabInformeCierre';
 import TabEvaluacionPrevia from '../Tabs/TabEvaluacionPrevia';
 import TecnicoAvatar from '../Shared/TecnicoAvatar';
-import { ESCENARIO_LABEL as escenarioLabel } from '../Shared/semantica';
-import { CheckCircle2, History, UserPlus, ArrowRightLeft, RotateCcw, XCircle, X as XIcon, FileSearch, UserX, FileText, ScrollText, FolderOpen, ChevronDown } from 'lucide-react';
+import { ESCENARIO_LABEL as escenarioLabel, eventosEsperadosAviso, sinAvisoPublicado } from '../Shared/semantica';
+import { useCan } from '@/hooks/useCan';
+import { CheckCircle2, History, UserPlus, ArrowRightLeft, RotateCcw, XCircle, X as XIcon, FileSearch, UserX, FileText, ScrollText, FolderOpen, ChevronDown, Megaphone } from 'lucide-react';
 
 interface PlazoInfo {
   dias_restantes: number;
@@ -159,6 +162,9 @@ interface DenunciaSheetProps {
 
   // Sprint 7.6 — Archivos del caso
   onAbrirArchivos?: (ticket: string) => void;
+
+  // Sprint 13.3 — eventos de aviso ya publicados (indicador "Sin aviso")
+  avisosPorTicket?: Record<string, string[]>;
 }
 
 const tipoPruebaLabel: Record<string, string> = {
@@ -188,8 +194,14 @@ export default function DenunciaSheet({
   onEditarDescargo, onEliminarDescargo, onCancelarDescargo,
   evaluaciones = [],
   onAbrirArchivos,
+  avisosPorTicket,
 }: DenunciaSheetProps) {
+  const puedePublicar = useCan('publicacion.publicar');
+
   if (!denuncia) return null;
+
+  const avisosFaltantes = eventosEsperadosAviso(denuncia.estado)
+    .filter((e) => !(avisosPorTicket?.[denuncia.ticket] ?? []).includes(e));
 
   const fecha = formatearFechaLarga(denuncia.created_at) ?? '';
   const tecnicoInfo = denuncia.tecnico && tecnicos ? tecnicos[denuncia.tecnico] : null;
@@ -211,6 +223,24 @@ export default function DenunciaSheet({
             N° de denuncia · Ingreso: {fecha}
           </p>
         </SheetHeader>
+
+        {avisosFaltantes.length > 0 && (
+          <div className="shrink-0 mx-0 mt-3 rounded-xl border border-amber-500/30 bg-amber-500/10 dark:bg-amber-500/10 px-3 py-2.5 flex items-start gap-2">
+            <Megaphone className="w-4 h-4 shrink-0 mt-0.5 text-amber-900 dark:text-amber-300" />
+            <div className="text-xs">
+              <p className="font-bold text-amber-900 dark:text-amber-300">
+                Sin aviso publicado ({avisosFaltantes.join(', ')})
+              </p>
+              <p className="text-amber-900/80 dark:text-amber-300/80">
+                {puedePublicar ? (
+                  <>Cree el borrador desde la Bandeja o revíselo en <Link href={route('admin.publicaciones.index')} className="font-bold underline">Avisos</Link>.</>
+                ) : (
+                  <>Este caso aún no tiene su aviso en el panel informativo.</>
+                )}
+              </p>
+            </div>
+          </div>
+        )}
 
         {showTabs ? (
           <Tabs defaultValue="info" className="flex-1 flex flex-col min-h-0">

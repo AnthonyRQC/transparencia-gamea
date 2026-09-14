@@ -121,6 +121,7 @@ interface PageProps {
   solicitudesByTicket?: Record<string, Solicitud[]>;
   descargosByTicket?: Record<string, Descargo[]>;
   evaluacionesByTicket?: Record<string, any[]>;
+  avisosPorTicket?: Record<string, string[]>;
   evaluacionesDelegadas?: any[];
   evaluacionesDevueltas?: any[];
   canAct?: boolean;
@@ -136,7 +137,9 @@ const estadoLabels: Record<string, { label: string; icon: any }> = {
 
 const estadoOrden = ['asignada', 'investigacion', 'informe', 'cerrada'];
 
-export default function MisCasos({ grouped, tecnicoActual, tecnicos, solicitudesByTicket = {}, descargosByTicket = {}, evaluacionesByTicket = {}, evaluacionesDelegadas = [], evaluacionesDevueltas = [], canAct = true, destacar }: PageProps) {
+export default function MisCasos({ grouped, tecnicoActual, tecnicos,
+solicitudesByTicket = {}, descargosByTicket = {}, evaluacionesByTicket = {}, avisosPorTicket = {}, evaluacionesDelegadas = [],
+evaluacionesDevueltas = [], canAct = true, destacar }: PageProps) {
   const [selectedDenuncia, setSelectedDenuncia] = useState<Denuncia | null>(null);
   const [archivadasOpen, setArchivadasOpen] = useState(false);
   const [processingTicket, setProcessingTicket] = useState<string | null>(null);
@@ -405,6 +408,7 @@ export default function MisCasos({ grouped, tecnicoActual, tecnicos, solicitudes
                   denuncia={d}
                   plazo={d.plazo}
                   tecnicos={tecnicos}
+                  avisosPublicados={avisosPorTicket[d.ticket]}
                   onClick={() => setSelectedDenuncia(d)}
                   isNew={d.estado === 'asignada' && isNewHours(d.fecha_asignada || d.created_at)}
                 >
@@ -444,6 +448,7 @@ export default function MisCasos({ grouped, tecnicoActual, tecnicos, solicitudes
                           denuncia={d}
                           plazo={null}
                           tecnicos={tecnicos}
+                          avisosPublicados={avisosPorTicket[d.ticket]}
                           onClick={() => setSelectedDenuncia(d)}
                         >
                           {renderActions(d) && (
@@ -471,6 +476,7 @@ export default function MisCasos({ grouped, tecnicoActual, tecnicos, solicitudes
           solicitudes={solicitudesByTicket[selectedDenuncia.ticket] || []}
           descargos={descargosByTicket[selectedDenuncia.ticket] || []}
           evaluaciones={evaluacionesByTicket?.[selectedDenuncia.ticket] || []}
+          avisosPorTicket={avisosPorTicket}
           canAct={canAct}
           onAbrirArchivos={(t) => { setModalArchivosTicket(t); }}
           onNuevaSolicitud={(t) => { setModalNuevaSolTicket(t); }}

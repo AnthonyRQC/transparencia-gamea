@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Denuncia;
 use App\Models\EvaluacionTecnica;
 use App\Models\User;
+use App\Services\AvisoCaso;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
@@ -62,6 +63,7 @@ class MisCasosController extends Controller
             'solicitudesByTicket' => $solicitudesByTicket,
             'descargosByTicket' => $descargosByTicket,
             'evaluacionesByTicket' => $evaluacionesByTicket,
+            'avisosPorTicket' => AvisoCaso::publicadosPorTicket($denuncias->pluck('ticket')->toArray()),
             'evaluacionesDelegadas' => $evaluacionesDelegadas,
             'evaluacionesDevueltas' => $evaluacionesDevueltas,
             'canAct' => true,

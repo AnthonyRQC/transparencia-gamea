@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Cierre;
 use App\Models\Denuncia;
 use App\Models\MedioNotificacion;
+use App\Services\AvisoCaso;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -61,7 +62,9 @@ class CierreController extends Controller
             ]);
         });
 
-        return redirect()->back()->with('success', "Denuncia {$ticket} cerrada correctamente.");
+        AvisoCaso::borradorPara($denuncia->fresh(), 'cerrada');
+
+        return redirect()->back()->with('success', "Denuncia {$ticket} cerrada correctamente. Borrador de aviso creado (revíselo en Avisos).");
     }
 
     public function editarCierre(string $ticket, Request $request)

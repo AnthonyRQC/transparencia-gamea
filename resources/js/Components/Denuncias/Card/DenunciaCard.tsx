@@ -5,8 +5,8 @@ import TipoDenunciaBadge from './TipoDenunciaBadge';
 import SubestadoBadge from './SubestadoBadge';
 import ClasificacionBadge from '../Card/ClasificacionBadge';
 import TecnicoAvatar from '../Shared/TecnicoAvatar';
-import { User, Clock, ArrowRightLeft, FileSearch } from 'lucide-react';
-import { ESCENARIO_LABEL as escenarioLabel, PLAZO_BORDE as plazoBorderColor, RECOMENDACION_COLOR } from '../Shared/semantica';
+import { User, Clock, ArrowRightLeft, FileSearch, Megaphone } from 'lucide-react';
+import { ESCENARIO_LABEL as escenarioLabel, PLAZO_BORDE as plazoBorderColor, RECOMENDACION_COLOR, sinAvisoPublicado } from '../Shared/semantica';
 
 interface PlazoInfo {
   dias_restantes: number;
@@ -54,6 +54,8 @@ interface DenunciaData {
 interface DenunciaCardProps {
   denuncia: DenunciaData;
   plazo: PlazoInfo | null;
+  /** Eventos de aviso ya publicados (Sprint 13.3, indicador "Sin aviso"). */
+  avisosPublicados?: string[];
   tecnicos?: Record<string, TecnicoData>;
   onClick?: () => void;
   className?: string;
@@ -102,7 +104,7 @@ function getContextualText(denuncia: DenunciaData): string {
   }
 }
 
-export default function DenunciaCard({ denuncia, plazo, tecnicos, onClick, className, children, isNew }: DenunciaCardProps) {
+export default function DenunciaCard({ denuncia, plazo, avisosPublicados, tecnicos, onClick, className, children, isNew }: DenunciaCardProps) {
   const borderLeftClass = isNew
     ? 'border-l-4 border-l-primary'
     : plazo
@@ -179,6 +181,12 @@ export default function DenunciaCard({ denuncia, plazo, tecnicos, onClick, class
             )}>
               <FileSearch className="w-3 h-3" />
               Evaluada: {denuncia.evaluacion_tecnica_recomendacion === 'admitir' ? 'Recomienda Admitir' : 'Recomienda Rechazar'}
+            </span>
+          )}
+          {sinAvisoPublicado(denuncia.estado, avisosPublicados) && (
+            <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-900 border border-amber-500/30 dark:bg-amber-500/20 dark:text-amber-300">
+              <Megaphone className="w-3 h-3" />
+              Sin aviso
             </span>
           )}
         </div>

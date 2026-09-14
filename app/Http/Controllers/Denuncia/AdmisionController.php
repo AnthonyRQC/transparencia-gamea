@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Denuncia;
 
 use App\Http\Controllers\Controller;
 use App\Models\Denuncia;
+use App\Services\AvisoCaso;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -14,6 +15,7 @@ class AdmisionController extends Controller
     {
         $validated = $request->validate([
             'justificacion' => 'nullable|string|max:500',
+            'crear_aviso' => 'boolean',
         ]);
 
         $denuncia = Denuncia::where('ticket', $ticket)->firstOrFail();
@@ -37,6 +39,13 @@ class AdmisionController extends Controller
             ]);
         });
 
+        if (!empty($validated['crear_aviso'])) {
+            AvisoCaso::borradorPara($denuncia->fresh(), 'admitida', [
+                'resumen' => $validated['justificacion'] ?? null,
+            ]);
+            return redirect()->back()->with('success', "Denuncia {$ticket} admitida correctamente. Borrador de aviso creado (revíselo en Avisos).");
+        }
+
         return redirect()->back()->with('success', "Denuncia {$ticket} admitida correctamente.");
     }
 
@@ -46,6 +55,7 @@ class AdmisionController extends Controller
             'justificacion' => 'required|string|min:5|max:2000',
             'sitpreco' => 'nullable|string|max:50',
             'resumen_rechazo' => 'nullable|string|max:200',
+            'crear_aviso' => 'boolean',
         ]);
 
         $denuncia = Denuncia::where('ticket', $ticket)->firstOrFail();
@@ -70,6 +80,11 @@ class AdmisionController extends Controller
                 'fecha' => now(),
             ]);
         });
+
+        if (!empty($validated['crear_aviso'])) {
+            AvisoCaso::borradorPara($denuncia->fresh(), 'rechazada');
+            return redirect()->back()->with('success', "Denuncia {$ticket} rechazada. Borrador de aviso creado (revíselo en Avisos).");
+        }
 
         return redirect()->back()->with('success', "Denuncia {$ticket} rechazada.");
     }

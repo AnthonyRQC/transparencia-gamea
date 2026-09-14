@@ -76,6 +76,22 @@ export const EVENTO_CASO_LABEL: Record<string, string> = {
   rechazada: 'Rechazada',
   cerrada: 'Cerrada',
 };
+
+/** Eventos de aviso esperados según estado del caso (Sprint 13.3, indicador). */
+export function eventosEsperadosAviso(estado: string): string[] {
+  if (estado === 'rechazada') return ['rechazada'];
+  if (estado === 'cerrada') return ['cerrada'];
+  if (['admitida', 'asignada', 'investigacion', 'informe'].includes(estado)) return ['admitida'];
+  return [];
+}
+
+/** True si al caso le falta algún aviso publicado esperado. */
+export function sinAvisoPublicado(estado: string, publicados?: string[] | null): boolean {
+  const esperados = eventosEsperadosAviso(estado);
+  if (esperados.length === 0) return false;
+  const pub = publicados ?? [];
+  return esperados.some((e) => !pub.includes(e));
+}
 export const ETIQUETAS_ESTADO_CORTO: Record<string, string> = {
   ingresada: 'Ingresada',
   evaluacion_tecnica: 'En evaluación',

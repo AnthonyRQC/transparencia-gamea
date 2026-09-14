@@ -15,6 +15,7 @@ interface ModalAdmisionProps {
 
 export default function ModalAdmision({ ticket, open, onOpenChange }: ModalAdmisionProps) {
   const [justificacion, setJustificacion] = useState('');
+  const [crearAviso, setCrearAviso] = useState(true);
   const [processing, setProcessing] = useState(false);
 
   const handleSubmit = () => {
@@ -22,11 +23,15 @@ export default function ModalAdmision({ ticket, open, onOpenChange }: ModalAdmis
     setProcessing(true);
     router.post(
       route('denuncias.admitir', { ticket }),
-      { justificacion },
+      { justificacion, crear_aviso: crearAviso },
       {
         preserveScroll: true,
         onSuccess: () => {
-          toast.success(`Denuncia ${ticket} admitida`);
+          toast.success(
+            crearAviso
+              ? `Denuncia ${ticket} admitida. Borrador de aviso creado (revíselo en Avisos).`
+              : `Denuncia ${ticket} admitida`
+          );
           setJustificacion('');
           onOpenChange(false);
         },
@@ -63,6 +68,15 @@ export default function ModalAdmision({ ticket, open, onOpenChange }: ModalAdmis
           <p className="text-[11px] text-muted-foreground">
             {justificacion.length}/500 caracteres
           </p>
+          <label className="flex items-center gap-2 text-sm cursor-pointer">
+            <input
+              type="checkbox"
+              checked={crearAviso}
+              onChange={(e) => setCrearAviso(e.target.checked)}
+              className="w-4 h-4 accent-primary"
+            />
+            <span className="font-medium">Crear borrador de aviso para el panel</span>
+          </label>
         </div>
         <DialogFooter>
           <Button variant="outline" disabled={processing} onClick={() => onOpenChange(false)}>

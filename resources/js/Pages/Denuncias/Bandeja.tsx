@@ -165,6 +165,7 @@ interface PageProps {
   solicitudesByTicket?: Record<string, Solicitud[]>;
   descargosByTicket?: Record<string, Descargo[]>;
   evaluacionesByTicket?: Record<string, any[]>;
+  avisosPorTicket?: Record<string, string[]>;
   canAct?: boolean;
   destacar?: string;
 }
@@ -179,7 +180,7 @@ const contadorConfig = [
   { key: 'cerrada', label: 'Cerradas', icon: Archive, color: 'bg-teal-500/10 text-teal-800 border border-teal-500/30 dark:bg-teal-500/20 dark:text-teal-300' },
 ];
 
-export default function Bandeja({ denuncias, porAsignar, enCurso, historial, contadores, tecnicos, cargaTecnicos, solicitudesByTicket = {}, descargosByTicket = {}, evaluacionesByTicket = {}, canAct = false, destacar }: PageProps) {
+export default function Bandeja({ denuncias, porAsignar, enCurso, historial, contadores, tecnicos, cargaTecnicos, solicitudesByTicket = {}, descargosByTicket = {}, evaluacionesByTicket = {}, avisosPorTicket = {}, canAct = false, destacar }: PageProps) {
   const [selectedDenuncia, setSelectedDenuncia] = useState<Denuncia | null>(null);
   const [menuMasAbierto, setMenuMasAbierto] = useState(false);
   const menuMasRef = useRef<HTMLDivElement>(null);
@@ -413,6 +414,7 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
                         denuncia={d}
                         plazo={d.plazo}
                         tecnicos={tecnicos}
+                        avisosPublicados={avisosPorTicket[d.ticket]}
                         onClick={() => setSelectedDenuncia(d)}
                         isNew={d.estado === 'ingresada' && !evaluacionDevuelta && isNewHours(d.created_at)}
                       >
@@ -529,6 +531,7 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
                       denuncia={d}
                       plazo={d.plazo}
                       tecnicos={tecnicos}
+                      avisosPublicados={avisosPorTicket[d.ticket]}
                       onClick={() => setSelectedDenuncia(d)}
                     >
                       <div className="pt-1">
@@ -574,6 +577,7 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
                       denuncia={d}
                       plazo={d.plazo}
                       tecnicos={tecnicos}
+                      avisosPublicados={avisosPorTicket[d.ticket]}
                       onClick={() => setSelectedDenuncia(d)}
                     />
                   ))}
@@ -608,6 +612,7 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
                       denuncia={d}
                       plazo={d.plazo}
                       tecnicos={tecnicos}
+                      avisosPublicados={avisosPorTicket[d.ticket]}
                       onClick={() => setSelectedDenuncia(d)}
                     >
                       {d.estado === 'rechazada' && d.justificacion_rechazo && (
@@ -656,6 +661,7 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
           solicitudes={solicitudesByTicket[selectedDenuncia.ticket] || []}
           descargos={descargosByTicket[selectedDenuncia.ticket] || []}
           evaluaciones={evaluacionesByTicket?.[selectedDenuncia.ticket] || []}
+          avisosPorTicket={avisosPorTicket}
           canAct={canAct}
           onAbrirArchivos={(t) => { setModalArchivosTicket(t); }}
           onNuevaSolicitud={(t) => { setModalNuevaSolTicket(t); }}

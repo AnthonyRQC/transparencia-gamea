@@ -19,6 +19,7 @@ export default function ModalRechazo({ ticket, open, onOpenChange }: ModalRechaz
   const [justificacion, setJustificacion] = useState('');
   const [sitpreco, setSitpreco] = useState('');
   const [resumenRechazo, setResumenRechazo] = useState('');
+  const [crearAviso, setCrearAviso] = useState(true);
   const [processing, setProcessing] = useState(false);
 
   const canSubmit = justificacion.trim().length >= 10;
@@ -32,11 +33,16 @@ export default function ModalRechazo({ ticket, open, onOpenChange }: ModalRechaz
         justificacion,
         sitpreco: sitpreco.trim() || null,
         resumen_rechazo: resumenRechazo.trim() || null,
+        crear_aviso: crearAviso,
       },
       {
         preserveScroll: true,
         onSuccess: () => {
-          toast.success(`Denuncia ${ticket} rechazada`);
+          toast.success(
+            crearAviso
+              ? `Denuncia ${ticket} rechazada. Borrador de aviso creado (revíselo en Avisos).`
+              : `Denuncia ${ticket} rechazada`
+          );
           setJustificacion('');
           setSitpreco('');
           setResumenRechazo('');
@@ -126,6 +132,15 @@ export default function ModalRechazo({ ticket, open, onOpenChange }: ModalRechaz
                 {resumenRechazo.length}/200
               </p>
             </div>
+            <label className="flex items-center gap-2 text-sm cursor-pointer">
+              <input
+                type="checkbox"
+                checked={crearAviso}
+                onChange={(e) => setCrearAviso(e.target.checked)}
+                className="w-4 h-4 accent-primary"
+              />
+              <span className="font-medium">Crear borrador de aviso para el panel</span>
+            </label>
           </div>
         </div>
         <DialogFooter>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Denuncia;
 use App\Models\User;
+use App\Services\AvisoCaso;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -81,6 +82,7 @@ class BandejaController extends Controller
             'solicitudesByTicket' => $solicitudesByTicket,
             'descargosByTicket' => $descargosByTicket,
             'evaluacionesByTicket' => $evaluacionesByTicket,
+            'avisosPorTicket' => AvisoCaso::publicadosPorTicket($all->pluck('ticket')->toArray()),
             'canAct' => true,
             'destacar' => $request->query('destacar'),
         ]);
