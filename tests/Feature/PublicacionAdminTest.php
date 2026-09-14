@@ -88,7 +88,7 @@ class PublicacionAdminTest extends TestCase
 
         $this->actingAs($this->jefe)->post('/admin/publicaciones', array_merge(
             $this->payload(['cuerpo' => null]),
-            ['archivo' => UploadedFile::fake()->create('nota.pdf', 100, 'application/pdf')]
+            ['archivos' => [UploadedFile::fake()->create('nota.pdf', 100, 'application/pdf')]]
         ))->assertSessionHasNoErrors();
         $pub = Publicacion::first();
         $this->assertNotNull($pub);
@@ -120,7 +120,7 @@ class PublicacionAdminTest extends TestCase
 
         $this->actingAs($this->jefe)->post('/admin/publicaciones', array_merge(
             $this->payload(),
-            ['archivo' => UploadedFile::fake()->create('nota.pdf', 100, 'application/pdf')]
+            ['archivos' => [UploadedFile::fake()->create('nota.pdf', 100, 'application/pdf')]]
         ));
         $pub = Publicacion::first();
         $path = $pub->archivos()->first()->path;
@@ -139,7 +139,7 @@ class PublicacionAdminTest extends TestCase
 
         $this->actingAs($this->jefe)->post('/admin/publicaciones', array_merge(
             $this->payload(),
-            ['archivo' => UploadedFile::fake()->create('nota.pdf', 100, 'application/pdf')]
+            ['archivos' => [UploadedFile::fake()->create('nota.pdf', 100, 'application/pdf')]]
         ));
         $pub = Publicacion::first();
         $archivo = $pub->archivos()->first();
@@ -159,7 +159,7 @@ class PublicacionAdminTest extends TestCase
 
         $this->actingAs($this->jefe)->post('/admin/publicaciones', array_merge(
             $this->payload(),
-            ['archivo' => UploadedFile::fake()->create('nota.pdf', 100, 'application/pdf')]
+            ['archivos' => [UploadedFile::fake()->create('nota.pdf', 100, 'application/pdf')]]
         ));
         $archivo = Publicacion::first()->archivos()->first();
 
@@ -169,7 +169,7 @@ class PublicacionAdminTest extends TestCase
         // Borrador: 404.
         $this->actingAs($this->jefe)->post('/admin/publicaciones', $this->payload([
             'ref_titulo' => 'BORRADOR CON PDF', 'publicar' => false,
-            'archivo' => UploadedFile::fake()->create('borrador.pdf', 100, 'application/pdf'),
+            'archivos' => [UploadedFile::fake()->create('borrador.pdf', 100, 'application/pdf')],
         ]));
         $borrador = Publicacion::where('ref_titulo', 'BORRADOR CON PDF')->first();
         $this->get("/panel/archivos/{$borrador->archivos()->first()->id}/descargar")->assertNotFound();
@@ -177,6 +177,34 @@ class PublicacionAdminTest extends TestCase
         // Quitado: 404 aunque el aviso siga publicado.
         $this->actingAs($this->jefe)->post("/admin/publicaciones/archivos/{$archivo->id}/quitar");
         $this->get("/panel/archivos/{$archivo->id}/descargar")->assertNotFound();
+    }
+
+    public function test_sube_varios_archivos_y_respeta_tope(): void    {
+        Storage::fake('public');
+
+        $pdfs = [
+            UploadedFile::fake()->create('uno.pdf', 100, 'application/pdf'),
+            UploadedFile::fake()->create('dos.pdf', 100, 'application/pdf'),
+            UploadedFile::fake()->create('tres.pdf', 100, 'application/pdf'),
+        ];
+        $this->actingAs($this->jefe)->post('/admin/publicaciones', array_merge(
+            $this->payload(),
+            ['archivos' => $pdfs]
+        ))->assertSessionHasNoErrors();
+
+        $pub = Publicacion::first();
+        $this->assertEquals(3, $pub->archivos()->activos()->count());
+
+        $mas = [
+            UploadedFile::fake()->create('cuatro.pdf', 100, 'application/pdf'),
+            UploadedFile::fake()->create('cinco.pdf', 100, 'application/pdf'),
+            UploadedFile::fake()->create('seis.pdf', 100, 'application/pdf'),
+        ];
+        $this->actingAs($this->jefe)->post("/admin/publicaciones/{$pub->id}", array_merge(
+            $this->payload(),
+            ['archivos' => $mas]
+        ))->assertSessionHasErrors('archivos');
+        $this->assertEquals(3, $pub->archivos()->activos()->count());
     }
 
     public function test_no_duplica_aviso_de_caso(): void
@@ -187,5 +215,99 @@ class PublicacionAdminTest extends TestCase
         $this->actingAs($this->jefe)->post('/admin/publicaciones', $base)->assertSessionHasNoErrors();
         $this->actingAs($this->jefe)->post('/admin/publicaciones', $base)->assertSessionHasErrors('evento');
         $this->assertEquals(1, Publicacion::count());
+    }
+
+    public function test_cuerpo_html_se_guarda_verbatim_y_vacio_no_cuenta(): void
+    {
+        Storage::fake('public');
+        $html = '<p>Texto con <strong>negrita</strong>.</p><ul><li>Uno</li><li>Dos</li></ul>';
+
+        $this->actingAs($this->jefe)->post('/admin/publicaciones', $this->payload(['cuerpo' => $html]))
+            ->assertSessionHasNoErrors();
+        $pub = Publicacion::first();
+        $this->assertEquals($html, $pub->cuerpo);
+
+        // Editor vacío (<p></p>) sin adjunto → error como si no hubiera cuerpo.
+        $this->actingAs($this->jefe)->post('/admin/publicaciones', $this->payload([
+            'ref_titulo' => 'VACÍO RICO', 'cuerpo' => '<p></p>',
+        ]))->assertSessionHasErrors('cuerpo');
+        $this->assertEquals(1, Publicacion::count());
+    }
+
+    public function test_portada_debe_ser_imagen_propia(): void
+    {
+        Storage::fake('public');
+
+        $this->actingAs($this->jefe)->post('/admin/publicaciones', array_merge(
+            $this->payload(),
+            ['archivos' => [
+                UploadedFile::fake()->create('foto.jpg', 100, 'image/jpeg'),
+                UploadedFile::fake()->create('nota.pdf', 100, 'application/pdf'),
+            ]]
+        ));
+        $pub = Publicacion::first();
+        $foto = $pub->archivos()->where('nombre', 'foto.jpg')->first();
+
+        $this->actingAs($this->jefe)->post("/admin/publicaciones/{$pub->id}", array_merge(
+            $this->payload(), ['portada_archivo_id' => $foto->id]
+        ))->assertSessionHasNoErrors();
+        $this->assertEquals($foto->id, $pub->fresh()->portada_archivo_id);
+
+        // Archivo de otro aviso → error.
+        $this->actingAs($this->jefe)->post('/admin/publicaciones', $this->payload(['ref_titulo' => 'OTRO AVISO']));
+        $otro = Publicacion::where('ref_titulo', 'OTRO AVISO')->first();
+        $this->actingAs($this->jefe)->post("/admin/publicaciones/{$otro->id}", array_merge(
+            $this->payload(['ref_titulo' => 'OTRO AVISO']),
+            ['portada_archivo_id' => $foto->id]
+        ))->assertSessionHasErrors('portada_archivo_id');
+    }
+
+    public function test_acepta_webp_y_rechaza_office(): void
+    {
+        Storage::fake('public');
+
+        $this->actingAs($this->jefe)->post('/admin/publicaciones', array_merge(
+            $this->payload(),
+            ['archivos' => [UploadedFile::fake()->create('foto.webp', 100, 'image/webp')]]
+        ))->assertSessionHasNoErrors();
+        $pub = Publicacion::first();
+        $this->assertEquals('image/webp', $pub->archivos()->first()->mime_type);
+
+        $this->actingAs($this->jefe)->post('/admin/publicaciones', array_merge(
+            $this->payload(['ref_titulo' => 'CON WORD']),
+            ['archivos' => [UploadedFile::fake()->create('doc.doc', 100, 'application/msword')]]
+        ))->assertSessionHasErrors('archivos.0');
+        $this->assertEquals(1, Publicacion::count());
+    }
+
+    public function test_resubir_misma_imagen_tras_quitar_y_marcar_portada(): void
+    {
+        Storage::fake('public');
+
+        $this->actingAs($this->jefe)->post('/admin/publicaciones', array_merge(
+            $this->payload(),
+            ['archivos' => [UploadedFile::fake()->create('foto.jpg', 100, 'image/jpeg')]]
+        ))->assertSessionHasNoErrors();
+        $pub = Publicacion::first();
+        $original = $pub->archivos()->first();
+
+        // Quitar → va a historial, sale del muro.
+        $this->actingAs($this->jefe)->post("/admin/publicaciones/archivos/{$original->id}/quitar")
+            ->assertSessionHasNoErrors();
+        $this->assertNotNull($original->fresh()->fecha_eliminacion);
+
+        // Resubir la MISMA imagen en editar + marcarla portada.
+        $this->actingAs($this->jefe)->post("/admin/publicaciones/{$pub->id}", array_merge(
+            $this->payload(),
+            ['archivos' => [UploadedFile::fake()->create('foto.jpg', 100, 'image/jpeg')]]
+        ))->assertSessionHasNoErrors();
+        $nueva = $pub->archivos()->activos()->first();
+        $this->assertNotNull($nueva);
+        $this->assertNotEquals($original->id, $nueva->id);
+
+        $this->actingAs($this->jefe)->post("/admin/publicaciones/{$pub->id}", array_merge(
+            $this->payload(), ['portada_archivo_id' => $nueva->id]
+        ))->assertSessionHasNoErrors();
+        $this->assertEquals($nueva->id, $pub->fresh()->portada_archivo_id);
     }
 }

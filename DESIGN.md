@@ -126,6 +126,18 @@ No crear nuevos dialogos de confirmacion.
 
 ---
 
+### Tablas admin (desktop + móvil)
+Patrón estándar: **`resources/js/Components/Admin/TablaResponsive.tsx`**
+(`desktop` = tabla shadcn, `mobile` = tarjetas colapsables `<details>`).
+Desktop (`md+`): tabla con columnas fijas. Móvil: una card por fila
+(summary = estado + título, body = meta + acciones reutilizadas).
+Primera migración: Admin Publicaciones. Próxima: Catálogos (`TablaCatalogo`).
+
+### Filtros en listados admin
+Texto y búsqueda avanzada = **draft + botón Buscar/Enter** (no reactivo por tecla).
+Selects/segmentos/orden = inmediatos. Resetear a página 1 al filtrar.
+Contador "N avisos" + `Paginacion` compartida en modo client.
+
 ## 4. Layout
 
 | Componente | Archivo | Rol |

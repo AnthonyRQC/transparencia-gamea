@@ -20,11 +20,14 @@ class Publicacion extends Model
         'destinatario_display', 'ref_titulo', 'resumen', 'cuerpo',
         'referencia_externa', 'denuncia_id', 'evento',
         'publicado_por_id', 'publicado_at', 'fijada', 'orden',
+        'portada_archivo_id',
     ];
 
+    // NOTA: 'cuerpo' NO va en uppercaseFields — desde 13.x guarda HTML del
+    // editor rico y Str::upper rompería el markup. El resto sigue en MAYÚSCULAS.
     protected array $uppercaseFields = [
         'cite', 'emisor', 'destinatario_display', 'ref_titulo',
-        'resumen', 'cuerpo', 'referencia_externa',
+        'resumen', 'referencia_externa',
     ];
 
     protected function casts(): array
@@ -60,6 +63,11 @@ class Publicacion extends Model
     public function archivos(): HasMany
     {
         return $this->hasMany(PublicacionArchivo::class, 'publicacion_id');
+    }
+
+    public function portada(): BelongsTo
+    {
+        return $this->belongsTo(PublicacionArchivo::class, 'portada_archivo_id');
     }
 
     public function scopePublicadas($query)

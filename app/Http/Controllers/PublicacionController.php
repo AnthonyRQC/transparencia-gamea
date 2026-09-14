@@ -24,15 +24,24 @@ class PublicacionController extends Controller
         $filtros = $request->validate([
             'tipo' => 'nullable|string|max:50',
             'buscar' => 'nullable|string|max:140',
+            'cite' => 'nullable|string|max:255',
+            'ref' => 'nullable|string|max:140',
+            'destinatario' => 'nullable|string|max:255',
+            'ref_externa' => 'nullable|string|max:255',
+            'ticket' => 'nullable|string|max:50',
+            'emisor' => 'nullable|string|max:255',
             'desde' => 'nullable|date',
             'hasta' => 'nullable|date|after_or_equal:desde',
-            'historial' => 'nullable|boolean',
+            'historial' => 'nullable',
         ]);
+
+        // $request->boolean() acepta 1/true/on/yes (la regla boolean es estricta).
+        $verHistorial = $request->boolean('historial');
 
         // Por defecto se muestran los últimos 12 meses para no acumular
         // años en el panel; el historial completo sigue buscable.
         $recientes = false;
-        if (empty($filtros['desde']) && empty($filtros['hasta']) && empty($filtros['historial'])) {
+        if (empty($filtros['desde']) && empty($filtros['hasta']) && !$verHistorial) {
             $filtros['desde'] = now()->subMonths(12)->toDateString();
             $recientes = true;
         }
@@ -51,15 +60,18 @@ class PublicacionController extends Controller
             'destinatario' => $p->destinatario_display,
             'titulo' => $p->ref_titulo,
             'resumen' => $p->resumen,
+            'cuerpo' => $p->cuerpo,
             'referencia_externa' => $p->referencia_externa,
             'ticket' => $p->denuncia?->ticket,
             'evento' => $p->evento,
             'fijada' => $p->fijada,
+            'portada_archivo_id' => $p->portada_archivo_id,
             'publicado_at' => $p->publicado_at?->format('Y-m-d H:i'),
             'archivos' => $p->archivos->map(fn($a) => [
                 'id' => $a->id,
                 'nombre' => $a->nombre,
                 'tamano' => $a->tamano,
+                'mime' => $a->mime_type,
             ])->toArray(),
         ]));
 
@@ -70,9 +82,15 @@ class PublicacionController extends Controller
             'filtros' => [
                 'tipo' => $filtros['tipo'] ?? '',
                 'buscar' => $request->input('buscar', ''),
+                'cite' => $request->input('cite', ''),
+                'ref' => $request->input('ref', ''),
+                'destinatario' => $request->input('destinatario', ''),
+                'ref_externa' => $request->input('ref_externa', ''),
+                'ticket' => $request->input('ticket', ''),
+                'emisor' => $request->input('emisor', ''),
                 'desde' => $request->input('desde', ''),
                 'hasta' => $request->input('hasta', ''),
-                'historial' => (bool) ($filtros['historial'] ?? false),
+                'historial' => $verHistorial,
             ],
         ];
     }
@@ -95,12 +113,13 @@ class PublicacionController extends Controller
         }
 
         if (!empty($filtros['buscar'])) {
-            $buscar = mb_strtoupper(trim($filtros['buscar']));
-            $query->where(function ($q) use ($buscar) {
-                if ($this->usaFulltext($buscar)) {
+            $termino = $this->terminoFulltext(mb_strtoupper(trim($filtros['buscar'])));
+            $query->where(function ($q) use ($filtros, $termino) {
+                $buscar = mb_strtoupper(trim($filtros['buscar']));
+                if ($termino !== '' && $this->usaFulltext()) {
                     $q->whereFullText(
                         ['cite', 'ref_titulo', 'resumen', 'referencia_externa', 'destinatario_display'],
-                        $this->terminoFulltext($buscar),
+                        $termino,
                         ['mode' => 'boolean']
                     );
                 } else {
@@ -112,6 +131,25 @@ class PublicacionController extends Controller
                 }
                 $q->orWhereHas('denuncia', fn($dq) => $dq->where('ticket', 'like', "%{$buscar}%"));
             });
+        }
+
+        // Búsqueda avanzada por campo (AND entre sí y con la caja general).
+        foreach ([
+            'cite' => 'cite',
+            'ref' => 'ref_titulo',
+            'destinatario' => 'destinatario_display',
+            'ref_externa' => 'referencia_externa',
+            'emisor' => 'emisor',
+        ] as $param => $columna) {
+            if (!empty($filtros[$param])) {
+                $valor = mb_strtoupper(trim($filtros[$param]));
+                $query->where($columna, 'like', "%{$valor}%");
+            }
+        }
+
+        if (!empty($filtros['ticket'])) {
+            $ticket = mb_strtoupper(trim($filtros['ticket']));
+            $query->whereHas('denuncia', fn($dq) => $dq->where('ticket', 'like', "%{$ticket}%"));
         }
 
         if (!empty($filtros['desde'])) {
@@ -126,21 +164,34 @@ class PublicacionController extends Controller
     }
 
     /**
-     * FULLTEXT solo en MySQL y términos de 3+ caracteres (SQLite de tests
-     * y términos cortos usan LIKE). Evita el %texto% sobre todo el historial.
+     * FULLTEXT solo en MySQL (SQLite de tests usa LIKE).
      */
-    private function usaFulltext(string $buscar): bool
+    private function usaFulltext(): bool
     {
-        return \Illuminate\Support\Facades\Schema::getConnection()->getDriverName() === 'mysql'
-            && mb_strlen($buscar) >= 3;
+        return \Illuminate\Support\Facades\Schema::getConnection()->getDriverName() === 'mysql';
     }
 
     /**
-     * Limpia operadores booleanos del input para no romper el MATCH.
+     * Semántica AND: cada palabra es requerida (+w1 +w2). Descarta tokens
+     * cortos y stopwords ES; si no queda nada, se usa LIKE.
      */
     private function terminoFulltext(string $buscar): string
     {
-        return trim((string) preg_replace('/[+\-><\(\)~*\"@]+/u', ' ', $buscar));
+        $limpio = trim((string) preg_replace('/[^\p{L}\p{N}]+/u', ' ', $buscar));
+        if ($limpio === '') {
+            return '';
+        }
+
+        $stopwords = ['de', 'la', 'el', 'en', 'y', 'a', 'los', 'las', 'del', 'se', 'con', 'por', 'para', 'al', 'una', 'uno', 'que', 'su', 'sus', 'lo', 'le', 'les', 'un'];
+        $tokens = [];
+        foreach (preg_split('/\s+/u', mb_strtolower($limpio)) ?: [] as $token) {
+            if (mb_strlen($token) < 3 || in_array($token, $stopwords, true)) {
+                continue;
+            }
+            $tokens[] = '+' . $token;
+        }
+
+        return implode(' ', array_unique($tokens));
     }
 
     public function muro(Request $request): Response
@@ -173,7 +224,7 @@ class PublicacionController extends Controller
             return $this->redirigirSinPermiso();
         }
 
-        $publicaciones = Publicacion::with(['tipo:id,clave,nombre', 'prioridad:id,clave,nombre'])
+        $publicaciones = Publicacion::with(['tipo:id,clave,nombre', 'prioridad:id,clave,nombre', 'denuncia:id,ticket'])
             ->with(['archivos:id,publicacion_id,nombre,tamano,fecha_eliminacion'])
             ->withCount(['archivos as archivos_count' => fn($q) => $q->activos()])
             ->orderByRaw('publicado_at IS NULL DESC')
@@ -198,10 +249,12 @@ class PublicacionController extends Controller
                 'referencia_externa' => $p->referencia_externa,
                 'denuncia_id' => $p->denuncia_id,
                 'evento' => $p->evento,
+                'ticket' => $p->denuncia?->ticket,
                 'publicado' => $p->publicado_at !== null,
                 'publicado_at' => $p->publicado_at?->format('Y-m-d H:i'),
                 'fijada' => $p->fijada,
                 'orden' => $p->orden,
+                'portada_archivo_id' => $p->portada_archivo_id,
                 'archivos_count' => $p->archivos_count,
                 'archivos' => $p->archivos->map(fn($a) => [
                     'id' => $a->id,
@@ -235,7 +288,9 @@ class PublicacionController extends Controller
             'denuncia_id' => 'nullable|exists:denuncias,id',
             'evento' => 'nullable|in:admitida,rechazada,cerrada',
             'publicar' => 'boolean',
-            'archivo' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:20480',
+            'portada_archivo_id' => 'nullable|exists:publicacion_archivos,id',
+            'archivos' => 'nullable|array|max:5',
+            'archivos.*' => 'file|mimes:pdf,jpg,jpeg,png,webp|max:20480',
         ];
     }
 
@@ -251,6 +306,28 @@ class PublicacionController extends Controller
             ->exists();
 
         return $existe ? 'Ya existe un aviso publicado para este caso y evento.' : null;
+    }
+
+    /**
+     * El editor rico manda '<p></p>' vacío: se normaliza a null para que la
+     * regla cuerpo-o-archivo funcione.
+     */
+    private function normalizarCuerpo(?string $cuerpo): ?string
+    {
+        if ($cuerpo === null) {
+            return null;
+        }
+        $texto = trim(strip_tags($cuerpo));
+        return $texto === '' ? null : $cuerpo;
+    }
+
+    private function validarPortada(Publicacion $publicacion, $portadaId): ?string
+    {
+        if (!$portadaId) {
+            return null;
+        }
+        $valida = $publicacion->archivos()->activos()->whereKey($portadaId)->exists();
+        return $valida ? null : 'La portada debe ser una imagen activa de este aviso.';
     }
 
     private function guardarArchivo(Publicacion $publicacion, $file): void
@@ -286,24 +363,26 @@ class PublicacionController extends Controller
 
         $data = $request->validate($this->reglas());
 
-        if (blank($data['cuerpo'] ?? null) && !$request->hasFile('archivo')) {
-            return back()->withErrors(['cuerpo' => 'Escriba el contenido o adjunte un documento (PDF/imagen).']);
-        }
-
         if ($error = $this->validarDuplicadoCaso($data['denuncia_id'] ?? null, $data['evento'] ?? null)) {
             return back()->withErrors(['evento' => $error]);
+        }
+
+        $data['cuerpo'] = $this->normalizarCuerpo($data['cuerpo'] ?? null);
+
+        if (blank($data['cuerpo']) && !$request->hasFile('archivos')) {
+            return back()->withErrors(['cuerpo' => 'Escriba el contenido o adjunte un documento (PDF/imagen).']);
         }
 
         $publicar = (bool) ($data['publicar'] ?? false);
 
         $publicacion = Publicacion::create([
-            ...collect($data)->except(['publicar', 'archivo'])->toArray(),
+            ...collect($data)->except(['publicar', 'archivos', 'portada_archivo_id'])->toArray(),
             'publicado_por_id' => $publicar ? \Illuminate\Support\Facades\Auth::id() : null,
             'publicado_at' => $publicar ? now() : null,
         ]);
 
-        if ($request->hasFile('archivo')) {
-            $this->guardarArchivo($publicacion, $request->file('archivo'));
+        foreach ($request->file('archivos', []) as $file) {
+            $this->guardarArchivo($publicacion, $file);
         }
 
         $this->logBitacora($publicacion->id, $publicar ? 'publicar' : 'crear-borrador', ['titulo' => $publicacion->ref_titulo]);
@@ -319,8 +398,11 @@ class PublicacionController extends Controller
 
         $publicacion = Publicacion::findOrFail($id);
         $data = $request->validate($this->reglas());
+        $data['portada_archivo_id'] = $data['portada_archivo_id'] ?? null;
 
-        if (blank($data['cuerpo'] ?? null) && !$request->hasFile('archivo') && $publicacion->archivos()->activos()->count() === 0) {
+        $data['cuerpo'] = $this->normalizarCuerpo($data['cuerpo'] ?? null);
+
+        if (blank($data['cuerpo']) && !$request->hasFile('archivos') && $publicacion->archivos()->activos()->count() === 0) {
             return back()->withErrors(['cuerpo' => 'Escriba el contenido o adjunte un documento (PDF/imagen).']);
         }
 
@@ -328,20 +410,25 @@ class PublicacionController extends Controller
             return back()->withErrors(['evento' => $error]);
         }
 
-        if ($request->hasFile('archivo') && $publicacion->archivos()->activos()->count() >= 5) {
-            return back()->withErrors(['archivo' => 'Máximo 5 adjuntos por aviso.']);
+        if ($error = $this->validarPortada($publicacion, $data['portada_archivo_id'] ?? null)) {
+            return back()->withErrors(['portada_archivo_id' => $error]);
+        }
+
+        $nuevos = count($request->file('archivos', []));
+        if ($nuevos > 0 && $publicacion->archivos()->activos()->count() + $nuevos > 5) {
+            return back()->withErrors(['archivos' => 'Máximo 5 adjuntos por aviso.']);
         }
 
         $publicar = (bool) ($data['publicar'] ?? false);
 
         $publicacion->update([
-            ...collect($data)->except(['publicar', 'archivo'])->toArray(),
+            ...collect($data)->except(['publicar', 'archivos'])->toArray(),
             'publicado_por_id' => $publicar ? (\Illuminate\Support\Facades\Auth::id()) : $publicacion->publicado_por_id,
             'publicado_at' => $publicar ? ($publicacion->publicado_at ?? now()) : null,
         ]);
 
-        if ($request->hasFile('archivo')) {
-            $this->guardarArchivo($publicacion, $request->file('archivo'));
+        foreach ($request->file('archivos', []) as $file) {
+            $this->guardarArchivo($publicacion, $file);
         }
 
         $this->logBitacora($publicacion->id, 'editar', ['titulo' => $publicacion->ref_titulo]);

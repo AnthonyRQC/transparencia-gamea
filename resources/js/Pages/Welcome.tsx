@@ -35,12 +35,14 @@ interface PanelAviso {
     destinatario: string | null;
     titulo: string;
     resumen: string | null;
+    cuerpo: string | null;
     referencia_externa: string | null;
     ticket: string | null;
     evento: string | null;
     fijada: boolean;
+    portada_archivo_id: number | null;
     publicado_at: string | null;
-    archivos: Array<{ id: number; nombre: string; tamano: string | null }>;
+    archivos: Array<{ id: number; nombre: string; tamano: string | null; mime: string | null }>;
 }
 
 interface WelcomeProps {
@@ -63,6 +65,12 @@ interface WelcomeProps {
         filtros: {
             tipo?: string;
             buscar?: string;
+            cite?: string;
+            ref?: string;
+            destinatario?: string;
+            ref_externa?: string;
+            ticket?: string;
+            emisor?: string;
             desde?: string;
             hasta?: string;
             historial?: boolean;

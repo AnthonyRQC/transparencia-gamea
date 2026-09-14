@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
-import { Megaphone, Search, SearchX } from 'lucide-react';
+import { Megaphone, Search, SearchX, ChevronDown } from 'lucide-react';
 import { Input } from '@/Components/ui/input';
 import { Button } from '@/Components/ui/button';
 import { cn } from '@/lib/utils';
 import Paginacion from '@/Components/Denuncias/Paginacion';
 import ListaVacia from '@/Components/Denuncias/ListaVacia';
 import AvisoCard, { type AvisoPublico } from '@/Components/Publico/AvisoCard';
+import AvisoDetailModal from '@/Components/Publico/AvisoDetailModal';
 
 interface TipoOption {
   id: number;
@@ -28,31 +29,62 @@ interface PanelData {
   filtros: {
     tipo?: string;
     buscar?: string;
+    cite?: string;
+    ref?: string;
+    destinatario?: string;
+    ref_externa?: string;
+    ticket?: string;
+    emisor?: string;
     desde?: string;
     hasta?: string;
     historial?: boolean;
   };
 }
 
+const CAMPOS_AVANZADOS: Array<{ clave: string; etiqueta: string; placeholder: string }> = [
+  { clave: 'cite', etiqueta: 'CITE', placeholder: 'GAMEA/UTLCC/N°...' },
+  { clave: 'ref', etiqueta: 'Ref./título', placeholder: 'Título del aviso...' },
+  { clave: 'destinatario', etiqueta: 'Dirigido a', placeholder: 'Persona o dependencia...' },
+  { clave: 'ref_externa', etiqueta: 'Ref. externa', placeholder: 'SIPRECO / RA / HR...' },
+  { clave: 'ticket', etiqueta: 'Código de caso', placeholder: 'DEN-2026-XXXX...' },
+  { clave: 'emisor', etiqueta: 'Emisor', placeholder: 'UTLCC...' },
+];
+
 export default function PanelInformativo({ panel }: { panel: PanelData }) {
   const { avisos, tipos, recientes, filtros } = panel;
   const [buscar, setBuscar] = useState(filtros.buscar ?? '');
   const [tipo, setTipo] = useState(filtros.tipo ?? '');
+  const [avanzados, setAvanzados] = useState<Record<string, string>>({
+    cite: filtros.cite ?? '',
+    ref: filtros.ref ?? '',
+    destinatario: filtros.destinatario ?? '',
+    ref_externa: filtros.ref_externa ?? '',
+    ticket: filtros.ticket ?? '',
+    emisor: filtros.emisor ?? '',
+  });
   const [desde, setDesde] = useState(filtros.desde ?? '');
   const [hasta, setHasta] = useState(filtros.hasta ?? '');
   const [historial, setHistorial] = useState(filtros.historial ?? false);
+  const [detalle, setDetalle] = useState<AvisoPublico | null>(null);
+
+  const setAvanzado = (clave: string, valor: string) =>
+    setAvanzados((a) => ({ ...a, [clave]: valor }));
 
   const aplicar = (page: number = 1, overrides: { tipo?: string; historial?: boolean } = {}) => {
     const tipoFinal = overrides.tipo !== undefined ? overrides.tipo : tipo;
     const historialFinal = overrides.historial !== undefined ? overrides.historial : historial;
-    router.get(route('home'), {
+    const params: { [key: string]: any } = {
       buscar: buscar || undefined,
       tipo: tipoFinal || undefined,
       desde: desde || undefined,
       hasta: hasta || undefined,
-      historial: historialFinal || undefined,
+      historial: historialFinal ? 1 : undefined,
       page: page > 1 ? page : undefined,
-    }, { preserveState: true, preserveScroll: true, only: ['panel'] });
+    };
+    for (const { clave } of CAMPOS_AVANZADOS) {
+      params[clave] = avanzados[clave]?.trim() ? avanzados[clave].trim() : undefined;
+    }
+    router.get(route('home'), params, { preserveState: true, preserveScroll: true, only: ['panel'] });
   };
 
   const elegirTipo = (clave: string) => {
@@ -68,6 +100,7 @@ export default function PanelInformativo({ panel }: { panel: PanelData }) {
   const limpiar = () => {
     setBuscar('');
     setTipo('');
+    setAvanzados({ cite: '', ref: '', destinatario: '', ref_externa: '', ticket: '', emisor: '' });
     setDesde('');
     setHasta('');
     setHistorial(false);
@@ -141,6 +174,29 @@ export default function PanelInformativo({ panel }: { panel: PanelData }) {
             ))}
           </div>
 
+          <details className="rounded-lg border border-border/60">
+            <summary className="cursor-pointer px-2.5 py-2 text-xs font-bold text-muted-foreground hover:text-primary transition-colors list-none flex items-center justify-between">
+              Búsqueda avanzada
+              <ChevronDown className="w-3.5 h-3.5" />
+            </summary>
+            <div className="px-2.5 pb-2.5 pt-1 space-y-2">
+              {CAMPOS_AVANZADOS.map(({ clave, etiqueta, placeholder }) => (
+                <div key={clave}>
+                  <label className="text-[11px] font-semibold text-muted-foreground mb-0.5 block">
+                    {etiqueta}
+                  </label>
+                  <Input
+                    value={avanzados[clave] ?? ''}
+                    onChange={(e) => setAvanzado(clave, e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') aplicar(1); }}
+                    placeholder={placeholder}
+                    className="h-9 text-sm"
+                  />
+                </div>
+              ))}
+            </div>
+          </details>
+
           <div className="grid grid-cols-2 gap-2">
             <div>
               <label className="text-[11px] font-semibold text-muted-foreground mb-1 block">Desde</label>
@@ -196,7 +252,7 @@ export default function PanelInformativo({ panel }: { panel: PanelData }) {
             />
           ) : (
             avisos.data.map((aviso) => (
-              <AvisoCard key={aviso.id} aviso={aviso} />
+              <AvisoCard key={aviso.id} aviso={aviso} onVer={setDetalle} />
             ))
           )}
 
@@ -210,6 +266,12 @@ export default function PanelInformativo({ panel }: { panel: PanelData }) {
           />
         </div>
       </div>
+
+      <AvisoDetailModal
+        aviso={detalle}
+        open={detalle !== null}
+        onOpenChange={(v) => { if (!v) setDetalle(null); }}
+      />
     </section>
   );
 }

@@ -103,6 +103,59 @@ class PublicacionMuroTest extends TestCase
             ->where('panel.recientes', false));
     }
 
+    public function test_termino_fulltext_exige_todas_las_palabras(): void
+    {
+        $controller = new \App\Http\Controllers\PublicacionController();
+        $metodo = new \ReflectionMethod($controller, 'terminoFulltext');
+
+        // El caso reportado: las 3 palabras son requeridas (+w).
+        $this->assertEquals('+reg +4521 +2026', $metodo->invoke($controller, 'REG 4521/2026'));
+        // Stopwords y cortos se descartan; sin tokens útiles → LIKE.
+        $this->assertEquals('', $metodo->invoke($controller, 'de la'));
+        $this->assertEquals('+horario', $metodo->invoke($controller, 'horario,'));
+    }
+
+    public function test_busqueda_avanzada_por_campo(): void
+    {
+        $this->sembrar();
+
+        // CITE con 2026 en todos: solo el suyo (aislamiento por campo).
+        $this->get('/?cite=012%2F2026')->assertOk()->assertInertia(fn($page) => $page
+            ->where('panel.avisos.total', 1)
+            ->where('panel.avisos.data.0.titulo', 'HORARIO DE ATENCIÓN'));
+
+        // Combinada general + avanzada en AND.
+        $this->get('/?buscar=HORARIO&tipo=comunicado')->assertOk()->assertInertia(fn($page) => $page
+            ->where('panel.avisos.total', 1));
+        $this->get('/?buscar=HORARIO&tipo=admitida')->assertOk()->assertInertia(fn($page) => $page
+            ->where('panel.avisos.total', 0));
+    }
+
+    public function test_busqueda_avanzada_por_ticket(): void
+    {
+        $this->sembrar();
+        $denuncia = \App\Models\Denuncia::factory()->create([
+            'ticket' => 'DEN-2026-0099',
+            'token_consulta' => '1099',
+            'tipo' => 'corrupcion',
+            'estado' => 'cerrada',
+            'escenario' => 'anonimo',
+        ]);
+        \App\Models\Publicacion::create([
+            'tipo_id' => \App\Models\TipoPublicacion::where('clave', 'admitida')->first()->id,
+            'prioridad_id' => \App\Models\PrioridadPublicacion::first()->id,
+            'ref_titulo' => 'AVISO LIGADO A CASO',
+            'denuncia_id' => $denuncia->id,
+            'evento' => 'admitida',
+            'publicado_por_id' => \App\Models\User::first()->id,
+            'publicado_at' => now(),
+        ]);
+
+        $this->get('/?ticket=DEN-2026-0099')->assertOk()->assertInertia(fn($page) => $page
+            ->where('panel.avisos.total', 1)
+            ->where('panel.avisos.data.0.titulo', 'AVISO LIGADO A CASO'));
+    }
+
     public function test_catalogos_incluyen_publicaciones(): void
     {
         $this->sembrar();

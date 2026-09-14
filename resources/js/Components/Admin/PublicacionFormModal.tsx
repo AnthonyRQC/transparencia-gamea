@@ -6,6 +6,7 @@ import { Button } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
 import ConfirmDialog from '@/Components/Denuncias/Shared/ConfirmDialog';
+import EditorRico from '@/Components/Admin/EditorRico';
 
 export interface PublicacionArchivoRow {
   id: number;
@@ -30,6 +31,7 @@ export interface PublicacionFormData {
   publicado: boolean;
   archivos_count: number;
   archivos: PublicacionArchivoRow[];
+  portada_archivo_id: number | null;
 }
 
 interface Props {
@@ -52,15 +54,17 @@ const VACIO = {
   cuerpo: '',
   referencia_externa: '',
   publicar: true,
+  portada_archivo_id: '',
 };
 
 export default function PublicacionFormModal({ open, onOpenChange, tipos, prioridades, publicacion }: Props) {
   const { errors } = usePage().props as unknown as { errors: Record<string, string> };
   const [form, setForm] = useState<Record<string, string | boolean>>({ ...VACIO });
-  const [archivo, setArchivo] = useState<File | null>(null);
+  const [archivosNuevos, setArchivosNuevos] = useState<File[]>([]);
   const [processing, setProcessing] = useState(false);
   const [avisoSinPdf, setAvisoSinPdf] = useState(false);
   const [quitarTarget, setQuitarTarget] = useState<PublicacionArchivoRow | null>(null);
+  const [previews, setPreviews] = useState<Record<number, string>>({});
   const abiertoAntes = useRef(false);
 
   const esEdicion = !!publicacion;
@@ -85,21 +89,40 @@ export default function PublicacionFormModal({ open, onOpenChange, tipos, priori
         cuerpo: publicacion.cuerpo ?? '',
         referencia_externa: publicacion.referencia_externa ?? '',
         publicar: publicacion.publicado,
+        portada_archivo_id: publicacion.portada_archivo_id ? String(publicacion.portada_archivo_id) : '',
       });
     } else {
       setForm({ ...VACIO });
     }
-    setArchivo(null);
+    setArchivosNuevos([]);
     setAvisoSinPdf(false);
   }, [open, publicacion]);
 
   const set = (key: string, value: string | boolean) => setForm((f) => ({ ...f, [key]: value }));
 
-  const tieneAdjunto = (publicacion?.archivos_count ?? 0) > 0 || archivo !== null;
+  const tieneAdjunto = (publicacion?.archivos_count ?? 0) > 0 || archivosNuevos.length > 0;
+
+  const agregarArchivos = (lista: FileList | null) => {
+    if (!lista) return;
+    setArchivosNuevos((prev) => [...prev, ...Array.from(lista)].slice(0, 5));
+  };
+
+  useEffect(() => {
+    const urls: Record<number, string> = {};
+    archivosNuevos.forEach((f, i) => {
+      if (f.type.startsWith('image/')) urls[i] = URL.createObjectURL(f);
+    });
+    setPreviews(urls);
+    return () => { Object.values(urls).forEach((u) => URL.revokeObjectURL(u)); };
+  }, [archivosNuevos]);
+
+  const quitarNuevo = (idx: number) => {
+    setArchivosNuevos((prev) => prev.filter((_, i) => i !== idx));
+  };
 
   const enviar = () => {
     const payload: { [key: string]: any } = { ...form };
-    if (archivo) payload.archivo = archivo;
+    if (archivosNuevos.length > 0) payload.archivos = archivosNuevos;
     setProcessing(true);
     const url = esEdicion
       ? route('admin.publicaciones.update', { id: publicacion!.id })
@@ -238,13 +261,7 @@ export default function PublicacionFormModal({ open, onOpenChange, tipos, priori
 
             <div>
               <label className="text-xs font-semibold mb-1 block">Contenido</label>
-              <textarea
-                value={String(form.cuerpo)}
-                onChange={(e) => set('cuerpo', e.target.value)}
-                rows={4}
-                placeholder="Texto del aviso (opcional si adjunta el documento firmado)"
-                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-              />
+              <EditorRico value={String(form.cuerpo)} onChange={(html) => set('cuerpo', html)} />
               {err('cuerpo')}
             </div>
 
@@ -261,19 +278,66 @@ export default function PublicacionFormModal({ open, onOpenChange, tipos, priori
               </div>
               <div>
                 <label className="text-xs font-semibold mb-1 block">
-                  Documento (PDF/imagen, máx 20MB)
+                  Documentos (PDF/imagen/webp, máx 20MB c/u — puede elegir varios)
                 </label>
                 <Input
                   type="file"
-                  accept=".pdf,.jpg,.jpeg,.png"
-                  onChange={(e) => setArchivo(e.target.files?.[0] ?? null)}
+                  accept=".pdf,.jpg,.jpeg,.png,.webp"
+                  multiple
+                  onChange={(e) => { agregarArchivos(e.target.files); e.target.value = ''; }}
                   className="h-9 text-sm"
                 />
                 {err('archivo')}
+                {err('archivos')}
+                {Object.keys(errors).filter((k) => k.startsWith('archivos.')).map((k) => (
+                  <p key={k} className="text-xs text-destructive mt-1">{errors[k]}</p>
+                ))}
+                {archivosNuevos.length > 0 && (
+                  <div className="mt-2 space-y-1.5">
+                    {archivosNuevos.map((f, i) => (
+                      <div key={`${f.name}-${i}`} className="flex items-center gap-2 text-xs bg-primary/5 border border-primary/20 rounded-lg px-2.5 py-1.5">
+                        {previews[i] && (
+                          <img src={previews[i]} alt="" className="w-10 h-10 rounded object-cover shrink-0" />
+                        )}
+                        <span className="truncate font-medium flex-1">{f.name}</span>
+                        <span className="text-muted-foreground shrink-0">nuevo</span>
+                        <button
+                          type="button"
+                          onClick={() => quitarNuevo(i)}
+                          className="text-destructive hover:underline shrink-0 font-semibold cursor-pointer"
+                        >
+                          Quitar
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
                 {(publicacion?.archivos ?? []).filter((a) => !a.eliminado).length > 0 && (
                   <div className="mt-2 space-y-1.5">
-                    {(publicacion?.archivos ?? []).filter((a) => !a.eliminado).map((a) => (
+                    <label className="flex items-center gap-2 text-xs cursor-pointer bg-muted/40 rounded-lg px-2.5 py-1.5">
+                      <input
+                        type="radio"
+                        name="portada"
+                        checked={!form.portada_archivo_id}
+                        onChange={() => set('portada_archivo_id', '')}
+                        className="w-3.5 h-3.5 accent-primary"
+                      />
+                      <span className="font-medium">Automática (primera imagen)</span>
+                    </label>
+                    {(publicacion?.archivos ?? []).filter((a) => !a.eliminado).map((a) => {
+                      const esImg = /\.(jpe?g|png|webp)$/i.test(a.nombre);
+                      return (
                       <div key={a.id} className="flex items-center gap-2 text-xs bg-muted/40 rounded-lg px-2.5 py-1.5">
+                        {esImg && (
+                          <input
+                            type="radio"
+                            name="portada"
+                            title="Mostrar como portada"
+                            checked={String(form.portada_archivo_id) === String(a.id)}
+                            onChange={() => set('portada_archivo_id', String(a.id))}
+                            className="w-3.5 h-3.5 accent-primary shrink-0"
+                          />
+                        )}
                         <span className="truncate font-medium flex-1">{a.nombre}</span>
                         {a.tamano && <span className="text-muted-foreground shrink-0">{a.tamano}</span>}
                         <a
@@ -290,7 +354,8 @@ export default function PublicacionFormModal({ open, onOpenChange, tipos, priori
                           Quitar
                         </button>
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
                 {(publicacion?.archivos ?? []).filter((a) => a.eliminado).length > 0 && (
