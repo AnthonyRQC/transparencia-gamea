@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Link } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
+import { toast } from 'sonner';
 import { formatearFechaLarga } from '@/helpers/fechas';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/Components/ui/sheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/Components/ui/tabs';
@@ -233,7 +234,27 @@ export default function DenunciaSheet({
               </p>
               <p className="text-amber-900/80 dark:text-amber-300/80">
                 {puedePublicar ? (
-                  <>Cree el borrador desde la Bandeja o revíselo en <Link href={route('admin.publicaciones.index')} className="font-bold underline">Avisos</Link>.</>
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => router.post(
+                        route('admin.publicaciones.borrador', { ticket: denuncia.ticket }),
+                        {},
+                        {
+                          preserveScroll: true,
+                          onError: (errors) => {
+                            const mensaje = (errors as Record<string, string>).error
+                              ?? 'No se pudo crear el aviso.';
+                            toast.error(mensaje);
+                          },
+                        },
+                      )}
+                      className="font-bold underline hover:text-amber-900 dark:hover:text-amber-200 cursor-pointer"
+                    >
+                      Crear aviso
+                    </button>
+                    {' '}y revíselo en <Link href={route('admin.publicaciones.index')} className="font-bold underline">Avisos</Link>.
+                  </>
                 ) : (
                   <>Este caso aún no tiene su aviso en el panel informativo.</>
                 )}

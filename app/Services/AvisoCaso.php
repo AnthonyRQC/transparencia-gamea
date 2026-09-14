@@ -52,7 +52,7 @@ class AvisoCaso
             'destinatario_display' => self::destinatario($denuncia),
             'ref_titulo' => (self::TITULO_POR_EVENTO[$evento] ?? 'COMUNICA ESTADO DE DENUNCIA') . ' ' . $denuncia->ticket,
             'resumen' => !empty($extras['resumen']) ? $extras['resumen'] : self::resumen($denuncia, $evento),
-            'referencia_externa' => $extras['referencia_externa'] ?? null,
+            'referencia_externa' => !empty($extras['referencia_externa']) ? $extras['referencia_externa'] : null,
             'denuncia_id' => $denuncia->id,
             'evento' => $evento,
             'publicado_por_id' => null,

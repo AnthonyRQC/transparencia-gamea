@@ -15,7 +15,16 @@ interface Props {
  */
 export default function EditorRico({ value, onChange }: Props) {
   const editor = useEditor({
-    extensions: [StarterKit],
+    extensions: [
+      StarterKit.configure({
+        blockquote: false,
+        code: false,
+        codeBlock: false,
+        strike: false,
+        horizontalRule: false,
+        heading: { levels: [3, 4] },
+      }),
+    ],
     content: value || '',
     onUpdate: ({ editor }) => onChange(editor.getHTML()),
     editorProps: {

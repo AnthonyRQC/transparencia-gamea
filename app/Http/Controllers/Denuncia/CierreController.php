@@ -62,7 +62,9 @@ class CierreController extends Controller
             ]);
         });
 
-        AvisoCaso::borradorPara($denuncia->fresh(), 'cerrada');
+        AvisoCaso::borradorPara($denuncia->fresh(), 'cerrada', [
+            'referencia_externa' => $denuncia->informe?->sitpreco,
+        ]);
 
         return redirect()->back()->with('success', "Denuncia {$ticket} cerrada correctamente. Borrador de aviso creado (revíselo en Avisos).");
     }

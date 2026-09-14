@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Bitacora;
+use App\Models\Denuncia;
 use App\Models\PrioridadPublicacion;
 use App\Models\Publicacion;
 use App\Models\PublicacionArchivo;
 use App\Models\TipoPublicacion;
+use App\Services\AvisoCaso;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -582,6 +584,38 @@ class PublicacionController extends Controller
         }
 
         return \Illuminate\Support\Facades\Storage::disk('public')->download($archivo->path, $archivo->nombre);
+    }
+
+    /**
+     * Crea (o reutiliza) el borrador de aviso de un caso final
+     * y redirige a Avisos con el form abierto (Sprint 13.3).
+     */
+    public function borradorDesdeCaso(string $ticket)
+    {
+        if (!$this->autorizado()) {
+            return $this->redirigirSinPermiso();
+        }
+
+        $denuncia = Denuncia::where('ticket', $ticket)->firstOrFail();
+
+        $evento = match ($denuncia->estado) {
+            'rechazada' => 'rechazada',
+            'cerrada' => 'cerrada',
+            default => null,
+        };
+
+        if (!$evento) {
+            return back()->withErrors(['error' => 'Este caso aún no tiene evento publicable (solo rechazadas y cerradas).']);
+        }
+
+        $borrador = AvisoCaso::borradorPara($denuncia, $evento);
+        if (!$borrador) {
+            return back()->withErrors(['error' => 'No se pudo crear el borrador (revise catálogos).']);
+        }
+
+        return redirect()
+            ->route('admin.publicaciones.index', ['aviso' => $borrador->id])
+            ->with('success', "Borrador de aviso listo para {$ticket} (revíselo y publíquelo).");
     }
 
     private function logBitacora(int $id, string $accion, array $detalle): void

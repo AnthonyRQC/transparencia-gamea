@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import {
@@ -10,6 +10,7 @@ import { Button } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/Components/ui/table';
+import { Tabs, TabsList, TabsTrigger } from '@/Components/ui/tabs';
 import AppLayout from '@/Components/Layout/AppLayout';
 import PageHeader from '@/Components/Layout/PageHeader';
 import ConfirmDialog from '@/Components/Denuncias/Shared/ConfirmDialog';
@@ -108,11 +109,29 @@ export default function Publicaciones() {
   const [avanzadosInput, setAvanzadosInput] = useState({ cite: '', ref: '', destinatario: '', ref_externa: '', ticket: '', emisor: '' });
   const [avanzados, setAvanzados] = useState({ cite: '', ref: '', destinatario: '', ref_externa: '', ticket: '', emisor: '' });
   const [filtroTipo, setFiltroTipo] = useState('');
-  const [filtroEstado, setFiltroEstado] = useState('');
   const [soloFijadas, setSoloFijadas] = useState(false);
-  const [orden, setOrden] = useState('recientes');
+  const [orden, setOrden] = useState('fecha-doc');
+  const [tab, setTab] = useState<'borradores' | 'publicados'>('borradores');
   const [pagina, setPagina] = useState(1);
   const POR_PAGINA = 10;
+  const queryLeida = useRef(false);
+
+  // Deep-links: ?aviso=<id> abre el borrador en el form; ?buscar= precarga texto.
+  useEffect(() => {
+    if (queryLeida.current || typeof window === 'undefined') return;
+    queryLeida.current = true;
+    const params = new URLSearchParams(window.location.search);
+    const avisoId = params.get('aviso');
+    if (avisoId) {
+      const fila = publicaciones.find((p) => String(p.id) === avisoId);
+      if (fila) setModalForm(fila);
+    }
+    const q = params.get('buscar');
+    if (q) {
+      setBuscarInput(q);
+      setBuscar(q.trim());
+    }
+  }, [publicaciones]);
 
   const CAMPOS = [
     { clave: 'cite', etiqueta: 'CITE' },
@@ -137,10 +156,11 @@ export default function Publicaciones() {
 
   const filtrados = useMemo(() => {
     const q = buscar.trim().toUpperCase();
-    const lista = publicaciones.filter((p) => {
+    const base = tab === 'borradores'
+      ? publicaciones.filter((p) => !p.publicado)
+      : publicaciones.filter((p) => p.publicado);
+    const lista = base.filter((p) => {
       if (filtroTipo && p.tipo !== filtroTipo) return false;
-      if (filtroEstado === 'publicado' && !p.publicado) return false;
-      if (filtroEstado === 'borrador' && p.publicado) return false;
       if (soloFijadas && !p.fijada) return false;
       if (q && ![p.ref_titulo, p.cite, p.referencia_externa, p.destinatario_display, p.ticket]
         .filter(Boolean).join(' ').toUpperCase().includes(q)) return false;
@@ -152,12 +172,18 @@ export default function Publicaciones() {
     });
     const porFechaDoc = (p: PublicacionRow) => p.fecha_documento ?? '';
     lista.sort((a, b) => {
-      if (orden === 'fecha-doc') return porFechaDoc(b).localeCompare(porFechaDoc(a));
+      if (orden === 'recientes') return (b.publicado_at ?? '').localeCompare(a.publicado_at ?? '');
       if (orden === 'titulo') return a.ref_titulo.localeCompare(b.ref_titulo);
-      return (b.publicado_at ?? '').localeCompare(a.publicado_at ?? '');
+      // fecha-doc (default): sin fecha al final, resto descendente.
+      const fa = porFechaDoc(a);
+      const fb = porFechaDoc(b);
+      if (!fa && !fb) return 0;
+      if (!fa) return 1;
+      if (!fb) return -1;
+      return fb.localeCompare(fa);
     });
     return lista;
-  }, [publicaciones, buscar, avanzados, filtroTipo, filtroEstado, soloFijadas, orden]);
+  }, [publicaciones, tab, buscar, avanzados, filtroTipo, soloFijadas, orden]);
 
   const totalPaginas = Math.max(1, Math.ceil(filtrados.length / POR_PAGINA));
   const paginaSegura = Math.min(pagina, totalPaginas);
@@ -179,12 +205,19 @@ export default function Publicaciones() {
     setAvanzadosInput(vacio);
     setAvanzados(vacio);
     setFiltroTipo('');
-    setFiltroEstado('');
     setSoloFijadas(false);
     setPagina(1);
   };
 
-  const hayFiltros = buscar !== '' || filtroTipo !== '' || filtroEstado !== '' || soloFijadas
+  const cambiarTab = (t: 'borradores' | 'publicados') => {
+    setTab(t);
+    setPagina(1);
+  };
+
+  const nBorradores = publicaciones.filter((p) => !p.publicado).length;
+  const nPublicados = publicaciones.length - nBorradores;
+
+  const hayFiltros = buscar !== '' || filtroTipo !== '' || soloFijadas
     || Object.values(avanzados).some((v) => v.trim() !== '');
 
   return (
@@ -271,23 +304,13 @@ export default function Publicaciones() {
                 Los filtros rápidos de abajo se aplican al instante, sin apretar Buscar.
               </p>
               <div className="flex items-center gap-2 flex-wrap">
-                <Select value={filtroEstado || 'todos'} onValueChange={(v) => filtrar(() => setFiltroEstado(v === 'todos' ? '' : v))()}>
-                  <SelectTrigger className="h-9 text-sm flex-1 min-w-[140px]">
-                    <SelectValue placeholder="Todos los estados" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="todos">Todos los estados</SelectItem>
-                    <SelectItem value="publicado">Publicados</SelectItem>
-                    <SelectItem value="borrador">Borradores</SelectItem>
-                  </SelectContent>
-                </Select>
                 <Select value={orden} onValueChange={(v) => filtrar(() => setOrden(v))()}>
                   <SelectTrigger className="h-9 text-sm flex-1 min-w-[140px]">
                     <SelectValue placeholder="Orden" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="recientes">Más recientes</SelectItem>
                     <SelectItem value="fecha-doc">Fecha documento</SelectItem>
+                    <SelectItem value="recientes">Más recientes</SelectItem>
                     <SelectItem value="titulo">Título A–Z</SelectItem>
                   </SelectContent>
                 </Select>
@@ -305,6 +328,17 @@ export default function Publicaciones() {
                 </span>
               </div>
             </div>
+
+            <Tabs value={tab} onValueChange={(v) => cambiarTab(v as 'borradores' | 'publicados')} className="w-full">
+              <TabsList className="grid w-full max-w-md grid-cols-2">
+                <TabsTrigger value="borradores" className="text-xs">
+                  Borradores ({nBorradores})
+                </TabsTrigger>
+                <TabsTrigger value="publicados" className="text-xs">
+                  Publicados ({nPublicados})
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
 
             {visibles.length === 0 ? (
               <ListaVacia

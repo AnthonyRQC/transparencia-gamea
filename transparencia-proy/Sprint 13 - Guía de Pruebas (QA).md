@@ -56,9 +56,10 @@
 | C2 | Admitir SIN checkbox | Sin borrador |
 | C3 | Rechazar con resumen | Borrador `rechazada` hereda resumen + destinatario por escenario |
 | C4 | Cerrar caso | Borrador `cerrada` automÃ¡tico con clasificaciÃ³n |
-| C5 | Badge "Sin aviso" en Bandeja/MisCasos | Aparece donde falta evento; desaparece al publicar |
-| C6 | Banner en Sheet (cerrada/rechazada/admitida sin aviso) | Con link a Avisos si puede publicar, texto si no |
+| C5 | Badge "Sin aviso" solo en rechazadas/cerradas (NO en admitidas en curso) | Aparece donde falta evento; desaparece al publicar |
+| C6 | Banner en Sheet + botón Crear aviso | Banner solo finales; botón crea/reutiliza y abre Avisos con el form |
 | C7 | Crear manual mismo caso+evento | Error "Ya existe un aviso..." (unicidad) |
+| C4b | Caso viejo sin aviso ? botón del banner | Llega a Avisos con el borrador abierto; 2.º clic reutiliza |
 
 ## Hallazgos
 

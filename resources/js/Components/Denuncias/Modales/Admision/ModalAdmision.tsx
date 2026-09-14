@@ -15,7 +15,7 @@ interface ModalAdmisionProps {
 
 export default function ModalAdmision({ ticket, open, onOpenChange }: ModalAdmisionProps) {
   const [justificacion, setJustificacion] = useState('');
-  const [crearAviso, setCrearAviso] = useState(true);
+  const [crearAviso, setCrearAviso] = useState(false);
   const [processing, setProcessing] = useState(false);
 
   const handleSubmit = () => {

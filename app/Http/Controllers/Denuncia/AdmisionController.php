@@ -82,7 +82,9 @@ class AdmisionController extends Controller
         });
 
         if (!empty($validated['crear_aviso'])) {
-            AvisoCaso::borradorPara($denuncia->fresh(), 'rechazada');
+            AvisoCaso::borradorPara($denuncia->fresh(), 'rechazada', [
+                'referencia_externa' => $validated['sitpreco'] ?? null,
+            ]);
             return redirect()->back()->with('success', "Denuncia {$ticket} rechazada. Borrador de aviso creado (revíselo en Avisos).");
         }
 

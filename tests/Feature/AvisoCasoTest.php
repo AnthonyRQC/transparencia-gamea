@@ -76,17 +76,25 @@ class AvisoCasoTest extends TestCase
         $this->actingAs($this->jefe)->post("/denuncias/{$denuncia->ticket}/rechazar", [
             'justificacion' => 'JUSTIFICACIÓN DE PRUEBA PARA RECHAZO',
             'resumen_rechazo' => 'FALTAN PRUEBAS SUFICIENTES.',
+            'sitpreco' => 'SITPRECO-99',
             'crear_aviso' => true,
         ]);
 
         $borrador = Publicacion::where('denuncia_id', $denuncia->id)->where('evento', 'rechazada')->first();
         $this->assertNotNull($borrador);
         $this->assertEquals('FALTAN PRUEBAS SUFICIENTES.', $borrador->resumen);
+        $this->assertEquals('SITPRECO-99', $borrador->referencia_externa);
     }
 
     public function test_cerrar_crea_borrador_automatico(): void
     {
         $denuncia = $this->denuncia('DEN-2026-0001', 'informe');
+        \App\Models\InformeFinal::create([
+            'denuncia_id' => $denuncia->id,
+            'sitpreco' => 'SITPRECO-INF-7',
+            'concluido_por' => 'TÉCNICO TEST',
+            'redactado_at' => now(),
+        ]);
 
         $this->actingAs($this->jefe)->post("/denuncias/{$denuncia->ticket}/cierre", [
             'notificado_denunciante' => false,
@@ -97,6 +105,7 @@ class AvisoCasoTest extends TestCase
         $borrador = Publicacion::where('denuncia_id', $denuncia->id)->where('evento', 'cerrada')->first();
         $this->assertNotNull($borrador);
         $this->assertNull($borrador->publicado_at);
+        $this->assertEquals('SITPRECO-INF-7', $borrador->referencia_externa);
     }
 
     public function test_borrador_es_idempotente(): void
@@ -109,8 +118,33 @@ class AvisoCasoTest extends TestCase
         $this->assertEquals(1, Publicacion::where('denuncia_id', $denuncia->id)->count());
     }
 
-    public function test_bandeja_expone_avisos_por_ticket(): void
+    public function test_borrador_desde_caso_crea_y_reutiliza(): void
     {
+        $denuncia = $this->denuncia('DEN-2026-0001', 'cerrada');
+
+        $this->actingAs($this->jefe)
+            ->post("/admin/publicaciones/borrador-desde-caso/{$denuncia->ticket}")
+            ->assertRedirect(route('admin.publicaciones.index', ['aviso' => 1], false));
+        $this->assertEquals(1, Publicacion::where('denuncia_id', $denuncia->id)->where('evento', 'cerrada')->count());
+
+        // Segundo clic reutiliza (idempotente).
+        $this->actingAs($this->jefe)
+            ->post("/admin/publicaciones/borrador-desde-caso/{$denuncia->ticket}")
+            ->assertRedirect();
+        $this->assertEquals(1, Publicacion::where('denuncia_id', $denuncia->id)->count());
+    }
+
+    public function test_borrador_desde_caso_rechaza_estado_sin_evento(): void
+    {
+        $denuncia = $this->denuncia('DEN-2026-0001', 'investigacion');
+
+        $this->actingAs($this->jefe)
+            ->post("/admin/publicaciones/borrador-desde-caso/{$denuncia->ticket}")
+            ->assertSessionHasErrors('error');
+        $this->assertEquals(0, Publicacion::count());
+    }
+
+    public function test_bandeja_expone_avisos_por_ticket(): void    {
         $denuncia = $this->denuncia('DEN-2026-0001', 'cerrada');
         Publicacion::create([
             'tipo_id' => TipoPublicacion::where('clave', 'admitida')->first()->id,

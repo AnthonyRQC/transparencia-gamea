@@ -78,7 +78,6 @@
   `bg-teal-600`, `bg-amber-500`, `bg-[#431377]`, `bg-secondary`, `bg-slate-500`.
 
 ## D3-rev — Publican Jefe + Registrador (10-sep-2026, revierte D3)
-
 - D3 decía solo-Jefe para avisos de caso. Decisión final: Jefe + Registrador
   publican todo (generales y casos); el flujo sigue borrador → publicar con
   `publicado_por_id` como trazabilidad. Equipo de 5, sin cuello de botella.
@@ -98,3 +97,28 @@
 9. 14 campos de aviso (con `emisor` default UTLCC); publicado editable con
    fecha de actualización.
 10. Fases 13.1 → 13.2 → 13.3. Detalle en `Sprint 13 - Portal Panel Informativo (Plan).md`.
+
+## D9 — Indicador solo finales + botón Crear aviso (14-sep-2026)
+
+- Badge/banner "Sin aviso" solo en rechazadas y cerradas (las admitidas en curso
+  no generan ruido). `eventosEsperadosAviso()` sin rama admitida.
+- Checkbox admisión default OFF (rechazo ON, cierre auto).
+- Botón Crear aviso en el banner → `POST borrador-desde-caso` (crea o reutiliza,
+  422 en estados sin evento) → Avisos con `?aviso=<id>` abriendo el form.
+  Admin acepta `?aviso=` y `?buscar=` al montar (deep-links).
+- SITPRECO (rechazo e informe) → `referencia_externa` del borrador.
+
+## D10 — Editor rico + portada + lightbox + pack admin (14-sep-2026)
+
+- TipTap limitado (negrita/cursiva/H3/listas) + DOMPurify al mostrar;
+  `cuerpo` fuera de `UppercaseText` (rompería el HTML); texto plano intacto.
+- Portada FK (`portada_archivo_id`, `nullOnDelete`); card 2-col + thumbs;
+  `AvisoDetailModal`; lightbox custom con fix Radix (`stopPropagation`,
+  reset al cerrar modal).
+- Admin: tabs Borradores/Publicados, buscador no-reactivo + avanzada,
+  orden fecha-doc default, `TablaResponsive` (patrón en `DESIGN.md`),
+  multi-archivo con tope 5, `showPicker` nativo.
+- Muro: boolean-AND + avanzada por campo + 12 meses/historial
+  (`$request->boolean()`, no regla `boolean`) + FULLTEXT condicional.
+- Requiere `php artisan migrate` en dev al recibir estos cambios
+  (migraciones `000005`–`000007`).

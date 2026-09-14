@@ -181,6 +181,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/publicaciones', [PublicacionController::class, 'index'])->name('publicaciones.index');
     Route::post('/publicaciones', [PublicacionController::class, 'store'])->name('publicaciones.store');
+    Route::post('/publicaciones/borrador-desde-caso/{ticket}', [PublicacionController::class, 'borradorDesdeCaso'])->name('publicaciones.borrador');
     Route::post('/publicaciones/{id}', [PublicacionController::class, 'update'])->name('publicaciones.update');
     Route::post('/publicaciones/{id}/publicar', [PublicacionController::class, 'publicar'])->name('publicaciones.publicar');
     Route::post('/publicaciones/{id}/despublicar', [PublicacionController::class, 'despublicar'])->name('publicaciones.despublicar');

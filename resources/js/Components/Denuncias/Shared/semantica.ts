@@ -77,11 +77,11 @@ export const EVENTO_CASO_LABEL: Record<string, string> = {
   cerrada: 'Cerrada',
 };
 
-/** Eventos de aviso esperados según estado del caso (Sprint 13.3, indicador). */
+/** Eventos de aviso esperados según estado del caso (Sprint 13.3, indicador).
+ * Solo finales (rechazada/cerrada): las admitidas en curso no generan ruido. */
 export function eventosEsperadosAviso(estado: string): string[] {
   if (estado === 'rechazada') return ['rechazada'];
   if (estado === 'cerrada') return ['cerrada'];
-  if (['admitida', 'asignada', 'investigacion', 'informe'].includes(estado)) return ['admitida'];
   return [];
 }
 

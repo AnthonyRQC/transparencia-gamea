@@ -278,7 +278,7 @@ export default function PublicacionFormModal({ open, onOpenChange, tipos, priori
               </div>
               <div>
                 <label className="text-xs font-semibold mb-1 block">
-                  Documentos (PDF/imagen/webp, máx 20MB c/u — puede elegir varios)
+                  Documentos (PDF/imagen/webp, máx 20MB c/u — puede elegir varios, máx 5 en total)
                 </label>
                 <Input
                   type="file"

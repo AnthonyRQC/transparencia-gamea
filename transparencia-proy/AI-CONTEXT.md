@@ -186,18 +186,16 @@ Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (13–
 
 1. **Sprint 11** — Panel Administración Catálogos ✅ COMPLETADO (Agosto 2026)
 2. **Sprint 12** — Dashboard + KPIs + Reportes PDF/Excel ✅ COMPLETADO (Sept 2026 — base + pulido 12.1: presets, drill-down, export inteligente, rediseño amigable, paleta institucional; ver `Sprint 12.1 - Cierre Pulido Dashboard.md`)
-3. **Sprint 13** — Portal Panel Informativo (planificado, siguiente; reemplaza al
-   TableroCasosCerrados mínimo, ver `Sprint 13 - Portal Panel Informativo (Plan).md`)
+3. **Sprint 13** - Portal Panel Informativo COMPLETADO (Sep 2026 - muro + catalogos + admin + avisos de caso; ver `Sprint 13 - Cierre Portal Panel Informativo.md`)
+
 4. **Sprint 14** — Tiempos entre Fases (pendiente)
 
-> **Pre-13:** ejecutar R1 de `Sprint 12.5 - Plan Refactor Mantenibilidad.md`
-> (semántica/fechas/avatar/paginación/confirm); R2 + auditoría backend → Sprint 21.
-> Decisiones en `Decisiones 12.5 - 13 (Log).md`.
+> R1 ejecutado pre-13; R2 + auditoria backend van a Sprint 21. Decisiones en `Decisiones 12.5 - 13 (Log).md`.
 
-**Estado inmediato:** Sprint 12.3 cerrado + R1 del plan 12.5 cerrado (10-sep-2026: semantica/avatar/paginacion/dialogos; ver `Sprint 12.5 - Cierre R1 Refactor Mantenibilidad.md`). Suite: **88 tests**. Siguiente: Sprint 13 Portal (cortes 13.1 muro / 13.2 generales / 13.3 casos).
+**Estado inmediato:** Sprint 12.3 + R1 (12.5) + **Sprint 13 Portal cerrado** (14-sep-2026: muro/catalogos/admin/avisos-caso; ver `Sprint 13 - Cierre Portal Panel Informativo.md`). Suite: **118 tests**. Siguiente: Sprint 14 Tiempos entre Fases.
 **Demo fresca (Sep 2026):** seeders con fechas relativas a hoy — 124 casos (85 activos: ~95% en plazo; 31 cerradas, 29 cumplidas). Siguiente ticket: 125. Time Machine solo-local en `/dev/tiempo` (+ enlace Sidebar dev-only) + alertas derivadas vivas (`AlertasPlazo`). Deuda/riesgos en `Deuda Tecnica y Riesgos.md`. Banco de 22 preguntas probadas en `Banco de Preguntas - Dashboard.md`. Rediseño visual con impeccable en `archivo/roadmap/Roadmap Disenio Visual.md` (Fase 0 tokens hecha).
 
-> 🗂️ **Para Sprint 13:** ver `Sprint 13 - Portal Panel Informativo (Plan).md` (spec vigente) + `Decisiones 12.5 - 13 (Log).md`. El §13 de `Sprints Pendientes - Contexto.md` está DEPRECATED. Dashboard ya usa `Queries/Dashboard/*` y `DiasHabiles` con feriados.
+> Archivos del Sprint 13: `Sprint 13 - Portal Panel Informativo (Plan).md` (spec) + `Sprint 13 - Cierre Portal Panel Informativo.md` + `Decisiones 12.5 - 13 (Log).md`. Dashboard usa `Queries/Dashboard/*` y `DiasHabiles` con feriados.
 
 Ver detalle completo en `Sprints Pendientes - Contexto.md`.
 
