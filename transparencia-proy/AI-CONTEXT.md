@@ -203,7 +203,7 @@ Ver `Sprints Pendientes - Contexto.md` + planes `Sprint 16`, `18A`, `18C`.
 
 > R1 ejecutado pre-13; R2 + auditoría backend van a Sprint 21. Decisiones D1–D25 en `Decisiones 12.5 - 13 (Log).md`.
 
-**Estado inmediato:** planificación 16/18A/18C **replanificada** (17-sep-2026 tarde, D18–D25). Suite: **118 tests**. Siguiente: **Sprint 16.1 — Rename**.
+**Estado inmediato:** **16.1 Rename ✅ cerrada** (17-sep-2026, `1b68fcd`: investigador_id en BD/código/UI, proceso intacto, 118 tests + tsc + build verdes). Siguiente: **Sprint 16.2 — Roles y protección backend**.
 **Demo fresca (Sep 2026):** seeders con fechas relativas a hoy — 124 casos (85 activos: ~95% en plazo; 31 cerradas, 29 cumplidas). Siguiente ticket: 125. Time Machine solo-local en `/dev/tiempo` (+ enlace Sidebar dev-only) + alertas derivadas vivas (`AlertasPlazo`). Deuda/riesgos en `Deuda Tecnica y Riesgos.md`. Banco de 22 preguntas probadas en `Banco de Preguntas - Dashboard.md`. Rediseño visual con impeccable en `archivo/roadmap/Roadmap Disenio Visual.md` (Fase 0 tokens hecha).
 
 > Archivos del Sprint 13: `Sprint 13 - Portal Panel Informativo (Plan).md` (spec) + `Sprint 13 - Cierre Portal Panel Informativo.md` + `Decisiones 12.5 - 13 (Log).md`. Dashboard usa `Queries/Dashboard/*` y `DiasHabiles` con feriados.

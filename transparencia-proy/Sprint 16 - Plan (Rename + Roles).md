@@ -1,6 +1,6 @@
 # Sprint 16 — Plan (Rename + Roles y Permisos)
 
-> **Estado:** PLANIFICADO (no ejecutado) · **Fecha plan:** 17-sep-2026 ·
+> **Estado:** 16.1 EJECUTADA ✅ (17-sep-2026, `1b68fcd`) · 16.2 pendiente · **Fecha plan:** 17-sep-2026 ·
 > **Replan:** 17-sep-2026 (tarde) — D18–D25.
 > **Decisiones:** D11–D25 en `Decisiones 12.5 - 13 (Log).md`.
 > **Origen:** pasar de demo a sistema funcional: (a) unificar el lenguaje con el personal
