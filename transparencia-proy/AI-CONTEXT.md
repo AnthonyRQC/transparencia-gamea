@@ -21,6 +21,8 @@ Tailwind v3 · shadcn/ui (New York) · Laragon (Windows local, PHP 8.3.30)
 **Sprint 12.1 — Pulido Dashboard** — Cerrado ✅ (Sep 2026)
 **Sprint 12.2 — Rediseño Visual (Impeccable)** — Cerrado ✅ (08-sep-2026)
 **Sprint 12.3 — Pulido pre-13** — Cerrado ✅ (09-sep-2026)
+**Sprint 13 — Portal Panel Informativo** — Cerrado ✅ (14-sep-2026)
+**Planificación Sprint 16 + 18A + 18C** — Cerrada ✅ (17-sep-2026 — docs `Sprint 16 - Plan (Rename + Roles).md`, `Sprint 18A - Plan Panel Usuarios.md`, `Sprint 18C - Plan Delegaciones.md`; decisiones D11–D17 en `Decisiones 12.5 - 13 (Log).md`)
 
 > **Migración Laravel 11 → 13 (01-sep-2026):** Hasta **Sprint 11 inclusive** se trabajó en **Laravel 11 / PHP 8.2.31** (Sprint 12 planeado en L11 — `31bcebd` *planeacion de sprint 12 finalizada*). Migrado directo a **Laravel 13 / PHP 8.3.30** antes de ejecutar Sprint 12. `composer.json` bump: `laravel/framework ^13.0`, `maatwebsite/excel ^4.0`, `phpunit ^12.0`, `collision ^9.0`, `tinker ^3.0`. Frontend intacto (Inertia v2 / React 18 / Tailwind v3). Tags: `pre-laravel13: 01bcc42` → `laravel-13: b91e404`. Ver `Notas Migración Laravel 13 - Cierre.md`.
 
@@ -45,8 +47,10 @@ Tailwind v3 · shadcn/ui (New York) · Laragon (Windows local, PHP 8.3.30)
 > gráficas/informes; el toggle "incluir inactivos" sirve de recordatorio de técnicos a
 > desactivar). Suite: **63 tests**. Ver `Notas Reestructuración BD - Catálogos y Árbol (Cierre).md`.
 
-Sprints pendientes: **13**, **14**, **16+**.
-Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (13–25).
+Sprints pendientes (orden 17-sep-2026): **16 (rename + roles) → 18A (panel usuarios) →
+18B (mi cuenta) → 18C (delegaciones temporales) → 19/20 (pulidos) → 21 (cierre Fase 1 + auditoría)**.
+**Sprint 14 (Tiempos entre Fases) queda aparcado** — placeholder `Hourglass` en `TabResultados`.
+Ver `Sprints Pendientes - Contexto.md` + planes `Sprint 16`, `18A`, `18C`.
 
 > **Sprint 12.2 (08-sep-2026):** Rediseño visual completo con skill `impeccable`. Score: 21/40 → ~34/40.
 > Sistema de botones unificado (Shadcn único), helper fechas centralizado (`helpers/fechas.ts`),
@@ -63,12 +67,14 @@ Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (13–
 > `3000beb` (A+B) + `c5ab5cc` (D) + `b2ec9b6` (C). Suite 88 tests verde.
 > Ver `Sprint 12.3 - Cierre Pulido pre-13.md`.
 
-## Roles (post sesión con cliente, Junio 2026)
-- **Registrador** (antes "Recepcionista")
-- **Jefe de Unidad**
-- **Técnicos**
+## Roles (actualizado 17-sep-2026)
+- **Admin** (nuevo, Sprint 16) — solo gestiona: usuarios, catálogos y reportes (oversight). NO opera casos.
+- **Jefe de Unidad** — opera todo el flujo; crea usuarios (todos menos admin, Sprint 18A).
+- **Investigador** (antes "Técnico"; rename completo en Sprint 16.1) — solo sus casos.
+- **Registrador** — registra y consulta; puede recibir delegaciones temporales de funciones (Sprint 18C).
 
-(Implementación formal de roles será en Sprint 16, ver `Esquema BD - Librerías.md`).
+(Formalización en Sprint 16 — planes en `Sprint 16 - Plan (Rename + Roles).md`,
+`Sprint 18A - Plan Panel Usuarios.md`, `Sprint 18C - Plan Delegaciones.md`).
 
 ## Convenciones de lectura para IAs
 
@@ -91,12 +97,13 @@ Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (13–
 ## Documentación Esencial (LEER SIEMPRE)
 1. `transparencia-proy/AI-CONTEXT.md` (este archivo) — Snapshot del estado actual
 2. `transparencia-proy/Plan de Desarrollo.md` — Hoja de ruta, sprints, decisiones
-3. `transparencia-proy/Sprints Pendientes - Contexto.md` — Contexto de sprints pendientes 13-25 (lazy load)
-4. `transparencia-proy/RESUMEN LEY 974.md` — Marco legal
-5. `transparencia-proy/Notas Reestructuración - Bloques 0-2 (Sept 2026) - Cierre.md` — Refactorización DiasHabiles/Dashboard/Denuncia + feriados + plantilla neutra (Sept 2026)
-6. `transparencia-proy/Notas Migración Laravel 13 - Cierre.md` — Migración L11→L13 (Sep 2026, histórico L11 hasta Sprint 11)
-7. `transparencia-proy/Consultas - Dashboard y Reportes.md` — Consultas SQL/Query Builder preparadas para Sprint 12
-8. `transparencia-proy/Esquema BD - Negocio.md` + `Esquema BD - Catálogos.md` — Esquema actual (si tocas BD)
+3. `transparencia-proy/Sprints Pendientes - Contexto.md` — Contexto de sprints pendientes (lazy load)
+4. `transparencia-proy/Sprint 16 - Plan (Rename + Roles).md` + `Sprint 18A - Plan Panel Usuarios.md` + `Sprint 18C - Plan Delegaciones.md` — planes vigentes (17-sep-2026)
+5. `transparencia-proy/RESUMEN LEY 974.md` — Marco legal
+6. `transparencia-proy/Notas Reestructuración - Bloques 0-2 (Sept 2026) - Cierre.md` — Refactorización DiasHabiles/Dashboard/Denuncia + feriados + plantilla neutra (Sept 2026)
+7. `transparencia-proy/Notas Migración Laravel 13 - Cierre.md` — Migración L11→L13 (Sep 2026, histórico L11 hasta Sprint 11)
+8. `transparencia-proy/Consultas - Dashboard y Reportes.md` — Consultas SQL/Query Builder preparadas para Sprint 12
+9. `transparencia-proy/Esquema BD - Negocio.md` + `Esquema BD - Catálogos.md` — Esquema actual (si tocas BD)
 
 ## Documentación de Referencia (LEER SOLO SI NECESARIO)
 > ⚠️ NO leer por defecto. Contienen detalles extensos que saturan la memoria de contexto. Están en `archivo/`.
@@ -124,7 +131,7 @@ Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (13–
 - **MAYÚSCULAS obligatorias en todos los textos libres** (convención institucional). Se aplica en backend vía trait `UppercaseText` (hook `saving` en modelos). Frontend usa `text-transform: uppercase`.
 - **Frontend por permisos, no por roles.** Catálogo `useCan()/Can` (Sprint 7.5). Los roles formales (BD) llegan en Sprint 16.
 - **Stack fijo:** MySQL (Laragon), Eloquent con cast JSON.
-- **Login:** username case-sensitive, password case-sensitive. Sin auto-registro ni password reset (Jefe lo hará desde Panel Admin en Sprint 11).
+- **Login:** username **case-insensitive** (unicidad ci en MySQL; doc corregido 17-sep-2026 — antes decía case-sensitive, era inexacto), password con charset libre. Sin auto-registro ni password reset (Admin/Jefe desde Panel Usuarios, Sprint 18A).
 - **Categorías:** fuente única de verdad = BD, compartidas globalmente vía `HandleInertiaRequests`.
 - **Tests:** SQLite `:memory:` aislados de BD de desarrollo (`phpunit.xml` configurado).
 
@@ -188,11 +195,14 @@ Ver `Sprints Pendientes - Contexto.md` para detalle de sprints pendientes (13–
 2. **Sprint 12** — Dashboard + KPIs + Reportes PDF/Excel ✅ COMPLETADO (Sept 2026 — base + pulido 12.1: presets, drill-down, export inteligente, rediseño amigable, paleta institucional; ver `Sprint 12.1 - Cierre Pulido Dashboard.md`)
 3. **Sprint 13** - Portal Panel Informativo COMPLETADO (Sep 2026 - muro + catalogos + admin + avisos de caso; ver `Sprint 13 - Cierre Portal Panel Informativo.md`)
 
-4. **Sprint 14** — Tiempos entre Fases (pendiente)
+4. **Sprint 14** — Tiempos entre Fases ⏸️ **APARCADO** (17-sep-2026 — agregado no pedido por el cliente; si se retoma: `TiemposQuery` sobre `bitacora`/fechas de dominio, sin migración)
+5. **Sprint 16** — Rename completo (`técnico`→`investigador`) + Roles y Permisos (rol `admin`, permisos efectivos, `RoleMiddleware`, `EnsureActive`, split de rutas) — **planificado**
+6. **Sprint 18A/18B/18C** — Panel Usuarios (Jefe/Admin) / Mi Cuenta / Delegaciones temporales — **18A y 18C planificados**
+7. **Sprint 19/20** — pulidos pendientes (mora, días hábiles formal) · **Sprint 21** — cierre Fase 1 + auditoría `owen-it/laravel-auditing` + seeds split prod/dev + hardening (antes era Sprint 17)
 
-> R1 ejecutado pre-13; R2 + auditoria backend van a Sprint 21. Decisiones en `Decisiones 12.5 - 13 (Log).md`.
+> R1 ejecutado pre-13; R2 + auditoria backend van a Sprint 21. Decisiones en `Decisiones 12.5 - 13 (Log).md` (D1–D17).
 
-**Estado inmediato:** Sprint 12.3 + R1 (12.5) + **Sprint 13 Portal cerrado** (14-sep-2026: muro/catalogos/admin/avisos-caso; ver `Sprint 13 - Cierre Portal Panel Informativo.md`). Suite: **118 tests**. Siguiente: Sprint 14 Tiempos entre Fases.
+**Estado inmediato:** Sprint 12.3 + R1 (12.5) + **Sprint 13 Portal cerrado** (14-sep-2026: muro/catalogos/admin/avisos-caso; ver `Sprint 13 - Cierre Portal Panel Informativo.md`) + **planificación 16/18A/18C cerrada** (17-sep-2026). Suite: **118 tests**. Siguiente: **Sprint 16.1 — Rename**.
 **Demo fresca (Sep 2026):** seeders con fechas relativas a hoy — 124 casos (85 activos: ~95% en plazo; 31 cerradas, 29 cumplidas). Siguiente ticket: 125. Time Machine solo-local en `/dev/tiempo` (+ enlace Sidebar dev-only) + alertas derivadas vivas (`AlertasPlazo`). Deuda/riesgos en `Deuda Tecnica y Riesgos.md`. Banco de 22 preguntas probadas en `Banco de Preguntas - Dashboard.md`. Rediseño visual con impeccable en `archivo/roadmap/Roadmap Disenio Visual.md` (Fase 0 tokens hecha).
 
 > Archivos del Sprint 13: `Sprint 13 - Portal Panel Informativo (Plan).md` (spec) + `Sprint 13 - Cierre Portal Panel Informativo.md` + `Decisiones 12.5 - 13 (Log).md`. Dashboard usa `Queries/Dashboard/*` y `DiasHabiles` con feriados.
@@ -209,9 +219,11 @@ Ver detalle completo en `Sprints Pendientes - Contexto.md`.
 > ⏸️ **Otros pendientes con el cliente:**
 > - C7: Destino del expediente al remitirse al Ministerio
 > - C8: Reglas del plazo al reabrir una denuncia
-> - Panel de administración de usuarios (Jefe crea/edita/resetea passwords) → Sprint 18
+> - **Sistemas GAMEA (nuevo 17-sep-2026):** alcance final del rol admin + posible panel
+>   administrativo de auditoría (consulta sin SQL directo). **Sin decidir**; si se confirma → Sprint 21.
+> - Panel de administración de usuarios (Admin/Jefe crea/edita/resetea) → **Sprint 18A** (planificado)
 
 > ⏸️ **Funcionalidades diferidas a v2 (no implementar en Fase 1):**
 > - Acompañamiento/Intervención → Sprint 23
-> - Permisos personalizados por usuario (granulares) → Sprint 25
+> - Permisos personalizados por usuario (granulares) → Sprint 25 (**parcialmente adelantado en Sprint 18C: delegaciones temporales auditadas**)
 > - Migración de casos legacy → Sprint 24

@@ -905,18 +905,13 @@ Ver detalle: `Sprint 7.7 - Búsqueda y Consulta para Registrador.md`.
 
 ---
 
-### Sprint 14 — Tiempos entre Fases
+### Sprint 14 — Tiempos entre Fases ⏸️ APARCADO (17-sep-2026)
 
-**Objetivo:** Métricas de duración promedio entre fases del proceso (recepción → admisión, admisión → asignación, etc.).
-
-**Origen:** Respuesta del cliente #19.
-
-| Archivo | Descripción |
-|---------|-------------|
-| `resources/js/Components/Dashboard/TiemposEntreFases.tsx` (nuevo) | Tabla/vista con tiempos promedio |
-| `app/Http/Controllers/ReporteController.php` (modificado) | +método tiemposEntreFases() |
-
-**Complejidad:** Baja si los timestamps están en mock data.
+**Estado:** ⏸️ **Aparcado** — agregado no solicitado por el cliente (era respuesta #19).
+Se analizó la factibilidad: los 5 tramos se calculan sin migración (fechas de dominio +
+`bitacora.accion='investigacion'` + `DiasHabiles::transcurridos`). El placeholder `Hourglass`
+de `TabResultados.tsx` se mantiene. Si se retoma: `TiemposQuery` + `GraficoTiempos`, solo
+visual. Detalle en `Sprints Pendientes - Contexto.md` § Sprint 14.
 
 ---
 
@@ -926,80 +921,77 @@ La migración de mocks a MySQL + Eloquent se completó como **Sprint 10**. Ver `
 
 ---
 
-### Sprint 16 — Roles y Permisos (Registrador / Jefe / Técnico)
+### Sprint 16 — Rename + Roles y Permisos ✅ PLANIFICADO (17-sep-2026)
 
-**Objetivo:** Implementar sistema de roles y permisos usando Laravel middleware y policies.
+**Objetivo:** cerrar la brecha de seguridad (rutas mutantes sin guard en backend) y formalizar
+la administración del sistema, junto con el rename `técnico` → `investigador`.
 
-**Origen:** Respuesta del cliente #23.
+**Origen:** decisión de cliente (agosto-septiembre 2026): rol administrador, delegaciones
+dinámicas y lenguaje acorde al personal (licenciados/abogados).
 
-| Actividad | Descripción |
-|-----------|-------------|
-| Definir los 3 roles | Registrador, Jefe de Unidad, Técnicos |
-| Crear middleware | `RoleMiddleware` para verificar rol en rutas |
-| Crear policies | Policies por modelo (DenunciaPolicy, SolicitudPolicy, etc.) |
-| Implementar guards | Proteger rutas según rol |
-| Refactorizar bandejas | Bandeja solo para Jefe, MisCasos solo para Técnico, etc. |
+| Fase | Contenido |
+|------|-----------|
+| **16.1 Rename** | `técnico` → `investigador` completo (BD editando migraciones, 586 identificadores / 64 archivos, 49 strings UI; "evaluación técnica previa" se conserva como proceso) |
+| **16.2 Roles** | Rol `admin` (solo gestiona + reportes), permisos `usuario.*`, `PermisosEfectivos`, `RoleMiddleware`, `EnsureActive`, split de `routes/web.php`, `can:` por ruta, refactor de ~12 `rol==='jefe'` |
 
-**Dependencias:** Requiere Sprint 10 (BD).
+**Plan completo:** `Sprint 16 - Plan (Rename + Roles).md`. Decisiones D11–D17 en
+`Decisiones 12.5 - 13 (Log).md`. **Sin Policies por modelo** (a evaluación en Sprint 21).
 
----
-
-### Sprint 17 — Auditoría Backend Detallada
-
-**Objetivo:** Auditoría automática de todos los cambios usando `owen-it/laravel-auditing`.
-
-**Origen:** Respuesta del cliente #26.
-
-| Actividad | Descripción |
-|-----------|-------------|
-| Instalar `owen-it/laravel-auditing` | Composer |
-| Aplicar trait `Auditable` | A modelos: Denuncia, Solicitud, Descargo, Evaluacion, Informe, Cierre |
-| Configurar | Qué campos auditar, qué usuario registra, IP |
-| Crear vista de auditoría | Para consultar log por caso o por usuario |
-
-**Dependencias:** Requiere Sprint 10 (BD).
+**Dependencias:** ninguna (BD ya operativa desde Sprint 10).
 
 ---
 
-### Sprint 18 — Panel de Usuario (NUEVO — Julio 2026)
+### Sprint 17 — Auditoría Backend Detallada 🔀 FUSIONADO EN SPRINT 21 (17-sep-2026)
 
-**Objetivo:** Panel completo de usuario con perfil, seguridad, preferencias de notificación y apariencia. Estilo Laravel Breeze pero en mock.
+**Estado:** 🔀 **Fusionado en Sprint 21.** La auditoría (`owen-it/laravel-auditing`) es
+transversal (roles, usuarios, delegaciones) y se aplica al final junto al hardening, para no
+re-auditar tras 16/18A/18C. Incluye el posible panel administrativo de auditoría pedido por
+Sistemas GAMEA (sin confirmar). Trait `Auditable` en Denuncia, Solicitud, Descargo, Evaluación,
+Informe, Cierre, **User** y **Delegacion** + UI de consulta por caso/usuario/evento admin.
 
-**Origen:** Decisión #40 (reunión Julio 2026). Se implementa post-Sprint 17 por dependencia con BD, roles y auditoría.
+---
 
-**Perfil:** Nombre, email, teléfono editables. Avatar/iniciales read-only.
+### Sprint 18A — Panel de Administración de Usuarios ✅ PLANIFICADO (17-sep-2026)
 
-**Seguridad:** Cambio de contraseña mock (3 campos: actual, nueva, confirmar).
+**Objetivo:** `/admin/usuarios` (Jefe + Admin): crear, editar, desactivar/reactivar, reset de
+contraseña y acciones masivas de relevo de personal, con invariantes de seguridad.
 
-**Preferencias de notificación (por usuario):**
-| Tipo de alerta | Default | Rango |
-|---|---|---|
-| Plazo total del caso por vencer | 3 días | 0-10 |
-| Informe final por vencer | 3 días | 0-10 |
-| Solicitud de información por vencer | 2 días | 0-10 |
-| Descargo de denunciados por vencer | 2 días | 0-10 |
+**Origen:** decisión de cliente — admin con control total; el Jefe crea jefes/investigadores/
+registradores (no admins); recambio casi total de personal cada ~4 años.
 
-- Switch master: ¿Recibir notificaciones?
-- Switch individual por tipo
+**Puntos clave:** matriz de jerarquía · bloqueo de desactivación con casos activos +
+**traspaso en lote** · ≥1 admin y ≥1 jefe activos · password policy + `debe_cambiar_password` ·
+username case-insensitive · trazabilidad (`creado_por_id`, `desactivado_*`, `motivo_baja` opcional).
 
-**Apariencia:** Modo oscuro/claro (existente), idioma mock.
+**Plan completo:** `Sprint 18A - Plan Panel Usuarios.md`.
+**Dependencias:** Sprint 16 (middleware + `usuario.*`).
 
-| Archivo | Descripción |
-|---|---|
-| `app/Data/PreferenciasUsuarioData.php` (nuevo) | Mock data layer de preferencias por usuario |
-| `app/Http/Controllers/UserPanelController.php` (nuevo) | CRUD perfil + preferencias |
-| `app/Helpers/NotificacionesConfig.php` (nuevo) | Aplica preferencias al filtrado de notificaciones |
-| `resources/js/Pages/User/Perfil.tsx` (nuevo) | Formulario perfil |
-| `resources/js/Pages/User/Seguridad.tsx` (nuevo) | Cambio contraseña |
-| `resources/js/Pages/User/Preferencias.tsx` (nuevo) | Sliders + switches |
-| `resources/js/Pages/User/Apariencia.tsx` (nuevo) | Tema, idioma |
-| `resources/js/Layouts/UserPanelLayout.tsx` (nuevo) | Layout con tabs |
-| `app/Http/Controllers/NotificacionController.php` (modificado) | Usar preferencias al filtrar |
-| `routes/web.php` (modificado) | Rutas `/user/*` |
-| `HandleInertiaRequests.php` (modificado) | Compartir preferencias globalmente |
-| `Sidebar.tsx` (modificado) | + item "Mi Cuenta" |
+---
 
-**Dependencias:** Sprint 10 (BD), Sprint 16 (Roles), Sprint 17 (Auditoría).
+### Sprint 18B — Mi Cuenta (perfil, seguridad, preferencias, apariencia)
+
+**Objetivo:** completar el panel de usuario Breeze (ya no mock): perfil (teléfono + picker de
+color D7), seguridad real, preferencias de notificación (master + 4 umbrales 3/3/2/2
+persistidos en `users.preferencias` y cableados a `AlertasPlazo`), apariencia. Eliminar
+`DeleteUserForm` (delete físico prohibido).
+
+**Plan:** sección Sprint 18B en `Sprints Pendientes - Contexto.md`. **Dependencias:** 16 (roles)
+y preferencias reales (D7).
+
+---
+
+### Sprint 18C — Delegaciones Temporales de Funciones ✅ PLANIFICADO (17-sep-2026)
+
+**Objetivo:** delegar funciones (casos, reportes, consulta, avisos) a otro usuario con vigencia
+opcional, motivo y auditoría; cubre la "mano derecha" del Jefe y el **Jefe interino** por
+vacaciones sin compartir cuentas (patrón JIT/PIM).
+
+**Puntos clave:** tabla `delegaciones` (permisos JSON + `desde`/`hasta` + revocación lógica) ·
+aditivo (rol ∪ delegaciones activas) · whitelist para Jefe · paquetes/presets · badge
+JEFE INTERINO · cascada al desactivar/cambiar rol · sin avisos automáticos por ahora.
+
+**Plan completo:** `Sprint 18C - Plan Delegaciones.md`.
+**Dependencias:** Sprint 16 (`PermisosEfectivos`) + 18A.
 
 ---
 
@@ -1053,23 +1045,29 @@ La migración de mocks a MySQL + Eloquent se completó como **Sprint 10**. Ver `
 
 ### Sprint 21 — Cierre Fase 1 / Ajustes Finales
 
-**Objetivo:** Testing integral, limpieza técnica, documentación de usuario y deploy a producción. **No incluye funcionalidad nueva.**
+**Objetivo:** Testing integral, auditoría, limpieza técnica, documentación de usuario y deploy a producción. **No incluye funcionalidad nueva.**
 
 **Actividades:**
+- **Auditoría backend** (fusionada del Sprint 17, 17-sep-2026): `owen-it/laravel-auditing` +
+  trait `Auditable` (Denuncia, Solicitud, Descargo, Evaluación, Informe, Cierre, **User**,
+  **Delegacion**) + UI de consulta por caso/usuario/evento admin. **Pendiente confirmar con
+  Sistemas GAMEA** si se agrega el panel administrativo de auditoría (consulta sin SQL directo).
 - **Testing end-to-end** de todos los flujos del sistema
 - **Optimización de performance** (queries, render, bundle)
 - **Limpieza de código** (remover mocks/debug, renombrar, documentar funciones complejas)
 - **Refactor de deuda técnica** detectada durante desarrollo
 - **Auditoría de seguridad** (sanitización, CSRF, rate limits, exposición de datos)
+- **Seeds split prod/dev** (`AdminInicialSeeder` con password por env; demo solo dev) +
+  `.env.production.example` + `.gitignore` de `backup-*.sql` y `setup-demo-publica/`
 - **Documentación final:**
   - Manual de usuario para UTLCC
   - Manual técnico
   - README de instalación
-- **Capacitación:** sesión al Jefe y técnicos
+- **Capacitación:** sesión al Jefe e investigadores
 - **Deploy a producción:** servidor, DNS, SSL, backups
 - **Criterio "done" final:** checklist de requisitos de Fase 1
 
-**Nota para IAs:** Esta sección es solo roadmap. **No leerla** a menos que se esté trabajando explícitamente en el Sprint 20.
+**Nota para IAs:** Esta sección es solo roadmap. **No leerla** a menos que se esté trabajando explícitamente en el Sprint 21.
 
 ---
 
@@ -1146,14 +1144,18 @@ La migración de mocks a MySQL + Eloquent se completó como **Sprint 10**. Ver `
 
 **Estado:** ⏸️ **Diferido a v2.** NO se implementa en Fase 0/1.
 
+**Revisión 17-sep-2026:** el rol admin (16), el panel de usuarios (18A) y las **delegaciones
+temporales (18C)** cubren la necesidad operativa real (mano derecha del Jefe + jefe interino).
+Lo que sigue diferido es el panel granular **permanente** por usuario.
+
 **Origen:** Duda del cliente Julio 2026 — ¿se necesita un panel de control para dar distintos tipos de permisos a ciertos usuarios o edición de permisos a roles?
 
-**Decisión tomada (Julio 2026):**
-- **Fase 0/1:** 3 roles fijos (Registrador, Jefe, Técnico) con permisos hardcodeados en el catálogo (Sprint 7.5) y formalizados en Sprint 16.
-- **NO se implementa** un panel de control de permisos granulares por usuario.
-- Si en el futuro se requiere granularidad, Sprint 25+ (v2) lo abordará con librería tipo `spatie/laravel-permission`.
+**Decisión tomada (Julio 2026, revisada Sep 2026):**
+- **Fase 0/1:** 4 roles fijos (Admin, Jefe, Investigador, Registrador) con permisos en el catálogo (Sprint 7.5) y formalizados en Sprint 16; delegaciones temporales en 18C.
+- **NO se implementa** un panel de control de permisos granulares permanentes por usuario.
+- Si en el futuro se requiere granularidad permanente, Sprint 25 (v2) lo abordará con librería tipo `spatie/laravel-permission`.
 
-**Razón:** Mantener el sistema simple y predecible en la primera versión. La experiencia ha mostrado que la mayoría de usuarios encajan en uno de los 3 roles.
+**Razón:** Mantener el sistema simple y predecible en la primera versión. La experiencia ha mostrado que la mayoría de usuarios encajan en uno de los 4 roles.
 
 **Ver detalle:** `Sprint 25 - Permisos Personalizados v2 (diferido).md`.
 

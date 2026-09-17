@@ -4,9 +4,13 @@
 > **Solo leer la sección del sprint en el que se está trabajando actualmente.**
 > No leer las secciones de sprints futuros para evitar cargar contexto innecesario.
 
-**Sprints pendientes:** 11 → 12 → 13 → 14 → 15+ (BD real en Sprint 9.2).
-**Sprints diferidos a v2:** 23 (Acompañamiento/Intervención, era 22), 25 (Permisos Personalizados, era 24).
-**Sprint diferido (detalle a definir en Sprint 9.2):** 24 (Migración Casos Legacy, era 23).
+**Sprints pendientes (orden 17-sep-2026):** 16 (rename + roles) → 18A (panel usuarios) →
+18B (mi cuenta) → 18C (delegaciones temporales) → 19/20 (pulidos) → 21 (cierre Fase 1 + auditoría).
+**Sprint 14 (Tiempos entre Fases) APARCADO** (17-sep-2026 — agregado no solicitado por el cliente; ver § Sprint 14).
+**Sprints diferidos a v2:** 23 (Acompañamiento/Intervención, era 22), 25 (Permisos Personalizados; 18C adelanta solo delegaciones temporales).
+**Sprint diferido (detalle a definir):** 24 (Migración Casos Legacy, era 23).
+**Planes vigentes:** `Sprint 16 - Plan (Rename + Roles).md`, `Sprint 18A - Plan Panel Usuarios.md`, `Sprint 18C - Plan Delegaciones.md`.
+**Renumeración 17-sep-2026:** Sprint 17 (auditoría) se fusiona en **Sprint 21**; Sprint 18 se divide en **18A** (panel usuarios) y **18B** (mi cuenta).
 
 ---
 
@@ -466,29 +470,21 @@ Baja. Solo vista + endpoint. Se puede hacer tempranamente.
 
 ---
 
-## Sprint 14 — Tiempos entre Fases
+## Sprint 14 — Tiempos entre Fases ⏸️ APARCADO (17-sep-2026)
 
-**Estado:** Pendiente.
-**Origen:** Respuesta del cliente #19.
+**Estado:** ⏸️ **Aparcado.** Era un agregado propio (no solicitado por el cliente) para el dashboard.
 
-### Resumen
-Métricas de **duración promedio entre fases** del proceso. Útil para identificar cuellos de botella.
+### Por qué se aparcó
+- El cliente nunca lo pidió; las prioridades actuales son roles, panel de usuarios y delegaciones.
+- Se analizó la factibilidad: los 5 tramos se pueden calcular **sin migración** (fechas de
+  dominio + `bitacora.accion='investigacion'` para Inicio→Informe + `DiasHabiles::transcurridos`).
+- Si se retoma: `TiemposQuery` en `app/Queries/Dashboard/` + `GraficoTiempos` en
+  `TabResultados.tsx` (hoy placeholder `Hourglass`), solo visual, sin export.
+- Nota técnica registrada: no existe columna `fecha_investigacion` (única vía: bitácora);
+  evaluar columna + backfill solo si se retoma con requisito de exactitud.
 
-### Métricas
-- Recepción → Admisión (días promedio)
-- Admisión → Asignación
-- Asignación → Primera solicitud/descargo
-- Inicio investigación → Informe Final
-- Informe → Cierre
-
-### Complejidad
-Baja si los timestamps están en mock data. Sería solo una vista tabular sin gráficos dedicados.
-
-### Archivos a crear
-- `resources/js/Components/Dashboard/TiemposEntreFases.tsx`
-
-### Archivos a modificar
-- `app/Http/Controllers/ReporteController.php` (+método tiemposEntreFases)
+### Referencia
+Discusión de planificación 17-sep-2026 (misma sesión que D11–D17 en `Decisiones 12.5 - 13 (Log).md`).
 
 ---
 
@@ -528,127 +524,128 @@ Sprint 16 (Roles) y siguientes dependen de este sprint.
 
 ---
 
-## Sprint 16 (era 15) — Roles y Permisos (Registrador / Jefe / Técnico)
+## Sprint 16 (era 15) — Rename + Roles y Permisos ✅ PLANIFICADO (17-sep-2026)
 
-**Estado:** Pendiente (casi al final del proyecto).
-**Origen:** Respuesta del cliente #23.
+**Estado:** Planificado, no ejecutado. **Plan completo:** `Sprint 16 - Plan (Rename + Roles).md`.
+**Origen:** pasar de demo a sistema funcional + cierre de brecha de seguridad (hoy ~80% de
+rutas mutantes solo se ocultan en UI) + unificación de lenguaje con el personal
+(licenciados/abogados: "técnico" → "investigador").
 
-### Resumen
-Implementar sistema de roles y permisos usando Laravel middleware y policies. Solo se implementa **una vez que la BD esté operativa** (Sprint 9.2).
+### Fases
+1. **16.1 Rename completo** `técnico` → `investigador` (BD editando migraciones originales,
+   586 identificadores en 64 archivos, 49 strings UI; "evaluación técnica previa" se conserva
+   como nombre de proceso). Docs al cierre de fase.
+2. **16.2 Roles, permisos y protección backend:**
+   - Rol **admin** (solo gestiona: usuarios, catálogos, reportes; NO opera casos).
+   - Permisos nuevos: `menu.usuarios` + 5 `usuario.*`, `reporte.exportar`, `caso.archivar`.
+   - Limpieza: `denuncia.eliminar` fuera de registrador; `menu.feriados` huérfano eliminado.
+   - `PermisosEfectivos` (rol ∪ delegaciones activas — seam de 18C) + Gates en loop.
+   - `RoleMiddleware` (redirect `/dashboard` + toast) + `EnsureActive` (mata sesión de inactivos).
+   - **Split de `routes/web.php`** (`denuncias`, `reportes`, `admin`, `cuenta`) + `can:` por ruta.
+   - Refactor de los ~12 `rol === 'jefe'` → permisos (incluye notificaciones/alertas).
+   - `DashboardController`: `esAdmin` + `modoVista()` derivado de permisos.
+   - Seed dev: usuario `admin` (demo123).
 
-### Roles
-- **Registrador** (antes "Recepcionista"): registra denuncias
-- **Jefe de Unidad:** ve todo, admite/rechaza, asigna, delega, traspasa, reabre, ve reportes
-- **Técnicos:** solo ve sus casos asignados, gestiona investigación e informe
-
-### Actividades
-- Definir los 3 roles
-- Crear `RoleMiddleware` para rutas
-- Crear policies por modelo
-- Refactorizar bandejas para restricción por rol
-
-### Nota — Julio 2026
-**Reemplaza la simulación del Sprint 6.5.** Cuando se implementen roles reales:
-1. Eliminar `SelectorUsuarioDemo.tsx` del Header
-2. Reemplazar `session('demo_user_id')` por `Auth::user()`
-3. El Sidebar y los controllers **no requieren cambios**: la lógica de filtrado por `user.rol` es la misma
-4. Cero código desechable — el patrón de Sprint 6.5 fue diseñado para esto
-
-### Dependencias
-Requiere Sprint 9.2 (BD).
+### Decisiones
+D11–D17 en `Decisiones 12.5 - 13 (Log).md` (bloque Sep-2026).
+**Sin Policies por modelo** en este sprint (record-scoping sigue en controllers; Policies se
+evalúan en Sprint 21).
 
 ---
 
-## Sprint 17 (era 16) — Auditoría Backend Detallada
+## Sprint 17 (era 16) — Auditoría Backend Detallada 🔀 FUSIONADO EN SPRINT 21 (17-sep-2026)
 
-**Estado:** Pendiente (al final del proyecto).
-**Origen:** Respuesta del cliente #26.
+**Estado:** 🔀 **Fusionado en Sprint 21** (cierre Fase 1). Ya no es sprint propio.
+**Razón:** la auditoría es transversal al sistema completo (roles, usuarios, delegaciones);
+hacerla antes de 16/18A/18C obligaría a re-auditar. Se instala y aplica al final, junto al
+hardening y al posible panel administrativo de auditoría pedido por Sistemas (sin confirmar).
 
-### Resumen
-Auditoría automática de todos los cambios usando **`owen-it/laravel-auditing`**. La auditoría actual (mock) es suficiente; esta es la auditoría formal en backend.
-
-### Actividades
-- Instalar `composer require owen-it/laravel-auditing`
-- Aplicar trait `Auditable` a modelos relevantes
-- Configurar qué campos auditar
-- Crear vista de auditoría (consulta por caso o por usuario)
-
-### Modelos a auditar
-Denuncia, Solicitud, Descargo, Evaluación, Informe, Cierre
-
-### Dependencias
-Requiere Sprint 9.2 (BD).
+### Alcance cuando se ejecute (en Sprint 21)
+- `composer require owen-it/laravel-auditing` + trait `Auditable` (Denuncia, Solicitud,
+  Descargo, Evaluación, Informe, Cierre, **User, Delegacion**).
+- UI de consulta: por caso, por usuario y por evento administrativo (alta/edición/baja de
+  usuarios y delegaciones) — pendiente confirmar alcance con Sistemas GAMEA.
+- Trazabilidad básica ya existe en columnas (`creado_por_id`, `desactivado_*`, `delegaciones.*`);
+  `audits` da el detalle fino campo→campo.
 
 ---
 
-## Sprint 18 (era 17) — Panel de Usuario (Perfil + Seguridad + Preferencias + Apariencia) (Julio 2026)
+## Sprint 18A — Panel de Administración de Usuarios ✅ PLANIFICADO (17-sep-2026)
 
-**Estado:** Pendiente (post-Sprint 16).
-**Origen:** Decisión #40 (reunión Julio 2026).
+**Estado:** Planificado, no ejecutado. **Plan completo:** `Sprint 18A - Plan Panel Usuarios.md`.
+**Origen:** decisión del cliente — rol admin con control total de cuentas; el Jefe crea
+jefes/investigadores/registradores pero no admins; relevo de gestión casi total cada ~4 años.
 
-### Resumen
-Panel completo de usuario con secciones de perfil, seguridad, preferencias de notificación y apariencia. Estilo Laravel Breeze pero en mock (sin BD real, usando sesión).
+### Alcance
+- `/admin/usuarios` (Jefe + Admin según matriz): listado con filtros, crear, editar,
+  desactivar/reactivar, reset de contraseña, **acciones masivas** de relevo.
+- Matriz de jerarquía: admin → todos; jefe → todos menos admin (con guards).
+- **Desactivación con casos activos:** bloqueo + **traspaso en lote** asistido a otro
+  investigador (evita expedientes huérfanos en cambios de personal).
+- Invariantes en transacción (`lockForUpdate`): ≥1 admin y ≥1 jefe activos, no auto-baja,
+  no tocar nivel superior, nunca delete físico.
+- Password policy (`min:10 + May + min + núm`) + `debe_cambiar_password` (cambio forzado en
+  primer login; también lo usa 18B) + revocación de sesiones/`remember_token` al resetear.
+- Username: único **case-insensitive**, charset `[A-Za-z0-9._-]{3,30}` (doc corregido).
+- Trazabilidad en `users`: `creado_por_id`, `desactivado_por_id`, `desactivado_at`,
+  `motivo_baja` (**opcional**), `debe_cambiar_password`.
+- Iniciales + color D7 autogenerados al crear.
 
-Se implementa después de tener la BD (Sprint 9.2), los roles (Sprint 16) y la auditoría (Sprint 17) — porque depende de ellos para persistencia real.
+### Pendiente cliente/Sistemas (no bloquea)
+Alcance final del admin + posible panel administrativo de auditoría (sin SQL directo):
+sin decidir; si se confirma → Sprint 21.
+
+---
+
+## Sprint 18B — Mi Cuenta (Perfil + Seguridad + Preferencias + Apariencia)
+
+**Estado:** Pendiente (post-18A). **Spec:** `Sprints Pendientes - Contexto.md` (esta sección) +
+D7 en `Decisiones 12.5 - 13 (Log).md`. Ya NO es mock: la BD existe (Sprint 10) y
+`users.preferencias` (JSON) ya está migrado.
 
 ### Secciones
+- **Perfil:** nombre, email, teléfono editables + **picker de color** de paleta oficial (D7);
+  avatar con iniciales y color (clave → clase literal vía `InvestigadorAvatar`).
+- **Seguridad:** cambio de contraseña real (verifica la actual) con política `min:10 + May +
+  min + núm`; eliminar `DeleteUserForm` de Breeze (delete físico prohibido).
+- **Preferencias de notificación:** master switch + 4 umbrales (3/3/2/2 por defecto, rango
+  0-10) persistidos en `users.preferencias` y **cableados a `AlertasPlazo`** (hoy ignora
+  preferencias).
+- **Apariencia:** modo oscuro/claro (ya funciona), idioma solo-español (selector informativo).
 
-#### 1. Perfil
-- Avatar/iniciales (read-only)
-- **Avatar: color de paleta oficial (decisión D7 10-sep-2026, ver `Decisiones 12.5 - 13 (Log).md`):**
-  auto-asignar random al crear usuario (hook `creating`, guardar **clave** de paleta,
-  no clase CSS) + picker en Perfil + migrar legacy `bg-*` de `UserSeeder`
-  (hoy arbitrarios y sin safelist → sin CSS en build; `Header` los usa como hex).
-  `TecnicoAvatar` resuelve clave → clase literal. Paleta propuesta: `bg-primary`,
-  `bg-teal-600`, `bg-amber-500`, `bg-[#431377]`, `bg-secondary`, `bg-slate-500`.
-- Nombre completo (editable)
-- Email de contacto (editable)
-- Teléfono (editable)
-- Botón "Guardar cambios"
+### Archivos
+- `resources/js/Pages/Profile/*` (extender Breeze) + `ProfileController` (update) ·
+  `Notificacion`/`AlertasPlazo` (leer preferencias) · Sidebar/Header (link "Mi Cuenta").
 
-#### 2. Seguridad
-- Cambiar contraseña: 3 campos (actual, nueva, confirmar)
-- Validación de fortaleza
-- Mock: no verifica la actual, solo simula
-- Botón "Actualizar contraseña"
+---
 
-#### 3. Preferencias de notificación
-| Tipo de alerta | Default | Rango |
-|---|---|---|
-| Plazo total del caso por vencer | 3 días | 0-10 |
-| Informe final por vencer | 3 días | 0-10 |
-| Solicitud de información por vencer | 2 días | 0-10 |
-| Descargo de denunciados por vencer | 2 días | 0-10 |
+## Sprint 18C — Delegaciones Temporales de Funciones ✅ PLANIFICADO (17-sep-2026)
 
-- Switch master: ¿Recibir notificaciones?
-- Switch individual por tipo
-- Sliders/inputs numéricos
+**Estado:** Planificado, no ejecutado. **Plan completo:** `Sprint 18C - Plan Delegaciones.md`.
+**Origen:** el Jefe necesita delegar funciones al Registrador ("mano derecha": delegar casos,
+extraer informes, ver dashboard) y cubrir vacaciones con un **Jefe interino** sin compartir
+cuentas. Mismo problema que resuelven JIT/PIM (Azure) y TEAM (AWS).
 
-#### 4. Apariencia
-- Modo oscuro/claro (ya funciona vía localStorage)
-- Idioma (mock: solo español, selector visible)
+### Alcance
+- Tabla `delegaciones` (permisos JSON, `desde`, `hasta` nullable, motivo, otorgado/revocado por;
+  índice `(user_id, revocado_at, hasta)`).
+- **Aditivo:** permisos efectivos = rol ∪ delegaciones activas (caducidad perezosa, sin cron).
+- Whitelist delegable para Jefe (casos, reportes, consulta, avisos); **nunca** `usuario.*`/`admin.*`.
+  Admin puede delegar cualquiera. Revoca el otorgante o un admin.
+- Presets/paquetes (`PermisosCatalogo::PAQUETES`): Jefe completo, Bandeja y admisión,
+  Reportes y dashboard, Consulta y códigos, Avisos del portal.
+- UI `/admin/delegaciones` + badge **JEFE INTERINO** (derivado de delegación, no de rol) +
+  banner en dashboard del interino. **Sin avisos automáticos por ahora** (decisión).
+- Cascadas: desactivar usuario o cambiarle rol → revoca delegaciones activas.
+- El interino opera la **bandeja completa** como jefe; los casos del ausente no se traspasan
+  automáticamente (traspaso puntual por el flujo existente).
 
-### Archivos a crear
-- `app/Data/PreferenciasUsuarioData.php` (mock data layer)
-- `app/Http/Controllers/UserPanelController.php` (CRUD perfil + preferencias)
-- `app/Helpers/NotificacionesConfig.php` (aplica preferencias al filtrado)
-- `resources/js/Pages/User/Perfil.tsx`
-- `resources/js/Pages/User/Seguridad.tsx`
-- `resources/js/Pages/User/Preferencias.tsx`
-- `resources/js/Pages/User/Apariencia.tsx`
-- `resources/js/Layouts/UserPanelLayout.tsx`
-
-### Archivos a modificar
-- `app/Http/Controllers/NotificacionController.php` (usar preferencias)
-- `routes/web.php` (rutas del panel)
-- `app/Http/Middleware/HandleInertiaRequests.php` (compartir preferencias)
-- `resources/js/Components/Layout/Sidebar.tsx` (+ item "Mi Cuenta")
-- `resources/js/Components/Layout/Header.tsx` (avatar → link al panel)
+### Relación con Sprint 25
+Sprint 25 (permisos personalizados permanentes, v2) sigue diferido; 18C adelanta **solo** la
+delegación temporal auditada, que es la necesidad real detectada.
 
 ### Dependencias
-- Sprint 9.2 (BD) para persistencia real
-- Sprint 16 (Roles) para asociar preferencias a usuarios
-- Sprint 16 (Auditoría) para registrar cambios
+Sprint 16 (`PermisosEfectivos`, Gates, middleware) + Sprint 18A (matriz de usuarios).
 
 ---
 
@@ -882,21 +879,25 @@ Ver `Sprint 23 - Migración de Casos Legacy (diferido).md`.
 ## Sprint 25 (era 24) — Permisos Personalizados (v2) ⏸️ DIFERIDO
 
 **Estado:** ⏸️ **Diferido a v2.** NO se implementa en Fase 0/1.
+**Revisión 17-sep-2026:** el rol admin (Sprint 16), el panel de usuarios (18A) y las
+**delegaciones temporales (18C)** cubren la necesidad operativa real detectada por el cliente
+(mano derecha del Jefe + jefe interino por vacaciones). Lo que sigue diferido es el panel
+granular **permanente** de permisos por usuario.
 
 **Origen:** Duda del cliente Julio 2026 — ¿se necesita un panel de control para dar distintos tipos de permisos a ciertos usuarios o edición de permisos a roles?
 
-### Decisión tomada (Julio 2026)
-- **Fase 0/1:** 3 roles fijos (Registrador, Jefe, Técnico) con permisos hardcodeados en el catálogo (Sprint 7.5) y formalizados en Sprint 16.
-- **NO se implementa** un panel de control de permisos granulares por usuario.
-- Si en el futuro se requiere granularidad, Sprint 24+ (v2) lo abordará con librería tipo `spatie/laravel-permission`.
+### Decisión tomada (Julio 2026, revisada 17-sep-2026)
+- **Fase 0/1:** 4 roles fijos (Admin, Jefe, Investigador, Registrador) con permisos en el catálogo (Sprint 7.5) y formalizados en Sprint 16; **delegaciones temporales auditadas en 18C** (adelanto parcial).
+- **NO se implementa** un panel de control de permisos granulares **permanentes** por usuario.
+- Si en el futuro se requiere granularidad permanente, Sprint 25 (v2) lo abordará con librería tipo `spatie/laravel-permission` (el pivot estándar no soporta vigencia, por eso 18C usa tabla propia).
 
 ### Razón
-Mantener el sistema simple y predecible en la primera versión. La experiencia ha mostrado que la mayoría de usuarios encajan en uno de los 3 roles.
+Mantener el sistema simple y predecible en la primera versión. La experiencia ha mostrado que la mayoría de usuarios encajan en uno de los 4 roles.
 
 ### Cambios en v2 (cuando se reactive)
 - Instalar `spatie/laravel-permission` u otro similar
 - Crear UI de administración de permisos
-- Refactor de `SesionUsuarioData` para cargar permisos por usuario
+- Refactor de `PermisosEfectivos` (hoy: rol ∪ delegaciones) para cargar permisos por usuario
 - Refactor de todos los chequeos de permisos
 
 ### Estimación (referencia v2)
@@ -907,4 +908,4 @@ Ver `Sprint 24 - Permisos Personalizados v2 (diferido).md`.
 
 ---
 
-*Última actualización: Julio 2026.*
+*Última actualización: 17-sep-2026 (planificación Sprint 16 / 18A / 18B / 18C, Sprint 14 aparcado, Sprint 17 fusionado en 21).*

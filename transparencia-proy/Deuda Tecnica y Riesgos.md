@@ -1,9 +1,24 @@
 # Deuda Técnica y Riesgos
 
 > **Propósito:** Registro vivo de deuda, riesgos y mejoras diferidas para trabajar a futuro. No es roadmap de sprints.
-> **Actualizado:** 2026-09-09 (post Sprint 12.3). Stack: Laravel 13 / PHP 8.3. Suite 88 tests.
+> **Actualizado:** 2026-09-17 (post planificación Sprint 16/18A/18C). Stack: Laravel 13 / PHP 8.3. Suite 118 tests.
 
-## P0 — Bloquea demo / dashboard
+## Planificado 17-sep-2026 (Sprint 16 / 18A / 18C)
+
+> Deuda que estos sprints cierran o mueven — ver planes en `Sprint 16 - Plan (Rename + Roles).md`,
+> `Sprint 18A - Plan Panel Usuarios.md`, `Sprint 18C - Plan Delegaciones.md`.
+
+- ✅ **Brecha de autorización backend** (P0 de seguridad): ~80% de rutas mutantes sin guard
+  (solo ocultas en UI) → `RoleMiddleware` + `EnsureActive` + `can:` por ruta en **16.2**.
+- ✅ **Login "case-sensitive"** (doc inexacto): confirmado que MySQL es ci y así se mantiene;
+  doc corregido en 16.2 y validación de unicidad explícita en 18A (ojo SQLite de tests).
+- ✅ **`routes/web.php` monolito (198 L)**: split planificado **dentro de 16.2** (era B3→21).
+- ✅ **Sin gestión de usuarios**: `/admin/usuarios` (18A) + invariantes + relevo masivo.
+- ✅ **Permisos personalizados v2 (Sprint 25)**: necesidad real cubierta por 18C (delegaciones
+  temporales); el panel granular permanente sigue diferido.
+- 🔀 **Sprint 17 (auditoría) fusionado en 21** — ver abajo.
+
+## P0 — Bloquea producción (ex "Bloquea demo")
 
 | # | Deuda / riesgo | Dónde | Impacto | Fix sugerido | Esfuerzo |
 |---|---|---|---|---|---|
@@ -68,13 +83,16 @@
 
 | # | Deuda | Cuándo | Nota |
 |---|---|---|---|
-| R2.1 | `Shared/FormDialog` (~20 modales) | Piloto post-14 | Admisión/Rechazo/Asignación primero; si diverge, queda fuera |
-| R2.2 | `Shared/FiltrosCaso` + `useFiltroCasos` | Post-16 | Toca queries/filtros de 5 superficies; suite verde como red |
+| R2.1 | `Shared/FormDialog` (~20 modales) | Piloto post-16 | Admisión/Rechazo/Asignación primero; si diverge, queda fuera |
+| R2.2 | `Shared/FiltrosCaso` + `useFiltroCasos` | Post-18C | Toca queries/filtros de 5 superficies; suite verde como red |
 | B1 | N+1 + índices (`users.activo`, estados) | 21 | Skills revisores: `technical-debt`, `database-optimization` |
 | B2 | God backend (`CatalogoController:527`, seeders) | 21 | Extraer Services/Queries |
-| B3 | `43× as any` resto + split `routes/web.php` | 21 | Layouts ya hechos en 12.3 |
+| B3 | `43× as any` resto | 21 | Layouts ya hechos en 12.3; split `web.php` se adelanta a 16.2 |
 | B4 | OWASP + E2E Playwright | 21 | `owasp-security`, `e2e-playwright-testing` |
-| B5 | Avatar: color paleta oficial + hash fallback | 18 | D7: hook `creating` + picker Perfil + migrar `bg-*` legacy; `TecnicoAvatar` resuelve clave → clase |
+| B5 | Avatar: color paleta oficial + hash fallback | 18A/18B | D7: hook `creating` + picker Perfil + migrar `bg-*` legacy; `InvestigadorAvatar` resuelve clave |
+| B6 | Auditoría backend (`owen-it/laravel-auditing`) + UI | 21 | Fusionada del Sprint 17 (17-sep-2026). Incluye User y Delegacion |
+| B7 | **Panel administrativo de auditoría** (consulta sin SQL directo) | 21 (sin confirmar) | Pedido por Sistemas GAMEA "por verse" (17-sep-2026). **No decidido**; si se confirma, entra junto a B6 |
+| B8 | Seeds split prod/dev + `.env.production.example` + gitignore backups | 21 | `AdminInicialSeeder` con password por env; demo123 solo dev |
 
 **Guardarraíl pre-13 (no arrastrar deuda contagiosa):** no nuevos wrappers
 `formatDate`, no avatares manuales, importar de `constants/semantica.ts`,

@@ -5,6 +5,9 @@
 > re-audite lo mismo. **Fecha:** 09-sep-2026. **Estado código al corte:** `main`
 > incluye batches visuales 12.4 (PageHeader, PublicHeader, tokens) — cierre
 > documental de 12.4 pendiente, no forma parte de este log.
+>
+> **Anexo 17-sep-2026:** D11–D17 (planificación Sprint 16 / 18A / 18B / 18C — roles,
+> rename, panel de usuarios y delegaciones temporales).
 
 ## D1 — R1 antes del 13, R2 después (09-sep-2026)
 
@@ -122,3 +125,96 @@
   (`$request->boolean()`, no regla `boolean`) + FULLTEXT condicional.
 - Requiere `php artisan migrate` en dev al recibir estos cambios
   (migraciones `000005`–`000007`).
+
+---
+
+# Anexo — Decisiones Sprint 14 → 18C (17-sep-2026)
+
+> Sesión de planificación funcional (salto de demo a sistema operativo). Planes:
+> `Sprint 16 - Plan (Rename + Roles).md`, `Sprint 18A - Plan Panel Usuarios.md`,
+> `Sprint 18C - Plan Delegaciones.md`.
+
+## D11 — Rol Admin + jerarquía de administración (17-sep-2026)
+
+- **Decisión:** nuevo rol `admin`: **solo gestiona** (usuarios, catálogos, reportes como
+  oversight); **NO opera casos** (sin `caso.*`, sin bandeja, sin mis-casos).
+- **Jerarquía:** admin crea/edita a todos; **jefe crea jefe/investigador/registrador pero no
+  admin**; admin no puede auto-desactivarse ni auto-degradarse; jefe tampoco puede tocar cuentas
+  de admin (ni verlas en el panel).
+- **Consecuencia:** el catálogo suma 5 permisos `usuario.*` + `menu.usuarios`; el Dashboard
+  gana `esAdmin`; `/denuncias/consultar` sigue solo-registrador.
+
+## D12 — Delegaciones temporales de funciones → Sprint 18C (17-sep-2026)
+
+- **Problema real:** el Jefe necesita "mano derecha" (delegar casos, extraer informes, ver
+  dashboard) y cubrir ausencias con un **Jefe interino**, sin compartir cuentas.
+- **Decisión:** modelo **aditivo** de permisos: efectivo = base del rol ∪ delegaciones activas
+  (tabla `delegaciones` con permisos JSON, `desde`/`hasta` **opcional**, motivo, otorgado/revocado
+  por). Caducidad perezosa (sin cron). Sin "denials".
+- **Quién otorga:** admin cualquiera; jefe solo desde **whitelist** (casos, reportes, consulta,
+  avisos) y nunca `usuario.*`/`admin.*` (constrained delegation). Revoca el otorgante o un admin.
+- **Atajos:** paquetes/presets (`PermisosCatalogo::PAQUETES`), incluido "Jefe completo".
+- **Interino:** opera la bandeja completa como jefe (escenario propio, sin cuenta compartida);
+  los casos del ausente no se traspasan automáticamente. Badge "JEFE INTERINO" derivado de
+  delegación vigente. **Sin avisos automáticos de interinato** por ahora.
+- **Cascadas:** desactivar/cambiar rol → revoca delegaciones activas.
+- **Efecto en Sprint 25:** se adelanta solo la delegación temporal; el panel granular
+  permanente sigue diferido a v2 (nota agregada en `Sprints Pendientes - Contexto.md`).
+- **Descartado:** `spatie/laravel-permission` (su pivot no soporta vigencia; anti-patrón de
+  permisos directos permanentes) y cuentas compartidas (rompe auditoría y Ley 974 Art. 29).
+
+## D13 — Rename completo `técnico` → `investigador` (17-sep-2026)
+
+- **Motivo:** el personal son licenciados/abogados; "técnico" no representa el cargo.
+- **Alcance:** **completo** (586 identificadores / 64 archivos + 49 strings UI + docs).
+  BD: `denuncias.investigador_id`, `investigador_anterior_id`, `users.rol='investigador'`,
+  `RolUsuario::INVESTIGADOR`. No hay producción → **se editan migraciones originales**
+  (sin migraciones de rename) y `migrate:fresh --seed`.
+- **Se conserva:** "evaluación técnica previa" y `evaluaciones_tecnicas` (nombre de **proceso**
+  del flujo, no de la persona).
+- **Ubicación:** Fase 1 del Sprint 16 (misma superficie que tocarán roles/permisos).
+
+## D14 — Reordenamiento del roadmap (17-sep-2026)
+
+- **Orden:** 16 (rename + roles) → 18A (panel usuarios) → 18B (mi cuenta) → 18C (delegaciones)
+  → 19/20 (pulidos) → 21 (cierre Fase 1).
+- **Sprint 14 (Tiempos entre Fases): APARCADO** — agregado no pedido por el cliente; factibilidad
+  analizada (sin migración, vía bitácora + `DiasHabiles`); placeholder `Hourglass` se mantiene.
+- **Sprint 17 (auditoría) fusionado en 21** — es transversal y se re-auditaría tras 16/18A/18C.
+- **Sprint 18 se divide:** 18A (admin usuarios) y 18B (self-service), secuenciales.
+
+## D15 — Protección backend sin Policies (17-sep-2026)
+
+- **Decisión:** `RoleMiddleware` + `EnsureActive` + **Gates por capacidad** registrados en loop
+  desde `PermisosCatalogo`; **sin Policies por modelo** en 16 (record-scoping sigue en
+  controllers; Policies se evalúan en 21).
+- **Respuesta a no autorizado:** redirect `/dashboard` + toast (se estandarizan los `abort 403`
+  de `ConsultaCasos`/`ReporteController`); invitado → `/login` (Breeze ya lo hace).
+- **Split de `routes/web.php`** dentro de 16.2 (`denuncias`, `reportes`, `admin`, `cuenta`) —
+  se reescriben las rutas con `can:` de todos modos; partirlo en 21 sería hacerlo dos veces.
+- **Notificaciones/alertas** pasan de `rol==='jefe'` a "quienes tienen `caso.admitir`"
+  (jefes + interinos).
+- **EnsureActive:** usuario desactivado con sesión viva → logout + invalidación.
+
+## D16 — Módulo de usuarios: invariantes e integridad (17-sep-2026)
+
+- **Invariantes (transacción + `lockForUpdate`):** ≥1 admin activo, ≥1 jefe activo, no
+  auto-baja/auto-degradación, no administrar nivel superior, nunca delete físico.
+- **Desactivación con casos activos:** **bloqueo duro + traspaso en lote** a otro investigador
+  (evita expedientes huérfanos en el relevo de gestión ~4 años). Acciones masivas para lotes.
+- **Password:** política `min:10 + mayúscula + minúscula + número` (símbolos libres) +
+  `debe_cambiar_password` obligatorio para usuarios creados/reseteados por panel; reset revoca
+  sesiones y `remember_token`; `demo123` queda solo en seeds dev.
+- **Username:** unicidad **case-insensitive** (MySQL ci — se mantiene y se corrige el doc que
+  decía "case-sensitive"), charset `[A-Za-z0-9._-]{3,30}`. Nota tests: SQLite `:memory:` es
+  case-sensitive → comparar con `lower()` explícito.
+- **Trazabilidad en `users`:** `creado_por_id`, `desactivado_por_id`, `desactivado_at`,
+  `motivo_baja` (**opcional**), `debe_cambiar_password`. Los `audits` de 21 dan el detalle fino.
+
+## D17 — Pendiente Sistemas GAMEA: alcance admin + panel de auditoría (17-sep-2026)
+
+- **Contexto:** Sistemas mencionó "por encima" un posible **panel administrativo de auditoría**
+  (consultar auditoría sin SQL directo) y el alcance final del rol admin.
+- **Estado:** **sin decidir**. No entra al alcance actual; registrado como nota en
+  `AI-CONTEXT.md` (§ Notas/Pendientes) y `Deuda Tecnica y Riesgos.md` (B7). Si se confirma,
+  se planifica como corte de Sprint 21 junto con `owen-it/laravel-auditing` (B6).
