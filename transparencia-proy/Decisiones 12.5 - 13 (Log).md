@@ -6,8 +6,8 @@
 > incluye batches visuales 12.4 (PageHeader, PublicHeader, tokens) — cierre
 > documental de 12.4 pendiente, no forma parte de este log.
 >
-> **Anexo 17-sep-2026:** D11–D17 (planificación Sprint 16 / 18A / 18B / 18C — roles,
-> rename, panel de usuarios y delegaciones temporales).
+> **Anexo 17-sep-2026:** D11–D17 (planificación) + D18–D25 (replan tarde: can:/CasoAuth,
+> identidad CI+username, 18C recortado, sin RoleMiddleware).
 
 ## D1 — R1 antes del 13, R2 después (09-sep-2026)
 
@@ -218,3 +218,105 @@
 - **Estado:** **sin decidir**. No entra al alcance actual; registrado como nota en
   `AI-CONTEXT.md` (§ Notas/Pendientes) y `Deuda Tecnica y Riesgos.md` (B7). Si se confirma,
   se planifica como corte de Sprint 21 junto con `owen-it/laravel-auditing` (B6).
+- **Ampliación (misma fecha, replan):** impersonation / «entrar como» otro rol **no entra
+  a Fase 1**. Opciones futuras en `Notas - Admin simulacion (futuro).md`. Se consulta a Sistemas.
+
+---
+
+# Anexo — Replanificación 16 / 18A / 18C (17-sep-2026, tarde)
+
+> Congela D18–D25. Enmienda D11 (4 `usuario.*`, no 5), D12 (preset `jefe_interino`, no
+> «Jefe completo» con `usuario.*`), D13 (FK persona en `evaluaciones_tecnicas`) y D15
+> (sin `RoleMiddleware`). Planes: `Sprint 16`, `18A`, `18C`.
+
+## D18 — Auth: solo `can:` + `EnsureActive` (enmienda D15)
+
+- **Sin `RoleMiddleware`.** `role:jefe` rompería al interino de 18C.
+- Gates en loop desde `PermisosCatalogo`. Rutas con `can:<permiso>`.
+- `can:` de Laravel tira 403: en `bootstrap/app.php`, `AuthorizationException` → redirect
+  `/dashboard` + flash toast (Inertia). Invitado → `/login`.
+- `EnsureActive`: usuario desactivado con sesión viva → logout + invalidar sesión.
+- Login: buscar `lower(username)` y `Auth::login($user)` (SQLite de tests es case-sensitive).
+
+## D19 — `CasoAuth`: unidad vs expediente (Policies en 21)
+
+- **No Policies por modelo en 16.** Helper `CasoAuth` (o equiv.) en mutaciones:
+  - **Unidad** (admitir, asignar, traspasar, reabrir, ampliar, archivar, editar/eliminar
+    denuncia…): cualquier caso si tiene el permiso.
+  - **Expediente** (iniciar, solicitud.*, descargo.*, informe.*, cierre.*, devolver
+    evaluación): solo `investigador_id === auth.id` (evaluación: el asignado).
+- Un investigador-interino **no** redacta informes ajenos: `caso.admitir` no bypasea
+  expediente. 18C no retrabaja esta regla.
+- Sprint 21: `DenunciaPolicy` de una línea que delega a `CasoAuth`.
+
+## D20 — Rename de persona + quitar delete de perfil
+
+- D13 se amplía: `evaluaciones_tecnicas.tecnico_id` → `investigador_id` (es persona).
+  Se conserva tabla `evaluaciones_tecnicas`, estado `evaluacion_tecnica`, textos de proceso,
+  `caso.evaluar`, `TabEvaluacionPrevia`.
+- **16.2:** eliminar `DELETE /profile` + `DeleteUserForm`. Viola «nunca delete físico» (D16)
+  y rompe FKs. No espera a 18B.
+
+## D21 — Identidad de usuario (18A)
+
+- Campos: `nombres` y `apellidos` (ambos obligatorios, uno o más tokens cada uno, MAYÚSCULAS).
+  `name` se arma: `NOMBRES APELLIDOS`.
+- `ci` único (también inactivos), `varchar(20)`, no solo dígitos (`123456-1A` / `123456-1B`).
+  Normalizar: trim, mayúsculas, sin espacios. Un CI inactivo → reactivar, no crear otro.
+- **Username autogenerado e inmutable:** 1ª letra del 1er nombre + 1ª del 1er apellido + CI
+  (`ANTHONY QUISPE` + `997788878` → `AQ997788878`). Login con ese username (case-insensitive).
+  `users.username` `varchar(30)`.
+- Email y teléfono **opcionales**; email único si existe.
+- `usuario.*` son **4:** `crear`, `editar`, `desactivar`, `reset-password` (+ `menu.usuarios`).
+  Reactivar usa `usuario.desactivar`. (Enmienda D11 «5 usuario.*».)
+
+## D22 — Jerarquía 18A (Sistemas + jefes)
+
+- **Admin (Sistemas):** crea/edita/desactiva **todos** los roles, incluidos otros admins
+  (vacaciones y recambio de personal de Sistemas). Cada persona de Sistemas tiene **su**
+  usuario; nunca un login `admin` compartido. Admin no opera casos (D11 se mantiene).
+- **Jefe:** administra otros jefes, investigadores y registradores (crear, editar, reset,
+  desactivar, bajar de rol). **No** ve ni toca admins. Queda a responsabilidad de los jefes
+  (no llamar a Sistemas salvo emergencia / recambio de jefe).
+- Invariantes D16 sin cambio. No existe «admin interino» ni «jefe interino» como rol:
+  se crean usuarios con el rol real, o se usa 18C (abajo).
+
+## D23 — 18C recortado: misma cuenta, dos funciones
+
+- **Problema:** el titular se ausenta una semana y quiere que un registrador o investigador
+  cubra bandeja **sin segunda cuenta** (CI único = un humano). Subir el rol a `jefe` le daría
+  `usuario.*` y le quitaría su función base.
+- **Decisión:** delegación **aditiva** en la misma cuenta (rol ∪ permisos). Preset
+  `jefe_interino` = permisos de jefe **menos** `usuario.*` / `menu.usuarios` / `admin.*`.
+  Nunca el atajo «Jefe completo» = `ROLES['jefe']` (chocaba con la whitelist).
+- El jefe titular **sigue activo** (puede revisar). 2–3 jefes a la vez es lo normal; 18C
+  cubre el caso «no hay otro jefe y cubre el registrador/investigador».
+- Cascada al desactivar: revocar delegaciones **recibidas**, no las otorgadas.
+- Paquete «Bandeja y admisión» incluye `menu.notificaciones` + `notificacion.ver`
+  (el rol registrador **no** trae campana; el interino sí la recupera).
+- Sin admin interino. Sin avisos automáticos de interinato.
+
+## D24 — Carreras, notificaciones, campana registrador
+
+- Mutaciones de estado (`admitir`/`rechazar`/`asignar`/`traspasar` y equiv.): `lockForUpdate`
+  + re-leer estado + toast «ya fue admitida por X». En **16.2** (varios jefes, internet lento).
+- Destino de notificación: URL **fija al crear**. No reescribir por privilegio máximo
+  (un investigador-interino no debe caer siempre en bandeja).
+- Nueva denuncia → todos los que `puede('caso.admitir')`. Evaluación devuelta → quien
+  delegó; si no hay, todos con `caso.admitir`.
+- Registrador: **sin** `menu.notificaciones` / `notificacion.ver` en el rol (`AlertasPlazo`
+  ya devolvía `[]`).
+
+## D25 — Fuera de 16 / aparcados
+
+- **Dashboard:** no se toca en 16. Futuro: 2 modos (unidad / personal). El registrador verá
+  el de unidad; se muestra u oculta por permiso. Anotado, no implementado.
+- **Impersonation / simular páginas:** no Fase 1. Nota `Notas - Admin simulacion (futuro).md`.
+- **`debe_cambiar_password` middleware:** Sprint **18B** (cuando exista la pantalla de cambio).
+  No en 18A (evitar redirect loop).
+- **Auditoría forense** (`owen-it/laravel-auditing`): Sprint **21**. En 16–18C: `usuario_id`
+  / bitácora en cada acción nueva.
+- **Sprint 19/20:** no meter días hábiles en 16. Sprint 20 está casi hecho (spec vieja);
+  19 (mora explícita) después.
+- **Descarga pública** `/panel/archivos/{id}/descargar`: hoy está dentro del grupo `auth`.
+  El split de rutas de **16.2** la mueve a públicas.

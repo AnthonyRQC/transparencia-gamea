@@ -1,22 +1,25 @@
 # Deuda Técnica y Riesgos
 
 > **Propósito:** Registro vivo de deuda, riesgos y mejoras diferidas para trabajar a futuro. No es roadmap de sprints.
-> **Actualizado:** 2026-09-17 (post planificación Sprint 16/18A/18C). Stack: Laravel 13 / PHP 8.3. Suite 118 tests.
+> **Actualizado:** 2026-09-17 (replan D18–D25). Stack: Laravel 13 / PHP 8.3. Suite 118 tests.
 
 ## Planificado 17-sep-2026 (Sprint 16 / 18A / 18C)
 
-> Deuda que estos sprints cierran o mueven — ver planes en `Sprint 16 - Plan (Rename + Roles).md`,
-> `Sprint 18A - Plan Panel Usuarios.md`, `Sprint 18C - Plan Delegaciones.md`.
+> Deuda que estos sprints cierran o mueven — D18–D25. Planes `Sprint 16`, `18A`, `18C`.
 
-- ✅ **Brecha de autorización backend** (P0 de seguridad): ~80% de rutas mutantes sin guard
-  (solo ocultas en UI) → `RoleMiddleware` + `EnsureActive` + `can:` por ruta en **16.2**.
-- ✅ **Login "case-sensitive"** (doc inexacto): confirmado que MySQL es ci y así se mantiene;
-  doc corregido en 16.2 y validación de unicidad explícita en 18A (ojo SQLite de tests).
-- ✅ **`routes/web.php` monolito (198 L)**: split planificado **dentro de 16.2** (era B3→21).
-- ✅ **Sin gestión de usuarios**: `/admin/usuarios` (18A) + invariantes + relevo masivo.
-- ✅ **Permisos personalizados v2 (Sprint 25)**: necesidad real cubierta por 18C (delegaciones
-  temporales); el panel granular permanente sigue diferido.
-- 🔀 **Sprint 17 (auditoría) fusionado en 21** — ver abajo.
+- ✅ **Brecha de autorización backend:** `can:` + `EnsureActive` + handler 403→redirect
+  (**sin** `RoleMiddleware`) + `CasoAuth` (unidad vs expediente) en **16.2**.
+- ✅ **Carreras 2–3 jefes:** `lockForUpdate` + toast «ya fue admitida por X» en **16.2**.
+- ✅ **Login case-insensitive:** `lower(username)` + `Auth::login` en 16.2; fórmula username
+  en 18A. SQLite tests con `lower()`.
+- ✅ **`DELETE /profile`:** delete físico → se quita en **16.2**.
+- ✅ **`routes/web.php` monolito** + `/panel/archivos/.../descargar` mal metida en `auth`:
+  split en **16.2**, descarga a públicas.
+- ✅ **Gestión de usuarios:** 18A (CI único, username autogenerado, jefe administra jefes).
+- ✅ **Dos funciones / una cuenta:** 18C recortado (preset `jefe_interino`, sin `usuario.*`).
+- 🔀 **Sprint 17 (auditoría forense) fusionado en 21**.
+- 📝 **Dashboard 2 modos** (unidad/personal) y **impersonation**: no 16; ver D25 y
+  `Notas - Admin simulacion (futuro).md`.
 
 ## P0 — Bloquea producción (ex "Bloquea demo")
 
@@ -91,8 +94,10 @@
 | B4 | OWASP + E2E Playwright | 21 | `owasp-security`, `e2e-playwright-testing` |
 | B5 | Avatar: color paleta oficial + hash fallback | 18A/18B | D7: hook `creating` + picker Perfil + migrar `bg-*` legacy; `InvestigadorAvatar` resuelve clave |
 | B6 | Auditoría backend (`owen-it/laravel-auditing`) + UI | 21 | Fusionada del Sprint 17 (17-sep-2026). Incluye User y Delegacion |
-| B7 | **Panel administrativo de auditoría** (consulta sin SQL directo) | 21 (sin confirmar) | Pedido por Sistemas GAMEA "por verse" (17-sep-2026). **No decidido**; si se confirma, entra junto a B6 |
+| B7 | **Panel administrativo de auditoría** (consulta sin SQL directo) | 21 (sin confirmar) | Pedido por Sistemas. **No decidido**; si se confirma, entra junto a B6 |
 | B8 | Seeds split prod/dev + `.env.production.example` + gitignore backups | 21 | `AdminInicialSeeder` con password por env; demo123 solo dev |
+| B9 | Dashboard 2 modos (unidad / personal); registrador ve unidad | Futuro, no 16 | D25. Hoy 4 ramas por rol |
+| B10 | Impersonation / simular páginas como otro rol | No Fase 1 | `Notas - Admin simulacion (futuro).md`. Consultar Sistemas |
 
 **Guardarraíl pre-13 (no arrastrar deuda contagiosa):** no nuevos wrappers
 `formatDate`, no avatares manuales, importar de `constants/semantica.ts`,
@@ -101,4 +106,5 @@
 ## Pendientes cliente (no deuda, no tocar sin consulta)
 
 - Archivar = ¿subestado `cerrada` o flujo propio?
-- C7 destino Ministerio, C8 plazo reapertura, Panel usuarios Sprint 18.
+- C7 destino Ministerio, C8 plazo reapertura.
+- Panel usuarios → 18A (planificado). Impersonation / panel auditoría → consulta Sistemas.

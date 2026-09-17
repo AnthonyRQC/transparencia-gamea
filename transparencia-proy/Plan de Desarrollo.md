@@ -931,11 +931,11 @@ dinámicas y lenguaje acorde al personal (licenciados/abogados).
 
 | Fase | Contenido |
 |------|-----------|
-| **16.1 Rename** | `técnico` → `investigador` completo (BD editando migraciones, 586 identificadores / 64 archivos, 49 strings UI; "evaluación técnica previa" se conserva como proceso) |
-| **16.2 Roles** | Rol `admin` (solo gestiona + reportes), permisos `usuario.*`, `PermisosEfectivos`, `RoleMiddleware`, `EnsureActive`, split de `routes/web.php`, `can:` por ruta, refactor de ~12 `rol==='jefe'` |
+| **16.1 Rename** | `técnico` → `investigador` (persona, incl. `evaluaciones_tecnicas.investigador_id`; proceso «evaluación técnica» se conserva) |
+| **16.2 Roles** | Rol `admin`, 4 `usuario.*`, `PermisosEfectivos`, `can:` + `EnsureActive` (**sin** RoleMiddleware), `CasoAuth`, `lockForUpdate`, split rutas, quitar `DELETE /profile` |
 
-**Plan completo:** `Sprint 16 - Plan (Rename + Roles).md`. Decisiones D11–D17 en
-`Decisiones 12.5 - 13 (Log).md`. **Sin Policies por modelo** (a evaluación en Sprint 21).
+**Plan completo:** `Sprint 16 - Plan (Rename + Roles).md`. Decisiones D11–D25.
+**Sin Policies** (21: `DenunciaPolicy` delega a `CasoAuth`). Dashboard no se rediseña en 16.
 
 **Dependencias:** ninguna (BD ya operativa desde Sprint 10).
 
@@ -959,9 +959,10 @@ contraseña y acciones masivas de relevo de personal, con invariantes de segurid
 **Origen:** decisión de cliente — admin con control total; el Jefe crea jefes/investigadores/
 registradores (no admins); recambio casi total de personal cada ~4 años.
 
-**Puntos clave:** matriz de jerarquía · bloqueo de desactivación con casos activos +
-**traspaso en lote** · ≥1 admin y ≥1 jefe activos · password policy + `debe_cambiar_password` ·
-username case-insensitive · trazabilidad (`creado_por_id`, `desactivado_*`, `motivo_baja` opcional).
+**Puntos clave:** admin crea admins (Sistemas, sin login compartido) · jefe administra
+jefes + investigadores + registradores · `nombres`/`apellidos`/`ci` único · username
+autogenerado (iniciales+CI) · traspaso en lote · ≥1 admin y ≥1 jefe · force-change password
+en **18B**.
 
 **Plan completo:** `Sprint 18A - Plan Panel Usuarios.md`.
 **Dependencias:** Sprint 16 (middleware + `usuario.*`).
@@ -971,9 +972,9 @@ username case-insensitive · trazabilidad (`creado_por_id`, `desactivado_*`, `mo
 ### Sprint 18B — Mi Cuenta (perfil, seguridad, preferencias, apariencia)
 
 **Objetivo:** completar el panel de usuario Breeze (ya no mock): perfil (teléfono + picker de
-color D7), seguridad real, preferencias de notificación (master + 4 umbrales 3/3/2/2
-persistidos en `users.preferencias` y cableados a `AlertasPlazo`), apariencia. Eliminar
-`DeleteUserForm` (delete físico prohibido).
+color D7), seguridad real + middleware `debe_cambiar_password`, preferencias de notificación
+(master + 4 umbrales cableados a `AlertasPlazo`), apariencia. `DeleteUserForm` se elimina
+en **16.2**.
 
 **Plan:** sección Sprint 18B en `Sprints Pendientes - Contexto.md`. **Dependencias:** 16 (roles)
 y preferencias reales (D7).
@@ -982,13 +983,11 @@ y preferencias reales (D7).
 
 ### Sprint 18C — Delegaciones Temporales de Funciones ✅ PLANIFICADO (17-sep-2026)
 
-**Objetivo:** delegar funciones (casos, reportes, consulta, avisos) a otro usuario con vigencia
-opcional, motivo y auditoría; cubre la "mano derecha" del Jefe y el **Jefe interino** por
-vacaciones sin compartir cuentas (patrón JIT/PIM).
+**Objetivo:** misma cuenta (CI único), dos funciones. Ausencia de una semana sin segundo
+jefe: el registrador/investigador cubre bandeja **sin** subir de rol (D23).
 
-**Puntos clave:** tabla `delegaciones` (permisos JSON + `desde`/`hasta` + revocación lógica) ·
-aditivo (rol ∪ delegaciones activas) · whitelist para Jefe · paquetes/presets · badge
-JEFE INTERINO · cascada al desactivar/cambiar rol · sin avisos automáticos por ahora.
+**Puntos clave:** aditivo · preset `jefe_interino` (sin `usuario.*`/`admin.*`) · titular
+sigue activo · cascada solo delegaciones recibidas · paquete bandeja incluye campana.
 
 **Plan completo:** `Sprint 18C - Plan Delegaciones.md`.
 **Dependencias:** Sprint 16 (`PermisosEfectivos`) + 18A.
@@ -1013,6 +1012,9 @@ JEFE INTERINO · cascada al desactivar/cambiar rol · sin avisos automáticos po
 ---
 
 ### Sprint 20 — Calendario Feriados + Días Hábiles (FINAL)
+
+> D25: no entra en 16. Helper + feriados + seed relativo ya están; spec abajo está
+> desactualizada (`DenunciaData`). Queda un delta de cierre, no un sprint de cero.
 
 **Objetivo:** Cierre formal del sistema de días hábiles. Helper unificado `DiasHabiles.php` + UI de administración + recálculo retroactivo del seed demo.
 

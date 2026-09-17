@@ -1,142 +1,157 @@
 # Sprint 18A — Plan: Panel de Administración de Usuarios
 
 > **Estado:** PLANIFICADO (no ejecutado) · **Fecha plan:** 17-sep-2026 ·
-> **Decisiones:** D11, D14, D16, D17 en `Decisiones 12.5 - 13 (Log).md` (bloque Sep-2026).
-> **Origen:** decisión de cliente — el sistema necesita un rol administrador con control
-> total de cuentas; el Jefe de Unidad crea jefes/técnicos(→investigadores)/registradores
-> pero no admins. Escenario de relevo de gestión cada ~4 años con recambio casi total de
-> personal. Nota abierta: alcance final del admin pendiente de consulta con el personal
-> de Sistemas de la institución (ver §8).
-> **Depende de:** Sprint 16 (RoleMiddleware, `usuario.*`, `PermisosEfectivos`).
-> **Extiende:** perfil Breeze existente (18B trabaja el lado self-service).
+> **Replan:** 17-sep-2026 (tarde) — D21, D22.
+> **Decisiones:** D11, D14, D16, D17, D21, D22 en `Decisiones 12.5 - 13 (Log).md`.
+> **Origen:** Sistemas (GAMEA) tendrá usuarios `admin` para soporte; el Jefe administra
+> jefes/investigadores/registradores (no admins) para no llamar a Sistemas en el día a día.
+> Recambio de personal cada ~4 años y vacaciones de Sistemas (varios admins, nunca un login
+> compartido).
+> **Depende de:** Sprint 16 (`can:`, `EnsureActive`, `usuario.*`, `PermisosEfectivos`).
+> **Extiende:** perfil Breeze (18B = self-service). Middleware `debe_cambiar_password` va
+> en **18B**, no aquí (evita redirect loop sin pantalla de cambio).
 
 ## 1. Objetivo
 
 Panel `/admin/usuarios` (Jefe + Admin según matriz) para crear, editar, desactivar/reactivar,
-resetear contraseñas y ejecutar acciones masivas de relevo de personal, con invariantes de
-seguridad e integridad que impidan quedarse sin administración o dejar casos huérfanos.
+resetear contraseñas y acciones masivas de relevo, con invariantes que impidan quedarse
+sin administración o dejar casos huérfanos. **Un humano = un CI = una cuenta.**
 
-## 2. Matriz de jerarquía (quién administra a quién)
+## 2. Matriz de jerarquía
 
 | Creador / Editor → | admin | jefe | investigador | registrador |
 |---|---|---|---|---|
-| **admin** | ✅ | ✅ | ✅ | ✅ |
-| **jefe** | ❌ | ✅ (con guards) | ✅ | ✅ |
+| **admin** (Sistemas) | ✅ (otros, no a sí mismo) | ✅ | ✅ | ✅ |
+| **jefe** | ❌ (ni verlos) | ✅ (con guards) | ✅ | ✅ |
 | investigador / registrador | ❌ | ❌ | ❌ | ❌ |
 
-- El **admin** puede todo, pero no puede desactivarse ni degradarse a sí mismo.
-- El **jefe** nunca ve ni toca cuentas de admin (ni en listado: el select de rol no ofrece
-  `admin` y el backend rechaza la operación).
-- Jefe editando a otro jefe: permitido con guards (D16); degradar a investigador/registrador
-  pide confirmación explícita.
+- Admin crea otros admins (vacaciones / recambio de Sistemas). Cada persona de Sistemas
+  con **su** usuario; nunca un login `admin` compartido.
+- Jefe administra **otros jefes**, investigadores y registradores (crear, editar, reset,
+  desactivar, bajar de rol). Queda a su responsabilidad; Sistemas solo en emergencia.
+- Degradar jefe → investigador/registrador pide confirmación explícita.
+- No existe «admin interino» ni cambio temporal de rol a `admin`/`jefe`: o se crea el
+  usuario con el rol, o se usa 18C (funciones de unidad sin `usuario.*`).
 
-## 3. Funcionalidad
+## 3. Identidad (D21)
 
-### 3.1 Listado
+| Campo | Regla |
+|---|---|
+| `nombres` | obligatorio, uno o más tokens (`JUAN CARLOS`), MAYÚSCULAS |
+| `apellidos` | obligatorio, uno o más tokens (`GARCÍA LÓPEZ` o solo `MAMANI`), MAYÚSCULAS |
+| `name` | generado: `NOMBRES APELLIDOS` (compat Breeze / bitácora) |
+| `ci` | único **también inactivos**, `varchar(20)`, no solo dígitos (`123456-1A`). Normalizar: trim, mayúsculas, sin espacios |
+| `username` | **autogenerado e inmutable:** 1ª letra del 1er nombre + 1ª del 1er apellido + CI (`AQ997788878`). `varchar(30)`. Login case-insensitive |
+| `email` | opcional; **único si existe** |
+| `telefono` | opcional |
+| `iniciales` | 2 letras del username (o de nombres+apellidos) |
+| `color` | paleta oficial D7, hook `creating` (clave, no clase CSS) |
 
-- Tabla con filtros: rol, estado (`activos`/`inactivos`/todos), búsqueda por nombre/username.
-- Columnas: avatar (iniciales + color D7), nombre, username, rol, contacto, estado,
-  "inactivo desde" (`desactivado_at`), acciones.
-- Contadores de cabecera: admins/jefes activos (invariantes visibles).
+Alta: preview del username al tipear nombres+CI. Mostrar username + password **una vez**
+con copiar. Si el CI ya existe **inactivo** → no crear; ofrecer reactivar.
 
-### 3.2 Crear usuario
+## 4. Funcionalidad
 
-- Campos: `username` (único, case-insensitive, charset `[A-Za-z0-9._-]{3,30}`, sin espacios),
-  nombre completo, rol (select filtrado por matriz del creador), email (opcional),
-  teléfono (opcional), contraseña inicial.
-- Automáticos: `iniciales` (del nombre) y `color` de paleta oficial (D7) vía hook `creating`.
-- Contraseña: política `min:10 + mayúscula + minúscula + número` (símbolos permitidos);
-  se muestra **una sola vez** al confirmar + `debe_cambiar_password = true`.
-- Registra `creado_por_id`.
+### 4.1 Listado
 
-### 3.3 Editar
+- Filtros: rol, estado (activos / inactivos / todos), búsqueda nombre / username / CI.
+- Columnas: avatar, nombre, username, CI, rol, contacto, estado, inactivo desde, acciones.
+- Contadores: admins/jefes activos (invariantes visibles).
+- Jefe: el listado **omite** filas `rol=admin`.
 
-- Campos editables: nombre, email, teléfono, rol (matriz + guards), `activo`.
-- Cambio de rol: revoca delegaciones activas del usuario (coherencia) y registra evento.
+### 4.2 Crear
 
-### 3.4 Reset de contraseña
+- Campos de identidad (§3) + rol (select filtrado por matriz) + contraseña inicial.
+- Username no se edita: se genera al guardar.
+- Contraseña: `min:10 + mayúscula + minúscula + número` + `debe_cambiar_password = true`.
+- `creado_por_id`.
 
-- Genera temporal aleatoria (12+ chars) mostrada una sola vez + `debe_cambiar_password = true`
-  + revoca sesiones activas y `remember_token`.
+### 4.3 Editar
 
-### 3.5 Desactivar / reactivar
+- Editables: nombres, apellidos, email, teléfono, rol (matriz + guards), `activo`.
+- **No editables:** username, CI (salvo corrección por admin/jefe; el username **no** se
+  regenera).
+- Cambio de rol: revoca delegaciones **recibidas** (18C) y registra evento.
 
-Flujo de desactivación (el punto crítico del relevo de gestión):
+### 4.4 Reset de contraseña
 
-1. Modal de **impacto**: lista casos activos asignados (`estado` activo y
-   `investigador_id = user`) + delegaciones activas.
-2. **Bloqueo duro** si hay casos activos → ofrece **traspaso en lote**: select de
-   investigador destino (activo, no el mismo) que reasigna todos los casos con una
-   justificación única (registra traspaso en cada denuncia + bitácora, reusa el patrón de
-   `AsignacionController::traspasar`).
-3. Al confirmar: `activo = false`, `desactivado_at = now()`, `desactivado_por_id`,
-   `motivo_baja` (**opcional**), revocación de delegaciones activas, revocación de sesiones
-   y `remember_token`.
-4. Reactivar: `activo = true` + limpieza de `desactivado_*` (el histórico queda en el log de
-   auditoría de 21).
+- Temporal 12+ chars, una vez, `debe_cambiar_password = true`, revoca sesiones y
+  `remember_token`. El force-change en login es **18B**.
 
-### 3.6 Acciones masivas (relevo de gestión)
+### 4.5 Desactivar / reactivar
 
-- Multi-select en listado → desactivar/reactivar lote con el mismo flujo de guards
-  (si algún usuario tiene casos activos, el lote se detiene y muestra los pendientes de
-  traspaso).
+1. Modal de impacto: casos activos (`investigador_id`) + delegaciones recibidas.
+2. **Bloqueo duro** si hay casos activos → **traspaso en lote** a otro investigador
+   (reusa `AsignacionController::traspasar`).
+3. Confirmar: `activo = false`, `desactivado_at`, `desactivado_por_id`, `motivo_baja`
+   (opcional), revocar delegaciones **recibidas**, revocar sesiones.
+4. Reactivar: `activo = true` + limpiar `desactivado_*` (histórico en audits de 21).
+   Si se intenta crear un CI que ya existe inactivo → este flujo, no un segundo usuario.
 
-## 4. Invariantes (validados en transacción con `lockForUpdate`)
+### 4.6 Acciones masivas
 
-1. Siempre ≥1 admin activo y ≥1 jefe activo (no lockout institucional).
+- Multi-select → desactivar/reactivar con los mismos guards. Si alguno tiene casos
+  activos, el lote se detiene y lista los pendientes de traspaso.
+
+## 5. Invariantes (`lockForUpdate` en transacción)
+
+1. ≥1 admin activo y ≥1 jefe activo.
 2. Nadie se desactiva ni se degrada a sí mismo.
-3. Nadie administra cuentas de nivel superior (jefe ↛ admin).
-4. Un usuario no puede crear/asignar un rol que no está en su matriz.
-5. Nunca delete físico: solo `activo = false` (FKs, bitácora y agregaciones preservan historia).
-6. Toda mutación se envuelve en `DB::transaction` (crear + iniciales/color; desactivar +
-   revocar delegaciones/sesiones).
+3. Jefe ↛ admin (ni ver, ni crear, ni editar).
+4. Nadie asigna un rol fuera de su matriz.
+5. Nunca delete físico.
+6. CI único incluyendo inactivos.
+7. Email único si no es null.
 
-## 5. Modelo BD
-
-`users` (+4 columnas, migración aditiva 18A):
+## 6. Modelo BD (migración aditiva 18A)
 
 ```
+nombres              varchar, NOT NULL
+apellidos            varchar, NOT NULL
+ci                   varchar(20), UNIQUE  (índice unique; app compara lower/normalizado)
 creado_por_id        FK → users, nullable
 desactivado_por_id   FK → users, nullable
 desactivado_at       timestamp, nullable
-motivo_baja          texto, nullable        (opcional, MAYÚSCULAS)
-debe_cambiar_password boolean default false (usado por 18A y 18B)
+motivo_baja          texto, nullable
+debe_cambiar_password boolean default false
 ```
 
-## 6. Frontend
+`users.username` → `varchar(30)` si hace falta. `name` se sigue persistiendo compuesto.
 
-- `resources/js/Pages/Admin/Usuarios.tsx` + `Components/Admin/`:
-  `TablaUsuarios`, `ModalCrearUsuario`, `ModalEditarUsuario`, `ModalResetPassword`,
-  `ModalImpactoDesactivar` (casos + delegaciones + traspaso en lote), `ModalCredencialTemporal`
-  (password mostrada una vez con botón copiar).
-- Ítem Sidebar "Usuarios" con `can('menu.usuarios')`.
-- Patrón `TablaResponsive` + `ConfirmDialog` + `Paginacion` (DESIGN.md, R1).
+Seeds dev: partir nombres actuales; CI demo únicos; username según fórmula.
+`demo123` solo seeds. Prod: `AdminInicialSeeder` en 21.
 
-## 7. Validaciones y tests
+## 7. Frontend
 
-- Backend: `StoreUsuarioRequest` / `UpdateUsuarioRequest` con matriz de roles permitidos por
-  actor (`Rule::in` calculado), unicidad case-insensitive explícita
-  (`whereRaw('lower(username) = ?')` — **SQLite de tests es case-sensitive, MySQL no**).
-- Tests: matriz completa (admin/jefe × crear/editar cada rol), invariantes (último admin,
-  auto-desactivación, jefe→admin denegado), desactivación con casos (bloqueo + traspaso en
-  lote), reset (flag + revocación), masivo.
+- `Pages/Admin/Usuarios.tsx` + `Components/Admin/`: `TablaUsuarios`, `ModalCrearUsuario`
+  (preview username), `ModalEditarUsuario`, `ModalResetPassword`, `ModalImpactoDesactivar`,
+  `ModalCredencialTemporal` (username + password, copiar).
+- Sidebar "Usuarios" con `can('menu.usuarios')`.
+- `TablaResponsive` + `ConfirmDialog` + `Paginacion` (DESIGN.md).
 
-## 8. Pendiente de cliente/Sistemas (no bloquea 18A base)
+## 8. Validaciones y tests
 
-- **Alcance final del admin** y posible **panel de auditoría administrativa** (consulta fácil
-  de auditoría sin SQL directo): mencionado por Sistemas "por verse". Si se confirma, se
-  planifica como corte de Sprint 21 (junto con `owen-it/laravel-auditing` + UI de consulta).
-  Registrado en `Deuda Tecnica y Riesgos.md` y `AI-CONTEXT.md`.
+- `StoreUsuarioRequest` / `UpdateUsuarioRequest`: matriz de roles, CI normalizado único,
+  email unique nullable, nombres/apellidos required.
+- Tests: matriz admin/jefe × cada rol; invariantes (último admin, auto-baja, jefe→admin
+  denegado); CI duplicado activo e inactivo; username fórmula; desactivación con casos;
+  reset; masivo; SQLite `lower()`.
 
-## 9. Fuera de alcance
+## 9. Pendiente Sistemas (no bloquea 18A)
 
-- Mi Cuenta self-service / picker de color / preferencias → 18B.
-- Delegaciones temporales → 18C.
-- Auditoría detallada (`audits`) y su UI → Sprint 21.
-- Seeds split prod/dev y `AdminInicialSeeder` → Sprint 21.
+- Panel de auditoría administrativa (D17 / B7) e impersonation
+  (`Notas - Admin simulacion (futuro).md`).
 
-## 10. Referencias
+## 10. Fuera de alcance
 
-- `Sprint 16 - Plan (Rename + Roles).md` (matriz de permisos, middleware e invariantes base).
-- `Sprint 18C - Plan Delegaciones.md` (whitelist y revocación en cascada).
-- `Esquema BD - Librerías.md` (users) · `DESIGN.md` (tablas, modales, no-duplicación).
+- Force-change password en login → 18B.
+- Picker de color / preferencias / Mi Cuenta → 18B.
+- Delegaciones → 18C.
+- Audits campo a campo → 21.
+- `AdminInicialSeeder` prod → 21.
+
+## 11. Referencias
+
+- `Sprint 16 - Plan (Rename + Roles).md`
+- `Sprint 18C - Plan Delegaciones.md`
+- `Esquema BD - Librerías.md` · `DESIGN.md`
