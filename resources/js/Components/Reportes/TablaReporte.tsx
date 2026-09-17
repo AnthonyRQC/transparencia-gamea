@@ -15,7 +15,7 @@ export interface ReporteRow {
     fecha_admitida?: string | null;
     fecha_rechazada?: string | null;
     categoria?: { nombre: string } | null;
-    tecnico?: { name: string } | null;
+    investigador?: { name: string } | null;
     plazo?: { dias_restantes: number; color: string } | null;
 }
 
@@ -38,7 +38,7 @@ export default function TablaReporte({ rows, estados }: Props) {
                         <TableHead className="w-32">Ticket</TableHead>
                         <TableHead>Tipo</TableHead>
                         <TableHead>Categoría</TableHead>
-                        <TableHead>Técnico</TableHead>
+                        <TableHead>Investigador</TableHead>
                         <TableHead>Estado</TableHead>
                         <TableHead className="text-right">Días</TableHead>
                         <TableHead>F. Ingreso</TableHead>
@@ -63,7 +63,7 @@ export default function TablaReporte({ rows, estados }: Props) {
                                     <TableCell className="font-mono text-xs font-semibold text-primary">{r.ticket}</TableCell>
                                     <TableCell className="text-xs">{ETIQUETAS_TIPO[r.tipo] ?? r.tipo}</TableCell>
                                     <TableCell className="text-xs">{r.categoria?.nombre ?? '—'}</TableCell>
-                                    <TableCell className="text-xs">{r.tecnico?.name ?? '—'}</TableCell>
+                                    <TableCell className="text-xs">{r.investigador?.name ?? '—'}</TableCell>
                                     <TableCell className="text-xs">{labelEstado}</TableCell>
                                     <TableCell className="text-right">
                                         {r.plazo ? (

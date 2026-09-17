@@ -164,7 +164,7 @@ return [
         'categoria_id' => 'categoría',
         'dependencia_destino_id' => 'dependencia de destino',
         'denunciado_id' => 'denunciado',
-        'tecnico_id' => 'técnico',
+        'investigador_id' => 'investigador',
         'fecha' => 'fecha',
         'hechos' => 'relación de hechos',
         'lugar' => 'lugar',

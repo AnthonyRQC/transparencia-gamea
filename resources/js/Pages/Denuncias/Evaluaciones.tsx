@@ -17,7 +17,7 @@ import { RECOMENDACION_COLOR, RECOMENDACION_LABEL } from '@/Components/Denuncias
 interface Evaluacion {
   id: number;
   ticket: string;
-  tecnico_nombre: string;
+  investigador_nombre: string;
   delegada_at: string;
   texto_evaluacion?: string | null;
   recomendacion?: string | null;
@@ -45,13 +45,13 @@ interface PageProps {
   evaluacionesDelegadas: Evaluacion[];
   evaluacionesDevueltas: Evaluacion[];
   denunciasByTicket: Record<string, DenunciaInfo>;
-  tecnicoActual: string;
-  tecnicos: Record<string, { id: string; nombre: string; iniciales: string; color: string }>;
+  investigadorActual: string;
+  investigadores: Record<string, { id: string; nombre: string; iniciales: string; color: string }>;
 }
 
 export default function Evaluaciones() {
   const props = usePage().props as unknown as PageProps;
-  const { evaluacionesDelegadas, evaluacionesDevueltas, denunciasByTicket, tecnicos } = props;
+  const { evaluacionesDelegadas, evaluacionesDevueltas, denunciasByTicket, investigadores } = props;
 
   const [selectedDenuncia, setSelectedDenuncia] = useState<DenunciaInfo | null>(null);
   const [modalDevolverEval, setModalDevolverEval] = useState<Evaluacion | null>(null);
@@ -61,7 +61,7 @@ export default function Evaluaciones() {
     { value: 'devueltas', label: 'Devueltas', count: evaluacionesDevueltas.length },
   ];
 
-  const allTecnicos = tecnicos || {};
+  const allInvestigadores = investigadores || {};
 
   return (
     <AppLayout>
@@ -179,7 +179,7 @@ export default function Evaluaciones() {
         <DenunciaSheet
           denuncia={selectedDenuncia as any}
           plazo={(selectedDenuncia.plazo || null) as any}
-          tecnicos={allTecnicos}
+          investigadores={allInvestigadores}
           open={selectedDenuncia !== null}
           onOpenChange={(v) => { if (!v) setSelectedDenuncia(null); }}
           canAct={false}

@@ -11,7 +11,7 @@ class DashboardQueryBase
     {
         return Denuncia::query()
             ->whereNull('deleted_at')
-            ->when($f['tecnico_id'], fn ($q, $v) => $q->where('tecnico_id', $v))
+            ->when($f['investigador_id'], fn ($q, $v) => $q->where('investigador_id', $v))
             ->when($f['tipo'], fn ($q, $v) => $q->where('tipo', $v))
             ->when($f['categoria_id'], fn ($q, $v) => $q->where('categoria_id', $v))
             ->when($conEstado && $f['estado'], function ($q) use ($f) {

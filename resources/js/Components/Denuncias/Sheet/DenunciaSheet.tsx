@@ -13,7 +13,7 @@ import TabSolicitudes from '../Tabs/TabSolicitudes';
 import TabDescargos from '../Tabs/TabDescargos';
 import TabInformeCierre from '../Tabs/TabInformeCierre';
 import TabEvaluacionPrevia from '../Tabs/TabEvaluacionPrevia';
-import TecnicoAvatar from '../Shared/TecnicoAvatar';
+import InvestigadorAvatar from '../Shared/InvestigadorAvatar';
 import { ESCENARIO_LABEL as escenarioLabel, eventosEsperadosAviso, sinAvisoPublicado } from '../Shared/semantica';
 import { useCan } from '@/hooks/useCan';
 import { CheckCircle2, History, UserPlus, ArrowRightLeft, RotateCcw, XCircle, X as XIcon, FileSearch, UserX, FileText, ScrollText, FolderOpen, ChevronDown, Megaphone } from 'lucide-react';
@@ -61,8 +61,8 @@ interface DenunciaDetail {
   detalles?: { categoria?: string; fecha?: string; hora?: string; lugar?: string };
   hechos?: string;
   pruebas?: Prueba[];
-  tecnico?: string | null;
-  tecnico_anterior?: string | null;
+  investigador?: string | null;
+  investigador_anterior?: string | null;
   created_at: string;
   estado: string;
   subestado?: string | null;
@@ -88,7 +88,7 @@ interface DenunciaDetail {
   informe_eliminado?: boolean;
   informe_fecha_eliminacion?: string | null;
   informe_sitpreco?: string | null;
-  evaluacion_tecnica_tecnico_nombre?: string | null;
+  evaluacion_tecnica_investigador_nombre?: string | null;
   evaluacion_tecnica_recomendacion?: string | null;
   evaluacion_tecnica_delegada_at?: string | null;
   evaluacion_tecnica_texto?: string | null;
@@ -134,11 +134,11 @@ interface Descargo {
 interface DenunciaSheetProps {
   denuncia: DenunciaDetail | null;
   plazo: PlazoInfo | null;
-  tecnicos?: Record<string, { id: string; nombre: string; iniciales: string; color: string }>;
+  investigadores?: Record<string, { id: string; nombre: string; iniciales: string; color: string }>;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   children?: React.ReactNode;
-  tecnicoNombre?: string;
+  investigadorNombre?: string;
 
   // Sprint 4 props
   solicitudes?: Solicitud[];
@@ -187,7 +187,7 @@ const accionIcon: Record<string, React.ReactNode> = {
 const estadosConTabs = ['asignada', 'investigacion', 'informe', 'cerrada'];
 
 export default function DenunciaSheet({
-  denuncia, plazo, tecnicos, open, onOpenChange, children, tecnicoNombre,
+  denuncia, plazo, investigadores, open, onOpenChange, children, investigadorNombre,
   solicitudes = [], descargos = [], canAct = false,
   onNuevaSolicitud, onResponderSolicitud, onAmpliarSolicitud, onCancelarSolicitud,
   onEditarSolicitud, onEliminarSolicitud,
@@ -205,8 +205,8 @@ export default function DenunciaSheet({
     .filter((e) => !(avisosPorTicket?.[denuncia.ticket] ?? []).includes(e));
 
   const fecha = formatearFechaLarga(denuncia.created_at) ?? '';
-  const tecnicoInfo = denuncia.tecnico && tecnicos ? tecnicos[denuncia.tecnico] : null;
-  const tecnicoAnteriorInfo = denuncia.tecnico_anterior && tecnicos ? tecnicos[denuncia.tecnico_anterior] : null;
+  const investigadorInfo = denuncia.investigador && investigadores ? investigadores[denuncia.investigador] : null;
+  const investigadorAnteriorInfo = denuncia.investigador_anterior && investigadores ? investigadores[denuncia.investigador_anterior] : null;
   const hechos = denuncia.hechos || '';
   const bitacora = denuncia.bitacora?.slice().reverse() || [];
   const showTabs = estadosConTabs.includes(denuncia.estado);
@@ -290,7 +290,7 @@ export default function DenunciaSheet({
             </TabsList>
 
             <TabsContent value="info" className="flex-1 overflow-y-auto py-4 space-y-5 mt-0 data-[state=inactive]:hidden">
-              <SheetInfoContent denuncia={denuncia} hechos={hechos} tecnicoInfo={tecnicoInfo} tecnicoAnteriorInfo={tecnicoAnteriorInfo} bitacora={bitacora} />
+              <SheetInfoContent denuncia={denuncia} hechos={hechos} investigadorInfo={investigadorInfo} investigadorAnteriorInfo={investigadorAnteriorInfo} bitacora={bitacora} />
             </TabsContent>
 
             <TabsContent value="solicitudes" className="flex-1 overflow-y-auto py-4 mt-0 data-[state=inactive]:hidden">
@@ -341,7 +341,7 @@ export default function DenunciaSheet({
                 )}
                 <TabInformeCierre
                   denuncia={denuncia}
-                  tecnicoNombre={tecnicoNombre || '—'}
+                  investigadorNombre={investigadorNombre || '—'}
                   canAct={canAct}
                 />
               </TabsContent>
@@ -349,7 +349,7 @@ export default function DenunciaSheet({
           </Tabs>
         ) : (
           <div className="flex-1 overflow-y-auto py-4 space-y-5">
-            <SheetInfoContent denuncia={denuncia} hechos={hechos} tecnicoInfo={tecnicoInfo} tecnicoAnteriorInfo={tecnicoAnteriorInfo} bitacora={bitacora} />
+            <SheetInfoContent denuncia={denuncia} hechos={hechos} investigadorInfo={investigadorInfo} investigadorAnteriorInfo={investigadorAnteriorInfo} bitacora={bitacora} />
           </div>
         )}
 
@@ -374,11 +374,11 @@ export default function DenunciaSheet({
   );
 }
 
-function SheetInfoContent({ denuncia, hechos, tecnicoInfo, tecnicoAnteriorInfo, bitacora }: {
+function SheetInfoContent({ denuncia, hechos, investigadorInfo, investigadorAnteriorInfo, bitacora }: {
   denuncia: DenunciaDetail;
   hechos: string;
-  tecnicoInfo: { color: string; iniciales: string; nombre: string } | null;
-  tecnicoAnteriorInfo: { color: string; iniciales: string; nombre: string } | null;
+  investigadorInfo: { color: string; iniciales: string; nombre: string } | null;
+  investigadorAnteriorInfo: { color: string; iniciales: string; nombre: string } | null;
   bitacora: BitacoraEntry[];
 }) {
   const [historialOpen, setHistorialOpen] = useState(false);
@@ -542,34 +542,34 @@ function SheetInfoContent({ denuncia, hechos, tecnicoInfo, tecnicoAnteriorInfo, 
         </>
       )}
 
-      {tecnicoInfo && (
+      {investigadorInfo && (
         <>
           <Separator />
           <section>
             <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1.5">
               <UserPlus className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-              Técnico Asignado
+              Investigador Asignado
             </h4>
             <div className="flex items-center gap-2 text-sm">
               <TooltipProvider delayDuration={300}>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <TecnicoAvatar nombre={tecnicoInfo.nombre} color={tecnicoInfo.color} size="sm" className="cursor-help" />
+                    <InvestigadorAvatar nombre={investigadorInfo.nombre} color={investigadorInfo.color} size="sm" className="cursor-help" />
                   </TooltipTrigger>
                   <TooltipContent side="top">Ver carga de trabajo</TooltipContent>
                 </Tooltip>
               </TooltipProvider>
               <div>
-                <p className="font-medium">{tecnicoInfo.nombre}</p>
+                <p className="font-medium">{investigadorInfo.nombre}</p>
                 {denuncia.fecha_asignada && (
                   <p className="text-[11px] text-muted-foreground">Asignado: {formatearFechaLarga(denuncia.fecha_asignada) ?? ''}</p>
                 )}
               </div>
             </div>
-            {tecnicoAnteriorInfo && denuncia.fecha_traspaso && (
+            {investigadorAnteriorInfo && denuncia.fecha_traspaso && (
               <div className="mt-2 text-xs text-muted-foreground flex items-center gap-1">
                 <ArrowRightLeft className="w-3 h-3" />
-                Traspasado desde {tecnicoAnteriorInfo.nombre} el {formatearFechaLarga(denuncia.fecha_traspaso) ?? ''}
+                Traspasado desde {investigadorAnteriorInfo.nombre} el {formatearFechaLarga(denuncia.fecha_traspaso) ?? ''}
               </div>
             )}
           </section>

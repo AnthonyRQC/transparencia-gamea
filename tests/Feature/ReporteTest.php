@@ -17,7 +17,7 @@ class ReporteTest extends TestCase
     use RefreshDatabase;
 
     private User $jefe;
-    private User $tecnico;
+    private User $investigador;
     private User $registrador;
 
     private int $n = 0;
@@ -27,7 +27,7 @@ class ReporteTest extends TestCase
         parent::setUp();
 
         $this->jefe = User::factory()->create(['username' => 'jefe', 'rol' => 'jefe', 'activo' => true]);
-        $this->tecnico = User::factory()->create(['username' => 'tecnico1', 'rol' => 'tecnico', 'activo' => true]);
+        $this->investigador = User::factory()->create(['username' => 'investigador1', 'rol' => 'investigador', 'activo' => true]);
         $this->registrador = User::factory()->create(['username' => 'registrador', 'rol' => 'registrador', 'activo' => true]);
 
         CategoriaDenuncia::create([
@@ -67,7 +67,7 @@ class ReporteTest extends TestCase
     {
         $this->denuncia();
 
-        $this->actingAs($this->tecnico);
+        $this->actingAs($this->investigador);
         $this->get('/reportes')->assertForbidden();
 
         $this->actingAs($this->registrador);
@@ -160,11 +160,11 @@ class ReporteTest extends TestCase
         );
     }
 
-    public function test_tecnico_no_puede_exportar(): void
+    public function test_investigador_no_puede_exportar(): void
     {
         $this->denuncia();
 
-        $this->actingAs($this->tecnico);
+        $this->actingAs($this->investigador);
 
         $this->get('/reportes/exportar?formato=excel')->assertForbidden();
         $this->get('/reportes/exportar?formato=pdf')->assertForbidden();
@@ -179,7 +179,7 @@ class ReporteTest extends TestCase
         $conEmail->cierre()->create([
             'notificado_denunciante' => true,
             'notificacion_medio_id' => $medioEmail->id,
-            'concluido_por' => 'TECNICO UNO',
+            'concluido_por' => 'INVESTIGADOR UNO',
             'cerrado_at' => now(),
         ]);
 
@@ -187,7 +187,7 @@ class ReporteTest extends TestCase
         $conOtro->cierre()->create([
             'notificado_denunciante' => true,
             'notificacion_medio_id' => $medioOtro->id,
-            'concluido_por' => 'TECNICO UNO',
+            'concluido_por' => 'INVESTIGADOR UNO',
             'cerrado_at' => now(),
         ]);
 
@@ -242,16 +242,16 @@ class ReporteTest extends TestCase
             'clasificacion_id' => Clasificacion::first()->id,
             'sitpreco' => 'SIT-2026-001',
             'justificacion' => 'SE VERIFICO EL SOBREPRECIO.',
-            'concluido_por' => 'TECNICO UNO',
+            'concluido_por' => 'INVESTIGADOR UNO',
             'redactado_at' => now()->subDays(2),
         ]);
 
         $export = new ReporteExcel(
-            Denuncia::with(['tecnico', 'categoria', 'denunciante', 'denunciados', 'informe.clasificacionRel'])->get()
+            Denuncia::with(['investigador', 'categoria', 'denunciante', 'denunciados', 'informe.clasificacionRel'])->get()
         );
 
         $this->assertSame(
-            ['FECHA DE INGRESO', 'NRO DE DENUNCIA', 'TIPO DE DENUNCIA', 'DATOS DEL DENUNCIANTE', 'DATOS DE LOS DENUNCIADOS', 'NRO SITPRECO', 'TÉCNICO ENCARGADO', 'FECHA DE CONCLUSIÓN', 'RESUMEN DE CONCLUSIÓN DEL CASO', 'CLASIFICACIÓN FINAL DEL CASO'],
+            ['FECHA DE INGRESO', 'NRO DE DENUNCIA', 'TIPO DE DENUNCIA', 'DATOS DEL DENUNCIANTE', 'DATOS DE LOS DENUNCIADOS', 'NRO SITPRECO', 'INVESTIGADOR ENCARGADO', 'FECHA DE CONCLUSIÓN', 'RESUMEN DE CONCLUSIÓN DEL CASO', 'CLASIFICACIÓN FINAL DEL CASO'],
             $export->headings()
         );
 
@@ -284,7 +284,7 @@ class ReporteTest extends TestCase
         $viejo = $this->denuncia(['estado' => 'informe', 'created_at' => now()->subDays(60), 'updated_at' => now()->subDays(60)]);
         $viejo->informe()->create([
             'clasificacion_id' => Clasificacion::first()->id,
-            'concluido_por' => 'TECNICO UNO',
+            'concluido_por' => 'INVESTIGADOR UNO',
             'redactado_at' => now()->subDays(5),
         ]);
 

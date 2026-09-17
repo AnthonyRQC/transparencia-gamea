@@ -19,7 +19,7 @@ import { PRESET_DEFAULT, rangoPreset } from '@/helpers/presetsFecha';
 import { formatearRangoFechas } from '@/helpers/fechas';
 
 export default function Dashboard(props: DashboardProps) {
-    const { kpis, operativo, resultados, rendimiento, base_temporal, opciones, esJefe, esTecnico, esRegistrador, filtros } = props;
+    const { kpis, operativo, resultados, rendimiento, base_temporal, opciones, esJefe, esInvestigador, esRegistrador, filtros } = props;
 
     const [tab, setTab] = useState<'operativo' | 'resultados' | 'rendimiento'>(
         filtros.tab === 'resultados' || filtros.tab === 'rendimiento' ? filtros.tab : 'operativo'
@@ -38,7 +38,7 @@ export default function Dashboard(props: DashboardProps) {
                 {
                     desde: next.desde ?? undefined,
                     hasta: next.hasta ?? undefined,
-                    tecnico_id: next.tecnico_id ?? undefined,
+                    investigador_id: next.investigador_id ?? undefined,
                     tipo: next.tipo ?? undefined,
                     categoria_id: next.categoria_id ?? undefined,
                     clasificacion_id: next.clasificacion_id ?? undefined,
@@ -82,7 +82,7 @@ export default function Dashboard(props: DashboardProps) {
                 <PageHeader
                     icon={<LayoutDashboard className="shrink-0" />}
                     titulo="Dashboard"
-                    subtitulo={esJefe ? 'Supervisión global de la unidad' : esTecnico ? 'Mi rendimiento personal' : 'Vista general del sistema'}
+                    subtitulo={esJefe ? 'Supervisión global de la unidad' : esInvestigador ? 'Mi rendimiento personal' : 'Vista general del sistema'}
                     acciones={
                         esJefe ? (
                             <Button variant="outline" size="sm" onClick={() => setExportOpen(true)} className="gap-1.5 cursor-pointer">
@@ -107,7 +107,7 @@ export default function Dashboard(props: DashboardProps) {
                     <KPICards
                         kpis={kpis}
                         baseTemporal={base_temporal}
-                        esTecnico={esTecnico}
+                        esInvestigador={esInvestigador}
                         bandejaHref={route('denuncias.bandeja')}
                         misCasosHref={route('denuncias.mis-casos')}
                         onDrillRechazadas={
@@ -250,16 +250,16 @@ export default function Dashboard(props: DashboardProps) {
                             <TabRendimiento
                                 rendimiento={rendimiento}
                                 baseTemporal={base_temporal}
-                                esTecnico={esTecnico}
-                                onDrillTecnico={
+                                esInvestigador={esInvestigador}
+                                onDrillInvestigador={
                                     esJefe
                                         ? (nombre) => {
-                                              const t = opciones.tecnicos.find((x) => x.name === nombre);
+                                              const t = opciones.investigadores.find((x) => x.name === nombre);
                                               if (!t) return;
                                               abrirDrill(
                                                   `Casos de: ${nombre}`,
-                                                  { tecnico_id: t.id, sinRango: true },
-                                                  'Casos asignados hoy a este técnico.'
+                                                  { investigador_id: t.id, sinRango: true },
+                                                  'Casos asignados hoy a este investigador.'
                                               );
                                           }
                                         : undefined

@@ -13,8 +13,8 @@ import { Separator } from '@/Components/ui/separator';
 interface Evaluacion {
   id: number;
   ticket: string;
-  tecnico_id: string;
-  tecnico_nombre: string;
+  investigador_id: string;
+  investigador_nombre: string;
   delegada_at: string;
   estado: string;
 }

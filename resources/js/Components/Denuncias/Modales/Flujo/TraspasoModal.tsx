@@ -9,7 +9,7 @@ import { Textarea } from '@/Components/ui/textarea';
 import { Button } from '@/Components/ui/button';
 import { ArrowRightLeft } from 'lucide-react';
 
-interface TecnicoInfo {
+interface InvestigadorInfo {
   id: string | number;
   nombre?: string;
   name?: string;
@@ -19,49 +19,49 @@ interface TecnicoInfo {
 
 interface TraspasoModalProps {
   ticket: string | null;
-  tecnicoActualId?: string | number | null;
+  investigadorActualId?: string | number | null;
   open: boolean;
-  tecnicos?: Record<string, TecnicoInfo> | TecnicoInfo[];
-  cargaTecnicos?: TecnicoInfo[];
+  investigadores?: Record<string, InvestigadorInfo> | InvestigadorInfo[];
+  cargaInvestigadores?: InvestigadorInfo[];
   onOpenChange: (open: boolean) => void;
 }
 
-export default function TraspasoModal({ ticket, tecnicoActualId, open, tecnicos, cargaTecnicos, onOpenChange }: TraspasoModalProps) {
-  const [tecnicoId, setTecnicoId] = useState('');
+export default function TraspasoModal({ ticket, investigadorActualId, open, investigadores, cargaInvestigadores, onOpenChange }: TraspasoModalProps) {
+  const [investigadorId, setInvestigadorId] = useState('');
   const [justificacion, setJustificacion] = useState('');
   const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
     if (open) {
-      setTecnicoId('');
+      setInvestigadorId('');
       setJustificacion('');
     }
   }, [open]);
 
-  const canSubmit = tecnicoId && justificacion.trim().length >= 5 && ticket;
+  const canSubmit = investigadorId && justificacion.trim().length >= 5 && ticket;
 
-  const rawList = cargaTecnicos && cargaTecnicos.length > 0
-    ? cargaTecnicos
-    : (tecnicos ? (Array.isArray(tecnicos) ? tecnicos : Object.values(tecnicos)) : []);
+  const rawList = cargaInvestigadores && cargaInvestigadores.length > 0
+    ? cargaInvestigadores
+    : (investigadores ? (Array.isArray(investigadores) ? investigadores : Object.values(investigadores)) : []);
 
-  const tecnicosList = rawList
+  const investigadoresList = rawList
     .map((t) => ({
       id: String(t.id),
-      nombre: t.nombre || t.name || `Técnico #${t.id}`,
+      nombre: t.nombre || t.name || `Investigador #${t.id}`,
     }))
-    .filter((t) => !tecnicoActualId || String(t.id) !== String(tecnicoActualId));
+    .filter((t) => !investigadorActualId || String(t.id) !== String(investigadorActualId));
 
   const handleSubmit = () => {
     if (!canSubmit) return;
     setProcessing(true);
     router.post(
       route('denuncias.traspasar', { ticket }),
-      { tecnico_id: tecnicoId, justificacion },
+      { investigador_id: investigadorId, justificacion },
       {
         preserveScroll: true,
         onSuccess: () => {
           toast.success(`Denuncia ${ticket} traspasada correctamente`);
-          setTecnicoId('');
+          setInvestigadorId('');
           setJustificacion('');
           onOpenChange(false);
         },
@@ -106,22 +106,22 @@ export default function TraspasoModal({ ticket, tecnicoActualId, open, tecnicos,
           <DialogTitle>Traspasar caso</DialogTitle>
           <DialogDescription>
             {ticket
-              ? `Está traspasando la denuncia ${ticket} a otro técnico.`
+              ? `Está traspasando la denuncia ${ticket} a otro investigador.`
               : 'Seleccione una denuncia para traspasar.'}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-2">
           <div className="space-y-2">
-            <Label htmlFor="tecnico-destino" className="after:content-['*'] after:text-destructive after:ml-0.5">
-              Técnico destino
+            <Label htmlFor="investigador-destino" className="after:content-['*'] after:text-destructive after:ml-0.5">
+              Investigador destino
             </Label>
-            <Select value={tecnicoId} onValueChange={setTecnicoId}>
-              <SelectTrigger id="tecnico-destino">
-                <SelectValue placeholder="Seleccionar técnico..." />
+            <Select value={investigadorId} onValueChange={setInvestigadorId}>
+              <SelectTrigger id="investigador-destino">
+                <SelectValue placeholder="Seleccionar investigador..." />
               </SelectTrigger>
               <SelectContent>
-                {tecnicosList.map((t) => (
+                {investigadoresList.map((t) => (
                   <SelectItem key={t.id} value={t.id}>{t.nombre}</SelectItem>
                 ))}
               </SelectContent>

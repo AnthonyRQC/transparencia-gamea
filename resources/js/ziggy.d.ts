@@ -99,7 +99,7 @@ declare module 'ziggy-js' {
             "required": true
         }
     ],
-    "denuncias.carga-tecnicos": [],
+    "denuncias.carga-investigadores": [],
     "denuncias.delegar-evaluacion": [
         {
             "name": "ticket",
@@ -287,10 +287,81 @@ declare module 'ziggy-js' {
             "required": true
         }
     ],
+    "admin.publicaciones.index": [],
+    "admin.publicaciones.store": [],
+    "admin.publicaciones.borrador": [
+        {
+            "name": "ticket",
+            "required": true
+        }
+    ],
+    "admin.publicaciones.update": [
+        {
+            "name": "id",
+            "required": true
+        }
+    ],
+    "admin.publicaciones.publicar": [
+        {
+            "name": "id",
+            "required": true
+        }
+    ],
+    "admin.publicaciones.despublicar": [
+        {
+            "name": "id",
+            "required": true
+        }
+    ],
+    "admin.publicaciones.fijar": [
+        {
+            "name": "id",
+            "required": true
+        }
+    ],
+    "admin.publicaciones.desfijar": [
+        {
+            "name": "id",
+            "required": true
+        }
+    ],
+    "admin.publicaciones.mover": [
+        {
+            "name": "id",
+            "required": true
+        }
+    ],
+    "admin.publicaciones.destroy": [
+        {
+            "name": "id",
+            "required": true
+        }
+    ],
+    "admin.publicaciones.descargar": [
+        {
+            "name": "id",
+            "required": true
+        }
+    ],
+    "admin.publicaciones.quitar": [
+        {
+            "name": "id",
+            "required": true
+        }
+    ],
+    "panel.descargar": [
+        {
+            "name": "id",
+            "required": true
+        }
+    ],
     "notifications.stream": [],
     "profile.edit": [],
     "profile.update": [],
     "profile.destroy": [],
+    "dev.tiempo": [],
+    "dev.tiempo.fijar": [],
+    "dev.tiempo.limpiar": [],
     "login": [],
     "password.update": [],
     "logout": []

@@ -104,7 +104,7 @@ interface Denuncia {
   created_at: string;
   estado: string;
   subestado?: string | null;
-  tecnico?: string | null;
+  investigador?: string | null;
   fecha_asignada?: string | null;
   plazo: PlazoInfo | null;
   bitacora?: BitacoraEntry[];
@@ -116,8 +116,8 @@ interface Grouped {
 
 interface PageProps {
   grouped: Grouped;
-  tecnicoActual: string;
-  tecnicos: Record<string, { id: string; nombre: string; iniciales: string; color: string }>;
+  investigadorActual: string;
+  investigadores: Record<string, { id: string; nombre: string; iniciales: string; color: string }>;
   solicitudesByTicket?: Record<string, Solicitud[]>;
   descargosByTicket?: Record<string, Descargo[]>;
   evaluacionesByTicket?: Record<string, any[]>;
@@ -137,7 +137,7 @@ const estadoLabels: Record<string, { label: string; icon: any }> = {
 
 const estadoOrden = ['asignada', 'investigacion', 'informe', 'cerrada'];
 
-export default function MisCasos({ grouped, tecnicoActual, tecnicos,
+export default function MisCasos({ grouped, investigadorActual, investigadores,
 solicitudesByTicket = {}, descargosByTicket = {}, evaluacionesByTicket = {}, avisosPorTicket = {}, evaluacionesDelegadas = [],
 evaluacionesDevueltas = [], canAct = true, destacar }: PageProps) {
   const [selectedDenuncia, setSelectedDenuncia] = useState<Denuncia | null>(null);
@@ -197,8 +197,8 @@ evaluacionesDevueltas = [], canAct = true, destacar }: PageProps) {
     }
   }, [grouped]);
 
-  const handleTecnicoChange = (value: string) => {
-    router.get(route('denuncias.mis-casos'), { tecnico: value }, { preserveState: true, preserveScroll: true });
+  const handleInvestigadorChange = (value: string) => {
+    router.get(route('denuncias.mis-casos'), { investigador: value }, { preserveState: true, preserveScroll: true });
   };
 
   const handleIniciar = (ticket: string) => {
@@ -261,7 +261,7 @@ evaluacionesDevueltas = [], canAct = true, destacar }: PageProps) {
   const sortItems = (items: Denuncia[]): Denuncia[] => {
     return [...items].sort((a, b) => {
       if (sortBy === 'fecha') return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-      if (sortBy === 'tecnico') return (a.tecnico || '').localeCompare(b.tecnico || '');
+      if (sortBy === 'investigador') return (a.investigador || '').localeCompare(b.investigador || '');
       if (activeTab === 'asignada') {
         return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       }
@@ -407,7 +407,7 @@ evaluacionesDevueltas = [], canAct = true, destacar }: PageProps) {
                   key={d.ticket}
                   denuncia={d}
                   plazo={d.plazo}
-                  tecnicos={tecnicos}
+                  investigadores={investigadores}
                   avisosPublicados={avisosPorTicket[d.ticket]}
                   onClick={() => setSelectedDenuncia(d)}
                   isNew={d.estado === 'asignada' && isNewHours(d.fecha_asignada || d.created_at)}
@@ -447,7 +447,7 @@ evaluacionesDevueltas = [], canAct = true, destacar }: PageProps) {
                           key={d.ticket}
                           denuncia={d}
                           plazo={null}
-                          tecnicos={tecnicos}
+                          investigadores={investigadores}
                           avisosPublicados={avisosPorTicket[d.ticket]}
                           onClick={() => setSelectedDenuncia(d)}
                         >
@@ -469,10 +469,10 @@ evaluacionesDevueltas = [], canAct = true, destacar }: PageProps) {
         <DenunciaSheet
           denuncia={selectedDenuncia}
           plazo={selectedDenuncia.plazo}
-          tecnicos={tecnicos}
+          investigadores={investigadores}
           open={selectedDenuncia !== null}
           onOpenChange={(v) => { if (!v) setSelectedDenuncia(null); }}
-          tecnicoNombre={selectedDenuncia && typeof selectedDenuncia.tecnico === 'object' ? (selectedDenuncia.tecnico as any)?.name : (selectedDenuncia?.tecnico || '—')}
+          investigadorNombre={selectedDenuncia && typeof selectedDenuncia.investigador === 'object' ? (selectedDenuncia.investigador as any)?.name : (selectedDenuncia?.investigador || '—')}
           solicitudes={solicitudesByTicket[selectedDenuncia.ticket] || []}
           descargos={descargosByTicket[selectedDenuncia.ticket] || []}
           evaluaciones={evaluacionesByTicket?.[selectedDenuncia.ticket] || []}

@@ -13,7 +13,7 @@ class EvaluacionTecnica extends Model
     protected $table = 'evaluaciones_tecnicas';
 
     protected $fillable = [
-        'denuncia_id', 'tecnico_id', 'delegada_por_id', 'delegada_at',
+        'denuncia_id', 'investigador_id', 'delegada_por_id', 'delegada_at',
         'justificacion_delegacion', 'texto_evaluacion', 'recomendacion',
         'devuelta_at', 'devuelta_por_id', 'estado',
     ];
@@ -35,9 +35,9 @@ class EvaluacionTecnica extends Model
         return $this->belongsTo(Denuncia::class);
     }
 
-    public function tecnico(): BelongsTo
+    public function investigador(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'tecnico_id');
+        return $this->belongsTo(User::class, 'investigador_id');
     }
 
     public function delegadaPor(): BelongsTo

@@ -19,7 +19,7 @@ class DashboardRequest extends FormRequest
         return [
             'desde' => ['nullable', 'date', 'before_or_equal:hasta'],
             'hasta' => ['nullable', 'date', 'after_or_equal:desde'],
-            'tecnico_id' => ['nullable', 'integer', 'exists:users,id'],
+            'investigador_id' => ['nullable', 'integer', 'exists:users,id'],
             'tipo' => ['nullable', Rule::in(TipoDenuncia::valores())],
             'categoria_id' => ['nullable', 'integer', 'exists:categorias_denuncia,id'],
             'clasificacion_id' => ['nullable', 'integer', 'exists:clasificaciones,id'],
@@ -34,7 +34,7 @@ class DashboardRequest extends FormRequest
         return [
             'desde' => $this->input('desde') ?: null,
             'hasta' => $this->input('hasta') ?: null,
-            'tecnico_id' => $this->input('tecnico_id') ? (int) $this->input('tecnico_id') : null,
+            'investigador_id' => $this->input('investigador_id') ? (int) $this->input('investigador_id') : null,
             'tipo' => $this->input('tipo') ?: null,
             'categoria_id' => $this->input('categoria_id') ? (int) $this->input('categoria_id') : null,
             'clasificacion_id' => $this->input('clasificacion_id') ? (int) $this->input('clasificacion_id') : null,

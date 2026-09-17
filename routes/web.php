@@ -105,8 +105,8 @@ Route::prefix('denuncias')->name('denuncias.')->group(function () {
     Route::post('/{ticket}/cierre/eliminar', [CierreController::class, 'eliminarCierre'])->name('cierre.eliminar');
     Route::post('/{ticket}/archivar', [CierreController::class, 'toggleArchivar'])->name('archivar');
 
-    // Carga de técnicos (Sprint 3)
-    Route::get('/carga-tecnicos', [AsignacionController::class, 'cargaTecnicos'])->name('carga-tecnicos');
+    // Carga de investigadores (Sprint 3)
+    Route::get('/carga-investigadores', [AsignacionController::class, 'cargaInvestigadores'])->name('carga-investigadores');
 
     // Sprint 7 — Evaluación Técnica Previa
     Route::post('/{ticket}/delegar-evaluacion', [DelegacionController::class, 'delegarEvaluacion'])->name('delegar-evaluacion');
@@ -152,7 +152,7 @@ Route::prefix('denuncias')->name('denuncias.')->group(function () {
     Route::get('/mis-casos', [MisCasosController::class, 'index'])->name('mis-casos');
     Route::get('/mi-resumen', [MiResumenController::class, 'index'])->name('mi-resumen');
 
-    // Evaluaciones Delegadas — Bandeja del Técnico (Sprint 7)
+    // Evaluaciones Delegadas — Bandeja del Investigador (Sprint 7)
     Route::get('/evaluaciones', [MisCasosController::class, 'evaluaciones'])->name('evaluaciones');
 });
 

@@ -36,16 +36,16 @@ class DashboardController extends Controller
         $usuario = $request->user();
         $rol = $usuario->rol;
         $esJefe = $rol === 'jefe';
-        $esTecnico = $rol === 'tecnico';
+        $esInvestigador = $rol === 'investigador';
         $esRegistrador = $rol === 'registrador';
 
         $filtros = $request->filtros();
 
-        // Regla de seguridad (server-side scoping): un técnico SIEMPRE ve solo sus casos.
-        if ($esTecnico) {
-            $filtros['tecnico_id'] = $usuario->id;
+        // Regla de seguridad (server-side scoping): un investigador SIEMPRE ve solo sus casos.
+        if ($esInvestigador) {
+            $filtros['investigador_id'] = $usuario->id;
         } elseif ($esRegistrador) {
-            $filtros['tecnico_id'] = null;
+            $filtros['investigador_id'] = null;
         }
 
         return Inertia::render('Dashboard', [
@@ -55,8 +55,8 @@ class DashboardController extends Controller
             'rendimiento' => RendimientoQuery::calcular($filtros, $esJefe, $usuario->id),
             'base_temporal' => $this->baseTemporal(),
             'opciones' => [
-                'tecnicos' => $esJefe
-                    ? User::where('rol', 'tecnico')
+                'investigadores' => $esJefe
+                    ? User::where('rol', 'investigador')
                         ->when(!$filtros['incluir_inactivos'], fn ($q) => $q->where('activo', true))
                         ->orderBy('name')
                         ->get(['id', 'name', 'activo'])
@@ -67,7 +67,7 @@ class DashboardController extends Controller
                 'estados' => $this->estadosOpciones(),
             ],
             'esJefe' => $esJefe,
-            'esTecnico' => $esTecnico,
+            'esInvestigador' => $esInvestigador,
             'esRegistrador' => $esRegistrador,
             'filtros' => $filtros,
         ]);
@@ -109,7 +109,7 @@ class DashboardController extends Controller
             'resultados.medios' => 'cerrado_at',
             'resultados.dependencias' => 'fecha_envio',
             'rendimiento.urgentes' => 'estado_actual',
-            'rendimiento.cargaTecnicos' => 'estado_actual',
+            'rendimiento.cargaInvestigadores' => 'estado_actual',
             'rendimiento.productividad' => 'cerrado_at',
         ];
     }

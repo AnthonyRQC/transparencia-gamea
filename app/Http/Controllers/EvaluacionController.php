@@ -25,8 +25,8 @@ class EvaluacionController extends Controller
             return redirect()->back()->with('error', 'Esta evaluación ya fue devuelta.');
         }
 
-        if ($evaluacion->tecnico_id !== Auth::id()) {
-            return redirect()->back()->with('error', 'No eres el técnico asignado a esta evaluación.');
+        if ($evaluacion->investigador_id !== Auth::id()) {
+            return redirect()->back()->with('error', 'No eres el investigador asignado a esta evaluación.');
         }
 
         DB::transaction(function () use ($evaluacion, $validated) {
@@ -44,7 +44,7 @@ class EvaluacionController extends Controller
                     'estado' => 'ingresada',
                     'evaluacion_tecnica_texto' => $validated['texto_evaluacion'],
                     'evaluacion_tecnica_recomendacion' => $validated['recomendacion'],
-                    'evaluacion_tecnica_tecnico_nombre' => Auth::user()->name,
+                    'evaluacion_tecnica_investigador_nombre' => Auth::user()->name,
                 ]);
 
                 $denuncia->bitacora()->create([
@@ -59,7 +59,7 @@ class EvaluacionController extends Controller
                     Notificacion::create([
                         'usuario_id' => $jefeId,
                         'tipo' => 'evaluacion_devuelta',
-                        'titulo' => 'EVALUACIÓN DEVUELTA POR TÉCNICO',
+                        'titulo' => 'EVALUACIÓN DEVUELTA POR INVESTIGADOR',
                         'mensaje' => "{$denuncia->ticket} — EVALUADA POR " . Auth::user()->name . " (" . strtoupper($validated['recomendacion']) . ")",
                         'ticket' => $denuncia->ticket,
                         'destino_url' => '/denuncias/bandeja?destacar=' . $denuncia->ticket,

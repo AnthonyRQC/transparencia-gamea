@@ -6,10 +6,10 @@ const SIZES = {
   md: 'w-9 h-9 text-xs',
 } as const;
 
-interface TecnicoAvatarProps {
+interface InvestigadorAvatarProps {
   /** Nombre completo — se muestra su primera letra en mayúscula. */
   nombre: string;
-  /** Clase de color dinámica (p. ej. tecnico.color). */
+  /** Clase de color dinámica (p. ej. investigador.color). */
   color?: string | null;
   /** Color hex inline (p. ej. user.color del Header). */
   colorHex?: string | null;
@@ -21,18 +21,18 @@ interface TecnicoAvatarProps {
 }
 
 /**
- * Avatar de técnico/usuario (Sprint 12.5 R1.3).
+ * Avatar de investigador/usuario (Sprint 12.5 R1.3).
  * Simple: primera letra del nombre. Sin envolver en button/tooltip —
  * el caller conserva su wrapper (dropdown del Header, Tooltip del Sheet).
  */
-export default function TecnicoAvatar({
+export default function InvestigadorAvatar({
   nombre,
   color,
   colorHex,
   size = 'sm',
   tone = 'color',
   className,
-}: TecnicoAvatarProps) {
+}: InvestigadorAvatarProps) {
   const letra = nombre.trim().charAt(0).toUpperCase() || '?';
 
   return (

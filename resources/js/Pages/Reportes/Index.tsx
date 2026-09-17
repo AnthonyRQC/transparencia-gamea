@@ -34,7 +34,7 @@ export default function Reportes({ denuncias, opciones, filtros }: Props) {
                 hasta: filtros.hasta ?? undefined,
                 tipo: filtros.tipo ?? undefined,
                 estado: filtros.estado ?? undefined,
-                tecnico_id: filtros.tecnico_id ?? undefined,
+                investigador_id: filtros.investigador_id ?? undefined,
                 categoria_id: filtros.categoria_id ?? undefined,
                 clasificacion_id: filtros.clasificacion_id ?? undefined,
                 page,

@@ -14,10 +14,10 @@ const badgeColor: Record<string, string> = {
 
 interface Props {
     urgentes: Urgente[];
-    esTecnico: boolean;
+    esInvestigador: boolean;
 }
 
-export default function TablaCasosUrgentes({ urgentes, esTecnico }: Props) {
+export default function TablaCasosUrgentes({ urgentes, esInvestigador }: Props) {
     return (
         <div className="overflow-x-auto">
             {urgentes.length > 0 && (
@@ -29,7 +29,7 @@ export default function TablaCasosUrgentes({ urgentes, esTecnico }: Props) {
                 <TableHeader>
                     <TableRow>
                         <TableHead className="w-32">Ticket</TableHead>
-                        <TableHead>Técnico</TableHead>
+                        <TableHead>Investigador</TableHead>
                         <TableHead className="text-right">Plazo / Vencimiento</TableHead>
                         <TableHead>Estado</TableHead>
                     </TableRow>
@@ -45,11 +45,11 @@ export default function TablaCasosUrgentes({ urgentes, esTecnico }: Props) {
                         urgentes.map((u) => (
                             <TableRow key={u.ticket}>
                                 <TableCell className="font-mono font-semibold text-primary text-xs">
-                                    <Link href={esTecnico ? '/denuncias/mis-casos' : '/denuncias'} title="Ver en la bandeja">
+                                    <Link href={esInvestigador ? '/denuncias/mis-casos' : '/denuncias'} title="Ver en la bandeja">
                                         {u.ticket}
                                     </Link>
                                 </TableCell>
-                                <TableCell className="text-xs">{u.tecnico}</TableCell>
+                                <TableCell className="text-xs">{u.investigador}</TableCell>
                                 <TableCell className="text-right">
                                     <Badge className={badgeColor[u.color] ?? badgeColor.gray}>
                                         {formatearDiasPlazo(u.diasRestantes)}

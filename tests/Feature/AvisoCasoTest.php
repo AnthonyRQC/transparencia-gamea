@@ -16,7 +16,7 @@ class AvisoCasoTest extends TestCase
     use RefreshDatabase;
 
     private User $jefe;
-    private User $tecnico;
+    private User $investigador;
 
     protected function setUp(): void
     {
@@ -26,7 +26,7 @@ class AvisoCasoTest extends TestCase
         }
         PrioridadPublicacion::create(['clave' => 'ordinario', 'nombre' => 'ORDINARIO']);
         $this->jefe = User::factory()->create(['rol' => 'jefe']);
-        $this->tecnico = User::factory()->create(['rol' => 'tecnico']);
+        $this->investigador = User::factory()->create(['rol' => 'investigador']);
     }
 
     private function denuncia(string $ticket, string $estado = 'ingresada'): Denuncia
@@ -92,13 +92,13 @@ class AvisoCasoTest extends TestCase
         \App\Models\InformeFinal::create([
             'denuncia_id' => $denuncia->id,
             'sitpreco' => 'SITPRECO-INF-7',
-            'concluido_por' => 'TÉCNICO TEST',
+            'concluido_por' => 'INVESTIGADOR TEST',
             'redactado_at' => now(),
         ]);
 
         $this->actingAs($this->jefe)->post("/denuncias/{$denuncia->ticket}/cierre", [
             'notificado_denunciante' => false,
-            'concluido_por' => 'TÉCNICO TEST',
+            'concluido_por' => 'INVESTIGADOR TEST',
             'descripcion' => 'DESCRIPCIÓN DE CIERRE DE PRUEBA CON MÍNIMO DE VEINTE CARACTERES',
         ]);
 

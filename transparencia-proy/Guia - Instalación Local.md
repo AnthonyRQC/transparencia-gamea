@@ -82,9 +82,9 @@ Abrir en el navegador: `http://localhost:8000`
 |-------------|------------|----------------|
 | jefe        | demo123    | Jefe de Unidad  |
 | registrador | demo123    | Registrador    |
-| tecnico1    | demo123    | Tecnico        |
-| tecnico2    | demo123    | Tecnico        |
-| tecnico3    | demo123    | Tecnico        |
+| investigador1 | demo123 | Investigador |
+| investigador2 | demo123 | Investigador |
+| investigador3 | demo123 | Investigador |
 
 > Todos los usuarios usan `username` (case-sensitive) para login.
 
@@ -93,7 +93,7 @@ Abrir en el navegador: `http://localhost:8000`
 - 185 dependencias externas (árbol GAMEA 2026)
 - 15 feriados (+ plantilla neutra 14 refs en `config/plantilla_feriados.php` como guía manual)
 - 6 clasificaciones + 4 medios notificación (tablas propias, no JSON)
-- 5 usuarios de prueba (10 técnicos en `DenunciaMasivaSeeder`)
+- 12 usuarios de prueba (10 investigadores en `DenunciaMasivaSeeder`)
 - 12 denuncias demo (DEN-2026-0001 a 0012) + 72 casos masivos DEN-2026-0013 a 0084
 - 5 notificaciones demo
 - Días hábiles `America/La_Paz` con cache `feriados:fechas` y deduplicación sáb/dom

@@ -74,11 +74,11 @@ interface DenunciaData {
 
 interface TabInformeCierreProps {
   denuncia: DenunciaData;
-  tecnicoNombre?: string;
+  investigadorNombre?: string;
   canAct?: boolean;
 }
 
-export default function TabInformeCierre({ denuncia, tecnicoNombre = '—', canAct = false }: TabInformeCierreProps) {
+export default function TabInformeCierre({ denuncia, investigadorNombre = '—', canAct = false }: TabInformeCierreProps) {
   const [subTab, setSubTab] = useState('informe');
   const [processingEliminar, setProcessingEliminar] = useState(false);
   const [eliminarTarget, setEliminarTarget] = useState<'informe' | 'cierre' | null>(null);
@@ -166,7 +166,7 @@ export default function TabInformeCierre({ denuncia, tecnicoNombre = '—', canA
           <FormInformeFinal
             ticket={denuncia.ticket}
             informe={informe}
-            tecnicoNombre={tecnicoNombre}
+            investigadorNombre={investigadorNombre}
             canAct={canAct && (!informe || !informe.eliminado)}
             onEdit={() => {
               setSubTab('informe');
@@ -190,7 +190,7 @@ export default function TabInformeCierre({ denuncia, tecnicoNombre = '—', canA
             ticket={denuncia.ticket}
             cierre={cierre}
             informeExiste={informe !== null && !informe.eliminado && (informe.clasificacion !== null || informe.redactado_at !== null)}
-            tecnicoNombre={tecnicoNombre}
+            investigadorNombre={investigadorNombre}
             canAct={canAct && (!cierre || !cierre.eliminado)}
             onEdit={() => {
               setSubTab('cierre');

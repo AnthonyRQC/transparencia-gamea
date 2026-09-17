@@ -43,7 +43,7 @@ class Notificacion extends Model
         $user = auth()->user();
         $targetPath = $value;
 
-        if ($user && $user->rol === 'tecnico' && ($targetPath === '/denuncias' || str_starts_with($targetPath, '/denuncias?'))) {
+        if ($user && $user->rol === 'investigador' && ($targetPath === '/denuncias' || str_starts_with($targetPath, '/denuncias?'))) {
             $targetPath = '/denuncias/mis-casos';
         } elseif ($user && $user->rol === 'jefe' && ($targetPath === '/denuncias/mis-casos' || str_starts_with($targetPath, '/denuncias/mis-casos?'))) {
             $targetPath = '/denuncias';

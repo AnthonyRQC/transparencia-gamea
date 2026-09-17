@@ -16,7 +16,7 @@ export default function BotonExportar({ filtros }: Props) {
     const filtrosDashboard: FiltrosDashboard = {
         desde: filtros.desde,
         hasta: filtros.hasta,
-        tecnico_id: filtros.tecnico_id,
+        investigador_id: filtros.investigador_id,
         tipo: filtros.tipo,
         categoria_id: filtros.categoria_id,
         clasificacion_id: filtros.clasificacion_id,

@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('evaluaciones_tecnicas', function (Blueprint $table) {
             $table->id();
             $table->foreignId('denuncia_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('tecnico_id')->constrained('users');
+            $table->foreignId('investigador_id')->constrained('users');
             $table->foreignId('delegada_por_id')->constrained('users');
             $table->dateTime('delegada_at');
             $table->text('justificacion_delegacion')->nullable();

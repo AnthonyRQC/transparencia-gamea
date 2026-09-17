@@ -100,7 +100,7 @@ class OperativoQuery
             ->where('cierres.eliminado', false)
             ->whereDate('cierres.cerrado_at', '>=', $desde->toDateString())
             ->whereDate('cierres.cerrado_at', '<=', $hasta->toDateString())
-            ->when($f['tecnico_id'], fn ($q, $v) => $q->where('denuncias.tecnico_id', $v))
+            ->when($f['investigador_id'], fn ($q, $v) => $q->where('denuncias.investigador_id', $v))
             ->when($f['tipo'], fn ($q, $v) => $q->where('denuncias.tipo', $v))
             ->when($f['categoria_id'], fn ($q, $v) => $q->where('denuncias.categoria_id', $v))
             ->when($f['estado'], fn ($q) => $q->where('denuncias.estado', $f['estado']))

@@ -42,13 +42,13 @@ interface FormCierreProps {
   ticket: string;
   cierre: CierreData | null;
   informeExiste: boolean;
-  tecnicoNombre: string;
+  investigadorNombre: string;
   canAct: boolean;
   onEdit?: () => void;
   onDelete?: () => void;
 }
 
-export default function FormCierre({ ticket, cierre, informeExiste, tecnicoNombre, canAct, onEdit, onDelete }: FormCierreProps) {
+export default function FormCierre({ ticket, cierre, informeExiste, investigadorNombre, canAct, onEdit, onDelete }: FormCierreProps) {
   const [openHistorial, setOpenHistorial] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [isEditingForm, setIsEditingForm] = useState(false);
@@ -90,7 +90,7 @@ export default function FormCierre({ ticket, cierre, informeExiste, tecnicoNombr
         <CierreForm
           ticket={ticket}
           cierre={cierre}
-          tecnicoNombre={tecnicoNombre}
+          investigadorNombre={investigadorNombre}
           processing={processing}
           setProcessing={setProcessing}
           onCancel={isClosed ? () => setIsEditingForm(false) : undefined}
@@ -199,10 +199,10 @@ function CierrePreview({ cierre, canAct, onEdit, onDelete }: {
   );
 }
 
-function CierreForm({ ticket, cierre, tecnicoNombre, processing, setProcessing, onCancel, onSuccess }: {
+function CierreForm({ ticket, cierre, investigadorNombre, processing, setProcessing, onCancel, onSuccess }: {
   ticket: string;
   cierre: CierreData | null;
-  tecnicoNombre: string;
+  investigadorNombre: string;
   processing: boolean;
   setProcessing: (v: boolean) => void;
   onCancel?: () => void;
@@ -219,7 +219,7 @@ function CierreForm({ ticket, cierre, tecnicoNombre, processing, setProcessing, 
   const [notificacionFecha, setNotificacionFecha] = useState(cierre?.notificacion_fecha ? cierre.notificacion_fecha.split('T')[0] : '');
   const [notificacionDescripcion, setNotificacionDescripcion] = useState(cierre?.notificacion_descripcion || '');
   const [noNotificadoMotivo, setNoNotificadoMotivo] = useState(cierre?.no_notificado_motivo || '');
-  const [concluidoPor, setConcluidoPor] = useState(cierre?.concluido_por || tecnicoNombre || '');
+  const [concluidoPor, setConcluidoPor] = useState(cierre?.concluido_por || investigadorNombre || '');
   const [descripcion, setDescripcion] = useState(cierre?.descripcion || '');
 
   useEffect(() => {
@@ -229,7 +229,7 @@ function CierreForm({ ticket, cierre, tecnicoNombre, processing, setProcessing, 
       setNotificacionFecha(cierre.notificacion_fecha ? cierre.notificacion_fecha.split('T')[0] : '');
       setNotificacionDescripcion(cierre.notificacion_descripcion || '');
       setNoNotificadoMotivo(cierre.no_notificado_motivo || '');
-      setConcluidoPor(cierre.concluido_por || tecnicoNombre || '');
+      setConcluidoPor(cierre.concluido_por || investigadorNombre || '');
       setDescripcion(cierre.descripcion || '');
     } else {
       setNotificadoDenunciante(false);
@@ -237,10 +237,10 @@ function CierreForm({ ticket, cierre, tecnicoNombre, processing, setProcessing, 
       setNotificacionFecha('');
       setNotificacionDescripcion('');
       setNoNotificadoMotivo('');
-      setConcluidoPor(tecnicoNombre || '');
+      setConcluidoPor(investigadorNombre || '');
       setDescripcion('');
     }
-  }, [cierre, tecnicoNombre]);
+  }, [cierre, investigadorNombre]);
 
   const canSubmit = notificadoDenunciante
     ? notificacionMedio && notificacionFecha && String(notificacionDescripcion || '').trim().length >= 10 && String(concluidoPor || '').trim().length >= 2 && String(descripcion || '').trim().length >= 20

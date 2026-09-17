@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 
 const SIMULACIONES = [
-  { tipo: 'traspaso', label: 'Jefe traspasó caso a otro técnico', icon: ArrowRightLeft, color: 'text-blue-500' },
+  { tipo: 'traspaso', label: 'Jefe traspasó caso a otro investigador', icon: ArrowRightLeft, color: 'text-blue-500' },
   { tipo: 'ampliacion', label: 'Jefe amplió plazo +10 días', icon: CalendarPlus, color: 'text-green-500' },
   { tipo: 'denuncia_admitida', label: 'Denuncia admitida', icon: CheckCircle, color: 'text-green-500' },
   { tipo: 'denuncia_rechazada', label: 'Denuncia rechazada', icon: XCircle, color: 'text-red-500' },

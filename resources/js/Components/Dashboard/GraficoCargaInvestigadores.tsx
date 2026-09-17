@@ -2,12 +2,12 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import { TEMA } from '@/helpers/tema';
 import type { Rendimiento } from '@/types/dashboard';
 
-export default function GraficoCargaTecnicos({
+export default function GraficoCargaInvestigadores({
     data,
     onSelect,
 }: {
-    data: NonNullable<Rendimiento['cargaTecnicos']>;
-    onSelect?: (tecnico: string) => void;
+    data: NonNullable<Rendimiento['cargaInvestigadores']>;
+    onSelect?: (investigador: string) => void;
 }) {
     return (
         <div className="h-[280px] w-full">
@@ -17,7 +17,7 @@ export default function GraficoCargaTecnicos({
                     <XAxis type="number" allowDecimals={false} tick={{ fontSize: 10 }} />
                     <YAxis
                         type="category"
-                        dataKey="tecnico"
+                        dataKey="investigador"
                         width={150}
                         tick={{ fontSize: 10 }}
                         tickFormatter={(val: string) => (val && val.length > 18 ? `${val.slice(0, 16)}…` : val)}
@@ -31,7 +31,7 @@ export default function GraficoCargaTecnicos({
                         fill={TEMA.teal}
                         barSize={16}
                         onClick={(d) => {
-                            const t = (d as unknown as { tecnico?: string })?.tecnico;
+                            const t = (d as unknown as { investigador?: string })?.investigador;
                             if (onSelect && t) onSelect(t);
                         }}
                         style={onSelect ? { cursor: 'pointer' } : undefined}
@@ -43,7 +43,7 @@ export default function GraficoCargaTecnicos({
                         fill={TEMA.dorado}
                         barSize={16}
                         onClick={(d) => {
-                            const t = (d as unknown as { tecnico?: string })?.tecnico;
+                            const t = (d as unknown as { investigador?: string })?.investigador;
                             if (onSelect && t) onSelect(t);
                         }}
                         style={onSelect ? { cursor: 'pointer' } : undefined}
@@ -56,7 +56,7 @@ export default function GraficoCargaTecnicos({
                         radius={[0, 6, 6, 0]}
                         barSize={16}
                         onClick={(d) => {
-                            const t = (d as unknown as { tecnico?: string })?.tecnico;
+                            const t = (d as unknown as { investigador?: string })?.investigador;
                             if (onSelect && t) onSelect(t);
                         }}
                         style={onSelect ? { cursor: 'pointer' } : undefined}

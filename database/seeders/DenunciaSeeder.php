@@ -427,7 +427,7 @@ class DenunciaSeeder extends Seeder
         );
     }
 
-    // DEN-2026-0006 — ASIGNADA, CORRUPCIÓN (técnico1)
+    // DEN-2026-0006 — ASIGNADA, CORRUPCIÓN (investigador1)
     private function denuncia006(): void
     {
         $this->makeDenuncia(
@@ -442,7 +442,7 @@ class DenunciaSeeder extends Seeder
                 'lugar_hechos' => 'DIRECCIÓN DE OBRAS PÚBLICAS',
                 'hechos' => 'SE DENUNCIA QUE EL DIRECTOR DE OBRAS PÚBLICAS HABRÍA FAVORECIDO A UNA EMPRESA CONSTRUCTORA CON LA ADJUDICACIÓN DIRECTA DE UNA OBRA A CAMBIO DE BENEFICIOS PERSONALES.',
                 'declaracion_jurada' => true,
-                'tecnico_id' => 3,
+                'investigador_id' => 3,
                 'registrado_por_id' => 2,
                 'fecha_admitida' => $this->hace(6, 9),
                 'justificacion_admision' => 'EXISTEN INDICIOS SUFICIENTES DE ACTOS DE CORRUPCIÓN EN CONTRATACIÓN',
@@ -504,7 +504,7 @@ class DenunciaSeeder extends Seeder
         );
     }
 
-    // DEN-2026-0007 — ASIGNADA, NEGACIÓN (técnico2)
+    // DEN-2026-0007 — ASIGNADA, NEGACIÓN (investigador2)
     private function denuncia007(): void
     {
         $this->makeDenuncia(
@@ -519,7 +519,7 @@ class DenunciaSeeder extends Seeder
                 'lugar_hechos' => 'UNIDAD DE SISTEMAS GAMEA',
                 'hechos' => 'EL DENUNCIANTE SOLICITÓ INFORMACIÓN SOBRE EL PRESUPUESTO DE SISTEMAS CORRESPONDIENTE A LA GESTIÓN 2025. LA UNIDAD DE SISTEMAS SE NEGÓ A PROPORCIONARLA ALEGANDO CONFIDENCIALIDAD.',
                 'declaracion_jurada' => true,
-                'tecnico_id' => 4,
+                'investigador_id' => 4,
                 'registrado_por_id' => 2,
                 'fecha_admitida' => $this->hace(5, 11),
                 'justificacion_admision' => 'LA NEGACIÓN DE INFORMACIÓN CONSTITUYE PRESUNTA INFRACCIÓN A LA LEY 974',
@@ -569,7 +569,7 @@ class DenunciaSeeder extends Seeder
         );
     }
 
-    // DEN-2026-0008 — INVESTIGACION, CORRUPCIÓN (técnico1, con solicitudes)
+    // DEN-2026-0008 — INVESTIGACION, CORRUPCIÓN (investigador1, con solicitudes)
     private function denuncia008(): void
     {
         $this->makeDenuncia(
@@ -584,7 +584,7 @@ class DenunciaSeeder extends Seeder
                 'lugar_hechos' => 'DIRECCIÓN DE INGRESOS MUNICIPALES',
                 'hechos' => 'SE DENUNCIA LA EXIGENCIA DE PAGOS EXTRAOFICIALES POR PARTE DE FUNCIONARIOS DE LA DIRECCIÓN DE INGRESOS MUNICIPALES PARA LA EMISIÓN DE LICENCIAS DE FUNCIONAMIENTO.',
                 'declaracion_jurada' => true,
-                'tecnico_id' => 3,
+                'investigador_id' => 3,
                 'registrado_por_id' => 2,
                 'fecha_admitida' => $this->hace(10, 10),
                 'justificacion_admision' => 'HAY ELEMENTOS DE JUICIO SUFICIENTES PARA INVESTIGAR',
@@ -673,7 +673,7 @@ class DenunciaSeeder extends Seeder
         );
     }
 
-    // DEN-2026-0009 — INVESTIGACION, CORRUPCIÓN (técnico2, con descargos)
+    // DEN-2026-0009 — INVESTIGACION, CORRUPCIÓN (investigador2, con descargos)
     private function denuncia009(): void
     {
         $this->makeDenuncia(
@@ -688,7 +688,7 @@ class DenunciaSeeder extends Seeder
                 'lugar_hechos' => 'SECRETARÍA GENERAL GAMEA',
                 'hechos' => 'SE DENUNCIA QUE UN FUNCIONARIO DE LA SECRETARÍA GENERAL HABRÍA REALIZADO NEGOCIACIONES INCOMPATIBLES CON SU CARGO, FAVORECIENDO A UNA EMPRESA DE SU CÓNYUGE EN PROCESOS DE CONTRATACIÓN.',
                 'declaracion_jurada' => true,
-                'tecnico_id' => 4,
+                'investigador_id' => 4,
                 'registrado_por_id' => 2,
                 'fecha_admitida' => $this->hace(12, 9),
                 'justificacion_admision' => 'LOS HECHOS PRESENTAN INDICIOS DE NEGOCIACIONES INCOMPATIBLES',
@@ -767,7 +767,7 @@ class DenunciaSeeder extends Seeder
         );
     }
 
-    // DEN-2026-0010 — INFORME, CORRUPCIÓN (técnico3)
+    // DEN-2026-0010 — INFORME, CORRUPCIÓN (investigador3)
     private function denuncia010(): void
     {
         $this->makeDenuncia(
@@ -782,7 +782,7 @@ class DenunciaSeeder extends Seeder
                 'lugar_hechos' => 'UNIDAD DE ADQUISICIONES GAMEA',
                 'hechos' => 'SE DENUNCIA QUE LA JEFA DE ADQUISICIONES HABRÍA ADQUIRIDO EQUIPAMIENTO A SOBREPRECIO, GENERANDO UN BENEFICIO ECONÓMICO A LA PROVEEDORA.',
                 'declaracion_jurada' => true,
-                'tecnico_id' => 5,
+                'investigador_id' => 5,
                 'registrado_por_id' => 2,
                 'fecha_admitida' => $this->hace(18, 10),
                 'justificacion_admision' => 'HAY ELEMENTOS SUFICIENTES PARA INICIAR INVESTIGACIÓN',
@@ -894,7 +894,7 @@ class DenunciaSeeder extends Seeder
         );
     }
 
-    // DEN-2026-0011 — CERRADA, NEGACIÓN (técnico3)
+    // DEN-2026-0011 — CERRADA, NEGACIÓN (investigador3)
     private function denuncia011(): void
     {
         $this->makeDenuncia(
@@ -909,7 +909,7 @@ class DenunciaSeeder extends Seeder
                 'lugar_hechos' => 'UNIDAD DE CATASTRO',
                 'hechos' => 'EL DENUNCIANTE SOLICITÓ INFORMACIÓN OFICIAL SOBRE PLANOS CATASTRALES DE SU PROPIEDAD. LA UNIDAD DE CATASTRO SE NEGÓ SISTEMÁTICAMENTE A PROPORCIONAR LA INFORMACIÓN ALEGANDO QUE LOS PLANOS ESTABAN EN DIGITALIZACIÓN.',
                 'declaracion_jurada' => true,
-                'tecnico_id' => 5,
+                'investigador_id' => 5,
                 'registrado_por_id' => 2,
                 'fecha_admitida' => $this->hace(23, 10),
                 'justificacion_admision' => 'LA NEGACIÓN DE INFORMACIÓN ES PRESUNTA INFRACCIÓN A LA LEY 974',
@@ -994,7 +994,7 @@ class DenunciaSeeder extends Seeder
         );
     }
 
-    // DEN-2026-0012 — CERRADA (ARCHIVADA), CORRUPCIÓN (técnico1)
+    // DEN-2026-0012 — CERRADA (ARCHIVADA), CORRUPCIÓN (investigador1)
     private function denuncia012(): void
     {
         $this->makeDenuncia(
@@ -1010,7 +1010,7 @@ class DenunciaSeeder extends Seeder
                 'lugar_hechos' => 'MERCADO CENTRAL',
                 'hechos' => 'SE DENUNCIÓ QUE FUNCIONARIOS MUNICIPALES COBRABAN CUOTAS EXTRAOFICIALES A COMERCIANTES DEL MERCADO CENTRAL POR ASIGNACIÓN DE PUESTOS.',
                 'declaracion_jurada' => true,
-                'tecnico_id' => 3,
+                'investigador_id' => 3,
                 'registrado_por_id' => 2,
                 'fecha_admitida' => $this->hace(28, 10),
                 'justificacion_admision' => 'EXISTEN INDICIOS DE ACTOS DE CORRUPCIÓN',

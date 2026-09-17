@@ -77,7 +77,7 @@
                 <th>TICKET</th>
                 <th>TIPO</th>
                 <th>CATEGORÍA</th>
-                <th>TÉCNICO</th>
+                <th>INVESTIGADOR</th>
                 <th>ESTADO</th>
                 <th>FECHA INGRESO</th>
             </tr>
@@ -88,7 +88,7 @@
                     <td>{{ $d->ticket }}</td>
                     <td>{{ $d->tipo === 'corrupcion' ? 'CORRUPCIÓN' : 'NEGACIÓN DE INFORMACIÓN' }}</td>
                     <td>{{ $d->categoria?->nombre ?? '' }}</td>
-                    <td>{{ $d->tecnico?->name ?? 'SIN ASIGNAR' }}</td>
+                    <td>{{ $d->investigador?->name ?? 'SIN ASIGNAR' }}</td>
                     <td>{{ $d->estado === 'cerrada' && $d->subestado === 'archivada' ? 'CERRADA · ARCHIVADA' : strtoupper(str_replace('_', ' ', $d->estado)) }}</td>
                     <td>{{ $d->created_at?->format('d/m/Y') }}</td>
                 </tr>

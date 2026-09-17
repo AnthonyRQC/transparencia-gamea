@@ -22,8 +22,8 @@ return new class extends Migration
             $table->text('lugar_hechos')->nullable();
             $table->text('hechos');
             $table->boolean('declaracion_jurada')->default(true);
-            $table->foreignId('tecnico_id')->nullable()->constrained('users');
-            $table->foreignId('tecnico_anterior_id')->nullable()->constrained('users');
+            $table->foreignId('investigador_id')->nullable()->constrained('users');
+            $table->foreignId('investigador_anterior_id')->nullable()->constrained('users');
             $table->dateTime('fecha_admitida')->nullable();
             $table->text('justificacion_admision')->nullable();
             $table->dateTime('fecha_rechazada')->nullable();
@@ -40,7 +40,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->index('estado');
-            $table->index('tecnico_id');
+            $table->index('investigador_id');
         });
     }
 

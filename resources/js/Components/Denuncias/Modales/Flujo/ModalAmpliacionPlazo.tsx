@@ -32,7 +32,7 @@ interface DenunciaInfo {
   plazo?: { dias_restantes: number; color: string; fecha_vencimiento?: string } | null;
 }
 
-interface TecnicoOption {
+interface InvestigadorOption {
   id: string;
   nombre: string;
 }
@@ -41,7 +41,7 @@ interface ModalAmpliacionPlazoProps {
   denuncia: DenunciaInfo | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  tecnicos?: Record<string, TecnicoOption>;
+  investigadores?: Record<string, InvestigadorOption>;
 }
 
 function getPlazoBase(tipo: string): number {
@@ -60,7 +60,7 @@ function getTotalAmpliaciones(ampliaciones: AmpliacionItem[] | undefined): numbe
   return (ampliaciones || []).reduce((sum, a) => sum + a.dias, 0);
 }
 
-export default function ModalAmpliacionPlazo({ denuncia, open, onOpenChange, tecnicos }: ModalAmpliacionPlazoProps) {
+export default function ModalAmpliacionPlazo({ denuncia, open, onOpenChange, investigadores }: ModalAmpliacionPlazoProps) {
   const [dias, setDias] = useState('');
   const [justificacion, setJustificacion] = useState('');
   const [huboSolicitud, setHuboSolicitud] = useState(false);
@@ -125,7 +125,7 @@ export default function ModalAmpliacionPlazo({ denuncia, open, onOpenChange, tec
     );
   };
 
-  const tecnicosList = tecnicos ? Object.values(tecnicos) : [];
+  const investigadoresList = investigadores ? Object.values(investigadores) : [];
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!processing) onOpenChange(v); }}>
@@ -232,16 +232,16 @@ export default function ModalAmpliacionPlazo({ denuncia, open, onOpenChange, tec
             />
             <div className="space-y-1">
               <Label htmlFor="hubo-solicitud" className="text-sm font-normal cursor-pointer">
-                Hubo solicitud previa del técnico
+                Hubo solicitud previa del investigador
               </Label>
               {huboSolicitud && (
                 <div className="pt-2">
                   <Select value={solicitadoPor} onValueChange={setSolicitadoPor} disabled={processing}>
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Seleccionar técnico..." />
+                      <SelectValue placeholder="Seleccionar investigador..." />
                     </SelectTrigger>
                     <SelectContent>
-                      {tecnicosList.map((t) => (
+                      {investigadoresList.map((t) => (
                         <SelectItem key={t.id} value={t.nombre}>{t.nombre}</SelectItem>
                       ))}
                     </SelectContent>

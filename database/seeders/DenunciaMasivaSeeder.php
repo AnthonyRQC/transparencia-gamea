@@ -205,7 +205,7 @@ class DenunciaMasivaSeeder extends Seeder
             $data['justificacion_admision'] = 'EXISTEN INDICIOS SUFICIENTES PARA CONTINUAR CON EL PROCESO.';
         }
         if (!empty($c['asg'])) {
-            $data['tecnico_id'] = $c['tecnico_id'];
+            $data['investigador_id'] = $c['investigador_id'];
             $data['fecha_asignada'] = $this->fecha($c['asg'], 11);
         } elseif ($c['estado'] === 'ingresada' || $c['estado'] === 'evaluacion_tecnica' || $c['estado'] === 'admitida') {
             // sin asignar
@@ -277,7 +277,7 @@ class DenunciaMasivaSeeder extends Seeder
                 'justificacion' => 'SE REQUIERE MAS TIEMPO PARA LA INVESTIGACION DEL CASO.',
                 'numero' => 1,
                 'aprobado_por_id' => 1,
-                'solicitado_por' => $this->tecnicoName($c['tecnico_id']),
+                'solicitado_por' => $this->investigadorName($c['investigador_id']),
                 'fecha' => $this->fecha($c['asg'] - 3, 14),
             ]);
         }
@@ -315,20 +315,20 @@ class DenunciaMasivaSeeder extends Seeder
         if ($c['estado'] === 'rechazada' && !empty($c['rc'])) {
             $bitacoraEntries[] = ['accion' => 'rechazada', 'detalle' => 'DENUNCIA RECHAZADA POR NO CONSTITUIR ACTO DE CORRUPCION', 'usuario_id' => 1, 'fecha' => $this->fecha($c['rc'], 16)];
         }
-        if (!empty($c['asg']) && !empty($c['tecnico_id'])) {
-            $techName = $this->tecnicoName($c['tecnico_id']);
+        if (!empty($c['asg']) && !empty($c['investigador_id'])) {
+            $techName = $this->investigadorName($c['investigador_id']);
             $bitacoraEntries[] = ['accion' => 'asignada', 'detalle' => 'DENUNCIA ASIGNADA A ' . $techName, 'usuario_id' => 1, 'fecha' => $this->fecha($c['asg'], 11)];
         }
         if (!empty($c['inv'])) {
-            $bitacoraEntries[] = ['accion' => 'investigacion', 'detalle' => 'INVESTIGACION INICIADA', 'usuario_id' => $c['tecnico_id'], 'fecha' => $this->fecha($c['inv'], 9)];
+            $bitacoraEntries[] = ['accion' => 'investigacion', 'detalle' => 'INVESTIGACION INICIADA', 'usuario_id' => $c['investigador_id'], 'fecha' => $this->fecha($c['inv'], 9)];
         }
         if (!empty($c['inf'])) {
             $clas = $c['clas'] ?? 'administrativo';
-            $bitacoraEntries[] = ['accion' => 'informe_redactado', 'detalle' => 'INFORME FINAL REDACTADO CON CLASIFICACION ' . strtoupper($clas), 'usuario_id' => $c['tecnico_id'], 'fecha' => $this->fecha($c['inf'], 14)];
+            $bitacoraEntries[] = ['accion' => 'informe_redactado', 'detalle' => 'INFORME FINAL REDACTADO CON CLASIFICACION ' . strtoupper($clas), 'usuario_id' => $c['investigador_id'], 'fecha' => $this->fecha($c['inf'], 14)];
         }
         if (in_array($c['estado'], ['cerrada', 'cerrada_archivada']) && !empty($c['crt'])) {
             $sub = $c['sub'] ?? '';
-            $bitacoraEntries[] = ['accion' => 'cierre_registrado', 'detalle' => 'CASO CERRADO' . ($sub ? ' Y ' . strtoupper($sub) : ''), 'usuario_id' => $c['tecnico_id'], 'fecha' => $this->fecha($c['crt'], 16)];
+            $bitacoraEntries[] = ['accion' => 'cierre_registrado', 'detalle' => 'CASO CERRADO' . ($sub ? ' Y ' . strtoupper($sub) : ''), 'usuario_id' => $c['investigador_id'], 'fecha' => $this->fecha($c['crt'], 16)];
         }
 
         foreach ($bitacoraEntries as $b) {
@@ -371,7 +371,7 @@ class DenunciaMasivaSeeder extends Seeder
             $d->bitacora()->create([
                 'accion' => 'solicitud_creada',
                 'detalle' => 'SOLICITUD DE INFORMACION A ' . $depNombre,
-                'usuario_id' => $d->tecnico_id,
+                'usuario_id' => $d->investigador_id,
                 'fecha' => $envio,
             ]);
 
@@ -379,7 +379,7 @@ class DenunciaMasivaSeeder extends Seeder
                 $d->bitacora()->create([
                     'accion' => 'solicitud_respondida',
                     'detalle' => 'SOLICITUD RESPONDIDA POR ' . $depNombre,
-                    'usuario_id' => $d->tecnico_id,
+                    'usuario_id' => $d->investigador_id,
                     'fecha' => $venc->copy()->subDays(1),
                 ]);
             }
@@ -411,7 +411,7 @@ class DenunciaMasivaSeeder extends Seeder
         $d->bitacora()->create([
             'accion' => 'descargo_notificado',
             'detalle' => 'DESCARGO NOTIFICADO AL DENUNCIADO',
-            'usuario_id' => $d->tecnico_id,
+            'usuario_id' => $d->investigador_id,
             'fecha' => $notif,
         ]);
 
@@ -419,7 +419,7 @@ class DenunciaMasivaSeeder extends Seeder
             $d->bitacora()->create([
                 'accion' => 'descargo_respondido',
                 'detalle' => 'DESCARGO RESPONDIDO POR EL DENUNCIADO',
-                'usuario_id' => $d->tecnico_id,
+                'usuario_id' => $d->investigador_id,
                 'fecha' => $descData['fecha_respuesta'],
             ]);
         }
@@ -434,11 +434,11 @@ class DenunciaMasivaSeeder extends Seeder
         InformeFinal::create([
             'denuncia_id' => $d->id,
             'clasificacion_id' => $clasId,
-            'clasificado_por_id' => $c['tecnico_id'],
+            'clasificado_por_id' => $c['investigador_id'],
             'sitpreco' => 'SIT-' . date('Y') . '-' . str_pad($num, 3, '0', STR_PAD_LEFT),
             'fojas' => random_int(15, 65),
             'justificacion' => 'SE HA VERIFICADO LA INFORMACION PRESENTADA EN LA DENUNCIA. SE RECOMIENDA LAS ACCIONES CORRESPONDIENTES SEGUN EL ARTICULO CORRESPONDIENTE DE LA LEY 974.',
-            'concluido_por' => $this->tecnicoName($c['tecnico_id']),
+            'concluido_por' => $this->investigadorName($c['investigador_id']),
             'redactado_at' => $this->fecha($c['inf'], 14),
         ]);
     }
@@ -448,7 +448,7 @@ class DenunciaMasivaSeeder extends Seeder
         $medios = ['presencial', 'email', 'whatsapp', 'otro'];
         $medioClave = $c['med'] ?? $medios[$num % count($medios)];
         $medioId = MedioNotificacion::where('clave', $medioClave)->value('id');
-        $techName = $this->tecnicoName($c['tecnico_id']);
+        $techName = $this->investigadorName($c['investigador_id']);
 
         Cierre::create([
             'denuncia_id' => $d->id,
@@ -459,13 +459,13 @@ class DenunciaMasivaSeeder extends Seeder
             'concluido_por' => $techName,
             'descripcion' => 'CASO CERRADO DESPUES DE LA INVESTIGACION CORRESPONDIENTE.',
             'cerrado_at' => $this->fecha($c['crt'], 16),
-            'cerrado_por_id' => $c['tecnico_id'],
+            'cerrado_por_id' => $c['investigador_id'],
         ]);
     }
 
-    private function tecnicoName(?int $tecnicoId): string
+    private function investigadorName(?int $investigadorId): string
     {
-        return User::where('id', $tecnicoId)->value('name') ?? 'TECNICO';
+        return User::where('id', $investigadorId)->value('name') ?? 'INVESTIGADOR';
     }
 
     private function actualizarSiguienteTicket(): void
@@ -480,8 +480,8 @@ class DenunciaMasivaSeeder extends Seeder
      */
     private function crearCasosVolumen(): void
     {
-        $tecnicos = User::where('rol', 'tecnico')->where('activo', true)->orderBy('id')->pluck('id')->toArray();
-        if ($tecnicos === []) {
+        $investigadores = User::where('rol', 'investigador')->where('activo', true)->orderBy('id')->pluck('id')->toArray();
+        if ($investigadores === []) {
             return;
         }
 
@@ -498,7 +498,7 @@ class DenunciaMasivaSeeder extends Seeder
                 continue; // Se crea abajo como mora intencional.
             }
             $estado = $estados[$num % count($estados)];
-            $tec = $tecnicos[$num % count($tecnicos)];
+            $inv = $investigadores[$num % count($investigadores)];
             // Negación (20d) más reciente que corrupción (45d) para ~90% en plazo.
             $esNeg = $num % 4 === 0;
             $cr = $esNeg ? 3 + ($num % 12) : 5 + ($num % 25);
@@ -506,7 +506,7 @@ class DenunciaMasivaSeeder extends Seeder
             $c = [
                 'ticket' => $this->ticket($num),
                 'estado' => $estado,
-                'tecnico_id' => in_array($estado, ['ingresada', 'admitida'], true) ? null : $tec,
+                'investigador_id' => in_array($estado, ['ingresada', 'admitida'], true) ? null : $inv,
                 'cr' => $cr,
                 'tipo' => $esNeg ? 'negacion' : 'corrupcion',
             ];
@@ -543,16 +543,16 @@ class DenunciaMasivaSeeder extends Seeder
         // Dos en mora intencional (fuera del 90% en plazo).
         $this->crearDenuncia([
             'ticket' => $this->ticket(119), 'estado' => 'investigacion',
-            'tecnico_id' => $tecnicos[0], 'cr' => 70, 'adm' => 65, 'asg' => 62,
+            'investigador_id' => $investigadores[0], 'cr' => 70, 'adm' => 65, 'asg' => 62,
             'inv' => 58, 'sol' => true, 'tipo' => 'corrupcion',
         ]);
     }
 
     private function crearCasosPipeline(): void
     {
-        // Dos técnicos para los casos que pasan a asignada directo del pipeline
-        $t3 = User::where('username', 'tecnico1')->first()->id;
-        $t4 = User::where('username', 'tecnico2')->first()->id;
+        // Dos investigadores para los casos que pasan a asignada directo del pipeline
+        $t3 = User::where('username', 'investigador1')->first()->id;
+        $t4 = User::where('username', 'investigador2')->first()->id;
 
         $pipeline = [
             // ingresada x4 (001, 002 y 13, 14, 17 completan 5 en DenunciaSeeder)
@@ -566,9 +566,9 @@ class DenunciaMasivaSeeder extends Seeder
 
             // evaluacion_tecnica x2
             ['ticket' => $this->ticket(20), 'estado' => 'evaluacion_tecnica', 'cr' => 2, 'adm' => null],
-            ['ticket' => $this->ticket(21), 'estado' => 'asignada', 'tecnico_id' => $t4, 'cr' => 5, 'adm' => 4, 'asg' => 3, 'escenario' => 'anonimo'],
+            ['ticket' => $this->ticket(21), 'estado' => 'asignada', 'investigador_id' => $t4, 'cr' => 5, 'adm' => 4, 'asg' => 3, 'escenario' => 'anonimo'],
             ['ticket' => $this->ticket(22), 'estado' => 'evaluacion_tecnica', 'cr' => 2, 'adm' => null, 'tipo' => 'negacion'],
-            ['ticket' => $this->ticket(23), 'estado' => 'asignada', 'tecnico_id' => $t3, 'cr' => 3, 'adm' => 2, 'asg' => 1],
+            ['ticket' => $this->ticket(23), 'estado' => 'asignada', 'investigador_id' => $t3, 'cr' => 3, 'adm' => 2, 'asg' => 1],
 
             // admitida sin asignar x4
             ['ticket' => $this->ticket(24), 'estado' => 'admitida', 'cr' => 4, 'adm' => 3],
@@ -591,89 +591,89 @@ class DenunciaMasivaSeeder extends Seeder
 
     private function crearCasosAsignados(): void
     {
-        $t3 = User::where('username', 'tecnico1')->first()->id;
-        $t4 = User::where('username', 'tecnico2')->first()->id;
-        $t5 = User::where('username', 'tecnico3')->first()->id;
-        $t6 = User::where('username', 'tecnico4')->first()->id;
-        $t7 = User::where('username', 'tecnico5')->first()->id;
-        $t8 = User::where('username', 'tecnico6')->first()->id;
-        $t9 = User::where('username', 'tecnico7')->first()->id;
-        $t10 = User::where('username', 'tecnico8')->first()->id;
-        $t11 = User::where('username', 'tecnico9')->first()->id;
-        $t12 = User::where('username', 'tecnico10')->first()->id;
+        $t3 = User::where('username', 'investigador1')->first()->id;
+        $t4 = User::where('username', 'investigador2')->first()->id;
+        $t5 = User::where('username', 'investigador3')->first()->id;
+        $t6 = User::where('username', 'investigador4')->first()->id;
+        $t7 = User::where('username', 'investigador5')->first()->id;
+        $t8 = User::where('username', 'investigador6')->first()->id;
+        $t9 = User::where('username', 'investigador7')->first()->id;
+        $t10 = User::where('username', 'investigador8')->first()->id;
+        $t11 = User::where('username', 'investigador9')->first()->id;
+        $t12 = User::where('username', 'investigador10')->first()->id;
 
         $casos = [
-            // tecnico1 (Carlos Quispe) +3: investigacion, asignada, informe
-            ['ticket' => $this->ticket(33), 'estado' => 'investigacion', 'tecnico_id' => $t3, 'cr' => 60, 'adm' => 55, 'asg' => 50, 'inv' => 48, 'sol' => true, 'des' => true, 'amp' => 30],
-            ['ticket' => $this->ticket(34), 'estado' => 'asignada', 'tecnico_id' => $t3, 'cr' => 10, 'adm' => 7, 'asg' => 5],
-            ['ticket' => $this->ticket(35), 'estado' => 'informe', 'tecnico_id' => $t3, 'cr' => 35, 'adm' => 30, 'asg' => 28, 'inv' => 25, 'inf' => 3, 'sol' => true],
+            // investigador1 (Carlos Quispe) +3: investigacion, asignada, informe
+            ['ticket' => $this->ticket(33), 'estado' => 'investigacion', 'investigador_id' => $t3, 'cr' => 60, 'adm' => 55, 'asg' => 50, 'inv' => 48, 'sol' => true, 'des' => true, 'amp' => 30],
+            ['ticket' => $this->ticket(34), 'estado' => 'asignada', 'investigador_id' => $t3, 'cr' => 10, 'adm' => 7, 'asg' => 5],
+            ['ticket' => $this->ticket(35), 'estado' => 'informe', 'investigador_id' => $t3, 'cr' => 35, 'adm' => 30, 'asg' => 28, 'inv' => 25, 'inf' => 3, 'sol' => true],
 
-            // tecnico2 (Ana Torres) +4: asignada, investigacion x2, cerrada
-            ['ticket' => $this->ticket(36), 'estado' => 'asignada', 'tecnico_id' => $t4, 'cr' => 70, 'adm' => 62, 'asg' => 60],
-            ['ticket' => $this->ticket(37), 'estado' => 'investigacion', 'tecnico_id' => $t4, 'cr' => 14, 'adm' => 12, 'asg' => 10, 'inv' => 8, 'sol' => true, 'tipo' => 'negacion'],
-            ['ticket' => $this->ticket(38), 'estado' => 'investigacion', 'tecnico_id' => $t4, 'cr' => 80, 'adm' => 70, 'asg' => 65, 'inv' => 60, 'amp' => 90, 'des' => true],
-            ['ticket' => $this->ticket(39), 'estado' => 'cerrada', 'tecnico_id' => $t4, 'cr' => 50, 'adm' => 45, 'asg' => 42, 'inv' => 38, 'inf' => 12, 'crt' => 8, 'sol' => true],
+            // investigador2 (Ana Torres) +4: asignada, investigacion x2, cerrada
+            ['ticket' => $this->ticket(36), 'estado' => 'asignada', 'investigador_id' => $t4, 'cr' => 70, 'adm' => 62, 'asg' => 60],
+            ['ticket' => $this->ticket(37), 'estado' => 'investigacion', 'investigador_id' => $t4, 'cr' => 14, 'adm' => 12, 'asg' => 10, 'inv' => 8, 'sol' => true, 'tipo' => 'negacion'],
+            ['ticket' => $this->ticket(38), 'estado' => 'investigacion', 'investigador_id' => $t4, 'cr' => 80, 'adm' => 70, 'asg' => 65, 'inv' => 60, 'amp' => 90, 'des' => true],
+            ['ticket' => $this->ticket(39), 'estado' => 'cerrada', 'investigador_id' => $t4, 'cr' => 50, 'adm' => 45, 'asg' => 42, 'inv' => 38, 'inf' => 12, 'crt' => 8, 'sol' => true],
 
-            // tecnico3 (Luis Mamani) +4: asignada, investigacion, cerrada, archivada
-            ['ticket' => $this->ticket(40), 'estado' => 'asignada', 'tecnico_id' => $t5, 'cr' => 12, 'adm' => 10, 'asg' => 9],
-            ['ticket' => $this->ticket(41), 'estado' => 'investigacion', 'tecnico_id' => $t5, 'cr' => 14, 'adm' => 12, 'asg' => 10, 'inv' => 8, 'sol' => true, 'des' => true, 'tipo' => 'negacion'],
-            ['ticket' => $this->ticket(42), 'estado' => 'cerrada', 'tecnico_id' => $t5, 'cr' => 30, 'adm' => 27, 'asg' => 25, 'inv' => 22, 'inf' => 10, 'crt' => 4],
-            ['ticket' => $this->ticket(43), 'estado' => 'cerrada_archivada', 'tecnico_id' => $t5, 'cr' => 50, 'adm' => 42, 'asg' => 38, 'inv' => 32, 'inf' => 18, 'crt' => 12, 'sub' => 'archivada', 'clas' => 'sin_indicios'],
+            // investigador3 (Luis Mamani) +4: asignada, investigacion, cerrada, archivada
+            ['ticket' => $this->ticket(40), 'estado' => 'asignada', 'investigador_id' => $t5, 'cr' => 12, 'adm' => 10, 'asg' => 9],
+            ['ticket' => $this->ticket(41), 'estado' => 'investigacion', 'investigador_id' => $t5, 'cr' => 14, 'adm' => 12, 'asg' => 10, 'inv' => 8, 'sol' => true, 'des' => true, 'tipo' => 'negacion'],
+            ['ticket' => $this->ticket(42), 'estado' => 'cerrada', 'investigador_id' => $t5, 'cr' => 30, 'adm' => 27, 'asg' => 25, 'inv' => 22, 'inf' => 10, 'crt' => 4],
+            ['ticket' => $this->ticket(43), 'estado' => 'cerrada_archivada', 'investigador_id' => $t5, 'cr' => 50, 'adm' => 42, 'asg' => 38, 'inv' => 32, 'inf' => 18, 'crt' => 12, 'sub' => 'archivada', 'clas' => 'sin_indicios'],
 
-            // tecnico4 (Jorge Apaza) +6
-            ['ticket' => $this->ticket(44), 'estado' => 'asignada', 'tecnico_id' => $t6, 'cr' => 14, 'adm' => 10, 'asg' => 8],
-            ['ticket' => $this->ticket(45), 'estado' => 'investigacion', 'tecnico_id' => $t6, 'cr' => 15, 'adm' => 13, 'asg' => 11, 'inv' => 9, 'sol' => true, 'tipo' => 'negacion'],
-            ['ticket' => $this->ticket(46), 'estado' => 'investigacion', 'tecnico_id' => $t6, 'cr' => 100, 'adm' => 95, 'asg' => 90, 'inv' => 85, 'amp' => 30, 'des' => true],
-            ['ticket' => $this->ticket(47), 'estado' => 'informe', 'tecnico_id' => $t6, 'cr' => 38, 'adm' => 28, 'asg' => 25, 'inv' => 22, 'inf' => 5],
-            ['ticket' => $this->ticket(48), 'estado' => 'cerrada', 'tecnico_id' => $t6, 'cr' => 55, 'adm' => 40, 'asg' => 37, 'inv' => 32, 'inf' => 12, 'crt' => 5],
-            ['ticket' => $this->ticket(49), 'estado' => 'cerrada_archivada', 'tecnico_id' => $t6, 'cr' => 70, 'adm' => 60, 'asg' => 55, 'inv' => 50, 'inf' => 20, 'crt' => 15, 'sub' => 'archivada', 'clas' => 'archivado'],
+            // investigador4 (Jorge Apaza) +6
+            ['ticket' => $this->ticket(44), 'estado' => 'asignada', 'investigador_id' => $t6, 'cr' => 14, 'adm' => 10, 'asg' => 8],
+            ['ticket' => $this->ticket(45), 'estado' => 'investigacion', 'investigador_id' => $t6, 'cr' => 15, 'adm' => 13, 'asg' => 11, 'inv' => 9, 'sol' => true, 'tipo' => 'negacion'],
+            ['ticket' => $this->ticket(46), 'estado' => 'investigacion', 'investigador_id' => $t6, 'cr' => 100, 'adm' => 95, 'asg' => 90, 'inv' => 85, 'amp' => 30, 'des' => true],
+            ['ticket' => $this->ticket(47), 'estado' => 'informe', 'investigador_id' => $t6, 'cr' => 38, 'adm' => 28, 'asg' => 25, 'inv' => 22, 'inf' => 5],
+            ['ticket' => $this->ticket(48), 'estado' => 'cerrada', 'investigador_id' => $t6, 'cr' => 55, 'adm' => 40, 'asg' => 37, 'inv' => 32, 'inf' => 12, 'crt' => 5],
+            ['ticket' => $this->ticket(49), 'estado' => 'cerrada_archivada', 'investigador_id' => $t6, 'cr' => 70, 'adm' => 60, 'asg' => 55, 'inv' => 50, 'inf' => 20, 'crt' => 15, 'sub' => 'archivada', 'clas' => 'archivado'],
 
-            // tecnico5 (Karina Villca) +6
-            ['ticket' => $this->ticket(50), 'estado' => 'asignada', 'tecnico_id' => $t7, 'cr' => 10, 'adm' => 8, 'asg' => 7, 'tipo' => 'negacion'],
-            ['ticket' => $this->ticket(51), 'estado' => 'investigacion', 'tecnico_id' => $t7, 'cr' => 30, 'adm' => 25, 'asg' => 22, 'inv' => 18, 'sol' => true, 'des' => true],
-            ['ticket' => $this->ticket(52), 'estado' => 'informe', 'tecnico_id' => $t7, 'cr' => 25, 'adm' => 22, 'asg' => 20, 'inv' => 18, 'inf' => 4],
-            ['ticket' => $this->ticket(53), 'estado' => 'informe', 'tecnico_id' => $t7, 'cr' => 16, 'adm' => 14, 'asg' => 12, 'inv' => 10, 'inf' => 3, 'tipo' => 'negacion'],
-            ['ticket' => $this->ticket(54), 'estado' => 'cerrada', 'tecnico_id' => $t7, 'cr' => 28, 'adm' => 25, 'asg' => 23, 'inv' => 20, 'inf' => 8, 'crt' => 3],
-            ['ticket' => $this->ticket(55), 'estado' => 'cerrada_archivada', 'tecnico_id' => $t7, 'cr' => 55, 'adm' => 48, 'asg' => 44, 'inv' => 40, 'inf' => 15, 'crt' => 6, 'sub' => 'archivada', 'clas' => 'sin_indicios'],
+            // investigador5 (Karina Villca) +6
+            ['ticket' => $this->ticket(50), 'estado' => 'asignada', 'investigador_id' => $t7, 'cr' => 10, 'adm' => 8, 'asg' => 7, 'tipo' => 'negacion'],
+            ['ticket' => $this->ticket(51), 'estado' => 'investigacion', 'investigador_id' => $t7, 'cr' => 30, 'adm' => 25, 'asg' => 22, 'inv' => 18, 'sol' => true, 'des' => true],
+            ['ticket' => $this->ticket(52), 'estado' => 'informe', 'investigador_id' => $t7, 'cr' => 25, 'adm' => 22, 'asg' => 20, 'inv' => 18, 'inf' => 4],
+            ['ticket' => $this->ticket(53), 'estado' => 'informe', 'investigador_id' => $t7, 'cr' => 16, 'adm' => 14, 'asg' => 12, 'inv' => 10, 'inf' => 3, 'tipo' => 'negacion'],
+            ['ticket' => $this->ticket(54), 'estado' => 'cerrada', 'investigador_id' => $t7, 'cr' => 28, 'adm' => 25, 'asg' => 23, 'inv' => 20, 'inf' => 8, 'crt' => 3],
+            ['ticket' => $this->ticket(55), 'estado' => 'cerrada_archivada', 'investigador_id' => $t7, 'cr' => 55, 'adm' => 48, 'asg' => 44, 'inv' => 40, 'inf' => 15, 'crt' => 6, 'sub' => 'archivada', 'clas' => 'sin_indicios'],
 
-            // tecnico6 (Miguel Condori) +5
-            ['ticket' => $this->ticket(56), 'estado' => 'asignada', 'tecnico_id' => $t8, 'cr' => 16, 'adm' => 12, 'asg' => 9],
-            ['ticket' => $this->ticket(57), 'estado' => 'asignada', 'tecnico_id' => $t8, 'cr' => 12, 'adm' => 10, 'asg' => 9, 'tipo' => 'negacion'],
-            ['ticket' => $this->ticket(58), 'estado' => 'investigacion', 'tecnico_id' => $t8, 'cr' => 65, 'adm' => 60, 'asg' => 56, 'inv' => 52, 'amp' => 30, 'sol' => true],
-            ['ticket' => $this->ticket(59), 'estado' => 'informe', 'tecnico_id' => $t8, 'cr' => 52, 'adm' => 48, 'asg' => 44, 'inv' => 40, 'inf' => 12],
-            ['ticket' => $this->ticket(60), 'estado' => 'cerrada', 'tecnico_id' => $t8, 'cr' => 60, 'adm' => 50, 'asg' => 46, 'inv' => 42, 'inf' => 20, 'crt' => 15, 'sol' => true],
+            // investigador6 (Miguel Condori) +5
+            ['ticket' => $this->ticket(56), 'estado' => 'asignada', 'investigador_id' => $t8, 'cr' => 16, 'adm' => 12, 'asg' => 9],
+            ['ticket' => $this->ticket(57), 'estado' => 'asignada', 'investigador_id' => $t8, 'cr' => 12, 'adm' => 10, 'asg' => 9, 'tipo' => 'negacion'],
+            ['ticket' => $this->ticket(58), 'estado' => 'investigacion', 'investigador_id' => $t8, 'cr' => 65, 'adm' => 60, 'asg' => 56, 'inv' => 52, 'amp' => 30, 'sol' => true],
+            ['ticket' => $this->ticket(59), 'estado' => 'informe', 'investigador_id' => $t8, 'cr' => 52, 'adm' => 48, 'asg' => 44, 'inv' => 40, 'inf' => 12],
+            ['ticket' => $this->ticket(60), 'estado' => 'cerrada', 'investigador_id' => $t8, 'cr' => 60, 'adm' => 50, 'asg' => 46, 'inv' => 42, 'inf' => 20, 'crt' => 15, 'sol' => true],
 
-            // tecnico7 (Veronica Mamani) +6
-            ['ticket' => $this->ticket(61), 'estado' => 'asignada', 'tecnico_id' => $t9, 'cr' => 8, 'adm' => 6, 'asg' => 5, 'tipo' => 'negacion'],
-            ['ticket' => $this->ticket(62), 'estado' => 'investigacion', 'tecnico_id' => $t9, 'cr' => 18, 'adm' => 12, 'asg' => 9, 'inv' => 7, 'sol' => true, 'des' => true],
-            ['ticket' => $this->ticket(63), 'estado' => 'investigacion', 'tecnico_id' => $t9, 'cr' => 30, 'adm' => 27, 'asg' => 24, 'inv' => 21, 'des' => true],
-            ['ticket' => $this->ticket(64), 'estado' => 'informe', 'tecnico_id' => $t9, 'cr' => 16, 'adm' => 14, 'asg' => 12, 'inv' => 10, 'inf' => 3],
-            ['ticket' => $this->ticket(65), 'estado' => 'cerrada', 'tecnico_id' => $t9, 'cr' => 32, 'adm' => 29, 'asg' => 27, 'inv' => 24, 'inf' => 10, 'crt' => 4, 'sol' => true],
-            ['ticket' => $this->ticket(66), 'estado' => 'cerrada_archivada', 'tecnico_id' => $t9, 'cr' => 45, 'adm' => 38, 'asg' => 34, 'inv' => 30, 'inf' => 15, 'crt' => 8, 'sub' => 'archivada'],
+            // investigador7 (Veronica Mamani) +6
+            ['ticket' => $this->ticket(61), 'estado' => 'asignada', 'investigador_id' => $t9, 'cr' => 8, 'adm' => 6, 'asg' => 5, 'tipo' => 'negacion'],
+            ['ticket' => $this->ticket(62), 'estado' => 'investigacion', 'investigador_id' => $t9, 'cr' => 18, 'adm' => 12, 'asg' => 9, 'inv' => 7, 'sol' => true, 'des' => true],
+            ['ticket' => $this->ticket(63), 'estado' => 'investigacion', 'investigador_id' => $t9, 'cr' => 30, 'adm' => 27, 'asg' => 24, 'inv' => 21, 'des' => true],
+            ['ticket' => $this->ticket(64), 'estado' => 'informe', 'investigador_id' => $t9, 'cr' => 16, 'adm' => 14, 'asg' => 12, 'inv' => 10, 'inf' => 3],
+            ['ticket' => $this->ticket(65), 'estado' => 'cerrada', 'investigador_id' => $t9, 'cr' => 32, 'adm' => 29, 'asg' => 27, 'inv' => 24, 'inf' => 10, 'crt' => 4, 'sol' => true],
+            ['ticket' => $this->ticket(66), 'estado' => 'cerrada_archivada', 'investigador_id' => $t9, 'cr' => 45, 'adm' => 38, 'asg' => 34, 'inv' => 30, 'inf' => 15, 'crt' => 8, 'sub' => 'archivada'],
 
-            // tecnico8 (Rodrigo Huanca) +6
-            ['ticket' => $this->ticket(67), 'estado' => 'asignada', 'tecnico_id' => $t10, 'cr' => 28, 'adm' => 22, 'asg' => 20],
-            ['ticket' => $this->ticket(68), 'estado' => 'investigacion', 'tecnico_id' => $t10, 'cr' => 14, 'adm' => 12, 'asg' => 10, 'inv' => 8, 'sol' => true],
-            ['ticket' => $this->ticket(69), 'estado' => 'informe', 'tecnico_id' => $t10, 'cr' => 25, 'adm' => 22, 'asg' => 20, 'inv' => 18, 'inf' => 5, 'des' => true],
-            ['ticket' => $this->ticket(70), 'estado' => 'informe', 'tecnico_id' => $t10, 'cr' => 14, 'adm' => 12, 'asg' => 10, 'inv' => 8, 'inf' => 3, 'tipo' => 'negacion'],
-            ['ticket' => $this->ticket(71), 'estado' => 'cerrada', 'tecnico_id' => $t10, 'cr' => 30, 'adm' => 27, 'asg' => 25, 'inv' => 22, 'inf' => 9, 'crt' => 3],
-            ['ticket' => $this->ticket(72), 'estado' => 'cerrada_archivada', 'tecnico_id' => $t10, 'cr' => 28, 'adm' => 25, 'asg' => 23, 'inv' => 20, 'inf' => 9, 'crt' => 4, 'sub' => 'archivada', 'clas' => 'sin_indicios'],
+            // investigador8 (Rodrigo Huanca) +6
+            ['ticket' => $this->ticket(67), 'estado' => 'asignada', 'investigador_id' => $t10, 'cr' => 28, 'adm' => 22, 'asg' => 20],
+            ['ticket' => $this->ticket(68), 'estado' => 'investigacion', 'investigador_id' => $t10, 'cr' => 14, 'adm' => 12, 'asg' => 10, 'inv' => 8, 'sol' => true],
+            ['ticket' => $this->ticket(69), 'estado' => 'informe', 'investigador_id' => $t10, 'cr' => 25, 'adm' => 22, 'asg' => 20, 'inv' => 18, 'inf' => 5, 'des' => true],
+            ['ticket' => $this->ticket(70), 'estado' => 'informe', 'investigador_id' => $t10, 'cr' => 14, 'adm' => 12, 'asg' => 10, 'inv' => 8, 'inf' => 3, 'tipo' => 'negacion'],
+            ['ticket' => $this->ticket(71), 'estado' => 'cerrada', 'investigador_id' => $t10, 'cr' => 30, 'adm' => 27, 'asg' => 25, 'inv' => 22, 'inf' => 9, 'crt' => 3],
+            ['ticket' => $this->ticket(72), 'estado' => 'cerrada_archivada', 'investigador_id' => $t10, 'cr' => 28, 'adm' => 25, 'asg' => 23, 'inv' => 20, 'inf' => 9, 'crt' => 4, 'sub' => 'archivada', 'clas' => 'sin_indicios'],
 
-            // tecnico9 (Cindy Limachi) +6
-            ['ticket' => $this->ticket(73), 'estado' => 'asignada', 'tecnico_id' => $t11, 'cr' => 12, 'adm' => 10, 'asg' => 9, 'tipo' => 'negacion'],
-            ['ticket' => $this->ticket(74), 'estado' => 'investigacion', 'tecnico_id' => $t11, 'cr' => 22, 'adm' => 18, 'asg' => 15, 'inv' => 12, 'des' => true],
-            ['ticket' => $this->ticket(75), 'estado' => 'investigacion', 'tecnico_id' => $t11, 'cr' => 60, 'adm' => 55, 'asg' => 52, 'inv' => 48, 'amp' => 90, 'sol' => true],
-            ['ticket' => $this->ticket(76), 'estado' => 'informe', 'tecnico_id' => $t11, 'cr' => 16, 'adm' => 14, 'asg' => 12, 'inv' => 10, 'inf' => 4],
-            ['ticket' => $this->ticket(77), 'estado' => 'cerrada', 'tecnico_id' => $t11, 'cr' => 50, 'adm' => 44, 'asg' => 40, 'inv' => 36, 'inf' => 15, 'crt' => 10, 'sol' => true],
-            ['ticket' => $this->ticket(78), 'estado' => 'cerrada_archivada', 'tecnico_id' => $t11, 'cr' => 58, 'adm' => 50, 'asg' => 46, 'inv' => 42, 'inf' => 22, 'crt' => 18, 'sub' => 'archivada'],
+            // investigador9 (Cindy Limachi) +6
+            ['ticket' => $this->ticket(73), 'estado' => 'asignada', 'investigador_id' => $t11, 'cr' => 12, 'adm' => 10, 'asg' => 9, 'tipo' => 'negacion'],
+            ['ticket' => $this->ticket(74), 'estado' => 'investigacion', 'investigador_id' => $t11, 'cr' => 22, 'adm' => 18, 'asg' => 15, 'inv' => 12, 'des' => true],
+            ['ticket' => $this->ticket(75), 'estado' => 'investigacion', 'investigador_id' => $t11, 'cr' => 60, 'adm' => 55, 'asg' => 52, 'inv' => 48, 'amp' => 90, 'sol' => true],
+            ['ticket' => $this->ticket(76), 'estado' => 'informe', 'investigador_id' => $t11, 'cr' => 16, 'adm' => 14, 'asg' => 12, 'inv' => 10, 'inf' => 4],
+            ['ticket' => $this->ticket(77), 'estado' => 'cerrada', 'investigador_id' => $t11, 'cr' => 50, 'adm' => 44, 'asg' => 40, 'inv' => 36, 'inf' => 15, 'crt' => 10, 'sol' => true],
+            ['ticket' => $this->ticket(78), 'estado' => 'cerrada_archivada', 'investigador_id' => $t11, 'cr' => 58, 'adm' => 50, 'asg' => 46, 'inv' => 42, 'inf' => 22, 'crt' => 18, 'sub' => 'archivada'],
 
-            // tecnico10 (Pablo Siles) +6
-            ['ticket' => $this->ticket(79), 'estado' => 'asignada', 'tecnico_id' => $t12, 'cr' => 45, 'adm' => 40, 'asg' => 37],
-            ['ticket' => $this->ticket(80), 'estado' => 'investigacion', 'tecnico_id' => $t12, 'cr' => 15, 'adm' => 13, 'asg' => 11, 'inv' => 9, 'sol' => true, 'des' => true, 'tipo' => 'negacion'],
-            ['ticket' => $this->ticket(81), 'estado' => 'informe', 'tecnico_id' => $t12, 'cr' => 60, 'adm' => 55, 'asg' => 50, 'inv' => 46, 'inf' => 11],
-            ['ticket' => $this->ticket(82), 'estado' => 'informe', 'tecnico_id' => $t12, 'cr' => 32, 'adm' => 26, 'asg' => 23, 'inv' => 20, 'inf' => 2, 'escenario' => 'anonimo'],
-            ['ticket' => $this->ticket(83), 'estado' => 'cerrada', 'tecnico_id' => $t12, 'cr' => 33, 'adm' => 30, 'asg' => 28, 'inv' => 25, 'inf' => 11, 'crt' => 5],
-            ['ticket' => $this->ticket(84), 'estado' => 'cerrada_archivada', 'tecnico_id' => $t12, 'cr' => 29, 'adm' => 26, 'asg' => 24, 'inv' => 21, 'inf' => 10, 'crt' => 5, 'sub' => 'archivada'],
+            // investigador10 (Pablo Siles) +6
+            ['ticket' => $this->ticket(79), 'estado' => 'asignada', 'investigador_id' => $t12, 'cr' => 45, 'adm' => 40, 'asg' => 37],
+            ['ticket' => $this->ticket(80), 'estado' => 'investigacion', 'investigador_id' => $t12, 'cr' => 15, 'adm' => 13, 'asg' => 11, 'inv' => 9, 'sol' => true, 'des' => true, 'tipo' => 'negacion'],
+            ['ticket' => $this->ticket(81), 'estado' => 'informe', 'investigador_id' => $t12, 'cr' => 60, 'adm' => 55, 'asg' => 50, 'inv' => 46, 'inf' => 11],
+            ['ticket' => $this->ticket(82), 'estado' => 'informe', 'investigador_id' => $t12, 'cr' => 32, 'adm' => 26, 'asg' => 23, 'inv' => 20, 'inf' => 2, 'escenario' => 'anonimo'],
+            ['ticket' => $this->ticket(83), 'estado' => 'cerrada', 'investigador_id' => $t12, 'cr' => 33, 'adm' => 30, 'asg' => 28, 'inv' => 25, 'inf' => 11, 'crt' => 5],
+            ['ticket' => $this->ticket(84), 'estado' => 'cerrada_archivada', 'investigador_id' => $t12, 'cr' => 29, 'adm' => 26, 'asg' => 24, 'inv' => 21, 'inf' => 10, 'crt' => 5, 'sub' => 'archivada'],
         ];
 
         foreach ($casos as $c) {

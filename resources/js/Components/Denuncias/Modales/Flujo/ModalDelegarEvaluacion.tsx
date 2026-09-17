@@ -7,9 +7,9 @@ import { Label } from '@/Components/ui/label';
 import { Textarea } from '@/Components/ui/textarea';
 import { Button } from '@/Components/ui/button';
 import { ScrollArea } from '@/Components/ui/scroll-area';
-import TecnicoCargaCard from '../../Card/TecnicoCargaCard';
+import InvestigadorCargaCard from '../../Card/InvestigadorCargaCard';
 
-interface TecnicoCarga {
+interface InvestigadorCarga {
   id: string;
   nombre: string;
   iniciales: string;
@@ -22,32 +22,32 @@ interface TecnicoCarga {
 interface ModalDelegarEvaluacionProps {
   ticket: string | null;
   open: boolean;
-  tecnicos?: Record<string, { id: string; nombre: string; iniciales: string; color: string }>;
-  cargaTecnicos?: TecnicoCarga[];
+  investigadores?: Record<string, { id: string; nombre: string; iniciales: string; color: string }>;
+  cargaInvestigadores?: InvestigadorCarga[];
   onOpenChange: (open: boolean) => void;
 }
 
-export default function ModalDelegarEvaluacion({ ticket, open, tecnicos: _tecnicos, cargaTecnicos, onOpenChange }: ModalDelegarEvaluacionProps) {
-  const [selectedTecnico, setSelectedTecnico] = useState<string | null>(null);
+export default function ModalDelegarEvaluacion({ ticket, open, investigadores: _investigadores, cargaInvestigadores, onOpenChange }: ModalDelegarEvaluacionProps) {
+  const [selectedInvestigador, setSelectedInvestigador] = useState<string | null>(null);
   const [justificacion, setJustificacion] = useState('');
   const [processing, setProcessing] = useState(false);
 
-  const carga = cargaTecnicos || [];
+  const carga = cargaInvestigadores || [];
 
   const handleSubmit = () => {
-    if (!ticket || !selectedTecnico) return;
+    if (!ticket || !selectedInvestigador) return;
     setProcessing(true);
     router.post(
       route('denuncias.delegar-evaluacion', { ticket }),
       {
-        tecnico_id: selectedTecnico,
+        investigador_id: selectedInvestigador,
         justificacion: justificacion.trim() || null,
       },
       {
         preserveScroll: true,
         onSuccess: () => {
           toast.success(`Evaluación delegada para ${ticket}`);
-          setSelectedTecnico(null);
+          setSelectedInvestigador(null);
           setJustificacion('');
           onOpenChange(false);
         },
@@ -88,10 +88,10 @@ export default function ModalDelegarEvaluacion({ ticket, open, tecnicos: _tecnic
         }}
       >
         <DialogHeader>
-          <DialogTitle>Delegar evaluación a un técnico</DialogTitle>
+          <DialogTitle>Delegar evaluación a un investigador</DialogTitle>
           <DialogDescription>
             {ticket
-              ? `Seleccione el técnico que evaluará ${ticket} antes de la admisión.`
+              ? `Seleccione el investigador que evaluará ${ticket} antes de la admisión.`
               : 'Seleccione una denuncia para delegar.'}
           </DialogDescription>
         </DialogHeader>
@@ -100,14 +100,14 @@ export default function ModalDelegarEvaluacion({ ticket, open, tecnicos: _tecnic
           <ScrollArea className="h-60">
             <div className="space-y-2 pr-3">
               {carga.length === 0 && (
-                <p className="text-sm text-muted-foreground italic">No hay técnicos disponibles</p>
+                <p className="text-sm text-muted-foreground italic">No hay investigadores disponibles</p>
               )}
               {carga.map((t) => (
-                <TecnicoCargaCard
+                <InvestigadorCargaCard
                   key={t.id}
-                  tecnico={t}
-                  selected={selectedTecnico === t.id}
-                  onSelect={() => setSelectedTecnico(t.id)}
+                  investigador={t}
+                  selected={selectedInvestigador === t.id}
+                  onSelect={() => setSelectedInvestigador(t.id)}
                 />
               ))}
             </div>
@@ -133,7 +133,7 @@ export default function ModalDelegarEvaluacion({ ticket, open, tecnicos: _tecnic
           <Button variant="outline" disabled={processing} onClick={handleClose}>
             Cancelar
           </Button>
-          <Button disabled={processing || !selectedTecnico || !ticket} onClick={handleSubmit}>
+          <Button disabled={processing || !selectedInvestigador || !ticket} onClick={handleSubmit}>
             {processing ? 'Delegando...' : 'Delegar evaluación'}
           </Button>
         </DialogFooter>

@@ -22,9 +22,9 @@
 
 ### 3. Alertas derivadas vivas
 - Hallazgo: los avisos de plazo no eran vivos (Sprint 9 mock → Sprint 10 solo tabla persistida).
-- `app/Services/AlertasPlazo.php` (nuevo) — calcula por request sin persistir: plazo total/informe ≤3d, solicitud/descargo ≤2d (+ vencidos). Scoping: técnico solo lo suyo, jefe todo, registrador nada. Respeta fecha simulada.
+- `app/Services/AlertasPlazo.php` (nuevo) — calcula por request sin persistir: plazo total/informe ≤3d, solicitud/descargo ≤2d (+ vencidos). Scoping: investigador solo lo suyo, jefe todo, registrador nada. Respeta fecha simulada.
 - `HandleInertiaRequests.php` fusiona derivadas (id negativo, `efimera`) + persistentes en campana; `PanelNotificaciones.tsx` no marca leídas las efímeras.
-- Verificado: tec1 1 aviso hoy / 2 en +30d; jefe 10 hoy; registrador 0.
+- Verificado: investigador1 1 aviso hoy / 2 en +30d; jefe 10 hoy; registrador 0.
 
 ### 4. Deuda y backup
 - `transparencia-proy/Deuda Tecnica y Riesgos.md` (nuevo, vivo) — P0/P1/P2.

@@ -7,7 +7,7 @@
 ## 0. Precondiciones
 
 - `php artisan migrate:fresh --seed` (124 casos + 5 avisos demo: 1 fijado, 2 ligados a `DEN-2026-0004`/`DEN-2026-0005`).
-- Usuarios: `jefe` / `registrador` / `tecnico1` (pass `demo123` en los 3).
+- Usuarios: `jefe` / `registrador` / `investigador1` (pass `demo123` en los 3).
 - Probar en **incógnito sin extensiones**: el error `reportAllChanges/startTime`
   de consola es la extensión React DevTools, no la app (0 coincidencias en
   `resources/js` y `public/build`). Si aparece en normal y no en incógnito → ignorar.
@@ -44,7 +44,7 @@
 | B8 | Fijar 2 + flechas orden + desfijar | Muro respeta orden manual; desfijado vuelve a recientes |
 | B9 | Publicar/despublicar borrador | Entra/sale del muro |
 | B10 | Eliminar aviso con PDF | Aviso fuera; físico preservado |
-| B11 | Como técnico | Sin item Avisos; URL redirige a dashboard |
+| B11 | Como investigador | Sin item Avisos; URL redirige a dashboard |
 | B12 | Catálogos (9 pestañas) | Crear/desactivar/reactivar tipo; prioridades protegidas no se eliminan |
 | B13 | Admin: filtros (texto por botón + avanzada + tipo/estado/fijadas/orden), paginación, móvil | Sin re-render por tecla; cards colapsables en móvil con mismas acciones |
 
@@ -57,9 +57,9 @@
 | C3 | Rechazar con resumen | Borrador `rechazada` hereda resumen + destinatario por escenario |
 | C4 | Cerrar caso | Borrador `cerrada` automático con clasificación |
 | C5 | Badge "Sin aviso" solo en rechazadas/cerradas (NO en admitidas en curso) | Aparece donde falta evento; desaparece al publicar |
-| C6 | Banner en Sheet + bot�n Crear aviso | Banner solo finales; bot�n crea/reutiliza y abre Avisos con el form |
+| C6 | Banner en Sheet + bot�n Crear aviso | Banner solo finales; bot�n crea/reutiliza y abre Avisos con el form |
 | C7 | Crear manual mismo caso+evento | Error "Ya existe un aviso..." (unicidad) |
-| C4b | Caso viejo sin aviso ? bot�n del banner | Llega a Avisos con el borrador abierto; 2.� clic reutiliza |
+| C4b | Caso viejo sin aviso ? bot�n del banner | Llega a Avisos con el borrador abierto; 2.� clic reutiliza |
 
 ## Hallazgos
 

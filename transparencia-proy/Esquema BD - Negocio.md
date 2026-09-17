@@ -62,21 +62,21 @@ erDiagram
 - **`lugar_hechos`**: Texto, Nullable. Ubicación donde ocurrieron los hechos.
 - **`hechos`**: Texto largo, Obligatorio. Relación detallada de los hechos denunciados.
 - **`declaracion_jurada`**: Booleano, por defecto `true`. El denunciante confirma la veracidad de su declaración.
-- **`tecnico_id`**: Entero, **Llave Foránea** → `usuarios(id)`, Nullable. Técnico actualmente asignado al caso.
-- **`tecnico_anterior_id`**: Entero, **Llave Foránea** → `usuarios(id)`, Nullable. Técnico previo en caso de traspaso.
+- **`investigador_id`**: Entero, **Llave Foránea** → `usuarios(id)`, Nullable. Investigador actualmente asignado al caso.
+- **`investigador_anterior_id`**: Entero, **Llave Foránea** → `usuarios(id)`, Nullable. Investigador previo en caso de traspaso.
 - **`fecha_admitida`**: Timestamp, Nullable. Momento de admisión (plazo legal: 5 días desde ingreso, Art. 23).
 - **`justificacion_admision`**: Texto, Nullable.
 - **`fecha_rechazada`**: Timestamp, Nullable.
 - **`justificacion_rechazo`**: Texto, Nullable. Motivo interno/legal del rechazo (Art. 23 §II).
 - **`resumen_rechazo`**: Texto(200), Nullable. Resumen breve para el denunciante visible en seguimiento público.
-- **`fecha_asignada`**: Timestamp, Nullable. Momento de asignación de técnico.
+- **`fecha_asignada`**: Timestamp, Nullable. Momento de asignación del investigador.
 - **`registrado_por_id`**: Entero, **Llave Foránea** → `usuarios(id)`, Nullable. Usuario registrador que ingresó la denuncia.
 - **`sitpreco_rechazo`**: Texto(50), Nullable. SITPRECO opcional capturado al rechazar la denuncia (no se pide al admitir).
 - **`es_legacy`**: Booleano, por defecto `false`. Sprint 23 (diferido): marca casos migrados del sistema legacy (sin historial automático).
 - **`deleted_at`**: Timestamp, Nullable. Soft delete: solo el Jefe de Unidad puede eliminar denuncias (el Registrador solo edita). La eliminación no afecta la numeración de tickets (se reusa el número).
 
 > **JSON — Datos históricos (Sprint 9.2: fusión):** Campos que antes eran columnas separadas, ahora agrupados en JSON para reducir la tabla. Se leen siempre juntos y no se consultan individualmente.
-> - **`traspaso_json`**: JSON, Nullable. `{ fecha: timestamp, justificacion: string }`. Datos del último traspaso entre técnicos.
+> - **`traspaso_json`**: JSON, Nullable. `{ fecha: timestamp, justificacion: string }`. Datos del último traspaso entre investigadores.
 > - **`reapertura_json`**: JSON, Nullable. `{ fecha: timestamp, justificacion: string, plazo: date }`. Datos de la reapertura del caso.
 > - **`conciliacion_json`**: JSON, Nullable. `{ conciliado_por_id: int, motivo: string, fecha: timestamp, fecha_cierre_real: date }`. Datos de conciliación de fechas por el Jefe.
 
@@ -142,18 +142,18 @@ erDiagram
 ---
 
 ### 6. Tabla: `evaluaciones_tecnicas`
-*Evaluaciones técnicas previas delegadas por el Jefe de Unidad a un técnico antes de admitir o rechazar la denuncia (Sprint 7). El plazo de 5 días de admisión (Art. 23) NO se pausa durante esta evaluación.*
+*Evaluaciones técnicas previas delegadas por el Jefe de Unidad a un investigador antes de admitir o rechazar la denuncia (Sprint 7). El plazo de 5 días de admisión (Art. 23) NO se pausa durante esta evaluación.*
 
 - **`id`**: Entero, Llave Primaria (Autoincremental).
 - **`denuncia_id`**: Entero, **Llave Foránea** → `denuncias(id)`. Una denuncia puede tener múltiples evaluaciones en su historial (si se reasumió y volvió a delegar).
-- **`tecnico_id`**: Entero, **Llave Foránea** → `usuarios(id)`. Técnico al que se delegó la evaluación.
+- **`investigador_id`**: Entero, **Llave Foránea** → `usuarios(id)`. Investigador al que se delegó la evaluación.
 - **`delegada_por_id`**: Entero, **Llave Foránea** → `usuarios(id)`. Jefe que delegó (siempre rol `jefe`).
 - **`delegada_at`**: Timestamp, Obligatorio. Momento de la delegación.
 - **`justificacion_delegacion`**: Texto, Nullable. Motivo de la delegación.
-- **`texto_evaluacion`**: Texto largo, Nullable. Evaluación técnica resumida redactada por el técnico al devolver.
-- **`recomendacion`**: Enum(`'admitir'`, `'rechazar'`, `NULL`), Nullable. Recomendación del técnico.
-- **`devuelta_at`**: Timestamp, Nullable. Momento en que el técnico devolvió la evaluación al Jefe.
-- **`devuelta_por_id`**: Entero, **Llave Foránea** → `usuarios(id)`, Nullable. Técnico que devolvió.
+- **`texto_evaluacion`**: Texto largo, Nullable. Evaluación técnica resumida redactada por el investigador al devolver.
+- **`recomendacion`**: Enum(`'admitir'`, `'rechazar'`, `NULL`), Nullable. Recomendación del investigador.
+- **`devuelta_at`**: Timestamp, Nullable. Momento en que el investigador devolvió la evaluación al Jefe.
+- **`devuelta_por_id`**: Entero, **Llave Foránea** → `usuarios(id)`, Nullable. Investigador que devolvió.
 - **`estado`**: Enum(`'pendiente'`, `'devuelta'`), por defecto `'pendiente'`.
 
 ---
@@ -212,7 +212,7 @@ erDiagram
 - **`justificacion`**: Texto, Obligatorio (mín. 10 caracteres). **Texto libre → MAYÚSCULAS** (Sprint 7.5).
 - **`numero`**: Entero, Nullable. Número secuencial de la ampliación (1, 2, 3...) — solo aplica cuando `tipo = 'denuncia'`.
 - **`aprobado_por_id`**: Entero, **Llave Foránea** → `usuarios(id)`, Nullable. Jefe que aprobó la ampliación — solo aplica cuando `tipo = 'denuncia'`.
-- **`solicitado_por`**: Texto, Nullable. Nombre o referencia de quien solicitó la ampliación (ej. "Técnico Carlos Quispe") — solo aplica cuando `tipo = 'denuncia'`.
+- **`solicitado_por`**: Texto, Nullable. Nombre o referencia de quien solicitó la ampliación (ej. "Investigador Carlos Quispe") — solo aplica cuando `tipo = 'denuncia'`.
 - **`archivo_respaldo`**: Texto, Nullable. Ruta del archivo de respaldo si aplica.
 - **`fecha`**: Timestamp, Obligatorio.
 
@@ -221,7 +221,7 @@ erDiagram
 ---
 
 ### 10. Tabla: `informes_finales`
-*Informe Final emitido por el técnico al concluir la investigación, dirigido a la Máxima Autoridad Institucional (Art. 26 Ley 974). Relación 1:1 con la denuncia. Soporta ediciones y soft delete.*
+*Informe Final emitido por el investigador al concluir la investigación, dirigido a la Máxima Autoridad Institucional (Art. 26 Ley 974). Relación 1:1 con la denuncia. Soporta ediciones y soft delete.*
 
 - **`id`**: Entero, Llave Primaria (Autoincremental).
 - **`denuncia_id`**: Entero, **Llave Foránea** → `denuncias(id)`, Único.
@@ -236,7 +236,7 @@ erDiagram
 - **`sitpreco`**: Texto, Nullable. Código SITPRECO del sistema nacional de Bolivia (opcional, solo en informe final).
 - **`fojas`**: Entero, Nullable. Número de fojas del expediente.
 - **`justificacion`**: Texto largo, Nullable. Justificación y conclusiones del informe.
-- **`concluido_por`**: Texto, Obligatorio. Nombre del técnico que redactó el informe.
+- **`concluido_por`**: Texto, Obligatorio. Nombre del investigador que redactó el informe.
 - **`redactado_at`**: Timestamp, Obligatorio.
 - **`eliminado`**: Booleano, por defecto `false`. Soft delete.
 - **`fecha_eliminacion`**: Timestamp, Nullable.

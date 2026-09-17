@@ -21,7 +21,7 @@ interface PreviewRow {
     ticket: string;
     tipo: string;
     categoria: string;
-    tecnico: string;
+    investigador: string;
     estado: string;
     created_at: string;
 }
@@ -34,7 +34,7 @@ export const COLUMNAS_EXCEL: Array<{ key: string; label: string; fija?: boolean 
     { key: 'denunciante', label: 'Datos del denunciante' },
     { key: 'denunciados', label: 'Datos de los denunciados' },
     { key: 'sitpreco', label: 'Nro SITPRECO' },
-    { key: 'tecnico', label: 'Técnico encargado' },
+    { key: 'investigador', label: 'Investigador encargado' },
     { key: 'fecha_conclusion', label: 'Fecha de conclusión' },
     { key: 'resumen_conclusion', label: 'Resumen de conclusión' },
     { key: 'clasificacion', label: 'Clasificación final' },
@@ -50,7 +50,7 @@ export const COLUMNAS_EXCEL: Array<{ key: string; label: string; fija?: boolean 
 
 const COLUMNAS_DEFAULT = [
     'fecha_ingreso', 'ticket', 'tipo', 'denunciante', 'denunciados',
-    'sitpreco', 'tecnico', 'fecha_conclusion', 'resumen_conclusion', 'clasificacion',
+    'sitpreco', 'investigador', 'fecha_conclusion', 'resumen_conclusion', 'clasificacion',
 ];
 
 export default function ModalExportar({ filtros, open, onOpenChange }: Props) {
@@ -66,7 +66,7 @@ export default function ModalExportar({ filtros, open, onOpenChange }: Props) {
         const p = new URLSearchParams();
         if (filtros.desde) p.set('desde', filtros.desde);
         if (filtros.hasta) p.set('hasta', filtros.hasta);
-        if (filtros.tecnico_id) p.set('tecnico_id', String(filtros.tecnico_id));
+        if (filtros.investigador_id) p.set('investigador_id', String(filtros.investigador_id));
         if (filtros.tipo) p.set('tipo', filtros.tipo);
         if (filtros.categoria_id) p.set('categoria_id', String(filtros.categoria_id));
         if (filtros.clasificacion_id) p.set('clasificacion_id', String(filtros.clasificacion_id));
@@ -110,7 +110,7 @@ export default function ModalExportar({ filtros, open, onOpenChange }: Props) {
     if (filtros.estado) resumenFiltros.push(filtros.estado);
     if (filtros.categoria_id) resumenFiltros.push(`categoría ${filtros.categoria_id}`);
     if (filtros.clasificacion_id) resumenFiltros.push(`clasificación ${filtros.clasificacion_id}`);
-    if (filtros.tecnico_id) resumenFiltros.push(`técnico ${filtros.tecnico_id}`);
+    if (filtros.investigador_id) resumenFiltros.push(`investigador ${filtros.investigador_id}`);
 
     const descargar = () => {
         const p = new URLSearchParams(queryParams());

@@ -5,7 +5,7 @@ namespace App\Enums;
 enum RolUsuario: string
 {
     case JEFE = 'jefe';
-    case TECNICO = 'tecnico';
+    case INVESTIGADOR = 'investigador';
     case REGISTRADOR = 'registrador';
 
     public static function valores(): array

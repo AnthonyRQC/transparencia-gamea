@@ -60,7 +60,7 @@ export type Permiso =
   | 'publicacion.publicar'
   | 'notificacion.ver';
 
-export type Rol = 'registrador' | 'jefe' | 'tecnico';
+export type Rol = 'registrador' | 'jefe' | 'investigador';
 
 export const PERMISOS_POR_ROL: Record<Rol, Permiso[]> = {
   registrador: [
@@ -113,7 +113,7 @@ export const PERMISOS_POR_ROL: Record<Rol, Permiso[]> = {
     'publicacion.eliminar',
     'publicacion.publicar',
   ],
-  tecnico: [
+  investigador: [
     'menu.dashboard',
     'menu.mis-casos',
     'menu.mi-resumen',

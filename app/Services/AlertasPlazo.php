@@ -41,7 +41,7 @@ class AlertasPlazo
 
         // --- Plazo total de denuncias activas ---
         $denuncias = Denuncia::whereNotIn('estado', ['rechazada', 'cerrada'])
-            ->when(! $esJefe, fn ($q) => $q->where('tecnico_id', $user->id))
+            ->when(! $esJefe, fn ($q) => $q->where('investigador_id', $user->id))
             ->with('ampliaciones')
             ->limit(100)
             ->get();
@@ -81,7 +81,7 @@ class AlertasPlazo
             ->whereNull('fecha_eliminacion')
             ->when(! $esJefe, fn ($q) => $q->whereHas(
                 'denuncia',
-                fn ($dq) => $dq->where('tecnico_id', $user->id)->whereNotIn('estado', ['rechazada', 'cerrada'])
+                fn ($dq) => $dq->where('investigador_id', $user->id)->whereNotIn('estado', ['rechazada', 'cerrada'])
             ))
             ->with('denuncia:id,ticket')
             ->limit(50)
@@ -110,7 +110,7 @@ class AlertasPlazo
             ->whereNull('fecha_eliminacion')
             ->when(! $esJefe, fn ($q) => $q->whereHas(
                 'denuncia',
-                fn ($dq) => $dq->where('tecnico_id', $user->id)->whereNotIn('estado', ['rechazada', 'cerrada'])
+                fn ($dq) => $dq->where('investigador_id', $user->id)->whereNotIn('estado', ['rechazada', 'cerrada'])
             ))
             ->with('denuncia:id,ticket')
             ->limit(50)

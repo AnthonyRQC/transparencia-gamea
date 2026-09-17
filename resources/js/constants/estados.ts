@@ -55,6 +55,6 @@ export const ESCENARIOS = {
 
 export const ROLES = {
   JEFE: 'jefe',
-  TECNICO: 'tecnico',
+  INVESTIGADOR: 'investigador',
   REGISTRADOR: 'registrador',
 } as const;

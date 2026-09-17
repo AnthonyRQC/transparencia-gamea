@@ -89,7 +89,7 @@ export default function TabSolicitudes({ solicitudes, canAct, ticket, onNuevaSol
         <ListaVacia
           icon={FileSearch}
           titulo="Sin solicitudes de información"
-          descripcion={canAct ? 'Cree una solicitud a una dependencia externa para recabar documentación.' : 'El técnico no ha creado solicitudes aún.'}
+          descripcion={canAct ? 'Cree una solicitud a una dependencia externa para recabar documentación.' : 'El investigador no ha creado solicitudes aún.'}
         />
         {detailSolicitud && (
           <SolicitudDetailModal

@@ -14,29 +14,29 @@ class RendimientoQuery
     public static function calcular(array $f, bool $esJefe, int $userId): array
     {
         $urgentes = $esJefe
-            ? self::casosUrgentes($f, $f['tecnico_id'])
+            ? self::casosUrgentes($f, $f['investigador_id'])
             : self::casosUrgentes($f, $userId);
 
         if ($esJefe) {
-            $tecnicos = User::where('rol', 'tecnico')
+            $investigadores = User::where('rol', 'investigador')
                 ->when(! $f['incluir_inactivos'], fn ($q) => $q->where('activo', true))
                 ->orderBy('name')
                 ->get(['id', 'name', 'activo']);
 
-            // Mismo set de filtros que casosUrgentes (técnico/tipo/categoría/
+            // Mismo set de filtros que casosUrgentes (investigador/tipo/categoría/
             // clasificación, sin fechas ni estado: foto de hoy). Antes la carga
-            // ignoraba técnico y clasificación y no cuadraba con Urgentes.
+            // ignoraba investigador y clasificación y no cuadraba con Urgentes.
             $activas = DashboardQueryBase::denuncias($f, false)
                 ->whereNotIn('estado', self::ESTADOS_TERMINALES)
-                ->whereNotNull('tecnico_id')
+                ->whereNotNull('investigador_id')
                 ->with('ampliaciones')
                 ->get();
 
-            $carga = $tecnicos->map(function ($t) use ($activas) {
-                $casos = $activas->where('tecnico_id', $t->id);
+            $carga = $investigadores->map(function ($t) use ($activas) {
+                $casos = $activas->where('investigador_id', $t->id);
 
                 return [
-                    'tecnico' => $t->name,
+                    'investigador' => $t->name,
                     'enPlazo' => $casos->filter(fn ($d) => ($d->plazo['dias_restantes'] ?? 99) > 5)->count(),
                     'proximos' => $casos->filter(fn ($d) => ($d->plazo['dias_restantes'] ?? 99) >= 0 && ($d->plazo['dias_restantes'] ?? 99) <= 5)->count(),
                     'vencidos' => $casos->filter(fn ($d) => ($d->plazo['dias_restantes'] ?? 99) < 0)->count(),
@@ -47,23 +47,23 @@ class RendimientoQuery
 
             return [
                 'modo' => 'jefe',
-                'cargaTecnicos' => $carga,
+                'cargaInvestigadores' => $carga,
                 'urgentes' => $urgentes,
             ];
         }
 
         return [
-            'modo' => 'tecnico',
+            'modo' => 'investigador',
             'productividad' => self::productividad($f, $userId),
             'urgentes' => $urgentes,
         ];
     }
 
-    private static function casosUrgentes(array $f, ?int $tecnicoId): array
+    private static function casosUrgentes(array $f, ?int $investigadorId): array
     {
         $activas = Denuncia::whereNull('deleted_at')
             ->whereNotIn('estado', self::ESTADOS_TERMINALES)
-            ->when($tecnicoId, fn ($q, $v) => $q->where('tecnico_id', $v))
+            ->when($investigadorId, fn ($q, $v) => $q->where('investigador_id', $v))
             ->when($f['tipo'], fn ($q, $v) => $q->where('tipo', $v))
             ->when($f['categoria_id'], fn ($q, $v) => $q->where('categoria_id', $v))
             ->when($f['clasificacion_id'], function ($q) use ($f) {
@@ -74,13 +74,13 @@ class RendimientoQuery
                         ->where('informes_finales.clasificacion_id', $f['clasificacion_id']);
                 });
             })
-            ->with(['tecnico', 'ampliaciones'])
+            ->with(['investigador', 'ampliaciones'])
             ->get();
 
         return $activas
             ->map(fn ($d) => [
                 'ticket' => $d->ticket,
-                'tecnico' => $d->tecnico?->name ?? 'SIN ASIGNAR',
+                'investigador' => $d->investigador?->name ?? 'SIN ASIGNAR',
                 'diasRestantes' => $d->plazo['dias_restantes'] ?? 0,
                 'color' => $d->plazo['color'] ?? 'gray',
                 'estado' => $d->estado,
@@ -100,7 +100,7 @@ class RendimientoQuery
             ->join('denuncias', 'cierres.denuncia_id', '=', 'denuncias.id')
             ->whereNull('denuncias.deleted_at')
             ->where('cierres.eliminado', false)
-            ->where('denuncias.tecnico_id', $userId)
+            ->where('denuncias.investigador_id', $userId)
             ->whereDate('cierres.cerrado_at', '>=', $desde->toDateString())
             ->whereDate('cierres.cerrado_at', '<=', $hasta->toDateString())
             ->selectRaw('DATE(cierres.cerrado_at) as fecha, COUNT(*) as total')

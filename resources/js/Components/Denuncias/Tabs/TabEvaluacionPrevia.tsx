@@ -8,7 +8,7 @@ import { RECOMENDACION_COLOR as recomendacionColor, RECOMENDACION_LABEL as recom
 interface EvaluacionEntry {
   id: number;
   ticket: string;
-  tecnico_nombre: string;
+  investigador_nombre: string;
   delegada_por: string;
   delegada_at: string;
   justificacion_delegacion?: string | null;
@@ -49,7 +49,7 @@ export default function TabEvaluacionPrevia({ evaluaciones = [] }: TabEvaluacion
             >
               {isExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
               <UserCheck className="w-3.5 h-3.5" />
-              Evaluación por {e.tecnico_nombre}
+              Evaluación por {e.investigador_nombre}
             </button>
 
             {isExpanded && (
@@ -57,7 +57,7 @@ export default function TabEvaluacionPrevia({ evaluaciones = [] }: TabEvaluacion
                 <div className="space-y-1.5">
                   <div className="flex items-center gap-2 text-sm">
                     <UserCheck className="w-3.5 h-3.5 text-blue-500" />
-                    <span className="font-medium">{e.tecnico_nombre}</span>
+                    <span className="font-medium">{e.investigador_nombre}</span>
                     <span className="text-xs text-muted-foreground">
                       delegado el {formatearFechaLarga(e.delegada_at) ?? ''}
                     </span>

@@ -44,9 +44,9 @@ class User extends Authenticatable
         return $this->rol === 'jefe';
     }
 
-    public function esTecnico(): bool
+    public function esInvestigador(): bool
     {
-        return $this->rol === 'tecnico';
+        return $this->rol === 'investigador';
     }
 
     public function esRegistrador(): bool
@@ -61,12 +61,12 @@ class User extends Authenticatable
 
     public function denunciasAsignadas(): HasMany
     {
-        return $this->hasMany(Denuncia::class, 'tecnico_id');
+        return $this->hasMany(Denuncia::class, 'investigador_id');
     }
 
-    public function scopeTecnicos($query)
+    public function scopeInvestigadores($query)
     {
-        return $query->where('rol', 'tecnico')->where('activo', true);
+        return $query->where('rol', 'investigador')->where('activo', true);
     }
 
     public function scopeActivos($query)

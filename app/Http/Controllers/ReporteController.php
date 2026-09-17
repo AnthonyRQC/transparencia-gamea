@@ -39,7 +39,7 @@ class ReporteController extends Controller
         'denunciante' => 'DATOS DEL DENUNCIANTE',
         'denunciados' => 'DATOS DE LOS DENUNCIADOS',
         'sitpreco' => 'NRO SITPRECO',
-        'tecnico' => 'TÉCNICO ENCARGADO',
+        'investigador' => 'INVESTIGADOR ENCARGADO',
         'fecha_conclusion' => 'FECHA DE CONCLUSIÓN',
         'resumen_conclusion' => 'RESUMEN DE CONCLUSIÓN DEL CASO',
         'clasificacion' => 'CLASIFICACIÓN FINAL DEL CASO',
@@ -55,7 +55,7 @@ class ReporteController extends Controller
 
     public const COLUMNAS_DEFAULT = [
         'fecha_ingreso', 'ticket', 'tipo', 'denunciante', 'denunciados',
-        'sitpreco', 'tecnico', 'fecha_conclusion', 'resumen_conclusion', 'clasificacion',
+        'sitpreco', 'investigador', 'fecha_conclusion', 'resumen_conclusion', 'clasificacion',
     ];
 
     private function autorizarJefe(): void
@@ -91,7 +91,7 @@ class ReporteController extends Controller
                 'ticket' => $d->ticket,
                 'tipo' => $d->tipo,
                 'categoria' => $d->categoria?->nombre ?? '',
-                'tecnico' => $d->tecnico?->name ?? '',
+                'investigador' => $d->investigador?->name ?? '',
                 'estado' => self::ESTADOS[$d->estado] ?? strtoupper($d->estado),
                 'created_at' => $d->created_at?->format('d/m/Y'),
             ]),
@@ -151,7 +151,7 @@ class ReporteController extends Controller
                 : ($request->input('medio_id') ? 'cierre' : 'ingreso');
         }
 
-        return Denuncia::with(['tecnico', 'categoria', 'ampliaciones', 'denunciante', 'denunciados', 'informe.clasificacionRel', 'cierre.medioNotificacion'])
+        return Denuncia::with(['investigador', 'categoria', 'ampliaciones', 'denunciante', 'denunciados', 'informe.clasificacionRel', 'cierre.medioNotificacion'])
             ->whereNull('deleted_at')
             ->when($request->input('desde'), function ($q, $v) use ($base) {
                 match ($base) {
@@ -171,7 +171,7 @@ class ReporteController extends Controller
             })
             ->when($request->input('tipo'), fn ($q, $v) => $q->where('tipo', $v))
             ->when($request->input('estado'), fn ($q, $v) => $this->aplicarEstado($q, $v))
-            ->when($request->input('tecnico_id'), fn ($q, $v) => $q->where('tecnico_id', (int) $v))
+            ->when($request->input('investigador_id'), fn ($q, $v) => $q->where('investigador_id', (int) $v))
             ->when($request->input('categoria_id'), fn ($q, $v) => $q->where('categoria_id', (int) $v))
             ->when($request->input('clasificacion_id'), function ($q) use ($request) {
                 $q->whereExists(function ($sub) use ($request) {
@@ -247,7 +247,7 @@ class ReporteController extends Controller
     private function opciones(): array
     {
         return [
-            'tecnicos' => User::where('rol', 'tecnico')
+            'investigadores' => User::where('rol', 'investigador')
                 ->where('activo', true)
                 ->orderBy('name')
                 ->get(['id', 'name']),
@@ -264,7 +264,7 @@ class ReporteController extends Controller
             'hasta' => $request->input('hasta') ?: null,
             'tipo' => $request->input('tipo') ?: null,
             'estado' => $request->input('estado') ?: null,
-            'tecnico_id' => $request->input('tecnico_id') ? (int) $request->input('tecnico_id') : null,
+            'investigador_id' => $request->input('investigador_id') ? (int) $request->input('investigador_id') : null,
             'categoria_id' => $request->input('categoria_id') ? (int) $request->input('categoria_id') : null,
             'clasificacion_id' => $request->input('clasificacion_id') ? (int) $request->input('clasificacion_id') : null,
             'medio_id' => $request->input('medio_id') ? (int) $request->input('medio_id') : null,

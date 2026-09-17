@@ -47,15 +47,15 @@ export interface Resultados {
 
 export interface Urgente {
   ticket: string;
-  tecnico: string;
+  investigador: string;
   diasRestantes: number;
   color: string;
   estado: string;
 }
 
 export interface Rendimiento {
-  modo: 'jefe' | 'tecnico';
-  cargaTecnicos?: Array<{ tecnico: string; enPlazo: number; proximos: number; vencidos: number }>;
+  modo: 'jefe' | 'investigador';
+  cargaInvestigadores?: Array<{ investigador: string; enPlazo: number; proximos: number; vencidos: number }>;
   productividad?: Array<{ mes: string; cerrados: number }>;
   urgentes: Urgente[];
 }
@@ -63,7 +63,7 @@ export interface Rendimiento {
 export interface FiltrosDashboard {
   desde: string | null;
   hasta: string | null;
-  tecnico_id: number | null;
+  investigador_id: number | null;
   tipo: string | null;
   categoria_id: number | null;
   clasificacion_id: number | null;
@@ -79,13 +79,13 @@ export interface DashboardProps {
   rendimiento: Rendimiento;
   base_temporal: Record<string, BaseTemporal>;
   opciones: {
-    tecnicos: Array<{ id: number; name: string; activo: boolean }>;
+    investigadores: Array<{ id: number; name: string; activo: boolean }>;
     categorias: Array<{ id: number; nombre: string }>;
     clasificaciones: Array<{ id: number; nombre: string }>;
     estados: Array<{ clave: string; nombre: string }>;
   };
   esJefe: boolean;
-  esTecnico: boolean;
+  esInvestigador: boolean;
   esRegistrador: boolean;
   filtros: FiltrosDashboard;
 }

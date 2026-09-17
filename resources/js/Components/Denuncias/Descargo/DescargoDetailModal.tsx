@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/Components/ui/dialog';
 import { Badge } from '@/Components/ui/badge';
 import { Separator } from '@/Components/ui/separator';
-import TecnicoAvatar from '../Shared/TecnicoAvatar';
+import InvestigadorAvatar from '../Shared/InvestigadorAvatar';
 import PlazoProgress from '../Card/PlazoProgress';
 import { DESCARGO_ESTADO as estadoBadgeVar, BOTON_CANCELAR_MODAL } from '../Shared/semantica';
 
@@ -93,7 +93,7 @@ export default function DescargoDetailModal({
         <DialogHeader>
           <div className="flex items-center justify-between gap-2 pr-6">
             <div className="flex items-center gap-2 min-w-0">
-<TecnicoAvatar nombre={descargo.nombres_denunciado} size="sm" tone="muted" />
+<InvestigadorAvatar nombre={descargo.nombres_denunciado} size="sm" tone="muted" />
               <div className="min-w-0">
                 <DialogTitle className="truncate text-lg">{descargo.nombres_denunciado}</DialogTitle>
                 {descargo.dependencia_denunciado && (

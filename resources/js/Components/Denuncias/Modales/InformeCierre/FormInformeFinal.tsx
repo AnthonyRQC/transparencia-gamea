@@ -41,13 +41,13 @@ interface InformeData {
 interface FormInformeFinalProps {
   ticket: string;
   informe: InformeData | null;
-  tecnicoNombre: string;
+  investigadorNombre: string;
   canAct: boolean;
   onEdit?: () => void;
   onDelete?: () => void;
 }
 
-export default function FormInformeFinal({ ticket, informe, tecnicoNombre, canAct, onEdit, onDelete }: FormInformeFinalProps) {
+export default function FormInformeFinal({ ticket, informe, investigadorNombre, canAct, onEdit, onDelete }: FormInformeFinalProps) {
   const [openHistorial, setOpenHistorial] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [isEditingForm, setIsEditingForm] = useState(false);
@@ -66,7 +66,7 @@ export default function FormInformeFinal({ ticket, informe, tecnicoNombre, canAc
       {isEditing && !isEditingForm ? (
         <InformePreview
           informe={informe}
-          tecnicoNombre={tecnicoNombre}
+          investigadorNombre={investigadorNombre}
           canAct={canAct}
           onEdit={() => {
             setIsEditingForm(true);
@@ -78,7 +78,7 @@ export default function FormInformeFinal({ ticket, informe, tecnicoNombre, canAc
         <InformeForm
           ticket={ticket}
           informe={informe}
-          tecnicoNombre={tecnicoNombre}
+          investigadorNombre={investigadorNombre}
           processing={processing}
           setProcessing={setProcessing}
           onCancel={isEditing ? () => setIsEditingForm(false) : undefined}
@@ -123,7 +123,7 @@ export default function FormInformeFinal({ ticket, informe, tecnicoNombre, canAc
 
 function InformePreview({ informe, canAct, onEdit, onDelete }: {
   informe: InformeData;
-  tecnicoNombre: string;
+  investigadorNombre: string;
   canAct: boolean;
   onEdit?: () => void;
   onDelete?: () => void;
@@ -180,10 +180,10 @@ function InformePreview({ informe, canAct, onEdit, onDelete }: {
   );
 }
 
-function InformeForm({ ticket, informe, tecnicoNombre, processing, setProcessing, onCancel, onSuccess }: {
+function InformeForm({ ticket, informe, investigadorNombre, processing, setProcessing, onCancel, onSuccess }: {
   ticket: string;
   informe: InformeData | null;
-  tecnicoNombre: string;
+  investigadorNombre: string;
   processing: boolean;
   setProcessing: (v: boolean) => void;
   onCancel?: () => void;
@@ -192,23 +192,23 @@ function InformeForm({ ticket, informe, tecnicoNombre, processing, setProcessing
   const [clasificacion, setClasificacion] = useState(informe?.clasificacion || '');
   const [fojas, setFojas] = useState(informe?.fojas?.toString() || '');
   const [justificacion, setJustificacion] = useState(informe?.justificacion || '');
-  const [concluidoPor, setConcluidoPor] = useState(informe?.concluido_por || tecnicoNombre || '');
+  const [concluidoPor, setConcluidoPor] = useState(informe?.concluido_por || investigadorNombre || '');
   const [sitpreco, setSitpreco] = useState(informe?.sitpreco || '');
   useEffect(() => {
     if (informe) {
       setClasificacion(informe.clasificacion || '');
       setFojas(informe.fojas?.toString() || '');
       setJustificacion(informe.justificacion || '');
-      setConcluidoPor(informe.concluido_por || tecnicoNombre || '');
+      setConcluidoPor(informe.concluido_por || investigadorNombre || '');
       setSitpreco(informe.sitpreco || '');
     } else {
       setClasificacion('');
       setFojas('');
       setJustificacion('');
-      setConcluidoPor(tecnicoNombre || '');
+      setConcluidoPor(investigadorNombre || '');
       setSitpreco('');
     }
-  }, [informe, tecnicoNombre]);
+  }, [informe, investigadorNombre]);
 
   const props = usePage().props as Record<string, any>;
   const catalogClasificaciones = Array.isArray(props.clasificaciones)

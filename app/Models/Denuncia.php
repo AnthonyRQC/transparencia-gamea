@@ -32,8 +32,8 @@ class Denuncia extends Model
         'lugar_hechos',
         'hechos',
         'declaracion_jurada',
-        'tecnico_id',
-        'tecnico_anterior_id',
+        'investigador_id',
+        'investigador_anterior_id',
         'fecha_admitida',
         'justificacion_admision',
         'fecha_rechazada',
@@ -233,14 +233,14 @@ class Denuncia extends Model
         return $this->hasMany(Notificacion::class);
     }
 
-    public function tecnico(): BelongsTo
+    public function investigador(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'tecnico_id');
+        return $this->belongsTo(User::class, 'investigador_id');
     }
 
-    public function tecnicoAnterior(): BelongsTo
+    public function investigadorAnterior(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'tecnico_anterior_id');
+        return $this->belongsTo(User::class, 'investigador_anterior_id');
     }
 
     public function registradoPor(): BelongsTo
@@ -263,8 +263,8 @@ class Denuncia extends Model
         return $query->where('estado', $estado);
     }
 
-    public function scopePorTecnico($query, int $tecnicoId)
+    public function scopePorInvestigador($query, int $investigadorId)
     {
-        return $query->where('tecnico_id', $tecnicoId);
+        return $query->where('investigador_id', $investigadorId);
     }
 }

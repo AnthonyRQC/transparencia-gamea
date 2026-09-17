@@ -12,7 +12,7 @@ export type SubestadoDenuncia = 'archivada' | null;
 
 export type TipoDenuncia = 'corrupcion' | 'negacion';
 export type EscenarioDenuncia = 'revelada' | 'reservada' | 'anonimo';
-export type RolUsuario = 'jefe' | 'tecnico' | 'registrador';
+export type RolUsuario = 'jefe' | 'investigador' | 'registrador';
 
 export interface PlazoInfo {
   dias_restantes: number;
@@ -100,16 +100,16 @@ export interface Denuncia {
   justificacion_rechazo?: string | null;
   justificacion_reapertura?: string | null;
   fecha_reapertura?: string | null;
-  tecnico_anterior?: string | null;
+  investigador_anterior?: string | null;
   bitacora?: BitacoraEntry[];
   estado: EstadoDenuncia;
   subestado?: SubestadoDenuncia;
-  tecnico?: any;
+  investigador?: any;
   fecha_asignada?: string | null;
   fecha_traspaso?: string | null;
   justificacion_traspaso?: string | null;
   fecha_rechazada?: string | null;
-  evaluacion_tecnica_tecnico_nombre?: string | null;
+  evaluacion_tecnica_investigador_nombre?: string | null;
   evaluacion_tecnica_recomendacion?: string | null;
   evaluacion_tecnica_delegada_at?: string | null;
   evaluacion_tecnica_texto?: string | null;

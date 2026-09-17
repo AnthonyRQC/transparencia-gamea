@@ -19,8 +19,8 @@ class DashboardTest extends TestCase
 
     private User $jefe;
     private User $registrador;
-    private User $tecnico1;
-    private User $tecnico2;
+    private User $investigador1;
+    private User $investigador2;
 
     private int $n = 0;
 
@@ -30,8 +30,8 @@ class DashboardTest extends TestCase
 
         $this->jefe = User::factory()->create(['username' => 'jefe', 'rol' => 'jefe', 'activo' => true]);
         $this->registrador = User::factory()->create(['username' => 'registrador', 'rol' => 'registrador', 'activo' => true]);
-        $this->tecnico1 = User::factory()->create(['username' => 'tecnico1', 'rol' => 'tecnico', 'activo' => true, 'name' => 'TECNICO UNO']);
-        $this->tecnico2 = User::factory()->create(['username' => 'tecnico2', 'rol' => 'tecnico', 'activo' => true, 'name' => 'TECNICO DOS']);
+        $this->investigador1 = User::factory()->create(['username' => 'investigador1', 'rol' => 'investigador', 'activo' => true, 'name' => 'INVESTIGADOR UNO']);
+        $this->investigador2 = User::factory()->create(['username' => 'investigador2', 'rol' => 'investigador', 'activo' => true, 'name' => 'INVESTIGADOR DOS']);
     }
 
     private function categoria(): CategoriaDenuncia
@@ -82,10 +82,10 @@ class DashboardTest extends TestCase
         return Cierre::create([
             'denuncia_id' => $d->id,
             'notificado_denunciante' => true,
-            'concluido_por' => 'TECNICO UNO',
+            'concluido_por' => 'INVESTIGADOR UNO',
             'cerrado_at' => $cerradoAt ?? now()->subDays(2),
             'notificacion_medio_id' => $this->medio()->id,
-            'cerrado_por_id' => $this->tecnico1->id,
+            'cerrado_por_id' => $this->investigador1->id,
             'eliminado' => false,
         ]);
     }
@@ -95,8 +95,8 @@ class DashboardTest extends TestCase
         return InformeFinal::create([
             'denuncia_id' => $d->id,
             'clasificacion_id' => $this->clasificacion()->id,
-            'clasificado_por_id' => $this->tecnico1->id,
-            'concluido_por' => 'TECNICO UNO',
+            'clasificado_por_id' => $this->investigador1->id,
+            'concluido_por' => 'INVESTIGADOR UNO',
             'redactado_at' => now()->subDays(3),
             'eliminado' => false,
         ]);
@@ -110,18 +110,18 @@ class DashboardTest extends TestCase
     public function test_jefe_ve_metricas_globales(): void
     {
         $this->denuncia(['tipo' => 'corrupcion', 'estado' => 'ingresada']);
-        $this->denuncia(['tipo' => 'corrupcion', 'estado' => 'admitida', 'tecnico_id' => null]);
+        $this->denuncia(['tipo' => 'corrupcion', 'estado' => 'admitida', 'investigador_id' => null]);
 
         $dInvestigacion = $this->denuncia([
             'tipo' => 'corrupcion',
             'estado' => 'investigacion',
-            'tecnico_id' => $this->tecnico1->id,
+            'investigador_id' => $this->investigador1->id,
         ]);
 
         $dCerrada = $this->denuncia([
             'tipo' => 'corrupcion',
             'estado' => 'cerrada',
-            'tecnico_id' => $this->tecnico1->id,
+            'investigador_id' => $this->investigador1->id,
             'fecha_admitida' => now()->subDays(10),
         ]);
         $this->informe($dCerrada);
@@ -155,39 +155,39 @@ class DashboardTest extends TestCase
                 ->where('rendimiento.modo', 'jefe'));
     }
 
-    public function test_tecnico_no_puede_ver_metricas_de_otros(): void
+    public function test_investigador_no_puede_ver_metricas_de_otros(): void
     {
-        $this->denuncia(['estado' => 'asignada', 'tecnico_id' => $this->tecnico1->id]);
-        $propia = $this->denuncia(['estado' => 'asignada', 'tecnico_id' => $this->tecnico2->id]);
+        $this->denuncia(['estado' => 'asignada', 'investigador_id' => $this->investigador1->id]);
+        $propia = $this->denuncia(['estado' => 'asignada', 'investigador_id' => $this->investigador2->id]);
 
-        $this->actingAs($this->tecnico2);
+        $this->actingAs($this->investigador2);
 
-        // Intenta leer las métricas de otro técnico manipulando la URL
-        $response = $this->get('/dashboard?tecnico_id=' . $this->tecnico1->id);
+        // Intenta leer las métricas de otro investigador manipulando la URL
+        $response = $this->get('/dashboard?investigador_id=' . $this->investigador1->id);
 
         $response->assertOk()
             ->assertInertia(fn ($page) => $page
-                ->where('esTecnico', true)
+                ->where('esInvestigador', true)
                 ->where('esJefe', false)
                 ->where('kpis.activos', 1)
-                ->where('rendimiento.modo', 'tecnico')
+                ->where('rendimiento.modo', 'investigador')
                 ->where('rendimiento.urgentes.0.ticket', $propia->ticket)
-                ->where('opciones.tecnicos', []));
+                ->where('opciones.investigadores', []));
     }
 
-    public function test_jefe_puede_filtrar_por_tecnico(): void
+    public function test_jefe_puede_filtrar_por_investigador(): void
     {
-        $this->denuncia(['estado' => 'asignada', 'tecnico_id' => $this->tecnico1->id]);
-        $this->denuncia(['estado' => 'asignada', 'tecnico_id' => $this->tecnico2->id]);
+        $this->denuncia(['estado' => 'asignada', 'investigador_id' => $this->investigador1->id]);
+        $this->denuncia(['estado' => 'asignada', 'investigador_id' => $this->investigador2->id]);
 
         $this->actingAs($this->jefe);
 
-        $response = $this->get('/dashboard?tecnico_id=' . $this->tecnico1->id);
+        $response = $this->get('/dashboard?investigador_id=' . $this->investigador1->id);
 
         $response->assertOk()
             ->assertInertia(fn ($page) => $page
                 ->where('kpis.activos', 1)
-                ->where('opciones.tecnicos', fn ($tecnicos) => count($tecnicos) === 2));
+                ->where('opciones.investigadores', fn ($investigadores) => count($investigadores) === 2));
     }
 
     public function test_embudo_muestra_estado_actual_independiente_del_rango(): void
@@ -196,7 +196,7 @@ class DashboardTest extends TestCase
         $this->denuncia([
             'estado' => 'investigacion',
             'created_at' => now()->subMonths(2),
-            'tecnico_id' => $this->tecnico1->id,
+            'investigador_id' => $this->investigador1->id,
         ]);
 
         $this->actingAs($this->jefe);
@@ -225,22 +225,22 @@ class DashboardTest extends TestCase
                 ->where('esRegistrador', true)
                 ->where('esJefe', false)
                 ->where('kpis.activos', 1)
-                ->where('opciones.tecnicos', []));
+                ->where('opciones.investigadores', []));
     }
 
-    public function test_carga_respeta_filtro_tecnico_como_urgentes(): void
+    public function test_carga_respeta_filtro_investigador_como_urgentes(): void
     {
-        $this->denuncia(['estado' => 'asignada', 'tecnico_id' => $this->tecnico1->id]);
-        $this->denuncia(['estado' => 'asignada', 'tecnico_id' => $this->tecnico2->id]);
+        $this->denuncia(['estado' => 'asignada', 'investigador_id' => $this->investigador1->id]);
+        $this->denuncia(['estado' => 'asignada', 'investigador_id' => $this->investigador2->id]);
 
         $this->actingAs($this->jefe);
 
-        $response = $this->get('/dashboard?tecnico_id=' . $this->tecnico1->id);
+        $response = $this->get('/dashboard?investigador_id=' . $this->investigador1->id);
 
         $response->assertOk()
             ->assertInertia(fn ($page) => $page
                 ->where('rendimiento.modo', 'jefe')
-                ->where('rendimiento.cargaTecnicos', fn ($carga) => count($carga) === 1)
-                ->where('rendimiento.cargaTecnicos.0.tecnico', $this->tecnico1->name));
+                ->where('rendimiento.cargaInvestigadores', fn ($carga) => count($carga) === 1)
+                ->where('rendimiento.cargaInvestigadores.0.investigador', $this->investigador1->name));
     }
 }

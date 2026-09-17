@@ -12,9 +12,9 @@ class PermisosCatalogo
         'menu.dashboard' => 'Ver inicio/dashboard',
         'menu.registrar-denuncia' => 'Ver página de registro de denuncia',
         'menu.bandeja' => 'Ver bandeja de admisión',
-        'menu.mis-casos' => 'Ver mis casos (técnico)',
-        'menu.mi-resumen' => 'Ver mi resumen (técnico)',
-        'menu.evaluaciones' => 'Ver evaluaciones delegadas (técnico)',
+        'menu.mis-casos' => 'Ver mis casos (investigador)',
+        'menu.mi-resumen' => 'Ver mi resumen (investigador)',
+        'menu.evaluaciones' => 'Ver evaluaciones delegadas (investigador)',
         'menu.consultar-casos' => 'Ver búsqueda y consulta de casos (registrador)',
         'menu.notificaciones' => 'Ver notificaciones',
         'menu.reportes' => 'Ver reportes',
@@ -24,7 +24,7 @@ class PermisosCatalogo
 
         'caso.admitir' => 'Admitir denuncia',
         'caso.rechazar' => 'Rechazar denuncia',
-        'caso.asignar' => 'Asignar técnico',
+        'caso.asignar' => 'Asignar investigador',
         'caso.traspasar' => 'Traspasar caso',
         'caso.reabrir' => 'Reabrir caso',
         'caso.ampliar' => 'Ampliar plazo',
@@ -131,7 +131,7 @@ class PermisosCatalogo
             'publicacion.publicar',
         ],
 
-        'tecnico' => [
+        'investigador' => [
             'menu.dashboard',
             'menu.mis-casos',
             'menu.mi-resumen',

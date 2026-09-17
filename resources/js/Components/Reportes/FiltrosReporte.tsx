@@ -12,14 +12,14 @@ export interface ReportesFiltros {
     hasta: string | null;
     tipo: string | null;
     estado: string | null;
-    tecnico_id: number | null;
+    investigador_id: number | null;
     categoria_id: number | null;
     clasificacion_id: number | null;
     busqueda: string | null;
 }
 
 export interface ReportesOpciones {
-    tecnicos: Array<{ id: number; name: string }>;
+    investigadores: Array<{ id: number; name: string }>;
     categorias: Array<{ id: number; nombre: string }>;
     clasificaciones: Array<{ id: number; nombre: string }>;
     estados: Record<string, string>;
@@ -36,7 +36,7 @@ export default function FiltrosReporte({ opciones, filtros }: Props) {
     const [hasta, setHasta] = useState(filtros.hasta ?? '');
     const [tipo, setTipo] = useState(filtros.tipo ?? '');
     const [estado, setEstado] = useState(filtros.estado ?? '');
-    const [tecnicoId, setTecnicoId] = useState(filtros.tecnico_id ? String(filtros.tecnico_id) : '');
+    const [investigadorId, setInvestigadorId] = useState(filtros.investigador_id ? String(filtros.investigador_id) : '');
     const [categoriaId, setCategoriaId] = useState(filtros.categoria_id ? String(filtros.categoria_id) : '');
     const [clasificacionId, setClasificacionId] = useState(filtros.clasificacion_id ? String(filtros.clasificacion_id) : '');
 
@@ -47,7 +47,7 @@ export default function FiltrosReporte({ opciones, filtros }: Props) {
             hasta: hasta || undefined,
             tipo: tipo || undefined,
             estado: estado || undefined,
-            tecnico_id: tecnicoId || undefined,
+            investigador_id: investigadorId || undefined,
             categoria_id: categoriaId || undefined,
             clasificacion_id: clasificacionId || undefined,
         }, { preserveState: true, preserveScroll: true });
@@ -55,7 +55,7 @@ export default function FiltrosReporte({ opciones, filtros }: Props) {
 
     const limpiar = () => {
         setBusqueda(''); setDesde(''); setHasta('');
-        setTipo(''); setEstado(''); setTecnicoId(''); setCategoriaId(''); setClasificacionId('');
+        setTipo(''); setEstado(''); setInvestigadorId(''); setCategoriaId(''); setClasificacionId('');
         router.get(route('reportes.index'), {}, { preserveState: true, preserveScroll: true });
     };
 
@@ -97,13 +97,13 @@ export default function FiltrosReporte({ opciones, filtros }: Props) {
                         ))}
                     </SelectContent>
                 </Select>
-                <Select value={tecnicoId} onValueChange={setTecnicoId}>
+                <Select value={investigadorId} onValueChange={setInvestigadorId}>
                     <SelectTrigger className={inputCls}>
-                        <SelectValue placeholder="Técnico" />
+                        <SelectValue placeholder="Investigador" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="todos">Todos los técnicos</SelectItem>
-                        {opciones.tecnicos.map((t) => (
+                        <SelectItem value="todos">Todos los investigadores</SelectItem>
+                        {opciones.investigadores.map((t) => (
                             <SelectItem key={t.id} value={String(t.id)}>{t.name}</SelectItem>
                         ))}
                     </SelectContent>

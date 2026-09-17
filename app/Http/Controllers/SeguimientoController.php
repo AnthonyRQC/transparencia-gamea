@@ -119,8 +119,8 @@ class SeguimientoController extends Controller
 
         $mensajes = [
             'ingresada' => 'Su denuncia fue recibida y se encuentra en evaluación inicial. La UTLCC tiene un plazo máximo de 5 días hábiles para admitirla o rechazarla.',
-            'admitida' => 'Su denuncia ha sido admitida y está siendo preparada para asignarse a un equipo técnico.',
-            'asignada' => 'Su denuncia ha sido asignada a un equipo técnico. La investigación se iniciará en los próximos días.',
+            'admitida' => 'Su denuncia ha sido admitida y está siendo preparada para asignarse al equipo de investigación.',
+            'asignada' => 'Su denuncia ha sido asignada al equipo de investigación. La investigación se iniciará en los próximos días.',
             'informe' => 'La investigación ha concluido. Se está redactando el Informe Final que será remitido a la Máxima Autoridad Institucional.',
         ];
 

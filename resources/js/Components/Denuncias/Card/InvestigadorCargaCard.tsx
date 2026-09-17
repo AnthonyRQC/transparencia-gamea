@@ -1,8 +1,8 @@
 import { cn } from '@/lib/utils';
 import { AlertTriangle, AlertCircle } from 'lucide-react';
-import TecnicoAvatar from '../Shared/TecnicoAvatar';
+import InvestigadorAvatar from '../Shared/InvestigadorAvatar';
 
-interface TecnicoCarga {
+interface InvestigadorCarga {
   id: string;
   nombre: string;
   iniciales: string;
@@ -12,13 +12,13 @@ interface TecnicoCarga {
   vencidos: number;
 }
 
-interface TecnicoCargaCardProps {
-  tecnico: TecnicoCarga;
+interface InvestigadorCargaCardProps {
+  investigador: InvestigadorCarga;
   selected: boolean;
   onSelect: () => void;
 }
 
-export default function TecnicoCargaCard({ tecnico, selected, onSelect }: TecnicoCargaCardProps) {
+export default function InvestigadorCargaCard({ investigador, selected, onSelect }: InvestigadorCargaCardProps) {
   return (
     <button
       type="button"
@@ -30,23 +30,23 @@ export default function TecnicoCargaCard({ tecnico, selected, onSelect }: Tecnic
           : 'border-border bg-card hover:border-primary/30 hover:shadow-xs'
       )}
     >
-      <TecnicoAvatar nombre={tecnico.nombre} color={tecnico.color} size="md" />
+      <InvestigadorAvatar nombre={investigador.nombre} color={investigador.color} size="md" />
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold">{tecnico.nombre}</p>
+        <p className="text-sm font-semibold">{investigador.nombre}</p>
         <div className="flex items-center gap-3 mt-1">
           <span className="text-[11px] font-medium text-muted-foreground">
-            {tecnico.activos} activo{tecnico.activos !== 1 ? 's' : ''}
+            {investigador.activos} activo{investigador.activos !== 1 ? 's' : ''}
           </span>
-          {tecnico.por_vencer > 0 && (
+          {investigador.por_vencer > 0 && (
             <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-900 dark:text-amber-300">
               <AlertTriangle className="w-3 h-3" />
-              {tecnico.por_vencer} por vencer
+              {investigador.por_vencer} por vencer
             </span>
           )}
-          {tecnico.vencidos > 0 && (
+          {investigador.vencidos > 0 && (
             <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-pink-800 dark:text-pink-300">
               <AlertCircle className="w-3 h-3" />
-              {tecnico.vencidos} vencido{tecnico.vencidos !== 1 ? 's' : ''}
+              {investigador.vencidos} vencido{investigador.vencidos !== 1 ? 's' : ''}
             </span>
           )}
         </div>

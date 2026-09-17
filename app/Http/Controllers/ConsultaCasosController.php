@@ -17,7 +17,7 @@ class ConsultaCasosController extends Controller
             abort(403, 'Acceso denegado. Solo el Registrador puede consultar casos.');
         }
 
-        $query = Denuncia::with(['denunciante', 'denunciados', 'tecnico', 'categoria', 'solicitudes.dependenciaDestino', 'solicitudes.ampliaciones', 'descargos.denunciado', 'descargos.ampliaciones', 'evaluaciones', 'bitacora.usuario'])
+        $query = Denuncia::with(['denunciante', 'denunciados', 'investigador', 'categoria', 'solicitudes.dependenciaDestino', 'solicitudes.ampliaciones', 'descargos.denunciado', 'descargos.ampliaciones', 'evaluaciones', 'bitacora.usuario'])
             ->whereNull('deleted_at');
 
         if ($busqueda = $request->input('busqueda')) {
@@ -57,8 +57,8 @@ class ConsultaCasosController extends Controller
             $query->whereDate('created_at', '<=', Carbon::parse($hasta));
         }
 
-        if ($tecnico = $request->input('tecnico')) {
-            $query->where('tecnico_id', (int) $tecnico);
+        if ($investigador = $request->input('investigador')) {
+            $query->where('investigador_id', (int) $investigador);
         }
 
         $denuncias = $query->latest()->get();
@@ -88,12 +88,12 @@ class ConsultaCasosController extends Controller
 
         return Inertia::render('Denuncias/ConsultarCasos', [
             'denuncias' => $denuncias,
-            'tecnicos' => User::where('rol', 'tecnico')->where('activo', true)->get(),
+            'investigadores' => User::where('rol', 'investigador')->where('activo', true)->get(),
             'solicitudesByTicket' => $solicitudesByTicket,
             'descargosByTicket' => $descargosByTicket,
             'evaluacionesByTicket' => $evaluacionesByTicket,
             'filters' => $request->only([
-                'busqueda', 'ticket', 'estado', 'tipo', 'escenario', 'fecha_desde', 'fecha_hasta', 'tecnico'
+                'busqueda', 'ticket', 'estado', 'tipo', 'escenario', 'fecha_desde', 'fecha_hasta', 'investigador'
             ]),
         ]);
     }

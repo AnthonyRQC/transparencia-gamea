@@ -21,7 +21,7 @@ interface Props {
 const FILTROS_VACIOS: FiltrosDashboard = {
     desde: null,
     hasta: null,
-    tecnico_id: null,
+    investigador_id: null,
     tipo: null,
     categoria_id: null,
     clasificacion_id: null,
@@ -65,12 +65,12 @@ export default function FiltrosDashboard({ filtros, opciones, esJefe, onChange }
             clear: () => onChange({ ...filtros, desde: null, hasta: null }),
         });
     }
-    if (filtros.tecnico_id) {
-        const t = opciones.tecnicos.find((x) => Number(x.id) === Number(filtros.tecnico_id));
+    if (filtros.investigador_id) {
+        const t = opciones.investigadores.find((x) => Number(x.id) === Number(filtros.investigador_id));
         chips.push({
-            key: 'tecnico',
-            label: `Técnico: ${t?.name ?? 'Técnico'}`,
-            clear: () => onChange({ ...filtros, tecnico_id: null }),
+            key: 'investigador',
+            label: `Investigador: ${t?.name ?? 'Investigador'}`,
+            clear: () => onChange({ ...filtros, investigador_id: null }),
         });
     }
     if (filtros.tipo) {
@@ -184,14 +184,14 @@ export default function FiltrosDashboard({ filtros, opciones, esJefe, onChange }
                         {esJefe && (
                             <>
                                 <div className="space-y-2">
-                                    <Label>Técnico</Label>
-                                    <Select value={form.tecnico_id ? String(form.tecnico_id) : 'todos'} onValueChange={(v) => setCampo('tecnico_id', v === 'todos' ? null : Number(v))}>
+                                    <Label>Investigador</Label>
+                                    <Select value={form.investigador_id ? String(form.investigador_id) : 'todos'} onValueChange={(v) => setCampo('investigador_id', v === 'todos' ? null : Number(v))}>
                                         <SelectTrigger>
-                                            <SelectValue placeholder="Todos los técnicos" />
+                                            <SelectValue placeholder="Todos los investigadores" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="todos">Todos los técnicos</SelectItem>
-                                            {opciones.tecnicos.map((t) => (
+                                            <SelectItem value="todos">Todos los investigadores</SelectItem>
+                                            {opciones.investigadores.map((t) => (
                                                 <SelectItem key={t.id} value={String(t.id)}>
                                                     {t.name}
                                                 </SelectItem>
@@ -202,8 +202,8 @@ export default function FiltrosDashboard({ filtros, opciones, esJefe, onChange }
 
                                 <div className="flex items-center justify-between rounded-lg border p-3">
                                     <div className="space-y-0.5">
-                                        <Label className="text-sm">Incluir técnicos inactivos</Label>
-                                        <p className="text-[11px] text-muted-foreground">Recordatorio de técnicos a desactivar.</p>
+                                        <Label className="text-sm">Incluir investigadores inactivos</Label>
+                                        <p className="text-[11px] text-muted-foreground">Recordatorio de investigadores a desactivar.</p>
                                     </div>
                                     <Switch checked={form.incluir_inactivos} onCheckedChange={(v) => setCampo('incluir_inactivos', v)} />
                                 </div>

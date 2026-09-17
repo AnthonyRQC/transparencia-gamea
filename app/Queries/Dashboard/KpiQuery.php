@@ -17,7 +17,7 @@ class KpiQuery
 
         $activos = (clone $estadoQuery)->whereNotIn('estado', self::ESTADOS_TERMINALES)->count();
         $pendientesAdmision = (clone $estadoQuery)->whereIn('estado', ['ingresada', 'evaluacion_tecnica'])->count();
-        $sinAsignar = (clone $estadoQuery)->where('estado', 'admitida')->whereNull('tecnico_id')->count();
+        $sinAsignar = (clone $estadoQuery)->where('estado', 'admitida')->whereNull('investigador_id')->count();
 
         $activasColeccion = (clone $estadoQuery)
             ->whereNotIn('estado', self::ESTADOS_TERMINALES)
@@ -33,7 +33,7 @@ class KpiQuery
             ->count();
 
         $cerradas = Denuncia::where('estado', 'cerrada')->whereNull('deleted_at')
-            ->when($f['tecnico_id'], fn ($q, $v) => $q->where('tecnico_id', $v))
+            ->when($f['investigador_id'], fn ($q, $v) => $q->where('investigador_id', $v))
             ->when($f['tipo'], fn ($q, $v) => $q->where('tipo', $v))
             ->when($f['categoria_id'], fn ($q, $v) => $q->where('categoria_id', $v))
             ->when($f['clasificacion_id'], function ($q) use ($f) {

@@ -16,7 +16,7 @@ class DenunciaFlowTest extends TestCase
 
     private User $jefe;
     private User $registrador;
-    private User $tecnico;
+    private User $investigador;
 
     protected function setUp(): void
     {
@@ -34,9 +34,9 @@ class DenunciaFlowTest extends TestCase
             'activo' => true,
         ]);
 
-        $this->tecnico = User::factory()->create([
-            'username' => 'tecnico1',
-            'rol' => 'tecnico',
+        $this->investigador = User::factory()->create([
+            'username' => 'investigador1',
+            'rol' => 'investigador',
             'activo' => true,
             'iniciales' => 'T1',
             'color' => 'bg-blue-500',
@@ -150,11 +150,11 @@ class DenunciaFlowTest extends TestCase
         $this->assertEquals('admitida', $denuncia->estado);
 
         $this->post("/denuncias/{$denuncia->ticket}/asignar", [
-            'tecnico_id' => $this->tecnico->id,
+            'investigador_id' => $this->investigador->id,
         ]);
         $denuncia->refresh();
         $this->assertEquals('asignada', $denuncia->estado);
-        $this->assertEquals($this->tecnico->id, $denuncia->tecnico_id);
+        $this->assertEquals($this->investigador->id, $denuncia->investigador_id);
 
         $this->post("/denuncias/{$denuncia->ticket}/iniciar", []);
         $denuncia->refresh();
@@ -170,7 +170,7 @@ class DenunciaFlowTest extends TestCase
             'clasificacion' => 'administrativo',
             'fojas' => 10,
             'justificacion' => 'JUSTIFICACIÓN DE PRUEBA PARA EL INFORME FINAL CON MÍNIMO DE 20 CARACTERES',
-            'concluido_por' => 'TÉCNICO TEST',
+            'concluido_por' => 'INVESTIGADOR TEST',
         ]);
         $denuncia->refresh();
         $this->assertNotNull($denuncia->informe);
@@ -181,7 +181,7 @@ class DenunciaFlowTest extends TestCase
             'notificacion_medio' => 'email',
             'notificacion_fecha' => now()->format('Y-m-d'),
             'notificacion_descripcion' => 'NOTIFICACIÓN DE PRUEBA COMPLETA CON SUFICIENTES CARACTERES',
-            'concluido_por' => 'TÉCNICO TEST',
+            'concluido_por' => 'INVESTIGADOR TEST',
             'descripcion' => 'DESCRIPCIÓN DE CIERRE DE PRUEBA CON MÍNIMO DE VEINTE CARACTERES',
         ]);
         $denuncia->refresh();
@@ -198,7 +198,7 @@ class DenunciaFlowTest extends TestCase
             'token_consulta' => '1001',
             'tipo' => 'corrupcion',
             'estado' => 'asignada',
-            'tecnico_id' => $this->tecnico->id,
+            'investigador_id' => $this->investigador->id,
         ]);
 
         $response = $this->post("/denuncias/{$denuncia->ticket}/ampliar-plazo", [
@@ -232,7 +232,7 @@ class DenunciaFlowTest extends TestCase
             'clasificacion' => 'delitos_electorales',
             'fojas' => 10,
             'justificacion' => 'JUSTIFICACIÓN DE PRUEBA PARA EL INFORME FINAL CON MÍNIMO DE 20 CARACTERES',
-            'concluido_por' => 'TÉCNICO TEST',
+            'concluido_por' => 'INVESTIGADOR TEST',
         ]);
 
         $response->assertSessionHas('success');

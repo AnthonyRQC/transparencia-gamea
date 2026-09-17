@@ -30,7 +30,7 @@
 | Columna | Tipo | Notas |
 |---------|------|-------|
 | `username` | varchar(50) UNIQUE | Login principal (posteriormente se puede agregar email como alternativa) |
-| `rol` | enum('registrador','jefe','tecnico') | Permisos base del sistema |
+| `rol` | enum('registrador','jefe','investigador') | Permisos base del sistema |
 | `iniciales` | varchar(2) | Para avatares (ej: "CQ") |
 | `color` | varchar(20) | Clase CSS del avatar (ej: "bg-blue-500") |
 | `activo` | boolean default true | Desactivar usuarios sin eliminar historial |

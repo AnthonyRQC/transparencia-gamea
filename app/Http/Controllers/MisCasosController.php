@@ -13,16 +13,16 @@ class MisCasosController extends Controller
 {
     public function index()
     {
-        if (Auth::user()->rol !== 'tecnico') {
-            return redirect()->route('dashboard')->with('error', 'Solo los técnicos pueden acceder a Mis Casos.');
+        if (Auth::user()->rol !== 'investigador') {
+            return redirect()->route('dashboard')->with('error', 'Solo los investigadores pueden acceder a Mis Casos.');
         }
 
-        $tecnicoId = Auth::id();
+        $investigadorId = Auth::id();
 
-        $with = ['denunciante', 'denunciados', 'categoria', 'tecnico', 'informe.clasificacionRel', 'cierre.medioNotificacion', 'solicitudes.dependenciaDestino', 'solicitudes.ampliaciones', 'descargos.denunciado', 'descargos.ampliaciones', 'evaluaciones', 'bitacora.usuario'];
+        $with = ['denunciante', 'denunciados', 'categoria', 'investigador', 'informe.clasificacionRel', 'cierre.medioNotificacion', 'solicitudes.dependenciaDestino', 'solicitudes.ampliaciones', 'descargos.denunciado', 'descargos.ampliaciones', 'evaluaciones', 'bitacora.usuario'];
 
         $denuncias = Denuncia::with($with)
-            ->where('tecnico_id', $tecnicoId)
+            ->where('investigador_id', $investigadorId)
             ->where('estado', '!=', 'rechazada')
             ->latest()
             ->get();
@@ -47,19 +47,19 @@ class MisCasosController extends Controller
         }
 
         $evaluacionesDelegadas = EvaluacionTecnica::with('denuncia')
-            ->where('tecnico_id', $tecnicoId)
+            ->where('investigador_id', $investigadorId)
             ->where('estado', 'pendiente')
             ->get();
 
         $evaluacionesDevueltas = EvaluacionTecnica::with('denuncia')
-            ->where('tecnico_id', $tecnicoId)
+            ->where('investigador_id', $investigadorId)
             ->where('estado', 'devuelta')
             ->get();
 
         return Inertia::render('Denuncias/MisCasos', [
             'grouped' => $grouped,
-            'tecnicoActual' => $tecnicoId,
-            'tecnicos' => User::where('rol', 'tecnico')->where('activo', true)->get(),
+            'investigadorActual' => $investigadorId,
+            'investigadores' => User::where('rol', 'investigador')->where('activo', true)->get(),
             'solicitudesByTicket' => $solicitudesByTicket,
             'descargosByTicket' => $descargosByTicket,
             'evaluacionesByTicket' => $evaluacionesByTicket,
@@ -73,23 +73,23 @@ class MisCasosController extends Controller
 
     public function evaluaciones()
     {
-        if (Auth::user()->rol !== 'tecnico') {
-            return redirect()->route('dashboard')->with('error', 'Solo los técnicos pueden acceder a las evaluaciones.');
+        if (Auth::user()->rol !== 'investigador') {
+            return redirect()->route('dashboard')->with('error', 'Solo los investigadores pueden acceder a las evaluaciones.');
         }
 
-        $tecnicoId = Auth::id();
+        $investigadorId = Auth::id();
 
         $evaluacionesDelegadas = EvaluacionTecnica::with('denuncia')
-            ->where('tecnico_id', $tecnicoId)
+            ->where('investigador_id', $investigadorId)
             ->where('estado', 'pendiente')
             ->get();
 
         $evaluacionesDevueltas = EvaluacionTecnica::with('denuncia')
-            ->where('tecnico_id', $tecnicoId)
+            ->where('investigador_id', $investigadorId)
             ->where('estado', 'devuelta')
             ->get();
 
-        $with = ['denunciante', 'denunciados', 'pruebas', 'categoria', 'tecnico', 'informe.clasificacionRel', 'cierre.medioNotificacion', 'solicitudes.dependenciaDestino', 'solicitudes.ampliaciones', 'descargos.denunciado', 'descargos.ampliaciones', 'evaluaciones', 'bitacora.usuario'];
+        $with = ['denunciante', 'denunciados', 'pruebas', 'categoria', 'investigador', 'informe.clasificacionRel', 'cierre.medioNotificacion', 'solicitudes.dependenciaDestino', 'solicitudes.ampliaciones', 'descargos.denunciado', 'descargos.ampliaciones', 'evaluaciones', 'bitacora.usuario'];
 
         $denunciaIds = $evaluacionesDelegadas->pluck('denuncia_id')->concat($evaluacionesDevueltas->pluck('denuncia_id'))->filter()->unique();
         $denuncias = Denuncia::with($with)->whereIn('id', $denunciaIds)->get();
@@ -103,8 +103,8 @@ class MisCasosController extends Controller
             'evaluacionesDelegadas' => $evaluacionesDelegadas,
             'evaluacionesDevueltas' => $evaluacionesDevueltas,
             'denunciasByTicket' => $denunciasByTicket,
-            'tecnicoActual' => $tecnicoId,
-            'tecnicos' => User::where('rol', 'tecnico')->where('activo', true)->get(),
+            'investigadorActual' => $investigadorId,
+            'investigadores' => User::where('rol', 'investigador')->where('activo', true)->get(),
         ]);
     }
 }

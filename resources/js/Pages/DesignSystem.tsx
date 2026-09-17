@@ -505,7 +505,7 @@ export default function DesignSystem() {
                     {/* 4. Solicitudes de Información Table (Col 12 - Full Width) */}
                     <div className="xl:col-span-12 space-y-4">
                         <div className="flex items-center justify-between">
-                            <h4 className="font-bold text-md text-foreground">Bandeja de Solicitudes de Información (Técnico / Analista)</h4>
+                            <h4 className="font-bold text-md text-foreground">Bandeja de Solicitudes de Información (Investigador / Analista)</h4>
                             <span className="text-[10px] bg-secondary/15 text-secondary-foreground border border-secondary/30 px-2 py-0.5 rounded font-mono font-bold">Mock de Requerimientos</span>
                         </div>
 

@@ -18,13 +18,13 @@ interface Contadores {
 
 interface PageProps {
   contadores: Contadores;
-  tecnicoActual: string;
-  tecnicos: Record<string, { id: string; nombre: string; iniciales: string; color: string }>;
+  investigadorActual: string;
+  investigadores: Record<string, { id: string; nombre: string; iniciales: string; color: string }>;
 }
 
-export default function MiResumen({ contadores, tecnicoActual, tecnicos }: PageProps) {
-  const handleTecnicoChange = (value: string) => {
-    router.get(route('denuncias.mi-resumen'), { tecnico: value }, { preserveState: true, preserveScroll: true });
+export default function MiResumen({ contadores, investigadorActual, investigadores }: PageProps) {
+  const handleInvestigadorChange = (value: string) => {
+    router.get(route('denuncias.mi-resumen'), { investigador: value }, { preserveState: true, preserveScroll: true });
   };
 
   const cards = [
@@ -45,12 +45,12 @@ export default function MiResumen({ contadores, tecnicoActual, tecnicos }: PageP
         acciones={
           <>
             <span className="text-xs text-muted-foreground font-medium">Ver como:</span>
-            <Select value={tecnicoActual} onValueChange={handleTecnicoChange}>
+            <Select value={investigadorActual} onValueChange={handleInvestigadorChange}>
               <SelectTrigger className="w-44 h-8 text-sm cursor-pointer">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {Object.entries(tecnicos).map(([id, t]) => (
+                {Object.entries(investigadores).map(([id, t]) => (
                   <SelectItem key={id} value={id}>{t.nombre}</SelectItem>
                 ))}
               </SelectContent>

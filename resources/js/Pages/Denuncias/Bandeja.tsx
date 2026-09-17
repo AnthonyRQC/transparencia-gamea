@@ -121,16 +121,16 @@ interface Denuncia {
   justificacion_rechazo?: string | null;
   justificacion_reapertura?: string | null;
   fecha_reapertura?: string | null;
-  tecnico_anterior?: string | null;
+  investigador_anterior?: string | null;
   bitacora?: BitacoraEntry[];
   estado: string;
   subestado?: string | null;
-  tecnico?: any;
+  investigador?: any;
   fecha_asignada?: string | null;
   fecha_traspaso?: string | null;
   justificacion_traspaso?: string | null;
   fecha_rechazada?: string | null;
-  evaluacion_tecnica_tecnico_nombre?: string | null;
+  evaluacion_tecnica_investigador_nombre?: string | null;
   evaluacion_tecnica_recomendacion?: string | null;
   evaluacion_tecnica_delegada_at?: string | null;
   evaluacion_tecnica_texto?: string | null;
@@ -160,8 +160,8 @@ interface PageProps {
   enCurso: Denuncia[];
   historial: Denuncia[];
   contadores: Contador;
-  tecnicos: Record<string, { id: string; nombre: string; iniciales: string; color: string }>;
-  cargaTecnicos?: Array<{ id: string; nombre: string; iniciales: string; color: string; activos: number; por_vencer: number; vencidos: number }>;
+  investigadores: Record<string, { id: string; nombre: string; iniciales: string; color: string }>;
+  cargaInvestigadores?: Array<{ id: string; nombre: string; iniciales: string; color: string; activos: number; por_vencer: number; vencidos: number }>;
   solicitudesByTicket?: Record<string, Solicitud[]>;
   descargosByTicket?: Record<string, Descargo[]>;
   evaluacionesByTicket?: Record<string, any[]>;
@@ -180,7 +180,7 @@ const contadorConfig = [
   { key: 'cerrada', label: 'Cerradas', icon: Archive, color: 'bg-teal-500/10 text-teal-800 border border-teal-500/30 dark:bg-teal-500/20 dark:text-teal-300' },
 ];
 
-export default function Bandeja({ denuncias, porAsignar, enCurso, historial, contadores, tecnicos, cargaTecnicos, solicitudesByTicket = {}, descargosByTicket = {}, evaluacionesByTicket = {}, avisosPorTicket = {}, canAct = false, destacar }: PageProps) {
+export default function Bandeja({ denuncias, porAsignar, enCurso, historial, contadores, investigadores, cargaInvestigadores, solicitudesByTicket = {}, descargosByTicket = {}, evaluacionesByTicket = {}, avisosPorTicket = {}, canAct = false, destacar }: PageProps) {
   const [selectedDenuncia, setSelectedDenuncia] = useState<Denuncia | null>(null);
   const [menuMasAbierto, setMenuMasAbierto] = useState(false);
   const menuMasRef = useRef<HTMLDivElement>(null);
@@ -310,9 +310,9 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
     }
     return [...filtered].sort((a, b) => {
       if (sortBy === 'fecha') return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-      if (sortBy === 'tecnico') {
-        const tecA = typeof a.tecnico === 'object' ? (a.tecnico?.name || '') : (a.tecnico || '');
-        const tecB = typeof b.tecnico === 'object' ? (b.tecnico?.name || '') : (b.tecnico || '');
+      if (sortBy === 'investigador') {
+        const tecA = typeof a.investigador === 'object' ? (a.investigador?.name || '') : (a.investigador || '');
+        const tecB = typeof b.investigador === 'object' ? (b.investigador?.name || '') : (b.investigador || '');
         return tecA.localeCompare(tecB);
       }
       if (activeTab === 'por-admitir') {
@@ -384,7 +384,7 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
             <SelectContent>
               <SelectItem value="plazo">Plazo</SelectItem>
               <SelectItem value="fecha">Fecha</SelectItem>
-              <SelectItem value="tecnico">Técnico</SelectItem>
+              <SelectItem value="investigador">Investigador</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -413,7 +413,7 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
                         key={d.ticket}
                         denuncia={d}
                         plazo={d.plazo}
-                        tecnicos={tecnicos}
+                        investigadores={investigadores}
                         avisosPublicados={avisosPorTicket[d.ticket]}
                         onClick={() => setSelectedDenuncia(d)}
                         isNew={d.estado === 'ingresada' && !evaluacionDevuelta && isNewHours(d.created_at)}
@@ -423,7 +423,7 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
                             <>
                               <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-full bg-amber-500/15 text-amber-900 border border-amber-500/30 dark:bg-amber-500/20 dark:text-amber-300">
                                 <FileSearch className="w-3 h-3" />
-                                En evaluación por {d.evaluacion_tecnica_tecnico_nombre || 'técnico'}
+                                En evaluación por {d.evaluacion_tecnica_investigador_nombre || 'investigador'}
                               </span>
                               <span className="text-[10px] text-muted-foreground">
                                 (delegada {formatearFechaCorta(d.evaluacion_tecnica_delegada_at, true) ?? ''})
@@ -464,7 +464,7 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
                                     : "bg-primary/10 text-primary border-primary/20 dark:bg-primary/20 dark:text-primary-foreground"
                               )}>
                                 <FileSearch className="w-3 h-3" />
-                                Evaluada por {d.evaluacion_tecnica_tecnico_nombre || 'técnico'}
+                                Evaluada por {d.evaluacion_tecnica_investigador_nombre || 'investigador'}
                                 {d.evaluacion_tecnica_recomendacion === 'admitir' ? ' · Recomienda admitir' : d.evaluacion_tecnica_recomendacion === 'rechazar' ? ' · Recomienda rechazar' : ''}
                               </span>
                             </>
@@ -520,7 +520,7 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
               renderEmptyState(
                 ClipboardList,
                 "No hay denuncias por asignar",
-                "Todas las denuncias admitidas ya tienen un técnico asignado."
+                "Todas las denuncias admitidas ya tienen un investigador asignado."
               )
             ) : (
               <div>
@@ -530,7 +530,7 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
                       key={d.ticket}
                       denuncia={d}
                       plazo={d.plazo}
-                      tecnicos={tecnicos}
+                      investigadores={investigadores}
                       avisosPublicados={avisosPorTicket[d.ticket]}
                       onClick={() => setSelectedDenuncia(d)}
                     >
@@ -541,7 +541,7 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
                           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors"
                         >
                           <UserPlus className="w-3.5 h-3.5" />
-                          Asignar técnico
+                          Asignar investigador
                         </button>
                       </div>
                     </DenunciaCard>
@@ -576,7 +576,7 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
                       key={d.ticket}
                       denuncia={d}
                       plazo={d.plazo}
-                      tecnicos={tecnicos}
+                      investigadores={investigadores}
                       avisosPublicados={avisosPorTicket[d.ticket]}
                       onClick={() => setSelectedDenuncia(d)}
                     />
@@ -611,7 +611,7 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
                       key={d.ticket}
                       denuncia={d}
                       plazo={d.plazo}
-                      tecnicos={tecnicos}
+                      investigadores={investigadores}
                       avisosPublicados={avisosPorTicket[d.ticket]}
                       onClick={() => setSelectedDenuncia(d)}
                     >
@@ -654,10 +654,10 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
         <DenunciaSheet
           denuncia={selectedDenuncia}
           plazo={selectedDenuncia.plazo}
-          tecnicos={tecnicos}
+          investigadores={investigadores}
           open={selectedDenuncia !== null}
           onOpenChange={(v) => { if (!v) setSelectedDenuncia(null); }}
-          tecnicoNombre={typeof selectedDenuncia.tecnico === 'object' ? selectedDenuncia.tecnico?.name : (selectedDenuncia.tecnico || '—')}
+          investigadorNombre={typeof selectedDenuncia.investigador === 'object' ? selectedDenuncia.investigador?.name : (selectedDenuncia.investigador || '—')}
           solicitudes={solicitudesByTicket[selectedDenuncia.ticket] || []}
           descargos={descargosByTicket[selectedDenuncia.ticket] || []}
           evaluaciones={evaluacionesByTicket?.[selectedDenuncia.ticket] || []}
@@ -730,10 +730,10 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
                   className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors shadow-2xs cursor-pointer"
                 >
                   <UserPlus className="w-3.5 h-3.5" />
-                  Asignar técnico
+                  Asignar investigador
                 </button>
               )}
-              {['asignada', 'investigacion', 'informe'].includes(selectedDenuncia.estado) && selectedDenuncia.tecnico && (
+              {['asignada', 'investigacion', 'informe'].includes(selectedDenuncia.estado) && selectedDenuncia.investigador && (
                 <button
                   type="button"
                   onClick={() => { setModalTraspasoTicket(selectedDenuncia.ticket); }}
@@ -876,20 +876,20 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
       <AsignacionModal
         ticket={modalAsignacionTicket}
         open={modalAsignacionTicket !== null}
-        tecnicos={tecnicos}
-        cargaTecnicos={cargaTecnicos}
+        investigadores={investigadores}
+        cargaInvestigadores={cargaInvestigadores}
         onOpenChange={(v) => { if (!v) setModalAsignacionTicket(null); }}
       />
       <TraspasoModal
         ticket={modalTraspasoTicket}
-        tecnicoActualId={(() => {
+        investigadorActualId={(() => {
           const found = modalTraspasoTicket ? [...denuncias, ...porAsignar, ...enCurso, ...historial].find(d => d.ticket === modalTraspasoTicket) : null;
           if (!found) return null;
-          return (found as any).tecnico_id || (typeof (found as any).tecnico === 'object' ? (found as any).tecnico?.id : null);
+          return (found as any).investigador_id || (typeof (found as any).investigador === 'object' ? (found as any).investigador?.id : null);
         })()}
         open={modalTraspasoTicket !== null}
-        tecnicos={tecnicos}
-        cargaTecnicos={cargaTecnicos}
+        investigadores={investigadores}
+        cargaInvestigadores={cargaInvestigadores}
         onOpenChange={(v) => { if (!v) setModalTraspasoTicket(null); }}
       />
       <ReabrirModal
@@ -985,7 +985,7 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
         denuncia={modalAmpliarPlazoDenuncia}
         open={modalAmpliarPlazoDenuncia !== null}
         onOpenChange={(v) => { if (!v) setModalAmpliarPlazoDenuncia(null); }}
-        tecnicos={tecnicos}
+        investigadores={investigadores}
       />
       <ModalArchivosDelCaso
         ticket={modalArchivosTicket}
@@ -1002,8 +1002,8 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
         ticket={modalDelegarEvaluacionTicket}
         open={modalDelegarEvaluacionTicket !== null}
         onOpenChange={(v) => { if (!v) setModalDelegarEvaluacionTicket(null); }}
-        tecnicos={tecnicos}
-        cargaTecnicos={cargaTecnicos}
+        investigadores={investigadores}
+        cargaInvestigadores={cargaInvestigadores}
       />
       <ModalConfirmar
         variant="confirm"
@@ -1022,7 +1022,7 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
           });
         }}
         titulo="¿Reasumir evaluación?"
-        descripcion="El técnico ya no tendrá esta delegación. La denuncia volverá a 'Por admitir'."
+        descripcion="El investigador ya no tendrá esta delegación. La denuncia volverá a 'Por admitir'."
         confirmText="Sí, reasumir"
         cancelText="Cancelar"
       />

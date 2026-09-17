@@ -10,7 +10,7 @@ import { ETIQUETAS_TIPO, type FiltrosDashboard } from '@/types/dashboard';
 
 export interface DrillFiltros {
     estado?: string;
-    tecnico_id?: number;
+    investigador_id?: number;
     clasificacion_id?: number;
     medio_id?: number;
     dependencia_id?: number;
@@ -36,7 +36,7 @@ interface PreviewRow {
     ticket: string;
     tipo: string;
     categoria: string;
-    tecnico: string;
+    investigador: string;
     estado: string;
     created_at: string;
 }
@@ -52,11 +52,11 @@ export default function ModalDrillDown({ titulo, descripcion, filtros, drill, op
         const hasta = drill?.hasta ?? (!drill?.sinRango ? filtros.hasta : null);
         if (desde) p.set('desde', desde);
         if (hasta) p.set('hasta', hasta);
-        if (filtros.tecnico_id) p.set('tecnico_id', String(filtros.tecnico_id));
+        if (filtros.investigador_id) p.set('investigador_id', String(filtros.investigador_id));
         if (filtros.tipo) p.set('tipo', filtros.tipo);
         if (filtros.categoria_id) p.set('categoria_id', String(filtros.categoria_id));
         if (drill?.estado) p.set('estado', drill.estado);
-        if (drill?.tecnico_id) p.set('tecnico_id', String(drill.tecnico_id));
+        if (drill?.investigador_id) p.set('investigador_id', String(drill.investigador_id));
         if (drill?.clasificacion_id) p.set('clasificacion_id', String(drill.clasificacion_id));
         if (drill?.medio_id) p.set('medio_id', String(drill.medio_id));
         if (drill?.dependencia_id) p.set('dependencia_id', String(drill.dependencia_id));

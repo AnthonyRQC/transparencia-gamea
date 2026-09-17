@@ -28,7 +28,7 @@ interface PruebaItem { tipo: string; descripcion: string; testigo_nombre?: strin
 interface Denuncia {
   ticket: string; tipo: string; escenario?: string; estado: string; subestado?: string | null;
   created_at: string; denunciante?: Denunciante; denunciados?: DenunciadoItem[];
-  hechos?: string; tecnico?: string | null; fecha_admitida?: string | null;
+  hechos?: string; investigador?: string | null; fecha_admitida?: string | null;
   fecha_rechazada?: string | null; fecha_asignada?: string | null;
   fecha_reapertura?: string | null; justificacion_rechazo?: string | null;
   ampliaciones?: Array<{ id: number; fecha: string; dias: number; justificacion: string; aprobado_por: string }>;
@@ -40,11 +40,11 @@ interface Denuncia {
 
 interface PageProps {
   denuncias: Denuncia[];
-  tecnicos: Record<string, { id: string; nombre: string; iniciales: string; color: string }>;
+  investigadores: Record<string, { id: string; nombre: string; iniciales: string; color: string }>;
   filters: Record<string, string | string[] | undefined>;
 }
 
-export default function ConsultarCasos({ denuncias, tecnicos, filters }: PageProps) {
+export default function ConsultarCasos({ denuncias, investigadores, filters }: PageProps) {
   const pageProps = usePage().props as unknown as any;
   const solicitudesByTicket = pageProps.solicitudesByTicket || {};
   const descargosByTicket = pageProps.descargosByTicket || {};
@@ -59,10 +59,10 @@ export default function ConsultarCasos({ denuncias, tecnicos, filters }: PagePro
   const [filterEscenario, setFilterEscenario] = useState(filters.escenario as string || '');
   const [filterFechaDesde, setFilterFechaDesde] = useState(filters.fecha_desde as string || '');
   const [filterFechaHasta, setFilterFechaHasta] = useState(filters.fecha_hasta as string || '');
-  const [filterTecnico, setFilterTecnico] = useState(filters.tecnico as string || '');
+  const [filterInvestigador, setFilterInvestigador] = useState(filters.investigador as string || '');
   const [showFilters, setShowFilters] = useState(false);
 
-  const tecnicosList = useMemo(() => Object.values(tecnicos), [tecnicos]);
+  const investigadoresList = useMemo(() => Object.values(investigadores), [investigadores]);
 
   // Sincroniza la denuncia seleccionada con los datos frescos que llegan de Inertia
   useEffect(() => {
@@ -81,7 +81,7 @@ export default function ConsultarCasos({ denuncias, tecnicos, filters }: PagePro
     if (filterEscenario) params.escenario = filterEscenario;
     if (filterFechaDesde) params.fecha_desde = filterFechaDesde;
     if (filterFechaHasta) params.fecha_hasta = filterFechaHasta;
-    if (filterTecnico) params.tecnico = filterTecnico;
+    if (filterInvestigador) params.investigador = filterInvestigador;
 
     router.get(route('denuncias.consultar'), params, { preserveState: true, preserveScroll: true });
   };
@@ -89,7 +89,7 @@ export default function ConsultarCasos({ denuncias, tecnicos, filters }: PagePro
   const limpiarFiltros = () => {
     setFilterBusqueda(''); setFilterTicket(''); setFilterEstado([]);
     setFilterTipo(''); setFilterEscenario('');
-    setFilterFechaDesde(''); setFilterFechaHasta(''); setFilterTecnico('');
+    setFilterFechaDesde(''); setFilterFechaHasta(''); setFilterInvestigador('');
     router.get(route('denuncias.consultar'), {}, { preserveState: true, preserveScroll: true });
   };
 
@@ -172,12 +172,12 @@ export default function ConsultarCasos({ denuncias, tecnicos, filters }: PagePro
               <Input type="date" value={filterFechaHasta} onChange={(e) => setFilterFechaHasta(e.target.value)} />
             </div>
             <div className="space-y-1">
-              <p className="text-[10px] font-semibold text-muted-foreground uppercase">Técnico</p>
-              <Select value={filterTecnico} onValueChange={setFilterTecnico}>
+              <p className="text-[10px] font-semibold text-muted-foreground uppercase">Investigador</p>
+              <Select value={filterInvestigador} onValueChange={setFilterInvestigador}>
                 <SelectTrigger><SelectValue placeholder="Todos" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value=" ">Todos</SelectItem>
-                  {tecnicosList.map(t => <SelectItem key={t.id} value={t.id}>{t.nombre}</SelectItem>)}
+                  {investigadoresList.map(t => <SelectItem key={t.id} value={t.id}>{t.nombre}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
@@ -229,7 +229,7 @@ export default function ConsultarCasos({ denuncias, tecnicos, filters }: PagePro
         {/* Cards como tabla responsive */}
         <div className="space-y-2">
           {paginatedDenuncias.map((d) => {
-            const tecnico = d.tecnico ? tecnicos[d.tecnico] : null;
+            const investigador = d.investigador ? investigadores[d.investigador] : null;
             const denombres = d.denunciante?.nombres || '—';
             const denResumido = d.denunciados?.slice(0, 2).map(dd => dd.nombres || 'Sin identificar').join(', ') || '—';
 
@@ -253,7 +253,7 @@ export default function ConsultarCasos({ denuncias, tecnicos, filters }: PagePro
                     <span>{formatearFechaCorta(d.created_at) ?? '—'}</span>
                     <span>Denunciante: {denombres}</span>
                     <span>Denunciado(s): {denResumido}</span>
-                    {tecnico && <span>Técnico: {tecnico.nombre}</span>}
+                    {investigador && <span>Investigador: {investigador.nombre}</span>}
                   </div>
                 </div>
 
@@ -303,7 +303,7 @@ export default function ConsultarCasos({ denuncias, tecnicos, filters }: PagePro
         <DenunciaSheet
           denuncia={selectedDenuncia as any}
           plazo={(selectedDenuncia.plazo || null) as any}
-          tecnicos={tecnicos}
+          investigadores={investigadores}
           open={selectedDenuncia !== null}
           onOpenChange={(v) => { if (!v) setSelectedDenuncia(null); }}
           canAct={false}

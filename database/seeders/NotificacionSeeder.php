@@ -73,7 +73,7 @@ class NotificacionSeeder extends Seeder
                 'leida' => true,
                 'fecha_leida' => Carbon::now()->subDays(1),
             ],
-            // Notificaciones para nuevos tecnicos
+            // Notificaciones para nuevos investigadores
             [
                 'usuario_id' => 6,
                 'tipo' => 'traspaso',

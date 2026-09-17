@@ -53,7 +53,7 @@ class ReporteExcel implements FromCollection, WithHeadings, WithStyles, ShouldAu
             'ticket' => (string) $d->ticket,
             'tipo' => $d->tipo === 'corrupcion' ? 'CORRUPCIÓN' : 'NEGACIÓN DE INFORMACIÓN',
             'categoria' => (string) ($d->categoria?->nombre ?? ''),
-            'tecnico' => (string) ($d->tecnico?->name ?? 'SIN ASIGNAR'),
+            'investigador' => (string) ($d->investigador?->name ?? 'SIN ASIGNAR'),
             'estado' => $d->estado === 'cerrada' && $d->subestado === 'archivada'
                 ? 'CERRADA · ARCHIVADA'
                 : strtoupper(str_replace('_', ' ', (string) $d->estado)),

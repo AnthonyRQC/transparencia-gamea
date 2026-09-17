@@ -6,9 +6,9 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Button } from '@/Components/ui/button';
 import { ScrollArea } from '@/Components/ui/scroll-area';
 import { Loader2, UserPlus } from 'lucide-react';
-import TecnicoCargaCard from '../../Card/TecnicoCargaCard';
+import InvestigadorCargaCard from '../../Card/InvestigadorCargaCard';
 
-interface TecnicoCarga {
+interface InvestigadorCarga {
   id: string;
   nombre: string;
   iniciales: string;
@@ -21,28 +21,28 @@ interface TecnicoCarga {
 interface AsignacionModalProps {
   ticket: string | null;
   open: boolean;
-  tecnicos?: Record<string, { id: string; nombre: string; iniciales: string; color: string }>;
-  cargaTecnicos?: TecnicoCarga[];
+  investigadores?: Record<string, { id: string; nombre: string; iniciales: string; color: string }>;
+  cargaInvestigadores?: InvestigadorCarga[];
   onOpenChange: (open: boolean) => void;
 }
 
-export default function AsignacionModal({ ticket, open, tecnicos: _tecnicos, cargaTecnicos, onOpenChange }: AsignacionModalProps) {
-  const [selectedTecnico, setSelectedTecnico] = useState<string | null>(null);
+export default function AsignacionModal({ ticket, open, investigadores: _investigadores, cargaInvestigadores, onOpenChange }: AsignacionModalProps) {
+  const [selectedInvestigador, setSelectedInvestigador] = useState<string | null>(null);
   const [processing, setProcessing] = useState(false);
 
-  const carga = cargaTecnicos || [];
+  const carga = cargaInvestigadores || [];
 
   const handleSubmit = () => {
-    if (!ticket || !selectedTecnico) return;
+    if (!ticket || !selectedInvestigador) return;
     setProcessing(true);
     router.post(
       route('denuncias.asignar', { ticket }),
-      { tecnico_id: selectedTecnico },
+      { investigador_id: selectedInvestigador },
       {
         preserveScroll: true,
         onSuccess: () => {
           toast.success(`Denuncia ${ticket} asignada correctamente`);
-          setSelectedTecnico(null);
+          setSelectedInvestigador(null);
           onOpenChange(false);
         },
         onError: () => {
@@ -82,26 +82,26 @@ export default function AsignacionModal({ ticket, open, tecnicos: _tecnicos, car
         }}
       >
         <DialogHeader>
-          <DialogTitle>Asignar técnico</DialogTitle>
+          <DialogTitle>Asignar investigador</DialogTitle>
           <DialogDescription>
             {ticket
-              ? `Seleccione el técnico para la denuncia ${ticket}.`
+              ? `Seleccione el investigador para la denuncia ${ticket}.`
               : 'Seleccione una denuncia para asignar.'}
           </DialogDescription>
         </DialogHeader>
 
         <div className="py-2">
           {carga.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-4">No hay técnicos disponibles.</p>
+            <p className="text-sm text-muted-foreground text-center py-4">No hay investigadores disponibles.</p>
           ) : (
             <ScrollArea className="h-[280px] pr-2">
               <div className="space-y-2">
                 {carga.map((t) => (
-                  <TecnicoCargaCard
+                  <InvestigadorCargaCard
                     key={t.id}
-                    tecnico={t}
-                    selected={selectedTecnico === t.id}
-                    onSelect={() => setSelectedTecnico(t.id)}
+                    investigador={t}
+                    selected={selectedInvestigador === t.id}
+                    onSelect={() => setSelectedInvestigador(t.id)}
                   />
                 ))}
               </div>
@@ -113,7 +113,7 @@ export default function AsignacionModal({ ticket, open, tecnicos: _tecnicos, car
           <Button variant="outline" disabled={processing} onClick={handleClose}>
             Cancelar
           </Button>
-          <Button disabled={processing || !selectedTecnico || !ticket} onClick={handleSubmit}>
+          <Button disabled={processing || !selectedInvestigador || !ticket} onClick={handleSubmit}>
             {processing ? (
               <>
                 <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
@@ -122,7 +122,7 @@ export default function AsignacionModal({ ticket, open, tecnicos: _tecnicos, car
             ) : (
               <>
                 <UserPlus className="w-4 h-4 mr-1.5" />
-                Asignar técnico
+                Asignar investigador
               </>
             )}
           </Button>

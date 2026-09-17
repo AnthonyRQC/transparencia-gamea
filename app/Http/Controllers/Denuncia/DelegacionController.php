@@ -15,7 +15,7 @@ class DelegacionController extends Controller
     public function delegarEvaluacion(string $ticket, Request $request)
     {
         $validated = $request->validate([
-            'tecnico_id' => 'required|integer|exists:users,id',
+            'investigador_id' => 'required|integer|exists:users,id',
             'justificacion' => 'nullable|string|max:500',
         ]);
 
@@ -26,10 +26,10 @@ class DelegacionController extends Controller
         }
 
         DB::transaction(function () use ($denuncia, $validated) {
-            $tecnico = User::findOrFail($validated['tecnico_id']);
+            $investigador = User::findOrFail($validated['investigador_id']);
 
             $denuncia->evaluaciones()->create([
-                'tecnico_id' => $tecnico->id,
+                'investigador_id' => $investigador->id,
                 'delegada_por_id' => Auth::id(),
                 'delegada_at' => now(),
                 'justificacion_delegacion' => $validated['justificacion'] ?? null,
@@ -40,13 +40,13 @@ class DelegacionController extends Controller
 
             $denuncia->bitacora()->create([
                 'accion' => 'evaluacion_delegada',
-                'detalle' => 'EVALUACIÓN DELEGADA A ' . $tecnico->name,
+                'detalle' => 'EVALUACIÓN DELEGADA A ' . $investigador->name,
                 'usuario_id' => Auth::id(),
                 'fecha' => now(),
             ]);
 
             Notificacion::create([
-                'usuario_id' => $tecnico->id,
+                'usuario_id' => $investigador->id,
                 'tipo' => 'evaluacion_delegada',
                 'titulo' => 'EVALUACIÓN TÉCNICA ASIGNADA',
                 'mensaje' => "{$denuncia->ticket} TE FUE DELEGADA PARA EVALUACIÓN",
@@ -81,9 +81,9 @@ class DelegacionController extends Controller
                 'fecha' => now(),
             ]);
 
-            if ($evaluacionPendiente && $evaluacionPendiente->tecnico_id) {
+            if ($evaluacionPendiente && $evaluacionPendiente->investigador_id) {
                 Notificacion::create([
-                    'usuario_id' => $evaluacionPendiente->tecnico_id,
+                    'usuario_id' => $evaluacionPendiente->investigador_id,
                     'tipo' => 'evaluacion_reasumida',
                     'titulo' => 'EVALUACIÓN REASUMIDA',
                     'mensaje' => "{$denuncia->ticket} — EL JEFE REASUMIÓ LA EVALUACIÓN",

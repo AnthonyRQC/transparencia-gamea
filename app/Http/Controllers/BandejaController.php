@@ -17,7 +17,7 @@ class BandejaController extends Controller
             return redirect()->route('dashboard')->with('error', 'Solo el Jefe de Unidad puede acceder a la Bandeja de Admisión.');
         }
 
-        $with = ['denunciante', 'denunciados', 'pruebas', 'categoria', 'tecnico', 'informe.clasificacionRel', 'cierre.medioNotificacion', 'solicitudes.dependenciaDestino', 'solicitudes.ampliaciones', 'descargos.denunciado', 'descargos.ampliaciones', 'evaluaciones', 'bitacora.usuario'];
+        $with = ['denunciante', 'denunciados', 'pruebas', 'categoria', 'investigador', 'informe.clasificacionRel', 'cierre.medioNotificacion', 'solicitudes.dependenciaDestino', 'solicitudes.ampliaciones', 'descargos.denunciado', 'descargos.ampliaciones', 'evaluaciones', 'bitacora.usuario'];
 
         $ingresadas = Denuncia::with($with)->whereIn('estado', ['ingresada', 'evaluacion_tecnica'])->latest()->get();
         $porAsignar = Denuncia::with($with)->where('estado', 'admitida')->latest()->get();
@@ -35,7 +35,7 @@ class BandejaController extends Controller
                 if ($evalDev) {
                     $d->evaluacion_tecnica_recomendacion = $evalDev->recomendacion;
                     $d->evaluacion_tecnica_texto = $evalDev->texto_evaluacion;
-                    $d->evaluacion_tecnica_tecnico_nombre = $evalDev->tecnico?->name ?? 'técnico';
+                    $d->evaluacion_tecnica_investigador_nombre = $evalDev->investigador?->name ?? 'investigador';
                 }
             }
             $solicitudesByTicket[$d->ticket] = $d->solicitudes;
@@ -63,7 +63,7 @@ class BandejaController extends Controller
             'activos' => Denuncia::whereNotIn('estado', ['rechazada', 'cerrada'])->count(),
         ];
 
-        $tecnicos = User::where('rol', 'tecnico')->where('activo', true)->get();
+        $investigadores = User::where('rol', 'investigador')->where('activo', true)->get();
 
         return Inertia::render('Denuncias/Bandeja', [
             'denuncias' => $ingresadas,
@@ -71,13 +71,13 @@ class BandejaController extends Controller
             'enCurso' => $enCurso,
             'historial' => $historial,
             'contadores' => $contadores,
-            'tecnicos' => $tecnicos,
-            'cargaTecnicos' => $tecnicos->map(fn($t) => [
+            'investigadores' => $investigadores,
+            'cargaInvestigadores' => $investigadores->map(fn($t) => [
                 'id' => $t->id,
                 'nombre' => $t->name,
                 'iniciales' => $t->iniciales,
                 'color' => $t->color,
-                'activos' => Denuncia::where('tecnico_id', $t->id)->whereNotIn('estado', ['rechazada', 'cerrada'])->count(),
+                'activos' => Denuncia::where('investigador_id', $t->id)->whereNotIn('estado', ['rechazada', 'cerrada'])->count(),
             ]),
             'solicitudesByTicket' => $solicitudesByTicket,
             'descargosByTicket' => $descargosByTicket,

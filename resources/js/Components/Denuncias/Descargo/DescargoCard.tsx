@@ -3,7 +3,7 @@ import { formatearFechaCorta } from '@/helpers/fechas';
 import PlazoProgress from '../Card/PlazoProgress';
 import { DESCARGO_ESTADO as estadoBadge, BOTON_CANCELAR_CARD } from '../Shared/semantica';
 import { Badge } from '@/Components/ui/badge';
-import TecnicoAvatar from '../Shared/TecnicoAvatar';
+import InvestigadorAvatar from '../Shared/InvestigadorAvatar';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/Components/ui/tooltip';
 
 interface DescargoDocumento {
@@ -50,7 +50,7 @@ export default function DescargoCard({ descargo, canAct, onClick, onNotificar, o
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2 min-w-0">
-<TecnicoAvatar nombre={descargo.nombres_denunciado} size="sm" tone="muted" />
+<InvestigadorAvatar nombre={descargo.nombres_denunciado} size="sm" tone="muted" />
           <div className="min-w-0">
             <p className="text-sm font-semibold truncate">{descargo.nombres_denunciado}</p>
             {descargo.dependencia_denunciado && (

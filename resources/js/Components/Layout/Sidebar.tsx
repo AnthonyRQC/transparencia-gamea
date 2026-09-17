@@ -74,7 +74,7 @@ export default function Sidebar({
         },
         {
             key: 'mis-casos',
-            label: 'Mis Casos [Técnico]',
+            label: 'Mis Casos [Investigador]',
             href: route('denuncias.mis-casos'),
             routeName: 'denuncias.mis-casos',
             icon: <ClipboardList className="w-5 h-5 shrink-0" />,
@@ -82,7 +82,7 @@ export default function Sidebar({
         },
         {
             key: 'mi-resumen',
-            label: 'Mi Resumen [Técnico]',
+            label: 'Mi Resumen [Investigador]',
             href: route('denuncias.mi-resumen'),
             routeName: 'denuncias.mi-resumen',
             icon: <BarChart3 className="w-5 h-5 shrink-0" />,

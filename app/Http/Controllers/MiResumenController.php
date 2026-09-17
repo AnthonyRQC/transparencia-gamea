@@ -11,23 +11,23 @@ class MiResumenController extends Controller
 {
     public function index()
     {
-        if (Auth::user()->rol !== 'tecnico') {
-            return redirect()->route('dashboard')->with('error', 'Solo los técnicos pueden acceder a Mi Resumen.');
+        if (Auth::user()->rol !== 'investigador') {
+            return redirect()->route('dashboard')->with('error', 'Solo los investigadores pueden acceder a Mi Resumen.');
         }
 
-        $tecnicoId = Auth::id();
+        $investigadorId = Auth::id();
 
         $contadores = [
-            'activos' => Denuncia::where('tecnico_id', $tecnicoId)->whereNotIn('estado', ['rechazada', 'cerrada'])->count(),
-            'vencidos' => Denuncia::where('tecnico_id', $tecnicoId)->whereNotIn('estado', ['rechazada', 'cerrada'])->count(),
+            'activos' => Denuncia::where('investigador_id', $investigadorId)->whereNotIn('estado', ['rechazada', 'cerrada'])->count(),
+            'vencidos' => Denuncia::where('investigador_id', $investigadorId)->whereNotIn('estado', ['rechazada', 'cerrada'])->count(),
             'porVencer' => 0,
-            'cerrados' => Denuncia::where('tecnico_id', $tecnicoId)->whereIn('estado', ['cerrada'])->count(),
+            'cerrados' => Denuncia::where('investigador_id', $investigadorId)->whereIn('estado', ['cerrada'])->count(),
         ];
 
         return Inertia::render('Denuncias/MiResumen', [
             'contadores' => $contadores,
-            'tecnicoActual' => $tecnicoId,
-            'tecnicos' => User::where('rol', 'tecnico')->where('activo', true)->get(),
+            'investigadorActual' => $investigadorId,
+            'investigadores' => User::where('rol', 'investigador')->where('activo', true)->get(),
         ]);
     }
 }

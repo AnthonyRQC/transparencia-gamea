@@ -1,7 +1,7 @@
 # DESIGN.md — Sistema UTLCC / GAMEA
 
 > Fuente de verdad visual. Actualizado post Sprint 12.5 R1 (Sep 2026). Modo impeccable: **Operate**.
-> Audiencia: Jefe de Unidad y técnicos, abogados no-técnicos. Hardware: 15" 1280×720 sin scroll + Full HD, light y dark.
+> Audiencia: Jefe de Unidad e investigadores, abogados no-técnicos. Hardware: 15" 1280×720 sin scroll + Full HD, light y dark.
 
 ---
 
@@ -99,7 +99,7 @@ Regla fija: **`pink-600 -> destructive` en badges** (el magenta queda solo para 
 Excepciones: barra solida `PlazoProgress` (por diseno) y tabs de `MisCasos` (no son estados).
 
 ### Avatares
-Unico: **`resources/js/Components/Denuncias/Shared/TecnicoAvatar.tsx`** (R1.3).
+Unico: **`resources/js/Components/Denuncias/Shared/InvestigadorAvatar.tsx`** (R1.3; 16.1 rename).
 Primera letra del nombre en mayuscula. Props: `nombre`, `color` (clase dinamica),
 `colorHex` (hex inline), `size` (`xs`=20px, `sm`=28px, `md`=36px), `tone` (`color`|`muted`),
 `className`. No envolver en button/tooltip (el caller conserva su wrapper).
@@ -120,7 +120,7 @@ No crear nuevos dialogos de confirmacion.
 ### Reglas de no-duplicacion (R1)
 1. Fechas solo via `helpers/fechas.ts` (prohibido `formatDate`/`formatDateTime` locales).
 2. Badges, colores y etiquetas solo via `semantica.ts` (+ `constants/estados.ts`).
-3. Avatares solo `TecnicoAvatar`. 4. Paginacion solo `Paginacion`.
+3. Avatares solo `InvestigadorAvatar`. 4. Paginacion solo `Paginacion`.
 5. Confirmaciones solo `ConfirmDialog`. 6. Vacios solo `ListaVacia`
 (tablas: fila `colSpan`; superficie publica: estados propios).
 
@@ -177,7 +177,7 @@ Usar siempre tokens semánticos (`text-foreground`, `bg-card`, `border-border`, 
 
 ## 6. Reglas generales
 
-1. **Copy para abogados.** Sin jerga dev en la UI. "Técnico" no "usuario". "Caso" no "denuncia" en contexto interno.
+1. **Copy para abogados.** Sin jerga dev en la UI. "Investigador" no "usuario". "Caso" no "denuncia" en contexto interno.
 2. **Color no es el único canal.** Los badges siempre llevan texto además del color.
 3. **Anti-misclick.** Filas no clicables en tablas (solo botones explícitos con aria-label).
 4. **Compute-or-defer.** Si no hay base para un porcentaje o tasa, mostrar "—" en vez de 0% o error.

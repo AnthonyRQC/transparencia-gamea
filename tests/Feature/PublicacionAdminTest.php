@@ -17,7 +17,7 @@ class PublicacionAdminTest extends TestCase
 
     private User $jefe;
     private User $registrador;
-    private User $tecnico;
+    private User $investigador;
     private int $tipoId;
     private int $prioId;
 
@@ -30,7 +30,7 @@ class PublicacionAdminTest extends TestCase
         $this->prioId = PrioridadPublicacion::first()->id;
         $this->jefe = User::factory()->create(['rol' => 'jefe']);
         $this->registrador = User::factory()->create(['rol' => 'registrador']);
-        $this->tecnico = User::factory()->create(['rol' => 'tecnico']);
+        $this->investigador = User::factory()->create(['rol' => 'investigador']);
     }
 
     private function payload(array $extra = []): array
@@ -45,12 +45,12 @@ class PublicacionAdminTest extends TestCase
         ], $extra);
     }
 
-    public function test_jefe_y_registrador_gestionan_tecnico_no(): void
+    public function test_jefe_y_registrador_gestionan_investigador_no(): void
     {
         $this->actingAs($this->jefe)->get('/admin/publicaciones')->assertOk();
         $this->actingAs($this->registrador)->get('/admin/publicaciones')->assertOk();
-        $this->actingAs($this->tecnico)->get('/admin/publicaciones')->assertRedirect('/dashboard');
-        $this->actingAs($this->tecnico)->post('/admin/publicaciones', $this->payload())->assertRedirect('/dashboard');
+        $this->actingAs($this->investigador)->get('/admin/publicaciones')->assertRedirect('/dashboard');
+        $this->actingAs($this->investigador)->post('/admin/publicaciones', $this->payload())->assertRedirect('/dashboard');
         $this->assertDatabaseCount('publicaciones', 0);
     }
 

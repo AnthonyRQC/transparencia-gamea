@@ -4,7 +4,7 @@ import PlazoBadge from './PlazoBadge';
 import TipoDenunciaBadge from './TipoDenunciaBadge';
 import SubestadoBadge from './SubestadoBadge';
 import ClasificacionBadge from '../Card/ClasificacionBadge';
-import TecnicoAvatar from '../Shared/TecnicoAvatar';
+import InvestigadorAvatar from '../Shared/InvestigadorAvatar';
 import { User, Clock, ArrowRightLeft, FileSearch, Megaphone } from 'lucide-react';
 import { ESCENARIO_LABEL as escenarioLabel, PLAZO_BORDE as plazoBorderColor, RECOMENDACION_COLOR, sinAvisoPublicado } from '../Shared/semantica';
 
@@ -14,7 +14,7 @@ interface PlazoInfo {
   fecha_vencimiento?: string;
 }
 
-interface TecnicoData {
+interface InvestigadorData {
   id: string;
   nombre: string;
   iniciales: string;
@@ -35,7 +35,7 @@ interface DenunciaData {
   created_at: string;
   estado: string;
   subestado?: string | null;
-  tecnico?: string | null;
+  investigador?: string | null;
   fecha_traspaso?: string | null;
   fecha_admitida?: string | null;
   fecha_asignada?: string | null;
@@ -44,7 +44,7 @@ interface DenunciaData {
   plazo_reapertura?: string | null;
   ampliaciones?: AmpliacionItem[];
   evaluacion_tecnica_recomendacion?: string | null;
-  evaluacion_tecnica_tecnico_nombre?: string | null;
+  evaluacion_tecnica_investigador_nombre?: string | null;
   // Sprint 5
   informe_clasificacion?: string | null;
   informe_sitpreco?: string | null;
@@ -56,7 +56,7 @@ interface DenunciaCardProps {
   plazo: PlazoInfo | null;
   /** Eventos de aviso ya publicados (Sprint 13.3, indicador "Sin aviso"). */
   avisosPublicados?: string[];
-  tecnicos?: Record<string, TecnicoData>;
+  investigadores?: Record<string, InvestigadorData>;
   onClick?: () => void;
   className?: string;
   children?: React.ReactNode;
@@ -104,14 +104,14 @@ function getContextualText(denuncia: DenunciaData): string {
   }
 }
 
-export default function DenunciaCard({ denuncia, plazo, avisosPublicados, tecnicos, onClick, className, children, isNew }: DenunciaCardProps) {
+export default function DenunciaCard({ denuncia, plazo, avisosPublicados, investigadores, onClick, className, children, isNew }: DenunciaCardProps) {
   const borderLeftClass = isNew
     ? 'border-l-4 border-l-primary'
     : plazo
     ? (plazoBorderColor[plazo.color] || 'border-l-4 border-l-border')
     : 'border-l-4 border-l-border';
   const denuncianteNombre = denuncia.denunciante?.nombres || 'Anónimo';
-  const tecnicoInfo = denuncia.tecnico && tecnicos ? tecnicos[denuncia.tecnico] : null;
+  const investigadorInfo = denuncia.investigador && investigadores ? investigadores[denuncia.investigador] : null;
   const isRecentlyTraspasado = denuncia.fecha_traspaso && daysAgo(denuncia.fecha_traspaso) < 7;
   const totalAmpliacionesDias = (denuncia.ampliaciones || []).reduce((sum, a) => sum + a.dias, 0);
   const contextualText = getContextualText(denuncia);
@@ -201,13 +201,13 @@ export default function DenunciaCard({ denuncia, plazo, avisosPublicados, tecnic
             </span>
           )}
         </p>
-        {/* Fila 3: Técnico + fecha contextual */}
+        {/* Fila 3: Investigador + fecha contextual */}
         <p className="text-sm text-muted-foreground flex items-center gap-1.5 flex-wrap">
-          {tecnicoInfo ? (
+          {investigadorInfo ? (
             <>
 <span className="text-muted-foreground/70 shrink-0">Asignado a:</span>
-              <TecnicoAvatar nombre={tecnicoInfo.nombre} color={tecnicoInfo.color} size="xs" />
-              <span className="font-medium text-foreground">{tecnicoInfo.nombre}</span>
+              <InvestigadorAvatar nombre={investigadorInfo.nombre} color={investigadorInfo.color} size="xs" />
+              <span className="font-medium text-foreground">{investigadorInfo.nombre}</span>
               <span className="text-muted-foreground/40">·</span>
             </>
           ) : null}

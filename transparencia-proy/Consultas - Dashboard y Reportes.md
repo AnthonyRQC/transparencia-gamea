@@ -14,11 +14,11 @@ Toda agregación **por usuario** (técnico, clasificado_por, cerrado_por) debe:
    trabajan en el área y conviene desactivar (aún tienen datos históricos).
 
 ```php
-User::where('rol', 'tecnico')->where('activo', true); // técnicos activos
+User::where('rol', 'investigador')->where('activo', true); // investigadores activos
 ```
 
 > Los usuarios **nunca se borran**; se desactivan con `activo = false`. Las FKs
-> (`tecnico_id`, `clasificado_por_id`, `cerrado_por_id`) preservan el histórico.
+> (`investigador_id`, `clasificado_por_id`, `cerrado_por_id`) preservan el histórico.
 
 ---
 
@@ -26,7 +26,7 @@ User::where('rol', 'tecnico')->where('activo', true); // técnicos activos
 
 | Tabla | Índices |
 |-------|---------|
-| `denuncias` | `ticket` (uniq), `estado`, `tecnico_id`, `tipo`, `created_at` |
+| `denuncias` | `ticket` (uniq), `estado`, `investigador_id`, `tipo`, `created_at` |
 | `informes_finales` | `denuncia_id` (uniq), `clasificacion_id`, `clasificado_por_id`, `redactado_at` |
 | `cierres` | `denuncia_id` (uniq), `notificacion_medio_id`, `cerrado_por_id`, `cerrado_at` |
 | `solicitudes_informacion` | `denuncia_id`, `dependencia_destino_id`, `estado` |
@@ -127,10 +127,10 @@ $porEstado = Denuncia::whereNull('deleted_at')
     ->values();
 ```
 
-### 4.4 Casos por técnico asignado (solo activos por defecto)
+### 4.4 Casos por investigador asignado (solo activos por defecto)
 ```php
-$porTecnico = DB::table('denuncias')
-    ->join('users', 'denuncias.tecnico_id', '=', 'users.id')
+$porInvestigador = DB::table('denuncias')
+    ->join('users', 'denuncias.investigador_id', '=', 'users.id')
     ->whereNull('denuncias.deleted_at')
     ->when($incluirInactivos ?? false, fn($q) => $q, fn($q) => $q->where('users.activo', true))
     ->selectRaw('users.id, users.name, COUNT(*) as total')
@@ -236,13 +236,13 @@ Todos los filtros se combinan con `when()` sobre la misma query base. Ejemplo co
 de denuncias filtrable:
 
 ```php
-$query = Denuncia::with(['tecnico', 'categoria'])
+$query = Denuncia::with(['investigador', 'categoria'])
     ->whereNull('deleted_at')
     ->when($desde, fn($q) => $q->whereDate('created_at', '>=', $desde))
     ->when($hasta, fn($q) => $q->whereDate('created_at', '<=', $hasta))
     ->when($tipo, fn($q, $v) => $q->where('tipo', $v))
     ->when($estado, fn($q, $v) => $q->where('estado', $v))
-    ->when($tecnicoId, fn($q, $v) => $q->where('tecnico_id', $v))
+    ->when($investigadorId, fn($q, $v) => $q->where('investigador_id', $v))
     ->when($categoriaId, fn($q, $v) => $q->where('categoria_id', $v))
     ->when($busqueda, fn($q, $v) => $q->where(function ($q) use ($v) {
         $q->where('ticket', 'like', "%{$v}%")

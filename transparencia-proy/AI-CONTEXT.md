@@ -151,7 +151,7 @@ Ver `Sprints Pendientes - Contexto.md` + planes `Sprint 16`, `18A`, `18C`.
 - **NO existe** `app/Data/DenunciaData.php`, `SolicitudData.php`, `DescargoData.php`, etc. (eliminados en Sprint 10)
 
 ### Controladores (refactorizados Sept 2026)
-- `Denuncia/*` — 8 controllers delgados: `DenunciaController` (create/store/editar/eliminar/conciliar), `AdmisionController` (admitir/rechazar), `AsignacionController` (asignar/traspasar/cargaTecnicos), `InvestigacionController` (iniciar/saltarFase), `InformeController` (×3), `CierreController` (×3 + archivar), `AmpliacionController`, `DelegacionController` (delegar/reasumir), `ReaperturaController`
+- `Denuncia/*` — 8 controllers delgados: `DenunciaController` (create/store/editar/eliminar/conciliar), `AdmisionController` (admitir/rechazar), `AsignacionController` (asignar/traspasar/cargaInvestigadores), `InvestigacionController` (iniciar/saltarFase), `InformeController` (×3), `CierreController` (×3 + archivar), `AmpliacionController`, `DelegacionController` (delegar/reasumir), `ReaperturaController`
 - `SolicitudController` + `DescargoController` — CRUD con `DiasHabiles::agregar()` (base `fecha_envio`/`fecha_notificacion`) + `plazo_info` hábil en modelos
 - `DashboardController` — 116L delgado (era 591L) vía `DashboardRequest` + `Queries/Dashboard/{Kpi,Operativo,Resultados,Rendimiento}Query`
 - `BandejaController` — Bandeja Jefe (solo lectura)
@@ -179,7 +179,7 @@ Ver `Sprints Pendientes - Contexto.md` + planes `Sprint 16`, `18A`, `18C`.
 ### Seeders
 - `CatalogoSeeder` — 12 categorías, **185 dependencias (árbol organigrama GAMEA 2026)**, 15 feriados, **6 clasificaciones**, **4 medios notificación**, config `siguiente_numero_ticket`
 - `CatalogosConfigSeeder` — 2 catálogos JSON: `catalogo_estados` (8) y `catalogo_tipos_denuncia` (2)
-- `UserSeeder` — jefe, registrador, tecnico1..N (`demo123`; 16.1 → investigador*; 16.2 suma `admin`; 18A fórmula CI)
+- `UserSeeder` — jefe, registrador, investigador1..N (`demo123`; 16.1 → investigador*; 16.2 suma `admin`; 18A fórmula CI)
 - `DenunciaSeeder` — 12 denuncias demo (DEN-2026-0001 a 0012)
 - `NotificacionSeeder` — 5 notificaciones demo
 

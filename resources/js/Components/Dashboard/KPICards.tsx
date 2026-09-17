@@ -18,7 +18,7 @@ import type { BaseTemporal, KPIs } from '@/types/dashboard';
 interface Props {
     kpis: KPIs;
     baseTemporal: Record<string, BaseTemporal>;
-    esTecnico: boolean;
+    esInvestigador: boolean;
     bandejaHref: string;
     misCasosHref: string;
     onDrillRechazadas?: () => void;
@@ -40,12 +40,12 @@ interface CardDef {
 
 /**
  * Dos niveles por reactividad: fila 1 = foto de hoy (Abiertos, Por admitir,
- * Por vencer, Vencidos, Sin técnico), fila 2 = reactivas al período
+ * Por vencer, Vencidos, Sin investigador), fila 2 = reactivas al período
  * (Cerrados a tiempo, Rechazadas, Qué ingresó). Números en Outfit semibold
  * (no mono) y etiquetas sin truncate para 1280px.
  */
-export default function KPICards({ kpis, baseTemporal, esTecnico, bandejaHref, misCasosHref, onDrillRechazadas, onDrillIngresadas }: Props) {
-    const bandeja = esTecnico ? misCasosHref : bandejaHref;
+export default function KPICards({ kpis, baseTemporal, esInvestigador, bandejaHref, misCasosHref, onDrillRechazadas, onDrillIngresadas }: Props) {
+    const bandeja = esInvestigador ? misCasosHref : bandejaHref;
     // Fila 1 — foto de hoy (no responden a fechas). Fila 2 — reactivas al período.
     const primarias: CardDef[] = [
         { key: 'activos', label: 'Abiertos hoy', subtitulo: 'Todo lo no cerrado', value: kpis.activos, icon: FolderKanban, baseKey: 'kpis.activos', href: bandeja, hrefTitulo: 'Ver casos abiertos' },
@@ -58,7 +58,7 @@ export default function KPICards({ kpis, baseTemporal, esTecnico, bandejaHref, m
             icon: Clock,
             baseKey: 'kpis.proximosAVencer',
             accent: 'amber',
-            href: esTecnico ? misCasosHref : bandejaHref,
+            href: esInvestigador ? misCasosHref : bandejaHref,
             hrefTitulo: 'Ver casos por vencer',
         },
         {
@@ -69,12 +69,12 @@ export default function KPICards({ kpis, baseTemporal, esTecnico, bandejaHref, m
             icon: AlertTriangle,
             baseKey: 'kpis.vencidos',
             accent: 'red',
-            href: esTecnico ? misCasosHref : bandejaHref,
+            href: esInvestigador ? misCasosHref : bandejaHref,
             hrefTitulo: 'Ver casos vencidos',
         },
         {
             key: 'sinAsignar',
-            label: 'Sin técnico',
+            label: 'Sin investigador',
             subtitulo: 'Toca asignar',
             value: kpis.sinAsignar,
             icon: UserX,
@@ -85,7 +85,7 @@ export default function KPICards({ kpis, baseTemporal, esTecnico, bandejaHref, m
         },
     ];
 
-    const secundarias: CardDef[] = esTecnico
+    const secundarias: CardDef[] = esInvestigador
         ? []
         : [
               {
@@ -172,7 +172,7 @@ export default function KPICards({ kpis, baseTemporal, esTecnico, bandejaHref, m
     return (
         <div className="space-y-2.5">
             <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 gap-2.5">
-                {primarias.filter((c) => !(esTecnico && c.key === 'sinAsignar')).map((c) => tarjeta(c, true))}
+                {primarias.filter((c) => !(esInvestigador && c.key === 'sinAsignar')).map((c) => tarjeta(c, true))}
             </div>
             {secundarias.length > 0 && (
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">

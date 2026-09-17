@@ -27,8 +27,8 @@ class ReaperturaController extends Controller
             $denuncia->update([
                 'estado' => 'ingresada',
                 'subestado' => null,
-                'tecnico_id' => null,
-                'tecnico_anterior_id' => null,
+                'investigador_id' => null,
+                'investigador_anterior_id' => null,
                 'reapertura_json' => [
                     'fecha' => now()->toDateTimeString(),
                     'justificacion' => $validated['justificacion'],
