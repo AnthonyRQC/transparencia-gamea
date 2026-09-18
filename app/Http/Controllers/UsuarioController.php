@@ -181,7 +181,7 @@ class UsuarioController extends Controller
         $nombres = UsernameGenerator::normalizarNombre($data['nombres']);
         $apellidos = UsernameGenerator::normalizarNombre($data['apellidos']);
 
-        DB::transaction(function () use ($target, $data, $nombres, $apellidos) {
+        DB::transaction(function () use ($target, $data, $nombres, $apellidos, $actor) {
             $t = User::whereKey($target->id)->lockForUpdate()->firstOrFail();
 
             if ($data['rol'] !== $t->rol && ! self::hayOtroActivo($t->rol, $t->id)) {

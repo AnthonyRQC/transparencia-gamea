@@ -178,6 +178,22 @@ class UsuarioAdminTest extends TestCase
         $this->assertTrue($this->jefe->fresh()->activo);
     }
 
+    public function test_cambio_de_rol_exitoso_revoca_delegaciones(): void
+    {
+        // Regresión: el closure del update debe capturar $actor (antes: 500).
+        $jefe2 = User::factory()->create(['username' => 'otrojefe', 'rol' => 'jefe', 'activo' => true]);
+
+        $this->actingAs($this->admin)
+            ->post("/admin/usuarios/{$jefe2->id}", [
+                'nombres' => $jefe2->nombres,
+                'apellidos' => $jefe2->apellidos,
+                'rol' => 'investigador',
+            ])
+            ->assertSessionHasNoErrors();
+
+        $this->assertSame('investigador', $jefe2->fresh()->rol);
+    }
+
     public function test_degradar_ultimo_jefe_bloqueado(): void
     {
         $this->actingAs($this->admin)

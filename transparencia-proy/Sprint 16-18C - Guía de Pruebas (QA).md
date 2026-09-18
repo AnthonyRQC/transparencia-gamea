@@ -23,37 +23,41 @@
   `notificacion.ver`; registrador/admin no conectan ni ven campana).
 - Time Machine: `/dev/tiempo` (link en sidebar, solo local). Volver con "Hoy" al terminar C5.
 
-### Taladro (POST/DELETE manual)
+### Taladro (una vez por sesión, en `/profile`)
 
-En `/profile`, DevTools → Console, pegar una vez por sesión:
+Chrome pide escribir `allow pasting` + Enter la primera vez. Si recargas o cambias
+de página, lo pegado se borra: repite este bloque.
 
 ```js
 const xsrf = decodeURIComponent(document.cookie.split('; ').find(c => c.startsWith('XSRF-TOKEN='))?.split('=')[1] ?? '');
+const BASE = '/transparencia/public';
 const post = async (url, body = {}) => {
-  const r = await fetch(url, { method: 'POST', credentials: 'same-origin',
+  const r = await fetch(BASE + url, { method: 'POST', credentials: 'same-origin',
     headers: { 'X-XSRF-TOKEN': xsrf, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
   console.log('status:', r.status, '| final:', r.url);
 };
 const del = async (url) => {
-  const r = await fetch(url, { method: 'DELETE', credentials: 'same-origin',
+  const r = await fetch(BASE + url, { method: 'DELETE', credentials: 'same-origin',
     headers: { 'X-XSRF-TOKEN': xsrf } });
   console.log('status:', r.status);
 };
 ```
 
-Oráculo: denegado termina en `/dashboard`; aplicado vuelve a `/profile`.
+**Oráculo:** final en `/dashboard` = denegado por permiso (middleware) · final en la
+misma página = aplicado **o** denegado por el controller → verificar el efecto como
+jefe (paso 3 de cada caso) · `405` pelado = la ruta no admite ese método.
 
 ## A. Auth y matriz (16.2)
 
 | # | Pasos | Esperado |
 |---|---|---|
 | A1 | Como registrador, visitar `/denuncias`, `/reportes`, `/reportes/exportar?formato=excel` | Las 3 caen a `/dashboard` + toast (nunca 403) |
-| A2 | Jefe: abrir `DEN-2026-0010`, anotar que es informe de LM. Entrar como `AT6123458`, ir a `/profile`, taladro: `await post('/denuncias/DEN-2026-0010/informe', { clasificacion: 'administrativo', fojas: 10, justificacion: 'PRUEBA DE TALADRO SUFICIENTEMENTE LARGA PARA VALIDAR', concluido_por: 'TALADRO' })` | Final en `/dashboard` (denegado). Como jefe: sin informe de AT ni bitácora nueva |
-| A2b | Mismo taladro como `PM4864213` (jefe, supervisor D26) | Final en `/profile` (aplicado); en Bandeja aparece el informe. Re-seed para limpiar |
-| A3 | Como jefe, admitir `DEN-2026-0001` en UI; luego en `/profile` taladro `await post('/denuncias/DEN-2026-0001/admitir', {})` | Toast "No se puede admitir…", estado sigue admitida, una sola bitácora `admitida` |
+| A2 | 1. Jefe: abrir `DEN-2026-0010`, anotar informe de LM. 2. Como `AT6123458`, en `/profile`, taladro: `await post('/denuncias/DEN-2026-0010/informe', { clasificacion: 'administrativo', fojas: 10, justificacion: 'PRUEBA DE TALADRO SUFICIENTEMENTE LARGA PARA VALIDAR', concluido_por: 'TALADRO' })` → final en `/profile`. 3. Como jefe: reabrir el caso | Sin "TALADRO" en informe ni bitácora (denegado por controller; el toast solo sale navegando) |
+| A2b | Mismo taladro como `PM4864213` (jefe, supervisor D26) | Aplicado: el informe aparece en Bandeja. Re-seed para limpiar |
+| A3 | Como jefe, admitir `DEN-2026-0001` en UI. En `/profile`, taladro `await post('/denuncias/DEN-2026-0001/admitir', {})` | Toast "No se puede admitir…", estado sigue admitida, **una** sola bitácora `admitida` |
 | A4 | Como `AS9000001`: `/denuncias` | Redirect (no opera casos); `/dashboard` y `/reportes` OK |
 | A5 | Invitado: `/denuncias` | Va a `/login` |
-| A6 | Logueado, taladro `await del('/profile')` | status 405; el usuario existe |
+| A6 | Logueado, taladro `await del('/profile')` | `status: 405`; el usuario existe |
 | A7 | Como registrador: sidebar + header | Sin Bandeja, Reportes, Notificaciones ni campana |
 | A8 | Como jefe/investigador | Campana visible, consola sin errores SSE |
 
@@ -69,7 +73,7 @@ Oráculo: denegado termina en `/dashboard`; aplicado vuelve a `/profile`.
 | B6 | Desactivar `CQ6123457` sin destino → con destino `AT6123458` + justificación | Primero pide traspaso; luego sus casos (0006,0008,0012,0033…) pasan a AT con bitácora "RELEVO" |
 | B7 | Reset a `AT6123458` | Temporal nueva, sesiones cerradas, pide cambio al entrar |
 | B8 | Lote: `CQ6123457`+`LM6123459` sin destino | Se frena y nombra al que tiene casos |
-| B9 | Avatares del listado | Iniciales + colores, sin grises rotos |
+| B9 | Header/avatares | Iniciales y colores, sin grises rotos |
 
 ## C. Mi Cuenta (18B, entrar como `JP9988776`/`Temporal123`)
 
@@ -86,10 +90,10 @@ Oráculo: denegado termina en `/dashboard`; aplicado vuelve a `/profile`.
 
 | # | Pasos | Esperado |
 |---|---|---|
-| D1 | Paquete "Bandeja y admisión" a `MG7551234`, motivo, fin +7d | Como registrador: badge + banner; admite `DEN-2026-0013` |
-| D2 | Ese registrador: taladro informe sobre `DEN-2026-0010` (A2) | Denegado |
-| D3 | Marcar `usuario.crear` / elegir admin / auto-delegarse | Rechazado en los tres |
-| D4 | Revocar como otro jefe (no otorgante) | Rechazado; como otorgante o admin pierde acceso al instante |
+| D1 | Paquete "Bandeja y admisión" a `MG7551234`, motivo, fin +7d. Como registrador: badge + banner; admitir `DEN-2026-0013` | Todo visible y admite |
+| D2 | Ese registrador: taladro informe sobre `DEN-2026-0010` (A2) | Final en `/dashboard` (ni siquiera tiene el permiso) |
+| D3 | Marcar `usuario.crear` / elegir admin / auto-delegarse | Rechazado en los tres (toast) |
+| D4 | Revocar como otro jefe (no otorgante) | Rechazado; otorgante/admin sí, acceso cae al instante |
 | D5 | Desactivar al interino en `/admin/usuarios` | Su fila pasa a Historial (revocada sola) |
 | D6 | Crear con `hasta` ayer / `desde` mañana | No aplican (Historial/Programadas) |
 
@@ -97,4 +101,5 @@ Oráculo: denegado termina en `/dashboard`; aplicado vuelve a `/profile`.
 
 | Fecha | Bloque/Caso | Severidad (P0-P2) | Descripción | Estado |
 |---|---|---|---|---|
+| 18-sep-2026 | Seed SITPRECO `DEN-2026-0010` | P2 | Muestra `â€™` (encoding del seed) | Pendiente |
 | | | | | |
