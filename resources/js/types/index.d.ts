@@ -48,4 +48,5 @@ export interface SharedPageProps extends Record<string, unknown> {
     ticket?: string | null;
     token?: string | null;
     credencialTemporal?: { username: string; password: string; nombre: string } | null;
+    delegacionActiva?: { hasta: string | null; otorgada_por: string | null } | null;
 }

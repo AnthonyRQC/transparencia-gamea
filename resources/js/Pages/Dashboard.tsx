@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Head, router } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import { LayoutDashboard, Download, RefreshCw, BarChart3, Users } from 'lucide-react';
 import AppLayout from '@/Components/Layout/AppLayout';
 import PageHeader from '@/Components/Layout/PageHeader';
@@ -20,6 +20,7 @@ import { formatearRangoFechas } from '@/helpers/fechas';
 
 export default function Dashboard(props: DashboardProps) {
     const { kpis, operativo, resultados, rendimiento, base_temporal, opciones, esJefe, esInvestigador, esRegistrador, filtros } = props;
+    const delegacionActiva = (usePage().props as unknown as { delegacionActiva?: { hasta: string | null; otorgada_por: string | null } | null }).delegacionActiva ?? null;
 
     const [tab, setTab] = useState<'operativo' | 'resultados' | 'rendimiento'>(
         filtros.tab === 'resultados' || filtros.tab === 'rendimiento' ? filtros.tab : 'operativo'
@@ -93,6 +94,17 @@ export default function Dashboard(props: DashboardProps) {
                     }
                     className="mb-0"
                 />
+
+                {/* Delegación vigente (18C): banner del interino. */}
+                {delegacionActiva && (
+                    <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-2.5 text-sm">
+                        Operando con funciones delegadas por <strong>{delegacionActiva.otorgada_por ?? '—'}</strong>
+                        {delegacionActiva.hasta
+                            ? <> hasta <strong>{delegacionActiva.hasta.slice(0, 10)}</strong></>
+                            : <> sin fecha de fin</>}
+                        .
+                    </div>
+                )}
 
                 {/* Chips de filtros + Sheet */}
                 <FiltrosDashboard filtros={filtros} opciones={opciones} esJefe={esJefe} onChange={aplicarFiltros} />

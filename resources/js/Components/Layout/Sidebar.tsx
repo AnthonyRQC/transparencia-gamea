@@ -14,6 +14,7 @@ import {
     BookOpen,
     Megaphone,
     Users,
+    KeyRound,
     FlaskConical,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -144,6 +145,14 @@ export default function Sidebar({
             href: route('admin.usuarios.index'),
             routeName: 'admin.usuarios.*',
             icon: <Users className="w-5 h-5 shrink-0" />,
+            permiso: 'menu.usuarios',
+        },
+        {
+            key: 'delegaciones',
+            label: 'Delegaciones',
+            href: route('admin.delegaciones.index'),
+            routeName: 'admin.delegaciones.*',
+            icon: <KeyRound className="w-5 h-5 shrink-0" />,
             permiso: 'menu.usuarios',
         },
     ];

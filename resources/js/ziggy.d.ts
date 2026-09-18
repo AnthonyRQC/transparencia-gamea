@@ -380,8 +380,17 @@ declare module 'ziggy-js' {
             "required": true
         }
     ],
+    "admin.delegaciones.index": [],
+    "admin.delegaciones.store": [],
+    "admin.delegaciones.revocar": [
+        {
+            "name": "id",
+            "required": true
+        }
+    ],
     "profile.edit": [],
     "profile.update": [],
+    "profile.preferencias": [],
     "notificaciones.index": [],
     "notificaciones.marcar-leida": [
         {

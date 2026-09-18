@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CatalogoController;
+use App\Http\Controllers\DelegacionTemporalController;
 use App\Http\Controllers\PublicacionController;
 use App\Http\Controllers\UsuarioController;
 use Illuminate\Support\Facades\Route;
@@ -44,4 +45,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('/usuarios/{id}/reset', [UsuarioController::class, 'resetPassword'])->can('usuario.reset-password')->name('usuarios.reset');
     Route::post('/usuarios/{id}/desactivar', [UsuarioController::class, 'desactivar'])->can('usuario.desactivar')->name('usuarios.desactivar');
     Route::post('/usuarios/{id}/reactivar', [UsuarioController::class, 'reactivar'])->can('usuario.desactivar')->name('usuarios.reactivar');
+
+    // Delegaciones temporales (Sprint 18C). Jefe y admin (gestionar funciones).
+    Route::get('/delegaciones', [DelegacionTemporalController::class, 'index'])->can('menu.usuarios')->name('delegaciones.index');
+    Route::post('/delegaciones', [DelegacionTemporalController::class, 'store'])->can('usuario.editar')->name('delegaciones.store');
+    Route::post('/delegaciones/{id}/revocar', [DelegacionTemporalController::class, 'revocar'])->can('usuario.editar')->name('delegaciones.revocar');
 });

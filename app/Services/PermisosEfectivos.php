@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Data\PermisosCatalogo;
+use App\Models\Delegacion;
 use App\Models\User;
 
 /**
@@ -26,10 +27,14 @@ class PermisosEfectivos
         $key = $user->id . ':' . $user->rol;
 
         if (! isset(self::$memo[$key])) {
-            self::$memo[$key] = array_values(array_unique(
-                PermisosCatalogo::permisosPorRol($user->rol)
-                // 18C: + permisos de delegaciones activas
-            ));
+            $delegados = Delegacion::activasPara($user)
+                ->flatMap(fn ($d) => $d->permisos ?? [])
+                ->all();
+
+            self::$memo[$key] = array_values(array_unique(array_merge(
+                PermisosCatalogo::permisosPorRol($user->rol),
+                $delegados
+            )));
         }
 
         return self::$memo[$key];

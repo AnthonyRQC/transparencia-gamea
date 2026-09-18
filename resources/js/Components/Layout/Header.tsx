@@ -28,7 +28,7 @@ export default function Header({
     recientes: recientesSSE,
 }: HeaderProps) {
     const { props } = usePage();
-    const { auth, notificaciones } = props as unknown as SharedPageProps;
+    const { auth, notificaciones, delegacionActiva } = props as unknown as SharedPageProps;
     const user = auth?.user;
     // Priorizar estado SSE (reactivo) sobre datos de Inertia (estáticos al cargar página)
     const noLeidas = noLeidasSSE ?? notificaciones?.no_leidas ?? 0;
@@ -130,6 +130,11 @@ export default function Header({
                             <span className="text-[10px] text-sidebar-foreground/60 truncate max-w-[140px] capitalize">
                                 {user?.rol || ''}
                             </span>
+                            {delegacionActiva && (
+                                <span className="text-[9px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
+                                    Delegación activa
+                                </span>
+                            )}
                         </div>
                         <ChevronDown
                             className={`w-4 h-4 text-sidebar-foreground/60 transition-transform duration-200 hidden sm:block ${

@@ -3,6 +3,8 @@
 namespace App\Http\Middleware;
 
 use App\Models\CategoriaDenuncia;
+use App\Models\Delegacion;
+use App\Models\User;
 use App\Models\Clasificacion;
 use App\Models\DependenciaExterna;
 use App\Models\MedioNotificacion;
@@ -40,6 +42,8 @@ class HandleInertiaRequests extends Middleware
                     'permisos' => PermisosEfectivos::de($user),
                 ] : null,
             ],
+            // Delegación vigente (18C): badge y banner. No es rol.
+            'delegacionActiva' => $user ? $this->delegacionActiva($user) : null,
             'logo_url' => asset('LOGO-OFICIAL-EL-ALTO.png'),
             'utlcc_logo_url' => asset('LOGO-UTLCC.svg'),
             'jacha_url' => asset('jacha.jpg'),
@@ -78,5 +82,19 @@ class HandleInertiaRequests extends Middleware
         ];
 
         return $share;
+    }
+
+    private function delegacionActiva(User $user): ?array
+    {
+        $d = Delegacion::activasPara($user)->first();
+
+        if (! $d) {
+            return null;
+        }
+
+        return [
+            'hasta' => $d->hasta?->toDateTimeString(),
+            'otorgada_por' => $d->otorgante?->name,
+        ];
     }
 }

@@ -83,6 +83,9 @@ class UsuarioController extends Controller
             'desactivado_at' => $u->desactivado_at?->toDateTimeString(),
             'casos_activos' => Denuncia::where('investigador_id', $u->id)
                 ->whereNotIn('estado', ['rechazada', 'cerrada'])->count(),
+            'delegaciones_activas' => \App\Models\Delegacion::where('user_id', $u->id)
+                ->whereNull('revocado_at')
+                ->count(),
         ])->values();
 
         return Inertia::render('Admin/Usuarios', [
@@ -187,6 +190,8 @@ class UsuarioController extends Controller
                 ]);
             }
 
+            $rolCambia = $data['rol'] !== $t->rol;
+
             $t->update([
                 'nombres' => $nombres,
                 'apellidos' => $apellidos,
@@ -194,8 +199,11 @@ class UsuarioController extends Controller
                 'email' => ! empty($data['email']) ? $data['email'] : null,
                 'telefono' => $data['telefono'] ?? null,
                 'rol' => $data['rol'],
-                // Cambio de rol revoca delegaciones recibidas (18C; sin tabla aún).
             ]);
+
+            if ($rolCambia) {
+                \App\Models\Delegacion::revocarRecibidas($t->id, $actor->id);
+            }
         });
 
         return redirect()->back()->with('success', "Usuario {$target->username} actualizado.");
@@ -284,6 +292,7 @@ class UsuarioController extends Controller
                 'remember_token' => null,
             ]);
             DB::table('sessions')->where('user_id', $t->id)->delete();
+            \App\Models\Delegacion::revocarRecibidas($t->id, $actor->id);
 
             return redirect()->back()->with('success', "Usuario {$t->username} desactivado.");
         });
@@ -351,6 +360,8 @@ class UsuarioController extends Controller
 
             foreach ($usuarios as $t) {
                 if ($data['accion'] === 'desactivar') {
+                    \App\Models\Delegacion::revocarRecibidas($t->id, $actor->id);
+
                     if ($dest) {
                         $this->traspasarLote($t, $dest, $data['justificacion'] ?? 'RELEVO DE PERSONAL');
                     }
@@ -390,11 +401,23 @@ class UsuarioController extends Controller
             'estado' => $d->estado,
         ])->values();
 
+        $delegaciones = \App\Models\Delegacion::where('user_id', $target->id)
+            ->whereNull('revocado_at')
+            ->with('otorgante:id,name')
+            ->orderByDesc('id')
+            ->get()
+            ->map(fn ($d) => [
+                'permisos' => $d->permisos,
+                'desde' => $d->desde?->toDateTimeString(),
+                'hasta' => $d->hasta?->toDateTimeString(),
+                'otorgado_por' => $d->otorgante?->name,
+            ])->values();
+
         return response()->json([
             'usuario' => ['id' => $target->id, 'name' => $target->name, 'username' => $target->username, 'rol' => $target->rol],
             'casos_activos' => $casos,
             'total_casos' => $casos->count(),
-            'delegaciones_activas' => [],
+            'delegaciones_activas' => $delegaciones,
         ]);
     }
 

@@ -204,6 +204,107 @@ class PermisosCatalogo
         ],
     ];
 
+    /**
+     * Whitelist delegable (D23): ni jefe ni admin delegan `usuario.*`,
+     * `menu.usuarios` ni `admin.*`. Crear cuentas se hace en 18A.
+     */
+    public const DELEGABLE = [
+        'caso.admitir',
+        'caso.rechazar',
+        'caso.asignar',
+        'caso.traspasar',
+        'caso.reabrir',
+        'caso.ampliar',
+        'caso.conciliar',
+        'caso.delegar-evaluacion',
+        'caso.reasumir-evaluacion',
+        'caso.saltar-fase',
+        'caso.archivar',
+        'menu.bandeja',
+        'menu.reportes',
+        'reporte.ver',
+        'reporte.exportar',
+        'menu.consultar-casos',
+        'consulta.ver',
+        'consulta.codigo',
+        'archivo.ver',
+        'archivo.subir',
+        'archivo.eliminar',
+        'publicacion.crear',
+        'publicacion.editar',
+        'publicacion.eliminar',
+        'publicacion.publicar',
+        'menu.publicaciones',
+        'menu.notificaciones',
+        'notificacion.ver',
+    ];
+
+    /**
+     * Presets de la UI (constantes, no tabla). `jefe_interino` NO es
+     * ROLES['jefe']: excluye administración de usuarios/catálogos.
+     */
+    public const PAQUETES = [
+        'jefe_interino' => [
+            'menu.bandeja',
+            'caso.admitir',
+            'caso.rechazar',
+            'caso.asignar',
+            'caso.traspasar',
+            'caso.reabrir',
+            'caso.conciliar',
+            'caso.ampliar',
+            'caso.archivar',
+            'caso.delegar-evaluacion',
+            'caso.reasumir-evaluacion',
+            'caso.saltar-fase',
+            'menu.reportes',
+            'reporte.ver',
+            'reporte.exportar',
+            'menu.consultar-casos',
+            'consulta.ver',
+            'consulta.codigo',
+            'menu.publicaciones',
+            'publicacion.crear',
+            'publicacion.editar',
+            'publicacion.eliminar',
+            'publicacion.publicar',
+            'menu.notificaciones',
+            'notificacion.ver',
+            'archivo.ver',
+            'archivo.subir',
+            'archivo.eliminar',
+        ],
+        'bandeja_admision' => [
+            'menu.bandeja',
+            'caso.admitir',
+            'caso.rechazar',
+            'caso.asignar',
+            'caso.traspasar',
+            'caso.reabrir',
+            'caso.conciliar',
+            'caso.archivar',
+            'menu.notificaciones',
+            'notificacion.ver',
+        ],
+        'reportes' => [
+            'menu.reportes',
+            'reporte.ver',
+            'reporte.exportar',
+        ],
+        'consulta' => [
+            'menu.consultar-casos',
+            'consulta.ver',
+            'consulta.codigo',
+        ],
+        'avisos' => [
+            'menu.publicaciones',
+            'publicacion.crear',
+            'publicacion.editar',
+            'publicacion.eliminar',
+            'publicacion.publicar',
+        ],
+    ];
+
     public static function permisosPorRol(string $rol): array
     {
         return self::ROLES[$rol] ?? [];

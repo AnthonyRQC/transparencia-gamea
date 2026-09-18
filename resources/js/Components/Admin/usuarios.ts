@@ -11,6 +11,7 @@ export interface UsuarioRow {
   activo: boolean;
   desactivado_at: string | null;
   casos_activos: number;
+  delegaciones_activas?: number;
 }
 
 export const ROL_LABEL: Record<string, string> = {

@@ -97,10 +97,13 @@ export default function Usuarios() {
       ) : (
         <Badge className="bg-muted text-muted-foreground border">Inactivo{u.desactivado_at ? ` · ${u.desactivado_at.slice(0, 10)}` : ''}</Badge>
       )}
-      {u.casos_activos > 0 && (
-        <span className="text-xs text-muted-foreground">{u.casos_activos} caso(s)</span>
-      )}
-    </div>
+        {u.casos_activos > 0 && (
+          <span className="text-xs text-muted-foreground">{u.casos_activos} caso(s)</span>
+        )}
+        {(u.delegaciones_activas ?? 0) > 0 && (
+          <span className="text-xs font-semibold text-amber-600 dark:text-amber-400">Delegación activa</span>
+        )}
+      </div>
   );
 
   const acciones = (u: UsuarioRow) => (
