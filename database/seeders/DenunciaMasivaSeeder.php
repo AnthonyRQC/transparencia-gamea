@@ -551,8 +551,9 @@ class DenunciaMasivaSeeder extends Seeder
     private function crearCasosPipeline(): void
     {
         // Dos investigadores para los casos que pasan a asignada directo del pipeline
-        $t3 = User::where('username', 'investigador1')->first()->id;
-        $t4 = User::where('username', 'investigador2')->first()->id;
+        $idsPipeline = User::where('rol', 'investigador')->where('activo', true)->orderBy('id')->pluck('id')->toArray();
+        $t3 = $idsPipeline[0];
+        $t4 = $idsPipeline[1];
 
         $pipeline = [
             // ingresada x4 (001, 002 y 13, 14, 17 completan 5 en DenunciaSeeder)
@@ -591,16 +592,8 @@ class DenunciaMasivaSeeder extends Seeder
 
     private function crearCasosAsignados(): void
     {
-        $t3 = User::where('username', 'investigador1')->first()->id;
-        $t4 = User::where('username', 'investigador2')->first()->id;
-        $t5 = User::where('username', 'investigador3')->first()->id;
-        $t6 = User::where('username', 'investigador4')->first()->id;
-        $t7 = User::where('username', 'investigador5')->first()->id;
-        $t8 = User::where('username', 'investigador6')->first()->id;
-        $t9 = User::where('username', 'investigador7')->first()->id;
-        $t10 = User::where('username', 'investigador8')->first()->id;
-        $t11 = User::where('username', 'investigador9')->first()->id;
-        $t12 = User::where('username', 'investigador10')->first()->id;
+        $ids = User::where('rol', 'investigador')->where('activo', true)->orderBy('id')->pluck('id')->toArray();
+        [$t3, $t4, $t5, $t6, $t7, $t8, $t9, $t10, $t11, $t12] = $ids;
 
         $casos = [
             // investigador1 (Carlos Quispe) +3: investigacion, asignada, informe

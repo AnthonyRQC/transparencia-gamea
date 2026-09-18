@@ -80,20 +80,19 @@ Abrir en el navegador: `http://localhost:8000`
 
 | Usuario     | Contrasena | Rol            |
 |-------------|------------|----------------|
-| jefe        | demo123    | Jefe de Unidad  |
-| registrador | demo123    | Registrador    |
-| investigador1 | demo123 | Investigador |
-| investigador2 | demo123 | Investigador |
-| investigador3 | demo123 | Investigador |
+| AS9000001   | demo123    | Administrador  |
+| PM4864213   | demo123    | Jefe de Unidad |
+| MG7551234   | demo123    | Registrador    |
+| CQ6123457   | demo123    | Investigador   |
 
-> Todos los usuarios usan `username` (case-sensitive) para login.
+> Usuarios `username` por fórmula 18A (iniciales+CI, case-insensitive). Seeder completo: 10 investigadores `CQ6123457`…`PS6123466`.
 
 ## Datos Incluidos en el Backup
 - 12 categorias de denuncia
 - 185 dependencias externas (árbol GAMEA 2026)
 - 15 feriados (+ plantilla neutra 14 refs en `config/plantilla_feriados.php` como guía manual)
 - 6 clasificaciones + 4 medios notificación (tablas propias, no JSON)
-- 12 usuarios de prueba (10 investigadores en `DenunciaMasivaSeeder`)
+- 13 usuarios de prueba (admin + jefe + registrador + 10 investigadores en `UserSeeder`)
 - 12 denuncias demo (DEN-2026-0001 a 0012) + 72 casos masivos DEN-2026-0013 a 0084
 - 5 notificaciones demo
 - Días hábiles `America/La_Paz` con cache `feriados:fechas` y deduplicación sáb/dom

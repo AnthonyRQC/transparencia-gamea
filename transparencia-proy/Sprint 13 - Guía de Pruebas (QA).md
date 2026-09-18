@@ -7,7 +7,7 @@
 ## 0. Precondiciones
 
 - `php artisan migrate:fresh --seed` (124 casos + 5 avisos demo: 1 fijado, 2 ligados a `DEN-2026-0004`/`DEN-2026-0005`).
-- Usuarios: `jefe` / `registrador` / `investigador1` (pass `demo123` en los 3).
+- Usuarios: `PM4864213` (jefe) / `MG7551234` (registrador) / `CQ6123457` (investigador) (pass `demo123` en los 3).
 - Probar en **incógnito sin extensiones**: el error `reportAllChanges/startTime`
   de consola es la extensión React DevTools, no la app (0 coincidencias en
   `resources/js` y `public/build`). Si aparece en normal y no en incógnito → ignorar.

@@ -13,6 +13,7 @@ import {
     Search,
     BookOpen,
     Megaphone,
+    Users,
     FlaskConical,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -136,6 +137,14 @@ export default function Sidebar({
             routeName: 'admin.publicaciones.*',
             icon: <Megaphone className="w-5 h-5 shrink-0" />,
             permiso: 'menu.publicaciones',
+        },
+        {
+            key: 'usuarios',
+            label: 'Usuarios',
+            href: route('admin.usuarios.index'),
+            routeName: 'admin.usuarios.*',
+            icon: <Users className="w-5 h-5 shrink-0" />,
+            permiso: 'menu.usuarios',
         },
     ];
 

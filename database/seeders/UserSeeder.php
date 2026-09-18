@@ -6,25 +6,35 @@ use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
+/**
+ * Sprint 18A: identidad real (nombres/apellidos/ci) + username por fórmula
+ * (iniciales+CI). Un humano = un CI = una cuenta.
+ */
 class UserSeeder extends Seeder
 {
     public function run(): void
     {
         $users = [
             [
-                'username' => 'admin',
+                'username' => 'AS9000001',
                 'name' => 'ADMINISTRADOR SISTEMAS',
+                'nombres' => 'ADMINISTRADOR',
+                'apellidos' => 'SISTEMAS',
+                'ci' => '9000001',
                 'email' => null,
                 'password' => Hash::make('demo123'),
                 'rol' => 'admin',
-                'iniciales' => 'AD',
+                'iniciales' => 'AS',
                 'color' => 'bg-primary',
                 'activo' => true,
                 'telefono' => null,
             ],
             [
-                'username' => 'jefe',
+                'username' => 'PM4864213',
                 'name' => 'PEDRO MAMANI',
+                'nombres' => 'PEDRO',
+                'apellidos' => 'MAMANI',
+                'ci' => '4864213',
                 'email' => null,
                 'password' => Hash::make('demo123'),
                 'rol' => 'jefe',
@@ -34,8 +44,11 @@ class UserSeeder extends Seeder
                 'telefono' => '71234567',
             ],
             [
-                'username' => 'registrador',
+                'username' => 'MG7551234',
                 'name' => 'MARÍA GARCÍA',
+                'nombres' => 'MARÍA',
+                'apellidos' => 'GARCÍA',
+                'ci' => '7551234',
                 'email' => null,
                 'password' => Hash::make('demo123'),
                 'rol' => 'registrador',
@@ -45,8 +58,11 @@ class UserSeeder extends Seeder
                 'telefono' => '71234568',
             ],
             [
-                'username' => 'investigador1',
+                'username' => 'CQ6123457',
                 'name' => 'CARLOS QUISPE',
+                'nombres' => 'CARLOS',
+                'apellidos' => 'QUISPE',
+                'ci' => '6123457',
                 'email' => null,
                 'password' => Hash::make('demo123'),
                 'rol' => 'investigador',
@@ -56,8 +72,11 @@ class UserSeeder extends Seeder
                 'telefono' => '71234569',
             ],
             [
-                'username' => 'investigador2',
+                'username' => 'AT6123458',
                 'name' => 'ANA TORRES',
+                'nombres' => 'ANA',
+                'apellidos' => 'TORRES',
+                'ci' => '6123458',
                 'email' => null,
                 'password' => Hash::make('demo123'),
                 'rol' => 'investigador',
@@ -67,8 +86,11 @@ class UserSeeder extends Seeder
                 'telefono' => '71234570',
             ],
             [
-                'username' => 'investigador3',
+                'username' => 'LM6123459',
                 'name' => 'LUIS MAMANI',
+                'nombres' => 'LUIS',
+                'apellidos' => 'MAMANI',
+                'ci' => '6123459',
                 'email' => null,
                 'password' => Hash::make('demo123'),
                 'rol' => 'investigador',
@@ -78,8 +100,11 @@ class UserSeeder extends Seeder
                 'telefono' => '71234571',
             ],
             [
-                'username' => 'investigador4',
+                'username' => 'JA6123460',
                 'name' => 'JORGE APAZA',
+                'nombres' => 'JORGE',
+                'apellidos' => 'APAZA',
+                'ci' => '6123460',
                 'email' => null,
                 'password' => Hash::make('demo123'),
                 'rol' => 'investigador',
@@ -89,8 +114,11 @@ class UserSeeder extends Seeder
                 'telefono' => '71234572',
             ],
             [
-                'username' => 'investigador5',
+                'username' => 'KV6123461',
                 'name' => 'KARINA VILLCA',
+                'nombres' => 'KARINA',
+                'apellidos' => 'VILLCA',
+                'ci' => '6123461',
                 'email' => null,
                 'password' => Hash::make('demo123'),
                 'rol' => 'investigador',
@@ -100,8 +128,11 @@ class UserSeeder extends Seeder
                 'telefono' => '71234573',
             ],
             [
-                'username' => 'investigador6',
+                'username' => 'MC6123462',
                 'name' => 'MIGUEL CONDORI',
+                'nombres' => 'MIGUEL',
+                'apellidos' => 'CONDORI',
+                'ci' => '6123462',
                 'email' => null,
                 'password' => Hash::make('demo123'),
                 'rol' => 'investigador',
@@ -111,8 +142,11 @@ class UserSeeder extends Seeder
                 'telefono' => '71234574',
             ],
             [
-                'username' => 'investigador7',
+                'username' => 'VM6123463',
                 'name' => 'VERÓNICA MAMANI',
+                'nombres' => 'VERÓNICA',
+                'apellidos' => 'MAMANI',
+                'ci' => '6123463',
                 'email' => null,
                 'password' => Hash::make('demo123'),
                 'rol' => 'investigador',
@@ -122,8 +156,11 @@ class UserSeeder extends Seeder
                 'telefono' => '71234575',
             ],
             [
-                'username' => 'investigador8',
+                'username' => 'RH6123464',
                 'name' => 'RODRIGO HUANCA',
+                'nombres' => 'RODRIGO',
+                'apellidos' => 'HUANCA',
+                'ci' => '6123464',
                 'email' => null,
                 'password' => Hash::make('demo123'),
                 'rol' => 'investigador',
@@ -133,8 +170,11 @@ class UserSeeder extends Seeder
                 'telefono' => '71234576',
             ],
             [
-                'username' => 'investigador9',
+                'username' => 'CL6123465',
                 'name' => 'CINDY LIMACHI',
+                'nombres' => 'CINDY',
+                'apellidos' => 'LIMACHI',
+                'ci' => '6123465',
                 'email' => null,
                 'password' => Hash::make('demo123'),
                 'rol' => 'investigador',
@@ -144,8 +184,11 @@ class UserSeeder extends Seeder
                 'telefono' => '71234577',
             ],
             [
-                'username' => 'investigador10',
+                'username' => 'PS6123466',
                 'name' => 'PABLO SILES',
+                'nombres' => 'PABLO',
+                'apellidos' => 'SILES',
+                'ci' => '6123466',
                 'email' => null,
                 'password' => Hash::make('demo123'),
                 'rol' => 'investigador',

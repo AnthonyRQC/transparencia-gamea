@@ -45,6 +45,8 @@ class HandleInertiaRequests extends Middleware
             'success' => session('success'),
             'ticket' => session('ticket'),
             'token' => session('token'),
+            // Credencial temporal del panel de usuarios: se muestra una sola vez (18A).
+            'credencialTemporal' => session('credencialTemporal'),
             'categorias' => CategoriaDenuncia::where('activa', true)->pluck('nombre', 'clave')->toArray(),
             'dependencias' => DependenciaExterna::where('activa', true)->orderBy('nombre')->get(['id', 'nombre', 'parent_id'])->toArray(),
             'clasificaciones' => Clasificacion::where('activa', true)->orderBy('nombre')->get(['id', 'clave', 'nombre'])->toArray(),

@@ -13,7 +13,7 @@ class PublicacionSeeder extends Seeder
 {
     public function run(): void
     {
-        $jefe = User::where('username', 'jefe')->first();
+        $jefe = User::where('rol', 'jefe')->where('activo', true)->orderBy('id')->first();
         $tipos = TipoPublicacion::pluck('id', 'clave');
         $prioridades = PrioridadPublicacion::pluck('id', 'clave');
 

@@ -11,6 +11,16 @@ export default {
         './resources/views/**/*.blade.php',
         './resources/js/**/*.tsx',
     ],
+    // Clases de avatar guardadas en BD (User::COLORES_AVATAR): el scanner no
+    // las ve en PHP, sin safelist no se genera su CSS (D7).
+    safelist: [
+        'bg-primary',
+        'bg-teal-600',
+        'bg-amber-500',
+        'bg-[#431377]',
+        'bg-secondary',
+        'bg-slate-500',
+    ],
     theme: {
         extend: {
             screens: {

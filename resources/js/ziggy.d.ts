@@ -7,11 +7,14 @@ declare module 'ziggy-js' {
     "ignition.updateConfig": [],
     "home": [],
     "seguimiento.buscar": [],
+    "panel.descargar": [
+        {
+            "name": "id",
+            "required": true
+        }
+    ],
     "design-system": [],
     "dashboard": [],
-    "reportes.index": [],
-    "reportes.preview": [],
-    "reportes.exportar": [],
     "denuncias.bandeja": [],
     "denuncias.registrar": [],
     "denuncias.store": [],
@@ -242,15 +245,10 @@ declare module 'ziggy-js' {
     "denuncias.mis-casos": [],
     "denuncias.mi-resumen": [],
     "denuncias.evaluaciones": [],
+    "reportes.index": [],
+    "reportes.preview": [],
+    "reportes.exportar": [],
     "admin.catalogos": [],
-    "notificaciones.index": [],
-    "notificaciones.marcar-leida": [
-        {
-            "name": "id",
-            "required": true
-        }
-    ],
-    "notificaciones.marcar-todas": [],
     "admin.catalogos.store": [
         {
             "name": "tipo",
@@ -349,16 +347,50 @@ declare module 'ziggy-js' {
             "required": true
         }
     ],
-    "panel.descargar": [
+    "admin.usuarios.index": [],
+    "admin.usuarios.store": [],
+    "admin.usuarios.masivo": [],
+    "admin.usuarios.impacto": [
         {
             "name": "id",
             "required": true
         }
     ],
-    "notifications.stream": [],
+    "admin.usuarios.update": [
+        {
+            "name": "id",
+            "required": true
+        }
+    ],
+    "admin.usuarios.reset": [
+        {
+            "name": "id",
+            "required": true
+        }
+    ],
+    "admin.usuarios.desactivar": [
+        {
+            "name": "id",
+            "required": true
+        }
+    ],
+    "admin.usuarios.reactivar": [
+        {
+            "name": "id",
+            "required": true
+        }
+    ],
     "profile.edit": [],
     "profile.update": [],
-    "profile.destroy": [],
+    "notificaciones.index": [],
+    "notificaciones.marcar-leida": [
+        {
+            "name": "id",
+            "required": true
+        }
+    ],
+    "notificaciones.marcar-todas": [],
+    "notifications.stream": [],
     "dev.tiempo": [],
     "dev.tiempo.fijar": [],
     "dev.tiempo.limpiar": [],

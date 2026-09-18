@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CatalogoController;
 use App\Http\Controllers\PublicacionController;
+use App\Http\Controllers\UsuarioController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -33,4 +34,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('/publicaciones/{id}/eliminar', [PublicacionController::class, 'destroy'])->can('publicacion.eliminar')->name('publicaciones.destroy');
     Route::get('/publicaciones/archivos/{id}/descargar', [PublicacionController::class, 'descargarArchivo'])->can('menu.publicaciones')->name('publicaciones.descargar');
     Route::post('/publicaciones/archivos/{id}/quitar', [PublicacionController::class, 'quitarArchivo'])->can('publicacion.editar')->name('publicaciones.quitar');
+
+    // Usuarios (Sprint 18A)
+    Route::get('/usuarios', [UsuarioController::class, 'index'])->can('menu.usuarios')->name('usuarios.index');
+    Route::post('/usuarios', [UsuarioController::class, 'store'])->can('usuario.crear')->name('usuarios.store');
+    Route::post('/usuarios/masivo', [UsuarioController::class, 'masivo'])->can('usuario.desactivar')->name('usuarios.masivo');
+    Route::get('/usuarios/{id}/impacto', [UsuarioController::class, 'impacto'])->can('usuario.desactivar')->name('usuarios.impacto');
+    Route::post('/usuarios/{id}', [UsuarioController::class, 'update'])->can('usuario.editar')->name('usuarios.update');
+    Route::post('/usuarios/{id}/reset', [UsuarioController::class, 'resetPassword'])->can('usuario.reset-password')->name('usuarios.reset');
+    Route::post('/usuarios/{id}/desactivar', [UsuarioController::class, 'desactivar'])->can('usuario.desactivar')->name('usuarios.desactivar');
+    Route::post('/usuarios/{id}/reactivar', [UsuarioController::class, 'reactivar'])->can('usuario.desactivar')->name('usuarios.reactivar');
 });
