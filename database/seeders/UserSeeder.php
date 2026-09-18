@@ -14,21 +14,9 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
+        // Orden con intención: 1=jefe, 2=registrador, 3+=investigadores.
+        // Los seeders viejos usan esos ids a mano; el admin va al final (13).
         $users = [
-            [
-                'username' => 'AS9000001',
-                'name' => 'ADMINISTRADOR SISTEMAS',
-                'nombres' => 'ADMINISTRADOR',
-                'apellidos' => 'SISTEMAS',
-                'ci' => '9000001',
-                'email' => null,
-                'password' => Hash::make('demo123'),
-                'rol' => 'admin',
-                'iniciales' => 'AS',
-                'color' => 'bg-primary',
-                'activo' => true,
-                'telefono' => null,
-            ],
             [
                 'username' => 'PM4864213',
                 'name' => 'PEDRO MAMANI',
@@ -196,6 +184,20 @@ class UserSeeder extends Seeder
                 'color' => 'bg-slate-500',
                 'activo' => true,
                 'telefono' => '71234578',
+            ],
+            [
+                'username' => 'AS9000001',
+                'name' => 'ADMINISTRADOR SISTEMAS',
+                'nombres' => 'ADMINISTRADOR',
+                'apellidos' => 'SISTEMAS',
+                'ci' => '9000001',
+                'email' => null,
+                'password' => Hash::make('demo123'),
+                'rol' => 'admin',
+                'iniciales' => 'AS',
+                'color' => 'bg-primary',
+                'activo' => true,
+                'telefono' => null,
             ],
         ];
 
