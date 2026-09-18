@@ -35,6 +35,7 @@ class HandleInertiaRequests extends Middleware
                     'rol' => $user->rol,
                     'iniciales' => $user->iniciales,
                     'color' => $user->color,
+                    'debe_cambiar_password' => (bool) $user->debe_cambiar_password,
                     'preferencias' => $user->preferencias,
                     'permisos' => PermisosEfectivos::de($user),
                 ] : null,

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsureActive;
+use App\Http\Middleware\ForzarCambioPassword;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -29,6 +30,8 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\SimularFecha::class,
             // Sesiones de desactivados mueren aquí (D18). Corre tras Authenticate.
             EnsureActive::class,
+            // Clave temporal: solo perfil/cambio/logout hasta estrenarla (18B).
+            ForzarCambioPassword::class,
         ]);
 
         //

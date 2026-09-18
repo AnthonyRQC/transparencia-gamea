@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
 Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+Route::patch('/profile/preferencias', [ProfileController::class, 'preferencias'])->name('profile.preferencias');
 
 // Sprint 9 — Notificaciones
 Route::prefix('notificaciones')->name('notificaciones.')->group(function () {

@@ -2,6 +2,9 @@ export interface User {
     id: number;
     name: string;
     username: string;
+    nombres?: string | null;
+    apellidos?: string | null;
+    ci?: string | null;
     email: string | null;
     email_verified_at?: string | null;
     rol: string;
@@ -9,6 +12,7 @@ export interface User {
     color: string | null;
     activo: boolean;
     telefono: string | null;
+    debe_cambiar_password?: boolean;
     preferencias: Record<string, any> | null;
     permisos: string[];
 }

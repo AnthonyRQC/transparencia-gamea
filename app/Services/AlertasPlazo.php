@@ -34,6 +34,17 @@ class AlertasPlazo
             return [];
         }
 
+        // Preferencias de Mi Cuenta (18B): master + umbrales por defecto 3/3/2/2.
+        $pref = $user->preferencias ?? [];
+        if (($pref['notificaciones'] ?? true) === false) {
+            return [];
+        }
+        $umbrales = $pref['umbrales'] ?? [];
+        $uPlazo = (int) ($umbrales['plazo'] ?? self::UMBRAL_PLAZO);
+        $uInforme = (int) ($umbrales['informe'] ?? self::UMBRAL_PLAZO);
+        $uSolicitud = (int) ($umbrales['solicitud'] ?? self::UMBRAL_SOLICITUD);
+        $uDescargo = (int) ($umbrales['descargo'] ?? self::UMBRAL_DESCARGO);
+
         // Quien puede admitir (jefes + interinos 18C) ve todo; el resto solo lo suyo.
         $vistaUnidad = $user->puede('caso.admitir');
         $destino = $vistaUnidad ? '/denuncias' : '/denuncias/mis-casos';
@@ -59,7 +70,7 @@ class AlertasPlazo
                     "{$d->ticket} · VENCIDO HACE " . abs($dias) . ' DÍA(S)',
                     $d->ticket, $destino, 'AlertTriangle', 'destructive', $ahora
                 );
-            } elseif ($dias <= self::UMBRAL_PLAZO) {
+            } elseif ($dias <= $uPlazo) {
                 $cuando = $dias === 0 ? 'VENCE HOY' : "VENCE EN {$dias} DÍA(S)";
                 $alertas[] = self::aviso(
                     'plazo_por_vencer', 'PLAZO POR VENCER',
@@ -68,7 +79,7 @@ class AlertasPlazo
                 );
             }
 
-            if ($d->estado === 'informe' && $dias >= 0 && $dias <= self::UMBRAL_PLAZO) {
+            if ($d->estado === 'informe' && $dias >= 0 && $dias <= $uInforme) {
                 $alertas[] = self::aviso(
                     'plazo_informe', 'PLAZO DE INFORME POR VENCER',
                     "{$d->ticket} · PRESENTA EL INFORME, QUEDAN {$dias} DÍA(S)",
@@ -95,7 +106,7 @@ class AlertasPlazo
             }
             $dias = $info['dias_restantes'];
             $ticket = $s->denuncia?->ticket ?? '';
-            if ($dias < 0 || ($dias <= self::UMBRAL_SOLICITUD)) {
+            if ($dias < 0 || ($dias <= $uSolicitud)) {
                 $msg = $dias < 0
                     ? "{$ticket} · SOLICITUD VENCIDA HACE " . abs($dias) . ' DÍA(S)'
                     : "{$ticket} · SOLICITUD VENCE EN {$dias} DÍA(S)";
@@ -124,7 +135,7 @@ class AlertasPlazo
             }
             $dias = $info['dias_restantes'];
             $ticket = $dc->denuncia?->ticket ?? '';
-            if ($dias < 0 || ($dias <= self::UMBRAL_DESCARGO)) {
+            if ($dias < 0 || ($dias <= $uDescargo)) {
                 $msg = $dias < 0
                     ? "{$ticket} · DESCARGO VENCIDO HACE " . abs($dias) . ' DÍA(S)'
                     : "{$ticket} · DESCARGO VENCE EN {$dias} DÍA(S)";

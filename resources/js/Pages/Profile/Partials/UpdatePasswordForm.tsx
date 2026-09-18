@@ -56,7 +56,7 @@ export default function UpdatePasswordForm({
                 </h2>
 
                 <p className="mt-1 text-sm text-muted-foreground">
-                    Usa una contraseña larga y segura para proteger tu cuenta.
+                    Mínimo 10 caracteres, con mayúscula, minúscula y número.
                 </p>
             </header>
 
