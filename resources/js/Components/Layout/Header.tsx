@@ -30,6 +30,7 @@ export default function Header({
     const { props } = usePage();
     const { auth, notificaciones, delegacionActiva } = props as unknown as SharedPageProps;
     const user = auth?.user;
+    const puedeVerNotificaciones = (user?.permisos ?? []).includes('notificacion.ver');
     // Priorizar estado SSE (reactivo) sobre datos de Inertia (estáticos al cargar página)
     const noLeidas = noLeidasSSE ?? notificaciones?.no_leidas ?? 0;
     const recientes = recientesSSE ?? notificaciones?.recientes ?? [];
@@ -92,7 +93,9 @@ export default function Header({
             </div>
 
             <div className="flex items-center gap-2 shrink-0">
-                <CampanaNotificaciones noLeidas={noLeidas} recientes={recientes} />
+                {puedeVerNotificaciones && (
+                    <CampanaNotificaciones noLeidas={noLeidas} recientes={recientes} />
+                )}
 
                 <button
                     onClick={onToggleDarkMode}

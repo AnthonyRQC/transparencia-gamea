@@ -27,7 +27,7 @@ interface UseNotificacionesSSEOptions {
     /** Datos iniciales de Inertia para pre-poblar el estado */
     initialNoLeidas: number;
     initialRecientes: NotificacionSSE[];
-    /** Si es false, el hook no se conecta (usuario no autenticado) */
+    /** Si es false, el hook no se conecta (sin usuario o sin `notificacion.ver`) */
     enabled: boolean;
 }
 

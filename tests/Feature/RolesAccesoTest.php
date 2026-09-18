@@ -177,6 +177,14 @@ class RolesAccesoTest extends TestCase
             ->assertRedirect('/dashboard');
     }
 
+    public function test_stream_sse_requiere_permiso(): void
+    {
+        // Sin `notificacion.ver` (registrador/admin): redirect, no HTML colgado
+        // en el EventSource (el frontend además no conecta sin el permiso).
+        $this->actingAs($this->registrador)->get('/notifications/stream')->assertRedirect('/dashboard');
+        $this->actingAs($this->admin)->get('/notifications/stream')->assertRedirect('/dashboard');
+    }
+
     public function test_delete_profile_no_existe(): void
     {
         $this->actingAs($this->jefe)

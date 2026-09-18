@@ -35,11 +35,14 @@ export default function AppLayout({ children, headerBottom }: AppLayoutProps) {
     const [isSidebarOpenMobile, setIsSidebarOpenMobile] = useState(false);
 
     // SSE: notificaciones en tiempo real.
-    // Se activa solo si el usuario está autenticado.
+    // Solo si tiene permiso (16.2 quitó la campana al registrador/admin:
+    // conectar sin `notificacion.ver` devuelve redirect HTML y el navegador
+    // aborta el EventSource con error de MIME en cada página).
+    const permisos = auth?.user?.permisos ?? [];
     const { noLeidas, recientes } = useNotificacionesSSE({
         initialNoLeidas: notificacionesInertia?.no_leidas ?? 0,
         initialRecientes: notificacionesInertia?.recientes ?? [],
-        enabled: !!auth?.user,
+        enabled: !!auth?.user && permisos.includes('notificacion.ver'),
     });
 
     useEffect(() => {
