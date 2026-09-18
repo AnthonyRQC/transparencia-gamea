@@ -1,6 +1,6 @@
 # Sprint 18C — Plan: Delegaciones Temporales de Funciones
 
-> **Estado:** PLANIFICADO (no ejecutado) · **Fecha plan:** 17-sep-2026 ·
+> **Estado:** ✅ EJECUTADO (17-sep-2026, recortado D23) · **Fecha plan:** 17-sep-2026 ·
 > **Replan:** 17-sep-2026 (tarde) — D23, D24. Recortado (ya no «Jefe completo» con `usuario.*`).
 > **Decisiones:** D12 (enmendada por D23), D18, D19, D22, D23, D24.
 > **Origen:** un humano = un CI = una cuenta. Si el jefe titular se ausenta una semana y

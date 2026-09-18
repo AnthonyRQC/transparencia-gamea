@@ -951,7 +951,7 @@ Informe, Cierre, **User** y **Delegacion** + UI de consulta por caso/usuario/eve
 
 ---
 
-### Sprint 18A — Panel de Administración de Usuarios ✅ PLANIFICADO (17-sep-2026)
+### Sprint 18A — Panel de Administración de Usuarios ✅ EJECUTADO (17-sep-2026)
 
 **Objetivo:** `/admin/usuarios` (Jefe + Admin): crear, editar, desactivar/reactivar, reset de
 contraseña y acciones masivas de relevo de personal, con invariantes de seguridad.
@@ -969,7 +969,7 @@ en **18B**.
 
 ---
 
-### Sprint 18B — Mi Cuenta (perfil, seguridad, preferencias, apariencia)
+### Sprint 18B — Mi Cuenta (perfil, seguridad, preferencias, apariencia) ✅ EJECUTADO (17-sep-2026)
 
 **Objetivo:** completar el panel de usuario Breeze (ya no mock): perfil (teléfono + picker de
 color D7), seguridad real + middleware `debe_cambiar_password`, preferencias de notificación
@@ -981,7 +981,7 @@ y preferencias reales (D7).
 
 ---
 
-### Sprint 18C — Delegaciones Temporales de Funciones ✅ PLANIFICADO (17-sep-2026)
+### Sprint 18C — Delegaciones Temporales de Funciones ✅ EJECUTADO (17-sep-2026, recortado D23)
 
 **Objetivo:** misma cuenta (CI único), dos funciones. Ausencia de una semana sin segundo
 jefe: el registrador/investigador cubre bandeja **sin** subir de rol (D23).

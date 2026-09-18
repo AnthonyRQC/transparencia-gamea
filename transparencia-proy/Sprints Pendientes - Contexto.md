@@ -567,8 +567,7 @@ hardening y al posible panel administrativo de auditoría pedido por Sistemas (s
 
 ## Sprint 18A — Panel de Administración de Usuarios ✅ PLANIFICADO (17-sep-2026)
 
-**Estado:** Planificado, no ejecutado. **Plan completo:** `Sprint 18A - Plan Panel Usuarios.md`.
-**Replan D21–D22:** identidad CI + username fórmula; jefe administra otros jefes.
+**Estado:** ✅ Ejecutado (17-sep-2026). **Plan completo:** `Sprint 18A - Plan Panel Usuarios.md`.
 
 ### Alcance
 - `/admin/usuarios`: crear, editar, desactivar/reactivar, reset, masivo.
@@ -588,9 +587,8 @@ Panel auditoría (D17) e impersonation (`Notas - Admin simulacion (futuro).md`).
 
 ## Sprint 18B — Mi Cuenta (Perfil + Seguridad + Preferencias + Apariencia)
 
-**Estado:** Pendiente (post-18A). **Spec:** `Sprints Pendientes - Contexto.md` (esta sección) +
-D7 en `Decisiones 12.5 - 13 (Log).md`. Ya NO es mock: la BD existe (Sprint 10) y
-`users.preferencias` (JSON) ya está migrado.
+**Estado:** ✅ Ejecutado (17-sep-2026: force-password, perfil con picker D7, preferencias
+cableadas). **Spec original:** esta sección + D7.
 
 ### Secciones
 - **Perfil:** nombres/apellidos, email, teléfono editables (CI y username **no**; los
@@ -610,7 +608,7 @@ D7 en `Decisiones 12.5 - 13 (Log).md`. Ya NO es mock: la BD existe (Sprint 10) y
 
 ## Sprint 18C — Delegaciones Temporales de Funciones ✅ PLANIFICADO (17-sep-2026)
 
-**Estado:** Planificado, recortado (D23). **Plan completo:** `Sprint 18C - Plan Delegaciones.md`.
+**Estado:** ✅ Ejecutado (17-sep-2026, recortado D23). **Plan completo:** `Sprint 18C - Plan Delegaciones.md`.
 **Origen:** un CI = una cuenta. Ausencia de una semana sin segundo jefe: el registrador o
 investigador cubre bandeja **sin subir de rol** (subir a `jefe` daría `usuario.*`).
 

@@ -1,6 +1,6 @@
 # Sprint 18A — Plan: Panel de Administración de Usuarios
 
-> **Estado:** PLANIFICADO (no ejecutado) · **Fecha plan:** 17-sep-2026 ·
+> **Estado:** ✅ EJECUTADO (17-sep-2026) · **Fecha plan:** 17-sep-2026 ·
 > **Replan:** 17-sep-2026 (tarde) — D21, D22.
 > **Decisiones:** D11, D14, D16, D17, D21, D22 en `Decisiones 12.5 - 13 (Log).md`.
 > **Origen:** Sistemas (GAMEA) tendrá usuarios `admin` para soporte; el Jefe administra

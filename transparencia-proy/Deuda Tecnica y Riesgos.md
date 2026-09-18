@@ -92,7 +92,7 @@
 | B2 | God backend (`CatalogoController:527`, seeders) | 21 | Extraer Services/Queries |
 | B3 | `43× as any` resto | 21 | Layouts ya hechos en 12.3; split `web.php` se adelanta a 16.2 |
 | B4 | OWASP + E2E Playwright | 21 | `owasp-security`, `e2e-playwright-testing` |
-| B5 | Avatar: color paleta oficial + hash fallback | 18A/18B | D7: hook `creating` + picker Perfil + migrar `bg-*` legacy; `InvestigadorAvatar` resuelve clave |
+| B5 | Avatar: color paleta oficial + hash fallback | ✅ 18A/18B | Hook `creating` + picker Perfil + safelist + seeds a paleta. `InvestigadorAvatar` recibe clase; hash fallback sigue pendiente menor |
 | B6 | Auditoría backend (`owen-it/laravel-auditing`) + UI | 21 | Fusionada del Sprint 17 (17-sep-2026). Incluye User y Delegacion |
 | B7 | **Panel administrativo de auditoría** (consulta sin SQL directo) | 21 (sin confirmar) | Pedido por Sistemas. **No decidido**; si se confirma, entra junto a B6 |
 | B8 | Seeds split prod/dev + `.env.production.example` + gitignore backups | 21 | `AdminInicialSeeder` con password por env; demo123 solo dev |
