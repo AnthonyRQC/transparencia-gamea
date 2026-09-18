@@ -2,13 +2,13 @@
 
 namespace App\Http\Middleware;
 
-use App\Data\PermisosCatalogo;
 use App\Models\CategoriaDenuncia;
 use App\Models\Clasificacion;
 use App\Models\DependenciaExterna;
 use App\Models\MedioNotificacion;
 use App\Models\Notificacion;
 use App\Services\AlertasPlazo;
+use App\Services\PermisosEfectivos;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -36,7 +36,7 @@ class HandleInertiaRequests extends Middleware
                     'iniciales' => $user->iniciales,
                     'color' => $user->color,
                     'preferencias' => $user->preferencias,
-                    'permisos' => PermisosCatalogo::permisosPorRol($user->rol),
+                    'permisos' => PermisosEfectivos::de($user),
                 ] : null,
             ],
             'logo_url' => asset('LOGO-OFICIAL-EL-ALTO.png'),

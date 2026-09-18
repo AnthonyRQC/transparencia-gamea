@@ -1,8 +1,11 @@
 <?php
 
+use App\Http\Middleware\EnsureActive;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -24,10 +27,25 @@ return Application::configure(basePath: dirname(__DIR__))
         // controllers, así Carbon::setTestNow() aplica a todo el request.
         $middleware->web(append: [
             \App\Http\Middleware\SimularFecha::class,
+            // Sesiones de desactivados mueren aquí (D18). Corre tras Authenticate.
+            EnsureActive::class,
         ]);
 
         //
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        // `can:` niega con 403. Laravel mapea AuthorizationException a
+        // AccessDeniedHttpException antes de los callbacks: se captura esa.
+        // La app responde redirect + toast (D18), no página de error.
+        $exceptions->render(function (AccessDeniedHttpException $e, Request $request) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'NO TIENES PERMISO PARA ESA SECCIÓN.'], 403);
+            }
+
+            if ($request->user()) {
+                return redirect()->route('dashboard')->with('error', 'NO TIENES PERMISO PARA ESA SECCIÓN.');
+            }
+
+            return redirect()->route('login');
+        });
     })->create();

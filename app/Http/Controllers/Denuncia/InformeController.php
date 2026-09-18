@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Clasificacion;
 use App\Models\Denuncia;
 use App\Models\InformeFinal;
+use App\Services\CasoAuth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -24,6 +25,10 @@ class InformeController extends Controller
         ]);
 
         $denuncia = Denuncia::where('ticket', $ticket)->firstOrFail();
+
+        if (! CasoAuth::puedeOperar($request->user(), $denuncia, 'informe.crear')) {
+            return redirect()->back()->with('error', 'NO TIENES PERMISO PARA OPERAR ESTE CASO.');
+        }
 
         if (!in_array($denuncia->estado, ['informe', 'cerrada'])) {
             return redirect()->back()->with('error', 'No se puede redactar el informe en esta denuncia.');
@@ -66,6 +71,10 @@ class InformeController extends Controller
         ]);
 
         $denuncia = Denuncia::where('ticket', $ticket)->firstOrFail();
+
+        if (! CasoAuth::puedeOperar($request->user(), $denuncia, 'informe.editar')) {
+            return redirect()->back()->with('error', 'NO TIENES PERMISO PARA OPERAR ESTE CASO.');
+        }
 
         if (!in_array($denuncia->estado, ['informe', 'cerrada'])) {
             return redirect()->back()->with('error', 'No se puede editar el informe de esta denuncia.');
@@ -111,6 +120,10 @@ class InformeController extends Controller
     public function eliminarInforme(string $ticket)
     {
         $denuncia = Denuncia::where('ticket', $ticket)->firstOrFail();
+
+        if (! CasoAuth::puedeOperar(Auth::user(), $denuncia, 'informe.eliminar')) {
+            return redirect()->back()->with('error', 'NO TIENES PERMISO PARA OPERAR ESTE CASO.');
+        }
 
         if (!in_array($denuncia->estado, ['informe', 'cerrada'])) {
             return redirect()->back()->with('error', 'No se puede eliminar el informe de esta denuncia.');

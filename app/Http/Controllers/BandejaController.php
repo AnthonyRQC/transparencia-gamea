@@ -13,8 +13,8 @@ class BandejaController extends Controller
 {
     public function index(Request $request)
     {
-        if (Auth::user()->rol !== 'jefe') {
-            return redirect()->route('dashboard')->with('error', 'Solo el Jefe de Unidad puede acceder a la Bandeja de Admisión.');
+        if (! Auth::user()->puede('menu.bandeja')) {
+            return redirect()->route('dashboard')->with('error', 'NO TIENES PERMISO PARA ESA SECCIÓN.');
         }
 
         $with = ['denunciante', 'denunciados', 'pruebas', 'categoria', 'investigador', 'informe.clasificacionRel', 'cierre.medioNotificacion', 'solicitudes.dependenciaDestino', 'solicitudes.ampliaciones', 'descargos.denunciado', 'descargos.ampliaciones', 'evaluaciones', 'bitacora.usuario'];

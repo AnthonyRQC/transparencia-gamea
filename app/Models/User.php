@@ -54,6 +54,16 @@ class User extends Authenticatable
         return $this->rol === 'registrador';
     }
 
+    public function esAdmin(): bool
+    {
+        return $this->rol === 'admin';
+    }
+
+    public function puede(string $permiso): bool
+    {
+        return \App\Services\PermisosEfectivos::puede($this, $permiso);
+    }
+
     public function notificaciones(): HasMany
     {
         return $this->hasMany(Notificacion::class);

@@ -3,7 +3,6 @@ import PageHeader from '@/Components/Layout/PageHeader';
 import { PageProps } from '@/types';
 import { Head } from '@inertiajs/react';
 import { User } from 'lucide-react';
-import DeleteUserForm from './Partials/DeleteUserForm';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm';
 
@@ -33,10 +32,6 @@ export default function Edit({
 
                     <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
                         <UpdatePasswordForm className="max-w-xl" />
-                    </div>
-
-                    <div className="rounded-2xl border border-destructive/20 bg-card p-6 shadow-sm">
-                        <DeleteUserForm className="max-w-xl" />
                     </div>
                 </div>
             </div>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Denuncia;
 use App\Http\Controllers\Controller;
 use App\Models\Denuncia;
 use App\Services\AvisoCaso;
+use App\Services\CasoAuth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -24,20 +25,34 @@ class AdmisionController extends Controller
             return redirect()->back()->with('error', 'No se puede admitir esta denuncia.');
         }
 
-        DB::transaction(function () use ($denuncia, $validated) {
-            $denuncia->update([
+        // Lock + relectura: dos jefes no admiten el mismo caso a la vez (D24).
+        $aplicado = false;
+        DB::transaction(function () use ($ticket, $validated, &$aplicado) {
+            $d = Denuncia::where('ticket', $ticket)->lockForUpdate()->first();
+
+            if (! $d || $d->estado !== 'ingresada') {
+                return;
+            }
+
+            $d->update([
                 'estado' => 'admitida',
                 'fecha_admitida' => now(),
                 'justificacion_admision' => $validated['justificacion'] ?? null,
             ]);
 
-            $denuncia->bitacora()->create([
+            $d->bitacora()->create([
                 'accion' => 'admitida',
                 'detalle' => 'DENUNCIA ADMITIDA PARA INVESTIGACIÓN',
                 'usuario_id' => Auth::id(),
                 'fecha' => now(),
             ]);
+
+            $aplicado = true;
         });
+
+        if (! $aplicado) {
+            return redirect()->back()->with('error', CasoAuth::mensajeCarrera($ticket));
+        }
 
         if (!empty($validated['crear_aviso'])) {
             AvisoCaso::borradorPara($denuncia->fresh(), 'admitida', [
@@ -64,8 +79,15 @@ class AdmisionController extends Controller
             return redirect()->back()->with('error', 'No se puede rechazar esta denuncia.');
         }
 
-        DB::transaction(function () use ($denuncia, $validated) {
-            $denuncia->update([
+        $aplicado = false;
+        DB::transaction(function () use ($ticket, $validated, &$aplicado) {
+            $d = Denuncia::where('ticket', $ticket)->lockForUpdate()->first();
+
+            if (! $d || $d->estado !== 'ingresada') {
+                return;
+            }
+
+            $d->update([
                 'estado' => 'rechazada',
                 'fecha_rechazada' => now(),
                 'justificacion_rechazo' => $validated['justificacion'],
@@ -73,13 +95,19 @@ class AdmisionController extends Controller
                 'sitpreco_rechazo' => $validated['sitpreco'] ?? null,
             ]);
 
-            $denuncia->bitacora()->create([
+            $d->bitacora()->create([
                 'accion' => 'rechazada',
                 'detalle' => 'DENUNCIA RECHAZADA. JUSTIFICACIÓN: ' . $validated['justificacion'],
                 'usuario_id' => Auth::id(),
                 'fecha' => now(),
             ]);
+
+            $aplicado = true;
         });
+
+        if (! $aplicado) {
+            return redirect()->back()->with('error', CasoAuth::mensajeCarrera($ticket));
+        }
 
         if (!empty($validated['crear_aviso'])) {
             AvisoCaso::borradorPara($denuncia->fresh(), 'rechazada', [

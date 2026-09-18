@@ -7,6 +7,7 @@ use App\Models\Cierre;
 use App\Models\Denuncia;
 use App\Models\MedioNotificacion;
 use App\Services\AvisoCaso;
+use App\Services\CasoAuth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -27,6 +28,10 @@ class CierreController extends Controller
         ]);
 
         $denuncia = Denuncia::where('ticket', $ticket)->firstOrFail();
+
+        if (! CasoAuth::puedeOperar($request->user(), $denuncia, 'cierre.crear')) {
+            return redirect()->back()->with('error', 'NO TIENES PERMISO PARA OPERAR ESTE CASO.');
+        }
 
         if ($denuncia->estado !== 'informe') {
             return redirect()->back()->with('error', 'No se puede cerrar esta denuncia.');
@@ -83,6 +88,10 @@ class CierreController extends Controller
 
         $denuncia = Denuncia::where('ticket', $ticket)->firstOrFail();
 
+        if (! CasoAuth::puedeOperar($request->user(), $denuncia, 'cierre.editar')) {
+            return redirect()->back()->with('error', 'NO TIENES PERMISO PARA OPERAR ESTE CASO.');
+        }
+
         if ($denuncia->estado !== 'cerrada') {
             return redirect()->back()->with('error', 'No se puede editar el cierre de esta denuncia.');
         }
@@ -132,6 +141,10 @@ class CierreController extends Controller
     public function eliminarCierre(string $ticket)
     {
         $denuncia = Denuncia::where('ticket', $ticket)->firstOrFail();
+
+        if (! CasoAuth::puedeOperar(Auth::user(), $denuncia, 'cierre.eliminar')) {
+            return redirect()->back()->with('error', 'NO TIENES PERMISO PARA OPERAR ESTE CASO.');
+        }
 
         if ($denuncia->estado !== 'cerrada') {
             return redirect()->back()->with('error', 'No se puede eliminar el cierre de esta denuncia.');

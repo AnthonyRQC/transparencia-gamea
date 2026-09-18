@@ -54,10 +54,14 @@ class EvaluacionController extends Controller
                     'fecha' => now(),
                 ]);
 
-                $jefeId = $evaluacion->delegada_por_id ?? User::where('rol', 'jefe')->value('id');
-                if ($jefeId) {
+                // Vuelve a quien delegó; si no hay registro, a todos los que admiten.
+                $destinatarios = $evaluacion->delegada_por_id
+                    ? User::whereKey($evaluacion->delegada_por_id)->get()
+                    : User::where('activo', true)->get()
+                        ->filter(fn ($u) => \App\Services\PermisosEfectivos::puede($u, 'caso.admitir'));
+                foreach ($destinatarios as $destinatario) {
                     Notificacion::create([
-                        'usuario_id' => $jefeId,
+                        'usuario_id' => $destinatario->id,
                         'tipo' => 'evaluacion_devuelta',
                         'titulo' => 'EVALUACIÓN DEVUELTA POR INVESTIGADOR',
                         'mensaje' => "{$denuncia->ticket} — EVALUADA POR " . Auth::user()->name . " (" . strtoupper($validated['recomendacion']) . ")",

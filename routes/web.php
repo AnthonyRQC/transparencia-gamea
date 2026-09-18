@@ -1,30 +1,8 @@
 <?php
 
-use App\Http\Controllers\BandejaController;
-use App\Http\Controllers\MisCasosController;
-use App\Http\Controllers\MiResumenController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\Denuncia\AmpliacionController;
-use App\Http\Controllers\Denuncia\AsignacionController;
-use App\Http\Controllers\Denuncia\AdmisionController;
-use App\Http\Controllers\Denuncia\CierreController;
-use App\Http\Controllers\Denuncia\DelegacionController;
-use App\Http\Controllers\Denuncia\DenunciaController;
-use App\Http\Controllers\Denuncia\InformeController;
-use App\Http\Controllers\Denuncia\InvestigacionController;
-use App\Http\Controllers\Denuncia\ReaperturaController;
-use App\Http\Controllers\SolicitudController;
-use App\Http\Controllers\DescargoController;
-use App\Http\Controllers\SeguimientoController;
-use App\Http\Controllers\NotificacionController;
-use App\Http\Controllers\NotificacionStreamController;
-use App\Http\Controllers\EvaluacionController;
-use App\Http\Controllers\ArchivosCasoController;
-use App\Http\Controllers\CatalogoController;
-use App\Http\Controllers\ConsultaCasosController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\PublicacionController;
+use App\Http\Controllers\SeguimientoController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -32,8 +10,8 @@ use Inertia\Inertia;
 |--------------------------------------------------------------------------
 | Web Routes — Sistema de Gestión de Denuncias UTLCC
 |--------------------------------------------------------------------------
-| Sprint 0: Estructura base de navegación. Las páginas son placeholders
-| que se reemplazarán en los siguientes sprints con la lógica real.
+| Sprint 16.2: entry + públicas aquí; el resto en parciales
+| (denuncias, reportes, admin, cuenta) con `can:` por ruta.
 */
 
 // ============================================================
@@ -49,6 +27,11 @@ Route::get('/seguimiento', [SeguimientoController::class, 'buscar'])
     ->middleware('throttle:30,1')
     ->name('seguimiento.buscar');
 
+// Descarga pública de adjuntos (solo avisos publicados, sin auth)
+Route::get('/panel/archivos/{id}/descargar', [PublicacionController::class, 'descargarPublico'])
+    ->middleware('throttle:60,1')
+    ->name('panel.descargar');
+
 // ============================================================
 // DESIGN SYSTEM (interno, solo local — 404 en producción)
 // ============================================================
@@ -63,159 +46,18 @@ Route::get('/design-system', function () {
 // RUTAS AUTENTICADAS — Sistema UTLCC
 // ============================================================
 
-// Dashboard / Inicio (Sprint 12)
 Route::middleware('auth')->group(function () {
 
-// Dashboard + Reportes (Sprint 12)
-Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    // Dashboard / Inicio (Sprint 12)
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-// ----- Reportes (Sprint 12) -----
-Route::get('/reportes', [ReporteController::class, 'index'])->name('reportes.index');
-Route::get('/reportes/preview', [ReporteController::class, 'preview'])->name('reportes.preview');
-Route::get('/reportes/exportar', [ReporteController::class, 'exportar'])->name('reportes.exportar');
+    require __DIR__.'/denuncias.php';
+    require __DIR__.'/reportes.php';
+    require __DIR__.'/admin.php';
+    require __DIR__.'/cuenta.php';
 
-// ----- Denuncias -----
-Route::prefix('denuncias')->name('denuncias.')->group(function () {
-    // Bandeja de Admisión (Sprint 2)
-    Route::get('/', [BandejaController::class, 'index'])->name('bandeja');
-
-    // Registro de nueva denuncia (Sprint 1) — DenunciaController delgado
-    Route::get('/registrar', [DenunciaController::class, 'create'])->name('registrar');
-    Route::post('/', [DenunciaController::class, 'store'])->name('store');
-
-    // Acciones (Sprint 2) — AdmisionController
-    Route::post('/{ticket}/admitir', [AdmisionController::class, 'admitir'])->name('admitir');
-    Route::post('/{ticket}/rechazar', [AdmisionController::class, 'rechazar'])->name('rechazar');
-    Route::post('/{ticket}/iniciar', [InvestigacionController::class, 'iniciarInvestigacion'])->name('iniciar');
-
-    // Sprint 3 — Asignación, Traspaso, Reapertura
-    Route::post('/{ticket}/asignar', [AsignacionController::class, 'asignar'])->name('asignar');
-    Route::post('/{ticket}/traspasar', [AsignacionController::class, 'traspasar'])->name('traspasar');
-    Route::post('/{ticket}/reabrir', [ReaperturaController::class, 'reabrir'])->name('reabrir');
-
-    // Sprint 4 — Saltar fase
-    Route::post('/{ticket}/saltar-fase', [InvestigacionController::class, 'saltarFase'])->name('saltar-fase');
-
-    // Sprint 5 — Informe Final y Cierre
-    Route::post('/{ticket}/informe', [InformeController::class, 'guardarInforme'])->name('informe.guardar');
-    Route::post('/{ticket}/informe/editar', [InformeController::class, 'editarInforme'])->name('informe.editar');
-    Route::post('/{ticket}/informe/eliminar', [InformeController::class, 'eliminarInforme'])->name('informe.eliminar');
-    Route::post('/{ticket}/cierre', [CierreController::class, 'guardarCierre'])->name('cierre.guardar');
-    Route::post('/{ticket}/cierre/editar', [CierreController::class, 'editarCierre'])->name('cierre.editar');
-    Route::post('/{ticket}/cierre/eliminar', [CierreController::class, 'eliminarCierre'])->name('cierre.eliminar');
-    Route::post('/{ticket}/archivar', [CierreController::class, 'toggleArchivar'])->name('archivar');
-
-    // Carga de investigadores (Sprint 3)
-    Route::get('/carga-investigadores', [AsignacionController::class, 'cargaInvestigadores'])->name('carga-investigadores');
-
-    // Sprint 7 — Evaluación Técnica Previa
-    Route::post('/{ticket}/delegar-evaluacion', [DelegacionController::class, 'delegarEvaluacion'])->name('delegar-evaluacion');
-    Route::post('/{ticket}/reasumir-evaluacion', [DelegacionController::class, 'reasumirEvaluacion'])->name('reasumir-evaluacion');
-    Route::post('/evaluaciones/{id}/devolver', [EvaluacionController::class, 'devolver'])->name('evaluaciones.devolver');
-
-    // Sprint 8 — Ampliaciones Múltiples
-    Route::post('/{ticket}/ampliar-plazo', [AmpliacionController::class, 'aprobarAmpliacion'])->name('ampliar-plazo');
-
-    // Sprint 7.5 — Editar/Eliminar denuncia raíz (solo ingresada)
-    Route::post('/{ticket}/editar', [DenunciaController::class, 'editar'])->name('editar');
-    Route::post('/{ticket}/eliminar', [DenunciaController::class, 'eliminar'])->name('eliminar');
-
-    // Sprint 7.5 — Conciliación de Fechas
-    Route::post('/{ticket}/conciliar-fechas', [DenunciaController::class, 'conciliarFechas'])->name('conciliar-fechas');
-
-    // Sprint 7.7 — Consulta de Casos (Registrador)
-    Route::get('/consultar', [ConsultaCasosController::class, 'index'])->name('consultar');
-
-    // Sprint 7.6 — Archivos del caso
-    Route::get('/{ticket}/archivos', [ArchivosCasoController::class, 'listar'])->name('archivos.listar');
-    Route::post('/{ticket}/archivos', [ArchivosCasoController::class, 'subir'])->name('archivos.subir');
-    Route::post('/archivos/{id}/eliminar', [ArchivosCasoController::class, 'eliminar'])->name('archivos.eliminar');
-
-    // Sprint 4 — Solicitudes
-    Route::post('/{ticket}/solicitudes', [SolicitudController::class, 'store'])->name('solicitudes.store');
-    Route::post('/solicitudes/{id}/responder', [SolicitudController::class, 'responder'])->name('solicitudes.responder');
-    Route::post('/solicitudes/{id}/ampliar', [SolicitudController::class, 'ampliar'])->name('solicitudes.ampliar');
-    Route::post('/solicitudes/{id}/cancelar', [SolicitudController::class, 'cancelar'])->name('solicitudes.cancelar');
-    Route::post('/solicitudes/{id}/editar', [SolicitudController::class, 'editar'])->name('solicitudes.editar');
-    Route::post('/solicitudes/{id}/eliminar', [SolicitudController::class, 'eliminar'])->name('solicitudes.eliminar');
-
-    // Sprint 4 — Descargos
-    Route::post('/{ticket}/descargos', [DescargoController::class, 'store'])->name('descargos.store');
-    Route::post('/descargos/{id}/notificar', [DescargoController::class, 'notificar'])->name('descargos.notificar');
-    Route::post('/descargos/{id}/responder', [DescargoController::class, 'responder'])->name('descargos.responder');
-    Route::post('/descargos/{id}/ampliar', [DescargoController::class, 'ampliar'])->name('descargos.ampliar');
-    Route::post('/descargos/{id}/cancelar', [DescargoController::class, 'cancelar'])->name('descargos.cancelar');
-    Route::post('/descargos/{id}/editar', [DescargoController::class, 'editar'])->name('descargos.editar');
-    Route::post('/descargos/{id}/eliminar', [DescargoController::class, 'eliminar'])->name('descargos.eliminar');
-
-    // Mis Casos + Mi Resumen (Sprint 2)
-    Route::get('/mis-casos', [MisCasosController::class, 'index'])->name('mis-casos');
-    Route::get('/mi-resumen', [MiResumenController::class, 'index'])->name('mi-resumen');
-
-    // Evaluaciones Delegadas — Bandeja del Investigador (Sprint 7)
-    Route::get('/evaluaciones', [MisCasosController::class, 'evaluaciones'])->name('evaluaciones');
-});
-
-// ----- Administración (Sprint 8 + Sprint 11) -----
-Route::prefix('admin')->name('admin.')->group(function () {
-    // Catálogos (Sprint 11)
-    Route::get('/catalogos', [CatalogoController::class, 'index'])->name('catalogos');
-});
-
-// Sprint 9 — Notificaciones
-Route::prefix('notificaciones')->name('notificaciones.')->group(function () {
-    Route::get('/', [NotificacionController::class, 'index'])->name('index');
-    Route::post('/{id}/leer', [NotificacionController::class, 'marcarLeida'])->name('marcar-leida');
-    Route::post('/leer-todas', [NotificacionController::class, 'marcarTodasLeidas'])->name('marcar-todas');
-});
-
-// ----- Catálogos API (Sprint 11) -----
-Route::prefix('admin')->name('admin.')->group(function () {
-    Route::post('/catalogos/{tipo}', [CatalogoController::class, 'store'])->name('catalogos.store');
-    Route::post('/catalogos/{tipo}/{id}', [CatalogoController::class, 'update'])->name('catalogos.update');
-    Route::post('/catalogos/{tipo}/{id}/eliminar', [CatalogoController::class, 'destroy'])->name('catalogos.destroy');
-    Route::post('/catalogos/{tipo}/{id}/reactivar', [CatalogoController::class, 'reactivar'])->name('catalogos.reactivar');
-});
-
-// ----- Publicaciones / Panel informativo (Sprint 13) -----
-Route::prefix('admin')->name('admin.')->group(function () {
-    Route::get('/publicaciones', [PublicacionController::class, 'index'])->name('publicaciones.index');
-    Route::post('/publicaciones', [PublicacionController::class, 'store'])->name('publicaciones.store');
-    Route::post('/publicaciones/borrador-desde-caso/{ticket}', [PublicacionController::class, 'borradorDesdeCaso'])->name('publicaciones.borrador');
-    Route::post('/publicaciones/{id}', [PublicacionController::class, 'update'])->name('publicaciones.update');
-    Route::post('/publicaciones/{id}/publicar', [PublicacionController::class, 'publicar'])->name('publicaciones.publicar');
-    Route::post('/publicaciones/{id}/despublicar', [PublicacionController::class, 'despublicar'])->name('publicaciones.despublicar');
-    Route::post('/publicaciones/{id}/fijar', [PublicacionController::class, 'fijar'])->name('publicaciones.fijar');
-    Route::post('/publicaciones/{id}/desfijar', [PublicacionController::class, 'desfijar'])->name('publicaciones.desfijar');
-    Route::post('/publicaciones/{id}/mover', [PublicacionController::class, 'mover'])->name('publicaciones.mover');
-    Route::post('/publicaciones/{id}/eliminar', [PublicacionController::class, 'destroy'])->name('publicaciones.destroy');
-    Route::get('/publicaciones/archivos/{id}/descargar', [PublicacionController::class, 'descargarArchivo'])->name('publicaciones.descargar');
-    Route::post('/publicaciones/archivos/{id}/quitar', [PublicacionController::class, 'quitarArchivo'])->name('publicaciones.quitar');
-});
-
-// Descarga pública de adjuntos (solo avisos publicados, sin auth)
-Route::get('/panel/archivos/{id}/descargar', [PublicacionController::class, 'descargarPublico'])
-    ->middleware('throttle:60,1')
-    ->name('panel.descargar');
-
-// API — Notificaciones
-
-// API — Notificaciones
-Route::get('/api/notificaciones/count', [NotificacionController::class, 'count'])
-    ->middleware('auth');
-
-// SSE — Stream de notificaciones en tiempo real (Server-Sent Events)
-Route::get('/notifications/stream', [NotificacionStreamController::class, 'stream'])
-    ->middleware('auth')
-    ->name('notifications.stream');
-
-// ----- Perfil de usuario -----
-Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
-// ----- Time Machine (solo local, ver routes/dev.php) -----
-require __DIR__.'/dev.php';
+    // ----- Time Machine (solo local, ver routes/dev.php) -----
+    require __DIR__.'/dev.php';
 
 }); // end auth middleware group
 

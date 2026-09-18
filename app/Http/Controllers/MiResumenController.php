@@ -11,8 +11,8 @@ class MiResumenController extends Controller
 {
     public function index()
     {
-        if (Auth::user()->rol !== 'investigador') {
-            return redirect()->route('dashboard')->with('error', 'Solo los investigadores pueden acceder a Mi Resumen.');
+        if (! Auth::user()->puede('menu.mi-resumen')) {
+            return redirect()->route('dashboard')->with('error', 'NO TIENES PERMISO PARA ESA SECCIÓN.');
         }
 
         $investigadorId = Auth::id();

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Denuncia;
 use App\Models\Notificacion;
 use App\Models\User;
+use App\Services\CasoAuth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -25,7 +26,14 @@ class DelegacionController extends Controller
             return redirect()->back()->with('error', 'No se puede delegar la evaluación de esta denuncia.');
         }
 
-        DB::transaction(function () use ($denuncia, $validated) {
+        $aplicado = false;
+        DB::transaction(function () use ($ticket, $validated, &$aplicado) {
+            $denuncia = Denuncia::where('ticket', $ticket)->lockForUpdate()->first();
+
+            if (! $denuncia || $denuncia->estado !== 'ingresada') {
+                return;
+            }
+
             $investigador = User::findOrFail($validated['investigador_id']);
 
             $denuncia->evaluaciones()->create([
@@ -56,7 +64,13 @@ class DelegacionController extends Controller
                 'color' => 'info',
                 'fecha' => now(),
             ]);
+
+            $aplicado = true;
         });
+
+        if (! $aplicado) {
+            return redirect()->back()->with('error', CasoAuth::mensajeCarrera($ticket));
+        }
 
         return redirect()->back()->with('success', "Evaluación delegada correctamente para {$ticket}.");
     }
@@ -69,7 +83,14 @@ class DelegacionController extends Controller
             return redirect()->back()->with('error', 'No se puede reasumir la evaluación de esta denuncia.');
         }
 
-        DB::transaction(function () use ($denuncia) {
+        $aplicado = false;
+        DB::transaction(function () use ($ticket, &$aplicado) {
+            $denuncia = Denuncia::where('ticket', $ticket)->lockForUpdate()->first();
+
+            if (! $denuncia || $denuncia->estado !== 'evaluacion_tecnica') {
+                return;
+            }
+
             $evaluacionPendiente = $denuncia->evaluaciones()->where('estado', 'pendiente')->latest()->first();
 
             $denuncia->update(['estado' => 'ingresada']);
@@ -94,7 +115,13 @@ class DelegacionController extends Controller
                     'fecha' => now(),
                 ]);
             }
+
+            $aplicado = true;
         });
+
+        if (! $aplicado) {
+            return redirect()->back()->with('error', CasoAuth::mensajeCarrera($ticket));
+        }
 
         return redirect()->back()->with('success', "Evaluación reasumida para {$ticket}.");
     }

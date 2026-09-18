@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Denuncia;
 use App\Models\DenunciaArchivo;
+use App\Services\CasoAuth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -30,6 +31,10 @@ class ArchivosCasoController extends Controller
 
         $denuncia = Denuncia::where('ticket', $ticket)->firstOrFail();
 
+        if (! CasoAuth::puedeOperar($request->user(), $denuncia, 'archivo.subir')) {
+            return redirect()->back()->with('error', 'NO TIENES PERMISO PARA OPERAR ESTE CASO.');
+        }
+
         $archivo = $denuncia->archivos()->create([
             'usuario_id' => Auth::id(),
             'nombre' => $validated['nombre'],
@@ -48,6 +53,10 @@ class ArchivosCasoController extends Controller
     public function eliminar(int $id)
     {
         $archivo = DenunciaArchivo::findOrFail($id);
+
+        if (! CasoAuth::puedeOperar(Auth::user(), $archivo->denuncia, 'archivo.eliminar')) {
+            return redirect()->back()->with('error', 'NO TIENES PERMISO PARA OPERAR ESTE CASO.');
+        }
 
         $archivo->update(['fecha_eliminacion' => now()]);
 

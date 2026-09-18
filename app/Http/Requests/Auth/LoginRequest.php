@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -29,15 +30,19 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        $user = User::where('username', $this->username)->where('activo', true)->first();
+        // Username case-insensitive en MySQL y SQLite (D18).
+        $username = mb_strtolower(trim((string) $this->username));
+        $user = User::whereRaw('LOWER(username) = ?', [$username])->where('activo', true)->first();
 
-        if (! $user || ! Auth::attempt(['username' => $this->username, 'password' => $this->password], $this->boolean('remember'))) {
+        if (! $user || ! Hash::check((string) $this->password, $user->password)) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
                 'username' => trans('auth.failed'),
             ]);
         }
+
+        Auth::login($user, $this->boolean('remember'));
 
         RateLimiter::clear($this->throttleKey());
     }
@@ -62,6 +67,6 @@ class LoginRequest extends FormRequest
 
     public function throttleKey(): string
     {
-        return Str::transliterate($this->string('username').'|'.$this->ip());
+        return Str::transliterate(mb_strtolower(trim((string) $this->string('username'))).'|'.$this->ip());
     }
 }

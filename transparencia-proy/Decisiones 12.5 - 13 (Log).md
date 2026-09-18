@@ -83,7 +83,7 @@
 ## D3-rev — Publican Jefe + Registrador (10-sep-2026, revierte D3)
 - D3 decía solo-Jefe para avisos de caso. Decisión final: Jefe + Registrador
   publican todo (generales y casos); el flujo sigue borrador → publicar con
-  `publicado_por_id` como trazabilidad. Equipo de 5, sin cuello de botella.
+  `publicado_por_id` como trazabilidad. Unidad de 20–30 personas; sin cuello de botella.
 
 ## D8 — Congelamiento spec Sprint 13 (10-sep-2026, sin dudas abiertas)
 
@@ -320,3 +320,25 @@
   19 (mora explícita) después.
 - **Descarga pública** `/panel/archivos/{id}/descargar`: hoy está dentro del grupo `auth`.
   El split de rutas de **16.2** la mueve a públicas.
+
+## D26 — Jefe supervisor + escala real (17-sep-2026, cierre 16.2)
+
+- **Unidad de 20–30 personas** (no 5). Refuerza `lockForUpdate` y `CasoAuth`. Se corrige
+  D3-rev. Separación de funciones (quien admite no investiga lo propio) **no** se impone;
+  queda como posible endurecimiento futuro; la bitácora registra cada actor.
+- **RBAC: los permisos gobiernan, los roles son paquetes.** `puede('x')` es la única
+  pregunta; el rol es el paquete inicial y 18C suma temporales. Sin roles nuevos para
+  combinaciones.
+- **Jefe supervisor (opción A):** el jefe suma `informe.*` + `cierre.*` (cualquier caso)
+  y `denuncia.crear` + `menu.registrar-denuncia` (la oficina nunca se queda sin registro).
+  `CasoAuth`: informe/cierre/archivo = dueño **o** `caso.asignar`; el resto de expediente
+  (iniciar, solicitud.*, descargo.*) = solo dueño. Coherente con Sprint 13 (el jefe cierra)
+  y con la UI (el tab lo ve el jefe). 18C a salvo: informe/cierre no son delegables.
+- **Destino de asignar/traspasar:** solo investigador o jefe, activo (evita casos huérfanos
+  en manos de quien no puede investigarlos). **Traspaso a sí mismo** = vía formal para que
+  el jefe tome un caso (el mecanismo ya lo permite; la carga lo mostrará en 18A/polish).
+- **Interino con poderes plenos:** lo delegado funciona igual que el rol (sin "permiso a
+  medias"). Lo no delegado no aparece en UI: cada botón mutante chequea el mismo permiso
+  que su ruta (`can:`), así no hay botón-que-da-error.
+- **Dashboard doble vista:** si un usuario califica para global y personal, gana **global**
+  (futura D25).

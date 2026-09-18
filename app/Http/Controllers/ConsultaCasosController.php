@@ -13,8 +13,8 @@ class ConsultaCasosController extends Controller
 {
     public function index(Request $request)
     {
-        if (Auth::user()->rol !== 'registrador') {
-            abort(403, 'Acceso denegado. Solo el Registrador puede consultar casos.');
+        if (! Auth::user()->puede('consulta.ver')) {
+            return redirect()->route('dashboard')->with('error', 'NO TIENES PERMISO PARA ESA SECCIÓN.');
         }
 
         $query = Denuncia::with(['denunciante', 'denunciados', 'investigador', 'categoria', 'solicitudes.dependenciaDestino', 'solicitudes.ampliaciones', 'descargos.denunciado', 'descargos.ampliaciones', 'evaluaciones', 'bitacora.usuario'])

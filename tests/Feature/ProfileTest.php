@@ -43,8 +43,9 @@ class ProfileTest extends TestCase
         $this->assertSame('71234567', $user->telefono);
     }
 
-    public function test_user_can_delete_their_account(): void
+    public function test_user_cannot_delete_their_account(): void
     {
+        // 16.2: nunca delete físico (D16/D20). La ruta no existe.
         $user = User::factory()->create();
 
         $response = $this
@@ -53,29 +54,9 @@ class ProfileTest extends TestCase
                 'password' => 'password',
             ]);
 
-        $response
-            ->assertSessionHasNoErrors()
-            ->assertRedirect('/');
+        $response->assertStatus(405);
 
-        $this->assertGuest();
-        $this->assertNull($user->fresh());
-    }
-
-    public function test_correct_password_must_be_provided_to_delete_account(): void
-    {
-        $user = User::factory()->create();
-
-        $response = $this
-            ->actingAs($user)
-            ->from('/profile')
-            ->delete('/profile', [
-                'password' => 'wrong-password',
-            ]);
-
-        $response
-            ->assertSessionHasErrors('password')
-            ->assertRedirect('/profile');
-
+        $this->assertAuthenticated();
         $this->assertNotNull($user->fresh());
     }
 }

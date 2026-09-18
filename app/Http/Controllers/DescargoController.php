@@ -6,6 +6,7 @@ use App\Helpers\DiasHabiles;
 use App\Models\Bitacora;
 use App\Models\Denuncia;
 use App\Models\Descargo;
+use App\Services\CasoAuth;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -21,6 +22,10 @@ class DescargoController extends Controller
         ]);
 
         $denuncia = Denuncia::where('ticket', $ticket)->firstOrFail();
+
+        if (! CasoAuth::puedeOperar($request->user(), $denuncia, 'descargo.crear')) {
+            return redirect()->back()->with('error', 'NO TIENES PERMISO PARA OPERAR ESTE CASO.');
+        }
 
         $denunciadoId = null;
         if ($validated['denunciado_idx'] >= 0) {
@@ -65,6 +70,14 @@ class DescargoController extends Controller
         ]);
 
         $descargo = Descargo::findOrFail($id);
+
+        if (! CasoAuth::puedeOperar($request->user(), $descargo->denuncia, 'descargo.notificar')) {
+            return redirect()->back()->with('error', 'NO TIENES PERMISO PARA OPERAR ESTE CASO.');
+        }
+
+        if (! CasoAuth::puedeOperar($request->user(), $descargo->denuncia, 'descargo.notificar')) {
+            return redirect()->back()->with('error', 'NO TIENES PERMISO PARA OPERAR ESTE CASO.');
+        }
 
         if ($descargo->estado !== 'pendiente_notif') {
             return redirect()->back()->with('error', 'Este descargo ya fue notificado.');
@@ -132,6 +145,10 @@ class DescargoController extends Controller
 
         $descargo = Descargo::findOrFail($id);
 
+        if (! CasoAuth::puedeOperar($request->user(), $descargo->denuncia, 'descargo.ampliar')) {
+            return redirect()->back()->with('error', 'NO TIENES PERMISO PARA OPERAR ESTE CASO.');
+        }
+
         if ($descargo->estado === 'respondido') {
             return redirect()->back()->with('error', 'No se puede ampliar un descargo ya respondido.');
         }
@@ -172,6 +189,10 @@ class DescargoController extends Controller
 
         $descargo = Descargo::findOrFail($id);
 
+        if (! CasoAuth::puedeOperar($request->user(), $descargo->denuncia, 'descargo.cancelar')) {
+            return redirect()->back()->with('error', 'NO TIENES PERMISO PARA OPERAR ESTE CASO.');
+        }
+
         if (in_array($descargo->estado, ['respondido', 'cancelado'])) {
             return redirect()->back()->with('error', 'No se puede cancelar este descargo.');
         }
@@ -202,6 +223,10 @@ class DescargoController extends Controller
 
         $descargo = Descargo::findOrFail($id);
 
+        if (! CasoAuth::puedeOperar($request->user(), $descargo->denuncia, 'descargo.editar')) {
+            return redirect()->back()->with('error', 'NO TIENES PERMISO PARA OPERAR ESTE CASO.');
+        }
+
         $historial = $descargo->historial_ediciones ?? [];
         $historial[] = [
             'fecha' => now()->toDateTimeString(),
@@ -223,6 +248,10 @@ class DescargoController extends Controller
     public function eliminar(int $id)
     {
         $descargo = Descargo::findOrFail($id);
+
+        if (! CasoAuth::puedeOperar(Auth::user(), $descargo->denuncia, 'descargo.eliminar')) {
+            return redirect()->back()->with('error', 'NO TIENES PERMISO PARA OPERAR ESTE CASO.');
+        }
 
         $descargo->update([
             'eliminado' => true,

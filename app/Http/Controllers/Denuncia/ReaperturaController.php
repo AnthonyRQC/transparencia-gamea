@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Denuncia;
 
 use App\Http\Controllers\Controller;
 use App\Models\Denuncia;
+use App\Services\CasoAuth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -23,7 +24,14 @@ class ReaperturaController extends Controller
             return redirect()->back()->with('error', 'No se puede reabrir esta denuncia.');
         }
 
-        DB::transaction(function () use ($denuncia, $validated) {
+        $aplicado = false;
+        DB::transaction(function () use ($ticket, $validated, &$aplicado) {
+            $denuncia = Denuncia::where('ticket', $ticket)->lockForUpdate()->first();
+
+            if (! $denuncia || ! in_array($denuncia->estado, ['rechazada', 'cerrada'])) {
+                return;
+            }
+
             $denuncia->update([
                 'estado' => 'ingresada',
                 'subestado' => null,
@@ -42,7 +50,13 @@ class ReaperturaController extends Controller
                 'usuario_id' => Auth::id(),
                 'fecha' => now(),
             ]);
+
+            $aplicado = true;
         });
+
+        if (! $aplicado) {
+            return redirect()->back()->with('error', CasoAuth::mensajeCarrera($ticket));
+        }
 
         return redirect()->back()->with('success', "Denuncia {$ticket} reabierta correctamente.");
     }

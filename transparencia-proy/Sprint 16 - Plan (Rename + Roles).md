@@ -1,6 +1,6 @@
 # Sprint 16 — Plan (Rename + Roles y Permisos)
 
-> **Estado:** 16.1 EJECUTADA ✅ (17-sep-2026, `1b68fcd`) · 16.2 pendiente · **Fecha plan:** 17-sep-2026 ·
+> **Estado:** 16.1 ✅ + 16.2 ✅ EJECUTADOS (17-sep-2026) · D11–D26 ·
 > **Replan:** 17-sep-2026 (tarde) — D18–D25.
 > **Decisiones:** D11–D25 en `Decisiones 12.5 - 13 (Log).md`.
 > **Origen:** pasar de demo a sistema funcional: (a) unificar el lenguaje con el personal
@@ -94,7 +94,8 @@ Docs (173 menciones) se actualizan **al cierre** de la fase.
 **NO recibe:** `caso.*`, `denuncia.*`, `menu.bandeja`, `menu.mis-casos`,
 `menu.consultar-casos`, `archivo.*` de caso, `notificacion.ver` (no opera).
 
-**Rol `jefe`:** lo actual + 4 `usuario.*` + `menu.usuarios` + `reporte.exportar` + `caso.archivar`.
+**Rol `jefe`:** lo actual + 4 `usuario.*` + `menu.usuarios` + `reporte.exportar` + `caso.archivar`
++ `informe.*` + `cierre.*` (supervisor, D26) + `denuncia.crear` + `menu.registrar-denuncia` (D26).
 Crea/edita/desactiva jefes, investigadores y registradores; **no** admins (D22).
 
 ### 3.2 Permisos efectivos (seam de 18C)
@@ -139,8 +140,9 @@ Helper usado en controllers de mutación (no Policies):
 
 | Familia | Permisos | ¿De qué caso? |
 |---|---|---|
-| Unidad | admitir, rechazar, asignar, traspasar, reabrir, ampliar, conciliar, delegar/reasumir evaluación, saltar-fase, archivar, denuncia.editar/eliminar | cualquiera |
-| Expediente | iniciar, solicitud.*, descargo.*, informe.*, cierre.*, caso.evaluar | dueño (`investigador_id`) o evaluación asignada |
+| Unidad | admitir, rechazar, asignar, traspasar, reabrir, ampliar, conciliar, delegar/reasumir evaluación, saltar-fase, archivar, denuncia.editar/eliminar/crear | cualquiera |
+| Expediente | iniciar, solicitud.*, descargo.*, caso.evaluar | dueño (`investigador_id`) o evaluación asignada |
+| Expediente supervisado (D26) | informe.*, cierre.*, archivo.subir/eliminar | dueño **o** `caso.asignar` (jefe) |
 
 `caso.admitir` **no** abre expediente ajeno (investigador-interino).
 
@@ -178,8 +180,10 @@ dentro de `DB::transaction`, `lockForUpdate`, re-leer estado, si ya cambió → 
 | Capacidad | admin | jefe | investigador | registrador |
 |---|---|---|---|---|
 | Casos (bandeja, admitir, asignar) | — | ✅ | — | — (18C puede sumar) |
-| Informes / cierres / solicitudes | — | — | solo sus casos | — |
-| Registro + consulta | — | — | — | ✅ |
+| Informes / cierres (supervisor, D26) | — | ✅ cualquier caso | solo sus casos | — |
+| Solicitudes / descargos / iniciar | — | — | solo sus casos | — |
+| Registro | — | ✅ | — | ✅ |
+| Consulta de casos | — | — | — | ✅ (18C puede sumar) |
 | Dashboard | sin rediseño en 16 (D25) | global | personal | global acotado (hoy) |
 | Reportes + export | ✅ | ✅ | — | — |
 | Catálogos + feriados | ✅ | ✅ | — | — |

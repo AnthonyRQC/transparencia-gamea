@@ -38,18 +38,11 @@ class Notificacion extends Model
 
     public function getDestinoUrlAttribute($value)
     {
+        // URL fija al crear (D24). No se reescribe por privilegio: un
+        // investigador-interino no debe caer siempre en la bandeja.
         if (!$value) return null;
 
-        $user = auth()->user();
-        $targetPath = $value;
-
-        if ($user && $user->rol === 'investigador' && ($targetPath === '/denuncias' || str_starts_with($targetPath, '/denuncias?'))) {
-            $targetPath = '/denuncias/mis-casos';
-        } elseif ($user && $user->rol === 'jefe' && ($targetPath === '/denuncias/mis-casos' || str_starts_with($targetPath, '/denuncias/mis-casos?'))) {
-            $targetPath = '/denuncias';
-        }
-
-        $url = url($targetPath);
+        $url = url($value);
         if ($this->ticket && !str_contains($url, 'destacar=')) {
             $separator = str_contains($url, '?') ? '&' : '?';
             $url .= "{$separator}destacar={$this->ticket}";

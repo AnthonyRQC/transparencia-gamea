@@ -30,18 +30,19 @@ class AlertasPlazo
      */
     public static function paraUsuario(User $user): array
     {
-        if ($user->rol === 'registrador') {
+        if (! $user->puede('notificacion.ver')) {
             return [];
         }
 
-        $esJefe = $user->rol === 'jefe';
-        $destino = $esJefe ? '/denuncias' : '/denuncias/mis-casos';
+        // Quien puede admitir (jefes + interinos 18C) ve todo; el resto solo lo suyo.
+        $vistaUnidad = $user->puede('caso.admitir');
+        $destino = $vistaUnidad ? '/denuncias' : '/denuncias/mis-casos';
         $ahora = Carbon::now('America/La_Paz')->toDateTimeString();
         $alertas = [];
 
         // --- Plazo total de denuncias activas ---
         $denuncias = Denuncia::whereNotIn('estado', ['rechazada', 'cerrada'])
-            ->when(! $esJefe, fn ($q) => $q->where('investigador_id', $user->id))
+            ->when(! $vistaUnidad, fn ($q) => $q->where('investigador_id', $user->id))
             ->with('ampliaciones')
             ->limit(100)
             ->get();
@@ -79,7 +80,7 @@ class AlertasPlazo
         // --- Solicitudes pendientes ---
         $solicitudes = SolicitudInformacion::whereIn('estado', ['pendiente', 'ampliada'])
             ->whereNull('fecha_eliminacion')
-            ->when(! $esJefe, fn ($q) => $q->whereHas(
+            ->when(! $vistaUnidad, fn ($q) => $q->whereHas(
                 'denuncia',
                 fn ($dq) => $dq->where('investigador_id', $user->id)->whereNotIn('estado', ['rechazada', 'cerrada'])
             ))
@@ -108,7 +109,7 @@ class AlertasPlazo
         // --- Descargos notificados ---
         $descargos = Descargo::whereIn('estado', ['notificado', 'ampliado'])
             ->whereNull('fecha_eliminacion')
-            ->when(! $esJefe, fn ($q) => $q->whereHas(
+            ->when(! $vistaUnidad, fn ($q) => $q->whereHas(
                 'denuncia',
                 fn ($dq) => $dq->where('investigador_id', $user->id)->whereNotIn('estado', ['rechazada', 'cerrada'])
             ))

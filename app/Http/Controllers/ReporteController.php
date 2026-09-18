@@ -58,14 +58,16 @@ class ReporteController extends Controller
         'sitpreco', 'investigador', 'fecha_conclusion', 'resumen_conclusion', 'clasificacion',
     ];
 
-    private function autorizarJefe(): void
+    private function autorizar(string $permiso): void
     {
-        abort_unless(auth()->user()->rol === 'jefe', 403, 'NO AUTORIZADO.');
+        if (! auth()->user()->puede($permiso)) {
+            abort(403, 'NO TIENES PERMISO PARA ESA SECCIÓN.');
+        }
     }
 
     public function index(Request $request)
     {
-        $this->autorizarJefe();
+        $this->autorizar('reporte.ver');
 
         $denuncias = $this->queryBase($request)->paginate(20)->withQueryString();
 
@@ -78,7 +80,7 @@ class ReporteController extends Controller
 
     public function preview(Request $request)
     {
-        $this->autorizarJefe();
+        $this->autorizar('reporte.ver');
 
         $paginado = $this->queryBase($request)->paginate(10)->withQueryString();
 
@@ -116,7 +118,7 @@ class ReporteController extends Controller
 
     public function exportar(Request $request)
     {
-        $this->autorizarJefe();
+        $this->autorizar('reporte.exportar');
 
         $formato = $request->input('formato', 'excel');
         $rows = $this->queryBase($request)->get();

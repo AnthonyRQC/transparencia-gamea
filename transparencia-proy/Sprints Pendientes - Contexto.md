@@ -526,7 +526,7 @@ Sprint 16 (Roles) y siguientes dependen de este sprint.
 
 ## Sprint 16 (era 15) — Rename + Roles y Permisos ✅ PLANIFICADO (17-sep-2026)
 
-**Estado:** 16.1 ejecutada ✅ (`1b68fcd`); 16.2 pendiente. **Plan completo:** `Sprint 16 - Plan (Rename + Roles).md`.
+**Estado:** 16.1 ✅ + 16.2 ✅ ejecutados. **Plan completo:** `Sprint 16 - Plan (Rename + Roles).md`.
 **Replan:** D18–D25 (sin `RoleMiddleware`; `CasoAuth`; `lockForUpdate`; quitar `DELETE /profile`).
 
 ### Fases

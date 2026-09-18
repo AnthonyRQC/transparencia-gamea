@@ -212,12 +212,12 @@ class PublicacionController extends Controller
 
     private function autorizado(): bool
     {
-        return in_array(\Illuminate\Support\Facades\Auth::user()->rol, ['jefe', 'registrador'], true);
+        return \App\Services\PermisosEfectivos::puede(\Illuminate\Support\Facades\Auth::user(), 'menu.publicaciones');
     }
 
     private function redirigirSinPermiso()
     {
-        return redirect()->route('dashboard')->with('error', 'Solo el Jefe de Unidad o el Registrador pueden gestionar avisos.');
+        return redirect()->route('dashboard')->with('error', 'NO TIENES PERMISO PARA ESA SECCIÓN.');
     }
 
     public function index()

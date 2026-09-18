@@ -13,8 +13,8 @@ class MisCasosController extends Controller
 {
     public function index()
     {
-        if (Auth::user()->rol !== 'investigador') {
-            return redirect()->route('dashboard')->with('error', 'Solo los investigadores pueden acceder a Mis Casos.');
+        if (! Auth::user()->puede('menu.mis-casos')) {
+            return redirect()->route('dashboard')->with('error', 'NO TIENES PERMISO PARA ESA SECCIÓN.');
         }
 
         $investigadorId = Auth::id();
@@ -73,8 +73,8 @@ class MisCasosController extends Controller
 
     public function evaluaciones()
     {
-        if (Auth::user()->rol !== 'investigador') {
-            return redirect()->route('dashboard')->with('error', 'Solo los investigadores pueden acceder a las evaluaciones.');
+        if (! Auth::user()->puede('menu.evaluaciones')) {
+            return redirect()->route('dashboard')->with('error', 'NO TIENES PERMISO PARA ESA SECCIÓN.');
         }
 
         $investigadorId = Auth::id();

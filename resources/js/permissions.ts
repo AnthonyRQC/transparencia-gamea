@@ -11,7 +11,9 @@ export type Permiso =
   | 'menu.consultar-casos'
   | 'menu.notificaciones'
   | 'menu.reportes'
-  | 'menu.feriados'
+  | 'menu.catalogos'
+  | 'menu.publicaciones'
+  | 'menu.usuarios'
   | 'caso.admitir'
   | 'caso.rechazar'
   | 'caso.asignar'
@@ -22,6 +24,7 @@ export type Permiso =
   | 'caso.delegar-evaluacion'
   | 'caso.reasumir-evaluacion'
   | 'caso.saltar-fase'
+  | 'caso.archivar'
   | 'caso.evaluar'
   | 'caso.iniciar'
   | 'caso.avanzar-fase'
@@ -50,31 +53,31 @@ export type Permiso =
   | 'consulta.ver'
   | 'consulta.codigo'
   | 'reporte.ver'
+  | 'reporte.exportar'
   | 'admin.feriados'
   | 'admin.catalogo'
-  | 'menu.catalogos'
-  | 'menu.publicaciones'
+  | 'usuario.crear'
+  | 'usuario.editar'
+  | 'usuario.desactivar'
+  | 'usuario.reset-password'
   | 'publicacion.crear'
   | 'publicacion.editar'
   | 'publicacion.eliminar'
   | 'publicacion.publicar'
   | 'notificacion.ver';
 
-export type Rol = 'registrador' | 'jefe' | 'investigador';
+export type Rol = 'registrador' | 'jefe' | 'investigador' | 'admin';
 
 export const PERMISOS_POR_ROL: Record<Rol, Permiso[]> = {
   registrador: [
     'menu.dashboard',
     'menu.registrar-denuncia',
-    'menu.notificaciones',
     'menu.consultar-casos',
     'denuncia.crear',
     'denuncia.editar',
-    'denuncia.eliminar',
     'consulta.ver',
     'consulta.codigo',
     'archivo.ver',
-    'notificacion.ver',
     'menu.publicaciones',
     'publicacion.crear',
     'publicacion.editar',
@@ -84,9 +87,10 @@ export const PERMISOS_POR_ROL: Record<Rol, Permiso[]> = {
   jefe: [
     'menu.dashboard',
     'menu.bandeja',
+    'menu.registrar-denuncia',
     'menu.notificaciones',
     'menu.reportes',
-    'menu.feriados',
+    'denuncia.crear',
     'denuncia.editar',
     'denuncia.eliminar',
     'caso.admitir',
@@ -99,10 +103,18 @@ export const PERMISOS_POR_ROL: Record<Rol, Permiso[]> = {
     'caso.delegar-evaluacion',
     'caso.reasumir-evaluacion',
     'caso.saltar-fase',
+    'caso.archivar',
+    'informe.crear',
+    'informe.editar',
+    'informe.eliminar',
+    'cierre.crear',
+    'cierre.editar',
+    'cierre.eliminar',
     'archivo.ver',
     'archivo.subir',
     'archivo.eliminar',
     'reporte.ver',
+    'reporte.exportar',
     'admin.feriados',
     'admin.catalogo',
     'menu.catalogos',
@@ -112,6 +124,11 @@ export const PERMISOS_POR_ROL: Record<Rol, Permiso[]> = {
     'publicacion.editar',
     'publicacion.eliminar',
     'publicacion.publicar',
+    'menu.usuarios',
+    'usuario.crear',
+    'usuario.editar',
+    'usuario.desactivar',
+    'usuario.reset-password',
   ],
   investigador: [
     'menu.dashboard',
@@ -145,6 +162,25 @@ export const PERMISOS_POR_ROL: Record<Rol, Permiso[]> = {
     'archivo.subir',
     'archivo.eliminar',
     'notificacion.ver',
+  ],
+  admin: [
+    'menu.dashboard',
+    'menu.reportes',
+    'reporte.ver',
+    'reporte.exportar',
+    'menu.usuarios',
+    'usuario.crear',
+    'usuario.editar',
+    'usuario.desactivar',
+    'usuario.reset-password',
+    'menu.catalogos',
+    'admin.catalogo',
+    'admin.feriados',
+    'menu.publicaciones',
+    'publicacion.crear',
+    'publicacion.editar',
+    'publicacion.eliminar',
+    'publicacion.publicar',
   ],
 };
 

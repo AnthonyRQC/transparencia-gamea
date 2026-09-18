@@ -156,9 +156,15 @@ class DenunciaFlowTest extends TestCase
         $this->assertEquals('asignada', $denuncia->estado);
         $this->assertEquals($this->investigador->id, $denuncia->investigador_id);
 
+        // El trabajo de campo lo hace el investigador dueño (16.2 CasoAuth).
+        $this->actingAs($this->investigador);
+
         $this->post("/denuncias/{$denuncia->ticket}/iniciar", []);
         $denuncia->refresh();
         $this->assertEquals('investigacion', $denuncia->estado);
+
+        // El jefe retoma: salta fase y firma informe/cierre (supervisor, D26).
+        $this->actingAs($this->jefe);
 
         $this->post("/denuncias/{$denuncia->ticket}/saltar-fase", [
             'justificacion' => 'JUSTIFICACIÓN DE PRUEBA PARA SALTAR FASE CON MÍNIMO DE 20 CARACTERES',

@@ -124,10 +124,12 @@ class DenunciaController extends Controller
                 'fecha' => now(),
             ]);
 
-            $jefes = User::where('rol', 'jefe')->where('activo', true)->get();
-            foreach ($jefes as $jefe) {
+            // Avisan a quienes pueden admitir (jefes + interinos de 18C).
+            $destinatarios = User::where('activo', true)->get()
+                ->filter(fn ($u) => \App\Services\PermisosEfectivos::puede($u, 'caso.admitir'));
+            foreach ($destinatarios as $destinatario) {
                 Notificacion::create([
-                    'usuario_id' => $jefe->id,
+                    'usuario_id' => $destinatario->id,
                     'tipo' => 'nueva_denuncia',
                     'titulo' => 'NUEVA DENUNCIA REGISTRADA',
                     'mensaje' => "{$ticket} FUE REGISTRADA Y ESPERA ADMISIÓN",

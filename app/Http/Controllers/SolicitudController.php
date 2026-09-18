@@ -8,6 +8,7 @@ use App\Models\Bitacora;
 use App\Models\Denuncia;
 use App\Models\SolicitudInformacion;
 use App\Models\DependenciaExterna;
+use App\Services\CasoAuth;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -32,6 +33,10 @@ class SolicitudController extends Controller
         }
 
         $denuncia = Denuncia::where('ticket', $ticket)->firstOrFail();
+
+        if (! CasoAuth::puedeOperar($request->user(), $denuncia, 'solicitud.crear')) {
+            return redirect()->back()->with('error', 'NO TIENES PERMISO PARA OPERAR ESTE CASO.');
+        }
 
         if (!in_array($denuncia->estado, ['asignada', 'investigacion', 'informe'])) {
             return redirect()->back()->with('error', 'No se pueden crear solicitudes en el estado actual de la denuncia.');
@@ -67,6 +72,10 @@ class SolicitudController extends Controller
 
         $solicitud = SolicitudInformacion::findOrFail($id);
 
+        if (! CasoAuth::puedeOperar($request->user(), $solicitud->denuncia, 'solicitud.responder')) {
+            return redirect()->back()->with('error', 'NO TIENES PERMISO PARA OPERAR ESTE CASO.');
+        }
+
         if ($solicitud->estado === 'respondida') {
             return redirect()->back()->with('error', 'Esta solicitud ya fue respondida.');
         }
@@ -95,6 +104,10 @@ class SolicitudController extends Controller
         ]);
 
         $solicitud = SolicitudInformacion::findOrFail($id);
+
+        if (! CasoAuth::puedeOperar($request->user(), $solicitud->denuncia, 'solicitud.cancelar')) {
+            return redirect()->back()->with('error', 'NO TIENES PERMISO PARA OPERAR ESTE CASO.');
+        }
 
         if (!in_array($solicitud->estado, ['pendiente', 'ampliada'])) {
             return redirect()->back()->with('error', 'No se puede cancelar esta solicitud porque ya fue respondida o cancelada.');
@@ -125,6 +138,10 @@ class SolicitudController extends Controller
         ]);
 
         $solicitud = SolicitudInformacion::findOrFail($id);
+
+        if (! CasoAuth::puedeOperar($request->user(), $solicitud->denuncia, 'solicitud.ampliar')) {
+            return redirect()->back()->with('error', 'NO TIENES PERMISO PARA OPERAR ESTE CASO.');
+        }
 
         if (in_array($solicitud->estado, ['respondida', 'cancelada'])) {
             return redirect()->back()->with('error', 'No se puede ampliar una solicitud ya respondida o cancelada.');
@@ -163,6 +180,10 @@ class SolicitudController extends Controller
 
         $solicitud = SolicitudInformacion::findOrFail($id);
 
+        if (! CasoAuth::puedeOperar($request->user(), $solicitud->denuncia, 'solicitud.editar')) {
+            return redirect()->back()->with('error', 'NO TIENES PERMISO PARA OPERAR ESTE CASO.');
+        }
+
         $historial = $solicitud->historial_ediciones ?? [];
         $historial[] = [
             'fecha' => now()->toDateTimeString(),
@@ -185,6 +206,10 @@ class SolicitudController extends Controller
     public function eliminar(int $id)
     {
         $solicitud = SolicitudInformacion::findOrFail($id);
+
+        if (! CasoAuth::puedeOperar(Auth::user(), $solicitud->denuncia, 'solicitud.eliminar')) {
+            return redirect()->back()->with('error', 'NO TIENES PERMISO PARA OPERAR ESTE CASO.');
+        }
 
         $solicitud->update([
             'eliminado' => true,

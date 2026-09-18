@@ -67,14 +67,14 @@ class CatalogoControllerTest extends TestCase
         $response->assertInertia(fn($page) => $page->component('Admin/Catalogos'));
     }
 
-    public function test_registrador_can_view_catalogos_page(): void
+    public function test_registrador_no_accede_a_catalogos(): void
     {
+        // 16.2: catálogos = admin/jefe. El registrador redirige al dashboard.
         $this->actingAs($this->registrador);
 
         $response = $this->get('/admin/catalogos');
 
-        $response->assertStatus(200);
-        $response->assertInertia(fn($page) => $page->component('Admin/Catalogos'));
+        $response->assertRedirect('/dashboard');
     }
 
     public function test_jefe_can_create_categoria(): void

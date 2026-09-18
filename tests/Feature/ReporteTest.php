@@ -68,10 +68,10 @@ class ReporteTest extends TestCase
         $this->denuncia();
 
         $this->actingAs($this->investigador);
-        $this->get('/reportes')->assertForbidden();
+        $this->get('/reportes')->assertRedirect('/dashboard');
 
         $this->actingAs($this->registrador);
-        $this->get('/reportes')->assertForbidden();
+        $this->get('/reportes')->assertRedirect('/dashboard');
     }
 
     public function test_listado_paginado_con_datos(): void
@@ -166,8 +166,8 @@ class ReporteTest extends TestCase
 
         $this->actingAs($this->investigador);
 
-        $this->get('/reportes/exportar?formato=excel')->assertForbidden();
-        $this->get('/reportes/exportar?formato=pdf')->assertForbidden();
+        $this->get('/reportes/exportar?formato=excel')->assertRedirect('/dashboard');
+        $this->get('/reportes/exportar?formato=pdf')->assertRedirect('/dashboard');
     }
 
     public function test_preview_filtra_por_medio_notificacion(): void

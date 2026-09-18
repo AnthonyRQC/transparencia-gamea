@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Denuncia;
 use App\Models\Notificacion;
 use App\Models\User;
+use App\Services\CasoAuth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -24,16 +25,27 @@ class AsignacionController extends Controller
             return redirect()->back()->with('error', 'No se puede asignar esta denuncia.');
         }
 
-        DB::transaction(function () use ($denuncia, $validated) {
-            $investigador = User::findOrFail($validated['investigador_id']);
+        $investigador = User::findOrFail($validated['investigador_id']);
 
-            $denuncia->update([
+        if (! $investigador->activo || ! in_array($investigador->rol, ['investigador', 'jefe'], true)) {
+            return redirect()->back()->with('error', 'SOLO SE PUEDE ASIGNAR A UN INVESTIGADOR O JEFE ACTIVO.');
+        }
+
+        $aplicado = false;
+        DB::transaction(function () use ($ticket, $investigador, &$aplicado) {
+            $d = Denuncia::where('ticket', $ticket)->lockForUpdate()->first();
+
+            if (! $d || $d->estado !== 'admitida') {
+                return;
+            }
+
+            $d->update([
                 'investigador_id' => $investigador->id,
                 'fecha_asignada' => now(),
                 'estado' => 'asignada',
             ]);
 
-            $denuncia->bitacora()->create([
+            $d->bitacora()->create([
                 'accion' => 'asignada',
                 'detalle' => 'DENUNCIA ASIGNADA A ' . $investigador->name,
                 'usuario_id' => Auth::id(),
@@ -44,14 +56,20 @@ class AsignacionController extends Controller
                 'usuario_id' => $investigador->id,
                 'tipo' => 'asignacion',
                 'titulo' => 'NUEVO CASO ASIGNADO',
-                'mensaje' => "{$denuncia->ticket} TE FUE ASIGNADO",
-                'ticket' => $denuncia->ticket,
-                'destino_url' => '/denuncias',
+                'mensaje' => "{$d->ticket} TE FUE ASIGNADO",
+                'ticket' => $d->ticket,
+                'destino_url' => '/denuncias/mis-casos',
                 'icono' => 'UserPlus',
                 'color' => 'info',
                 'fecha' => now(),
             ]);
+
+            $aplicado = true;
         });
+
+        if (! $aplicado) {
+            return redirect()->back()->with('error', CasoAuth::mensajeCarrera($ticket));
+        }
 
         return redirect()->back()->with('success', "Denuncia {$ticket} asignada correctamente.");
     }
@@ -73,22 +91,34 @@ class AsignacionController extends Controller
             return redirect()->back()->with('error', 'No se puede traspasar al mismo investigador.');
         }
 
-        DB::transaction(function () use ($denuncia, $validated) {
-            $nuevoInvestigador = User::findOrFail($validated['investigador_id']);
-            $nuevoEstado = $denuncia->estado === 'admitida' ? 'asignada' : $denuncia->estado;
+        $nuevoInvestigador = User::findOrFail($validated['investigador_id']);
 
-            $denuncia->update([
+        if (! $nuevoInvestigador->activo || ! in_array($nuevoInvestigador->rol, ['investigador', 'jefe'], true)) {
+            return redirect()->back()->with('error', 'SOLO SE PUEDE TRASPASAR A UN INVESTIGADOR O JEFE ACTIVO.');
+        }
+
+        $aplicado = false;
+        DB::transaction(function () use ($ticket, $validated, $nuevoInvestigador, &$aplicado) {
+            $d = Denuncia::where('ticket', $ticket)->lockForUpdate()->first();
+
+            if (! $d || ! in_array($d->estado, ['asignada', 'investigacion', 'informe'])) {
+                return;
+            }
+
+            $nuevoEstado = $d->estado === 'admitida' ? 'asignada' : $d->estado;
+
+            $d->update([
                 'estado' => $nuevoEstado,
-                'investigador_anterior_id' => $denuncia->investigador_id,
+                'investigador_anterior_id' => $d->investigador_id,
                 'investigador_id' => $nuevoInvestigador->id,
-                'fecha_asignada' => $denuncia->fecha_asignada ?? now()->toDateTimeString(),
+                'fecha_asignada' => $d->fecha_asignada ?? now()->toDateTimeString(),
                 'traspaso_json' => [
                     'fecha' => now()->toDateTimeString(),
                     'justificacion' => $validated['justificacion'],
                 ],
             ]);
 
-            $denuncia->bitacora()->create([
+            $d->bitacora()->create([
                 'accion' => 'traspaso',
                 'detalle' => 'TRASPASADO A ' . $nuevoInvestigador->name . '. JUSTIFICACIÓN: ' . $validated['justificacion'],
                 'usuario_id' => Auth::id(),
@@ -99,14 +129,20 @@ class AsignacionController extends Controller
                 'usuario_id' => $nuevoInvestigador->id,
                 'tipo' => 'traspaso',
                 'titulo' => 'CASO TRASPASADO A TI',
-                'mensaje' => "{$denuncia->ticket} FUE TRASPASADO A TU BANDEJA",
-                'ticket' => $denuncia->ticket,
+                'mensaje' => "{$d->ticket} FUE TRASPASADO A TU BANDEJA",
+                'ticket' => $d->ticket,
                 'destino_url' => '/denuncias/mis-casos',
                 'icono' => 'ArrowRightLeft',
                 'color' => 'info',
                 'fecha' => now(),
             ]);
+
+            $aplicado = true;
         });
+
+        if (! $aplicado) {
+            return redirect()->back()->with('error', CasoAuth::mensajeCarrera($ticket));
+        }
 
         return redirect()->back()->with('success', "Denuncia {$ticket} traspasada correctamente.");
     }
