@@ -1,14 +1,23 @@
-import { FileText, Trash2, Search } from 'lucide-react';
+import { FileText, Trash2, Search, Download } from 'lucide-react';
+import { route } from 'ziggy-js';
 import { Input } from '@/Components/ui/input';
 import { cn } from '@/lib/utils';
 import { formatearFechaCorta } from '@/helpers/fechas';
+
+function formatearTamano(bytes: number | string | null | undefined): string {
+  const n = Number(bytes);
+  if (!bytes || Number.isNaN(n) || n <= 0) return '—';
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+  return `${(n / (1024 * 1024)).toFixed(1)} MB`;
+}
 
 interface ArchivoItem {
   id: number;
   denuncia_ticket: string;
   nombre: string;
   mime_type: string;
-  tamano: string;
+  tamano: string | null;
   descripcion?: string | null;
   contexto: string;
   fecha_subida: string;
@@ -62,7 +71,7 @@ export default function TablaArchivosCaso({ archivos, onEliminar, search, onSear
             <div className="min-w-0 flex-1">
               <p className="text-sm font-medium truncate">{a.nombre}</p>
               <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                <span>{a.tamano}</span>
+                <span>{formatearTamano(a.tamano)}</span>
                 <span>·</span>
                 <span>{formatearFechaCorta(a.fecha_subida) ?? ''}</span>
                 <span className={cn('text-[10px] font-semibold px-1.5 py-0.5 rounded', contextoColor[a.contexto] || '')}>
@@ -73,6 +82,13 @@ export default function TablaArchivosCaso({ archivos, onEliminar, search, onSear
                 <p className="text-xs text-muted-foreground mt-0.5 truncate">{a.descripcion}</p>
               )}
             </div>
+            <a
+              href={route('denuncias.archivos.descargar', { id: a.id })}
+              className="p-1.5 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors cursor-pointer"
+              title="Descargar archivo"
+            >
+              <Download className="w-3.5 h-3.5" />
+            </a>
             <button
               type="button"
               onClick={() => onEliminar(a.id)}
