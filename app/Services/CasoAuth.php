@@ -48,6 +48,7 @@ class CasoAuth
         'cierre.crear',
         'cierre.editar',
         'cierre.eliminar',
+        'archivo.ver',
         'archivo.subir',
         'archivo.eliminar',
     ];

@@ -145,6 +145,24 @@ class ArchivosCasoSubidaTest extends TestCase
             ->assertSessionHas('error');
     }
 
+    public function test_jefe_descarga_archivo_de_caso_ajeno(): void
+    {
+        $otro = User::factory()->create([
+            'username' => 'otroinv2',
+            'rol' => 'investigador',
+            'activo' => true,
+        ]);
+
+        Storage::disk('local')->put('archivos/test/jefe.pdf', 'CONTENIDO');
+        $this->denuncia->update(['investigador_id' => $otro->id]);
+        $archivo = $this->crearArchivo('archivos/test/jefe.pdf');
+
+        $this->actingAs($this->jefe)
+            ->get("/denuncias/archivos/{$archivo->id}/descargar")
+            ->assertOk()
+            ->assertDownload('jefe.pdf');
+    }
+
     public function test_un_archivo_eliminado_no_aparece_en_el_listado(): void
     {
         $this->actingAs($this->jefe);
