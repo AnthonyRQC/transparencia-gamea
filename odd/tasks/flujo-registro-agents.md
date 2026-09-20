@@ -66,6 +66,7 @@ Registry reference (read-only): `transparencia-proy/decisiones/Indice.md`,
 ## Evidence
 
 - Branch: `docs/flujo-registro-agents`
-- Commit SHA: _pending_
-- Diff stat: _pending_
-- Engram mirror ID: _pending_
+- Commit SHA: `00b48a6` (`docs(flujo): AGENTS.md normativo con puntero en AI-CONTEXT`)
+- Diff stat: 3 files, 154 insertions(+), 0 deletions — `AGENTS.md` 81+,
+  `odd/tasks/flujo-registro-agents.md` 71+, `AI-CONTEXT.md` 2+
+- Engram mirror ID: 10 (`obs-728e43496fb7b525`, topic `odd/flujo-registro-agents/tasks`)
