@@ -46,7 +46,7 @@ pendientes.
   `permisos[]`, `desde`/`hasta`, `otorgado_por`); `PermisosEfectivos` =
   rol ∪ delegaciones vigentes, memoizado; revocación en cascada al
   desactivar o cambiar rol; nunca `usuario.*`/`admin.*`.
-- **Dashboard:** `DashboardController` (104 líneas) +
+- **Dashboard:** `DashboardController` (116 líneas) +
   `Queries/Dashboard/{Kpi,Operativo,Resultados,Rendimiento}Query`;
   scoping en servidor (investigador solo sus casos).
 - **Plazos:** `DiasHabiles` (lun-vie sin feriados; caché
@@ -94,7 +94,7 @@ pendientes.
    `RendimientoQuery` hidratan colecciones con ampliaciones y filtran
    por accessor. Impacto: degradación a escala. Recomendación:
    agregados SQL.
-3. **`Bandeja.tsx` como orquestador de 1019 líneas.** Impacto: costo de
+3. **`Bandeja.tsx` como orquestador de 1061 líneas.** Impacto: costo de
    testeo y mantenimiento. Recomendación: dividir por tabs y modales.
 4. **Duplicación de contratos de exportación.** Evidencia: re-exports
    de compatibilidad duplicados y `COLUMNAS_EXCEL` espejo entre
@@ -102,8 +102,8 @@ pendientes.
    (sincronización manual indicada en comentario). Impacto: drift
    silencioso. Recomendación: contrato único.
 5. **Controladores extensos restantes.** Evidencia:
-   `CatalogoController` 655 líneas, `PublicacionController` 535,
-   `UsuarioController` 411. Impacto: mantenimiento. Recomendación:
+   `CatalogoController` 715 líneas, `PublicacionController` 632,
+   `UsuarioController` 491. Impacto: mantenimiento. Recomendación:
    extraer queries o servicios, como en dashboard.
 6. **Auditoría forense pendiente (Sprint 21).** Hoy solo existe
    `Bitácora`. Recomendación: mantener el plan de Sprint 21.

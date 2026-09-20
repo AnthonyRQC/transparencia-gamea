@@ -1,6 +1,6 @@
 # Persist Full App Analysis (Backend + Frontend)
 
-Status: in progress (branch isolated, unpushed, no PR)
+Status: committed (evidence recorded on disk; branch unpushed, no PR)
 Branch: docs/analisis-completo
 Type: docs-only work unit (no code changes)
 
@@ -66,16 +66,16 @@ Out of scope: every other file.
 
 ## Task checklist
 
-- [ ] T1 — Feature doc + mirror: create this file in English
+- [x] T1 — Feature doc + mirror: create this file in English
   (~70-100 lines) and save the Engram mirror (topic
   `odd/analisis-completo/tasks`); mark pending on failure.
-- [ ] T2 — Analysis doc: create
+- [x] T2 — Analysis doc: create
   `transparencia-proy/Análisis Completo - App (Sep 2026).md`
   in neutral Spanish (max ~180 lines, scannable sections).
-- [ ] T3 — Verify: read back both docs, `Test-Path` both paths,
+- [x] T3 — Verify: read back both docs, `Test-Path` both paths,
   `git status --short`, stage only the 2 new files,
   `git diff --cached --stat`.
-- [ ] T4 — Commit: one work-unit commit
+- [x] T4 — Commit: one work-unit commit
   `docs(analisis): persistir análisis completo backend y frontend`;
   record full SHA and diff stat below.
 
@@ -98,9 +98,17 @@ Out of scope: every other file.
 
 ## Evidence
 
-- Commit SHA: _pending (recorded after commit)_
+- Commit SHA: cf86942395cec199c2b8caec0cea6e0bfa328a51
 - Commit message: `docs(analisis): persistir análisis completo backend y frontend`
-- Diff stat: _pending_
-- Mirror: _pending_
-- Note: the SHA above is recorded in this document after the commit;
+- Diff stat: 2 files changed, 255 insertions(+)
+  (odd/tasks/analisis-completo.md 106,
+  `Análisis Completo - App (Sep 2026).md` 149; staged stat observed
+  via `git diff --cached --stat` before commit).
+- Mirror: updated post-commit as Engram observation ID 15
+  (topic `odd/analisis-completo/tasks`, merged with final evidence).
+- Verification corrections recorded in the analysis doc:
+  migration/model counts verified by direct count (41 / 25), the
+  `Hourglass` import is in use (not dead), and the stub class is
+  `ArchivosCasoController`.
+- Note: the SHA above was recorded in this document after the commit;
   the committed copy of this document lists it as pending.
