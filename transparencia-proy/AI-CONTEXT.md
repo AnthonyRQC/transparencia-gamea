@@ -95,6 +95,8 @@ Ver `Sprints Pendientes - Contexto.md` + planes `Sprint 16`, `18A`, `18C`.
     - `Notas - Admin simulacion (futuro).md` — idea aparcada; solo si Sistemas pregunta.
 6. **Bitácora de cambios recientes:** Ver `Notas Reestructuración - Bloques 0-2 (Sept 2026) - Cierre.md` y `Notas Migración Laravel 13 - Cierre.md`.
 
+> Las reglas de trabajo se encuentran en `AGENTS.md` (raíz, sección Registro de decisiones); el registro vigente está en `transparencia-proy/decisiones/Indice.md`.
+
 ## Documentación Esencial (LEER SIEMPRE)
 1. `transparencia-proy/AI-CONTEXT.md` (este archivo) — Snapshot del estado actual
 2. `transparencia-proy/Plan de Desarrollo.md` — Hoja de ruta, sprints, decisiones
