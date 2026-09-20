@@ -1,6 +1,6 @@
 # Archive Executed Sprints 13 / 16 / 18A / 18C
 
-Status: in progress
+Status: committed (evidence recorded on disk; branch unpushed, no PR)
 Branch: docs/archivar-sprints-cerrados
 Type: docs-only work unit (no code changes)
 
@@ -68,10 +68,10 @@ Destination directory: `transparencia-proy/archivo/sprints-cerrados/`
 - [x] T2 — Move: `git mv` each present file to `archivo/sprints-cerrados/`.
 - [x] T3 — Verify: Test-Path destinations, `git status --short`,
   `git diff --cached --stat`, Read back this document.
-- [ ] T4 — Commit: one work-unit commit
+- [x] T4 — Commit: one work-unit commit
   `docs(archivo): archivar sprints 13/16/18A/18C ejecutados`;
   record full SHA and diff stat below.
-- [ ] T5 — Mirror: save/update Engram mirror
+- [x] T5 — Mirror: save/update Engram mirror
   (topic `odd/archivar-sprints-cerrados/tasks`); mark pending on failure.
 
 ## Acceptance criteria
@@ -93,10 +93,14 @@ Destination directory: `transparencia-proy/archivo/sprints-cerrados/`
 
 ## Evidence
 
-- Commit SHA: _pending (recorded after commit)_
-- Diff stat: 7 files changed, 0 insertions(+), 0 deletions(-)
-  (pure renames via `git mv`, history preserved).
+- Commit SHA: 317a74d76dfe2582ce1f7abfb0b0fb274363b483
+- Commit message: `docs(archivo): archivar sprints 13/16/18A/18C ejecutados`
+- Diff stat: 8 files changed, 102 insertions(+)
+  (7 pure renames at 100% similarity via `git mv`, history preserved,
+  plus this new feature document).
 - Staged stat observed via `git diff --cached --stat` before commit.
-- Mirror: saved pre-move as Engram observation ID 4
-  (topic `odd/archivar-sprints-cerrados/tasks`); update pending after commit.
+- Mirror: updated post-commit as Engram observation ID 4
+  (topic `odd/archivar-sprints-cerrados/tasks`, title updated with short SHA).
 - Inventory: all 7 source files present (no missing items).
+- Note: the SHA above was recorded in this document after the commit;
+  the committed copy of this document lists it as pending.

@@ -1,6 +1,6 @@
 # Create Decision Registry with Index and ADR Template
 
-Status: in progress (branch isolated, unpushed, no PR)
+Status: committed (evidence recorded on disk; branch unpushed, no PR)
 Branch: docs/decisiones-registro
 Type: docs-only work unit (no code changes)
 
@@ -61,10 +61,10 @@ Out of scope: all other files and folders.
 
 ## Task checklist
 
-- [ ] T1 — Feature doc: create this file in English (~80-110 lines).
-- [ ] T2 — Index: create `Indice.md` in neutral Spanish (~60-90 lines).
-- [ ] T3 — Template: create `PLANTILLA-ADR.md` in neutral Spanish (~40-60 lines).
-- [ ] T4 — Mirror + commit: save Engram mirror, one work-unit commit,
+- [x] T1 — Feature doc: create this file in English (~80-110 lines).
+- [x] T2 — Index: create `Indice.md` in neutral Spanish (~60-90 lines).
+- [x] T3 — Template: create `PLANTILLA-ADR.md` in neutral Spanish (~40-60 lines).
+- [x] T4 — Mirror + commit: save Engram mirror, one work-unit commit,
   record full SHA and stat in Evidence below.
 
 ## Acceptance criteria
@@ -86,7 +86,14 @@ Out of scope: all other files and folders.
 
 ## Evidence
 
-- Commit SHA: pending
+- Commit SHA: 6f50d63ad8167556b33c02a767791df3fe8f3f10
 - Commit message: `docs(decisiones): crear registro con índice y plantilla ADR`
-- Diff stat: pending
-- Mirror: pending
+- Diff stat: 3 files changed, 209 insertions(+)
+  (odd/tasks/decisiones-registro.md 92, Indice.md 67,
+  PLANTILLA-ADR.md 50; staged stat observed via
+  `git diff --cached --stat` before commit).
+- Mirror: updated post-commit as Engram observation ID pending-merge
+  (topic `odd/decisiones-registro/tasks`, pre-commit ID 7).
+- Inventory: all 3 authorized paths present (no missing items).
+- Note: the SHA above was recorded in this document after the commit;
+  the committed copy of this document lists it as pending.
