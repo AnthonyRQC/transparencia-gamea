@@ -6,6 +6,8 @@ use App\Models\DenunciaArchivo;
 use App\Models\Denuncia;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class ArchivosCasoTest extends TestCase
@@ -53,9 +55,11 @@ class ArchivosCasoTest extends TestCase
 
     public function test_can_subir_archivo(): void
     {
+        Storage::fake('local');
         $this->actingAs($this->user);
 
         $response = $this->post("/denuncias/{$this->denuncia->ticket}/archivos", [
+            'archivo' => UploadedFile::fake()->create('test_documento.pdf', 10, 'application/pdf'),
             'nombre' => 'test_documento.pdf',
             'descripcion' => 'DOCUMENTO DE PRUEBA',
             'contexto' => 'general',

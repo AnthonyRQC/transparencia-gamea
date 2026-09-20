@@ -82,6 +82,7 @@ Route::prefix('denuncias')->name('denuncias.')->group(function () {
     Route::get('/{ticket}/archivos', [ArchivosCasoController::class, 'listar'])->can('archivo.ver')->name('archivos.listar');
     Route::post('/{ticket}/archivos', [ArchivosCasoController::class, 'subir'])->can('archivo.subir')->name('archivos.subir');
     Route::post('/archivos/{id}/eliminar', [ArchivosCasoController::class, 'eliminar'])->can('archivo.eliminar')->name('archivos.eliminar');
+    Route::get('/archivos/{id}/descargar', [ArchivosCasoController::class, 'download'])->can('archivo.ver')->name('archivos.descargar');
 
     // Sprint 4 — Solicitudes
     Route::post('/{ticket}/solicitudes', [SolicitudController::class, 'store'])->can('solicitud.crear')->name('solicitudes.store');
