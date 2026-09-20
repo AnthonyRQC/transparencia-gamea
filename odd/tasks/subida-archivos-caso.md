@@ -55,26 +55,25 @@ Out of scope: schema/migrations, seeders, packages, any other file.
   `CasoAuth::puedeOperar()` check in the controller.
 - `listar()` behavior is unchanged; it has no case-level check
   (pre-existing, follow-up).
-- `download()` mirrors `eliminar()` with `archivo.ver`; note that
-  `archivo.ver` is not in `CasoAuth::PERMISOS_UNIDAD` nor
-  `PERMISOS_SUPERVISOR`, so only the case owner (investigador_id) or a
-  user delegated that permission passes the case check. A jefe who can
-  delete (`archivo.eliminar` is supervisor) but does not own the case is
-  rejected. Recorded as a risk; a follow-up can align the permission list.
+- `download()` mirrors `eliminar()` with `archivo.ver`. Resolution
+  (commit `0ca0764`): `archivo.ver` was added to
+  `CasoAuth::PERMISOS_SUPERVISOR`, so a jefe with `caso.asignar`
+  downloads any case file, exactly like subir/eliminar; owner access
+  is unchanged.
 - Accepted types and 50MB cap must match the orphaned modal constants.
 - No push, no PR. Two work-unit commits plus one small evidence commit.
 
 ## Checklist
 
-- [ ] T1: Controller real upload (validation, store, path/tamano/mime)
+- [x] T1: Controller real upload (validation, store, path/tamano/mime)
   and download case-level check.
-- [ ] T2: Route `denuncias.archivos.descargar` after line 84.
-- [ ] T3: Feature tests with `Storage::fake('local')` + update of the
+- [x] T2: Route `denuncias.archivos.descargar` after line 84.
+- [x] T3: Feature tests with `Storage::fake('local')` + update of the
   stale existing upload test.
-- [ ] T4: Modal real file selection, client validation, chip, FormData
+- [x] T4: Modal real file selection, client validation, chip, FormData
   submit, route-based list fetch.
-- [ ] T5: Table download action + human-readable size formatting.
-- [ ] T6: Verification evidence recorded (commands + SHAs + stats) and
+- [x] T5: Table download action + human-readable size formatting.
+- [x] T6: Verification evidence recorded (commands + SHAs + stats) and
   Engram mirror updated.
 
 ## Authorized scope
@@ -89,17 +88,17 @@ Out of scope: schema/migrations, seeders, packages, any other file.
 
 ## Acceptance criteria
 
-- [ ] `subir()` requires `archivo` (`file`, mimes pdf/jpg/jpeg/png/docx,
+- [x] `subir()` requires `archivo` (`file`, mimes pdf/jpg/jpeg/png/docx,
   max 51200 KB) and stores it via `$file->store("archivos/{$ticket}", 'local')`.
-- [ ] Persisted row has real `path`, `tamano` (bytes string) and
+- [x] Persisted row has real `path`, `tamano` (bytes string) and
   `mime_type`; metadata mapping and `CasoAuth` check unchanged.
-- [ ] `GET /denuncias/archivos/{id}/descargar` (named
+- [x] `GET /denuncias/archivos/{id}/descargar` (named
   `denuncias.archivos.descargar`, `can:archivo.ver`) returns the stored
   file or the existing error redirect.
-- [ ] Modal submits the real file with `forceFormData: true` and resets
+- [x] Modal submits the real file with `forceFormData: true` and resets
   state after success; list fetch uses `route('denuncias.archivos.listar')`.
-- [ ] Table shows a download link and formats size as B/KB/MB, `—` when null.
-- [ ] Focused and full backend suites green; typecheck + build green.
+- [x] Table shows a download link and formats size as B/KB/MB, `—` when null.
+- [x] Focused and full backend suites green; typecheck + build green.
 
 ## Applicable checks
 
@@ -111,5 +110,19 @@ Out of scope: schema/migrations, seeders, packages, any other file.
 
 ## Verification evidence
 
-Pending. Record commands with observed results, both commit SHAs and
-per-commit `git diff --stat` here before closing the task.
+- `php artisan test --filter=ArchivosCaso`: 12 passed (30 assertions).
+- `php artisan test` (full suite): 177 passed (1179 assertions).
+- `npm run build` (`tsc && vite build`): built successfully in 7.22s.
+- Commits:
+  - `a5ff11a` feat(archivos): subida real de archivos del caso con
+    almacenamiento y descarga — 5 files, +295/-3 (controller, route,
+    new tests, stale test update, this doc).
+  - `d18d4de` feat(archivos): selector de archivo real y descarga en
+    la UI del caso — 2 files, +132/-9 (modal, table).
+  - `0ca0764` fix(archivos): alinear descarga con supervisor como
+    subir y eliminar — 2 files, +19/-0 (CasoAuth, test).
+  - `docs(odd): registrar evidencia de subida de archivos` — this
+    evidence update; its SHA is recorded in the Engram mirror (the
+    committed copy lists it as pending, same pattern as prior units).
+- Manual browser check pending: upload a PDF and download it from
+  Bandeja/MisCasos with a real session (`npm run dev`).
