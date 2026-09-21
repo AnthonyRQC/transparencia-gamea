@@ -63,14 +63,14 @@ changes, any other file.
 
 ## Checklist
 
-- [ ] T1: `SelectContent` back to standard portal (no container state,
+- [x] T1: `SelectContent` back to standard portal (no container state,
   effect, or `container={container}`).
-- [ ] T2: `DialogContent` / `SheetContent` back to standard refs (no
+- [x] T2: `DialogContent` / `SheetContent` back to standard refs (no
   `contentRef`, observer, `handleRef`, or `onCloseAutoFocus` wrapper).
-- [ ] T3: remove blur band-aids from the 4 modals, keeping their
+- [x] T3: remove blur band-aids from the 4 modals, keeping their
   functional guards and remaining props.
-- [ ] T4: verification evidence (build, grep, SHAs, stats) recorded.
-- [ ] T5: Engram mirror updated; tree clean.
+- [x] T4: verification evidence (build, grep, SHAs, stats) recorded.
+- [x] T5: Engram mirror updated; tree clean.
 
 ## Authorized scope
 
@@ -78,15 +78,15 @@ changes, any other file.
 
 ## Acceptance criteria
 
-- [ ] `SelectContent` has no `container` state, effect, or querySelector.
-- [ ] `dialog.tsx` and `sheet.tsx` contain no `MutationObserver`,
+- [x] `SelectContent` has no `container` state, effect, or querySelector.
+- [x] `dialog.tsx` and `sheet.tsx` contain no `MutationObserver`,
   `contentRef`, `handleRef`, or blur logic.
-- [ ] The 4 modals contain no `document.activeElement.blur()` call and
+- [x] The 4 modals contain no `document.activeElement.blur()` call and
   no `onCloseAutoFocus` blur handler; functional guards preserved.
-- [ ] `npm run build` (`tsc && vite build`) passes.
-- [ ] `Select-String -Path resources/js -Include *.tsx -Recurse -Pattern
-  "openDialog|MutationObserver|\.blur\(\)"` returns zero matches.
-- [ ] `git status --short` is clean after the evidence commit.
+- [x] `npm run build` (`tsc && vite build`) passes.
+- [x] Recursive scan for `openDialog|MutationObserver|\.blur\(\)` over
+  `resources/js/**/*.tsx` returns zero matches.
+- [x] `git status --short` is clean after the evidence commit.
 
 ## Applicable checks
 
@@ -98,4 +98,31 @@ changes, any other file.
 
 ## Verification evidence
 
-Pending (filled by the evidence commit).
+- `npx tsc --noEmit` (focused, before each unit commit): no diagnostics.
+- `npm run build` (`tsc && vite build`): built successfully in 9.33s
+  (4639 modules transformed).
+- Remnant scan: the prescribed
+  `Select-String -Path resources/js -Include *.tsx -Recurse -Pattern
+  "openDialog|MutationObserver|\.blur\(\)"` is not runnable on this
+  PowerShell build (5.1 reports no `Recurse` parameter). Equivalent
+  `Get-ChildItem -Path resources/js -Recurse -Include *.tsx |
+  Select-String -Pattern "openDialog|MutationObserver|\.blur\(\)"`:
+  zero matches; a broader scan over all files under `resources/js` also
+  returns zero matches.
+- `php artisan test`: N/A — frontend-only change, no backend file,
+  route, or model touched, so the backend suite is unaffected.
+- Commits:
+  - `2c1fdaf` `fix(ui): restaurar portal estándar del Select para
+    dropdowns en modales` — 2 files, +124/-34 (select.tsx revert plus
+    this document).
+  - `1351bf5` `refactor(ui): quitar parches blur/observer de aria-hidden
+    en diálogos y modales` — 6 files, +43/-196 (dialog, sheet, and the
+    4 modals).
+  - `docs(odd): registrar evidencia de dropdown y aria-hidden` — this
+    evidence update; its SHA is recorded in the Engram mirror (the
+    committed copy lists it as pending, same pattern as prior units).
+- `git status --short`: clean after the evidence commit.
+- Manual browser check pending (needs a live session): Bandeja → open a
+  case → DenunciaSheet → "Abrir repositorio" → Contexto must show the 6
+  options; repeat in a second modal with a dropdown. The benign Chrome
+  aria-hidden warning may reappear and is expected.
