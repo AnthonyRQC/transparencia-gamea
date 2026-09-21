@@ -23,6 +23,7 @@ Tailwind v3 · shadcn/ui (New York) · Laragon (Windows local, PHP 8.3.30)
 **Sprint 12.3 — Pulido pre-13** — Cerrado ✅ (09-sep-2026)
 **Sprint 13 — Portal Panel Informativo** — Cerrado ✅ (14-sep-2026)
 **Planificación Sprint 16 + 18A + 18C** — Cerrada ✅ (17-sep-2026; **replan tarde D18–D25** — docs `Sprint 16`, `18A`, `18C`; decisiones D11–D25 en `Decisiones 12.5 - 13 (Log).md`)
+**Programa de Hallazgos del Análisis Completo** — Cerrado ✅ (20–21-sep-2026; 5 hallazgos resueltos + fix dropdowns/aria-hidden — ver `Análisis Completo - App (Sep 2026).md`)
 
 > **Migración Laravel 11 → 13 (01-sep-2026):** Hasta **Sprint 11 inclusive** se trabajó en **Laravel 11 / PHP 8.2.31** (Sprint 12 planeado en L11 — `31bcebd` *planeacion de sprint 12 finalizada*). Migrado directo a **Laravel 13 / PHP 8.3.30** antes de ejecutar Sprint 12. `composer.json` bump: `laravel/framework ^13.0`, `maatwebsite/excel ^4.0`, `phpunit ^12.0`, `collision ^9.0`, `tinker ^3.0`. Frontend intacto (Inertia v2 / React 18 / Tailwind v3). Tags: `pre-laravel13: 01bcc42` → `laravel-13: b91e404`. Ver `Notas Migración Laravel 13 - Cierre.md`.
 
@@ -47,10 +48,9 @@ Tailwind v3 · shadcn/ui (New York) · Laragon (Windows local, PHP 8.3.30)
 > gráficas/informes; el toggle "incluir inactivos" sirve de recordatorio de técnicos a
 > desactivar). Suite: **63 tests**. Ver `Notas Reestructuración BD - Catálogos y Árbol (Cierre).md`.
 
-Sprints pendientes (orden 17-sep-2026): **16 (rename + roles) → 18A (panel usuarios) →
-18B (mi cuenta) → 18C (delegaciones temporales) → 19/20 (pulidos) → 21 (cierre Fase 1 + auditoría)**.
+Sprints pendientes (actualizado 21-sep-2026): **16/18A/18B/18C cerrados ✅ (17-sep-2026) → 19/20 (pulidos) → 21 (cierre Fase 1 + auditoría)**.
 **Sprint 14 (Tiempos entre Fases) queda aparcado** — placeholder `Hourglass` en `TabResultados`.
-Ver `Sprints Pendientes - Contexto.md` + planes `Sprint 16`, `18A`, `18C`.
+Ver `Sprints Pendientes - Contexto.md` + planes ejecutados en `archivo/sprints-cerrados/`.
 
 > **Sprint 12.2 (08-sep-2026):** Rediseño visual completo con skill `impeccable`. Score: 21/40 → ~34/40.
 > Sistema de botones unificado (Shadcn único), helper fechas centralizado (`helpers/fechas.ts`),
@@ -73,8 +73,7 @@ Ver `Sprints Pendientes - Contexto.md` + planes `Sprint 16`, `18A`, `18C`.
 - **Investigador** (antes "Técnico"; rename 16.1, incl. `evaluaciones_tecnicas.investigador_id`) — solo sus casos.
 - **Registrador** — registra y consulta; **sin campana**. Puede recibir 18C (bandeja/reportes) en la misma cuenta (CI único).
 
-(Formalización en Sprint 16 — planes en `Sprint 16 - Plan (Rename + Roles).md`,
-`Sprint 18A - Plan Panel Usuarios.md`, `Sprint 18C - Plan Delegaciones.md`).
+(Formalización en Sprint 16 — planes archivados en `archivo/sprints-cerrados/`).
 
 ## Convenciones de lectura para IAs
 
@@ -93,7 +92,7 @@ Ver `Sprints Pendientes - Contexto.md` + planes `Sprint 16`, `18A`, `18C`.
    - Documentos en `archivo/` si no estás trabajando en ellos
     - `setup-demo-publica/` — Documentación operativa de un solo uso. NO LEER por defecto.
     - `Notas - Admin simulacion (futuro).md` — idea aparcada; solo si Sistemas pregunta.
-6. **Bitácora de cambios recientes:** Ver `Notas Reestructuración - Bloques 0-2 (Sept 2026) - Cierre.md` y `Notas Migración Laravel 13 - Cierre.md`.
+6. **Bitácora de cambios recientes:** Ver `Notas Reestructuración - Bloques 0-2 (Sept 2026) - Cierre.md`, `Notas Migración Laravel 13 - Cierre.md` y `odd/tasks/*.md` (feature docs 20–21-sep-2026).
 
 > Las reglas de trabajo se encuentran en `AGENTS.md` (raíz, sección Registro de decisiones); el registro vigente está en `transparencia-proy/decisiones/Indice.md`.
 
@@ -101,12 +100,14 @@ Ver `Sprints Pendientes - Contexto.md` + planes `Sprint 16`, `18A`, `18C`.
 1. `transparencia-proy/AI-CONTEXT.md` (este archivo) — Snapshot del estado actual
 2. `transparencia-proy/Plan de Desarrollo.md` — Hoja de ruta, sprints, decisiones
 3. `transparencia-proy/Sprints Pendientes - Contexto.md` — Contexto de sprints pendientes (lazy load)
-4. `transparencia-proy/Sprint 16 - Plan (Rename + Roles).md` + `Sprint 18A - Plan Panel Usuarios.md` + `Sprint 18C - Plan Delegaciones.md` — planes vigentes (17-sep-2026, replan D18–D25)
+4. `transparencia-proy/archivo/sprints-cerrados/` — planes y cierres ejecutados (13, 16, 18A, 18C; movidos 20-sep-2026)
 5. `transparencia-proy/RESUMEN LEY 974.md` — Marco legal
 6. `transparencia-proy/Notas Reestructuración - Bloques 0-2 (Sept 2026) - Cierre.md` — Refactorización DiasHabiles/Dashboard/Denuncia + feriados + plantilla neutra (Sept 2026)
 7. `transparencia-proy/Notas Migración Laravel 13 - Cierre.md` — Migración L11→L13 (Sep 2026, histórico L11 hasta Sprint 11)
 8. `transparencia-proy/Consultas - Dashboard y Reportes.md` — Consultas SQL/Query Builder preparadas para Sprint 12
 9. `transparencia-proy/Esquema BD - Negocio.md` + `Esquema BD - Catálogos.md` — Esquema actual (si tocas BD)
+10. `transparencia-proy/Análisis Completo - App (Sep 2026).md` — Análisis técnico completo + hallazgos (resueltos 20–21-sep-2026)
+11. `transparencia-proy/Guia - Flujo Gentle.md` — Flujo de trabajo: ODD, SDD opcional, comandos, onboarding
 
 ## Documentación de Referencia (LEER SOLO SI NECESARIO)
 > ⚠️ NO leer por defecto. Contienen detalles extensos que saturan la memoria de contexto. Están en `archivo/`.
@@ -137,6 +138,9 @@ Ver `Sprints Pendientes - Contexto.md` + planes `Sprint 16`, `18A`, `18C`.
 - **Login:** username **case-insensitive** (16.2: `lower(username)` + `Auth::login`). Username 18A autogenerado (iniciales+CI, inmutable). Sin auto-registro ni password reset (18A). `DELETE /profile` se quita en 16.2.
 - **Categorías:** fuente única de verdad = BD, compartidas globalmente vía `HandleInertiaRequests`.
 - **Tests:** SQLite `:memory:` aislados de BD de desarrollo (`phpunit.xml` configurado).
+- **Archivos del caso:** subida real a `Storage::disk('local')` bajo `archivos/{ticket}/` (mime pdf/jpg/png/docx, máx 50MB); descarga con `archivo.ver` + CasoAuth. Filas demo viejas (`archivos/demo/...`) no descargan (esperado).
+- **Exportación Excel:** columnas definidas SOLO en `ReporteController::COLUMNAS_EXCEL` (+ `_DEFAULT`, `_FIJAS`); el frontend las consume del preview (`reportes.preview`).
+- **Imports frontend (Denuncias):** rutas canónicas (`@/Components/Denuncias/{Card,Form,Sheet,Modales,Tabs,Shared,Solicitud,Descargo}/...`); barrels de compatibilidad eliminados (21-sep-2026).
 
 ## Arquitectura Clave (post Sprint 10)
 
@@ -148,7 +152,11 @@ Ver `Sprints Pendientes - Contexto.md` + planes `Sprint 16`, `18A`, `18C`.
 - `app/Traits/UppercaseText.php` — Trait `Str::upper()` en `saving` (shim en `Helpers/` por compat)
 - `app/Helpers/DiasHabiles.php` — Días hábiles lun-vie sin feriados (cache `feriados:fechas` global, deduplica sáb/dom, día 1 = mañana)
 - `config/plantilla_feriados.php` — 14 refs neutra (fijos/móviles/dept 16-jul/mun 06-mar) guía manual, anticipa traslados jue→vie
-- `app/Enums/{EstadoDenuncia,TipoDenuncia,EscenarioDenuncia,RolUsuario}.php` + `app/Queries/Dashboard/*` — Enums y Queries del dashboard
+- `app/Enums/{EstadoDenuncia,TipoDenuncia,EscenarioDenuncia,RolUsuario}.php` — Enums del dominio
+- `app/Queries/` — `Dashboard/{Kpi,Operativo,Resultados,Rendimiento}Query` (plazos con agregados SQL), `Catalogo/CatalogoIndexQuery`, `Usuario/UsuarioIndexQuery`, `Publicacion/{Muro,PublicacionAdmin}Query`
+- `app/Services/` — `CasoAuth`, `PermisosEfectivos`, `BitacoraService`, `CatalogoService`, `CatalogoConfigStore`, `UsuarioAdminService`, `PublicacionArchivoService`
+- `app/Http/Requests/` — `DashboardRequest`, `GuardarInformeRequest`, `Usuario{Store,Update,Desactivar,Masivo}Request`, `PublicacionRequest`
+- `app/Support/CatalogoRules.php` — Reglas dinámicas por tipo de catálogo
 - `app/Data/PermisosCatalogo.php` — Catálogo de permisos (se mantiene, no depende de BD)
 - **NO existe** `app/Data/DenunciaData.php`, `SolicitudData.php`, `DescargoData.php`, etc. (eliminados en Sprint 10)
 
@@ -159,11 +167,12 @@ Ver `Sprints Pendientes - Contexto.md` + planes `Sprint 16`, `18A`, `18C`.
 - `BandejaController` — Bandeja Jefe (solo lectura)
 - `MisCasosController` — Mis Casos (técnico, solo lectura)
 - `MiResumenController` — Contadores del técnico
-- `ArchivosCasoController` — CRUD archivos (storage local privado)
+- `ArchivosCasoController` — Subida/descarga reales de archivos del caso (storage local privado; CasoAuth + `archivo.ver`)
 - `NotificacionController` — CRUD notificaciones
 - `EvaluacionController` — Devolver evaluación
 - `ConsultaCasosController` — 7 filtros de búsqueda
 - `SeguimientoController` — Público (token + ticket)
+- **Adelgazados (20–21-sep-2026):** `CatalogoController` 715→38L, `UsuarioController` 491→126L, `PublicacionController` 632→317L — lógica extraída a `Queries/` + `Services/` + `Requests/` (patrón Dashboard)
 
 ### Controladores eliminados
 - `SelectorUsuarioController` (era demo multi-rol)
@@ -171,11 +180,12 @@ Ver `Sprints Pendientes - Contexto.md` + planes `Sprint 16`, `18A`, `18C`.
 
 ### Frontend
 - `resources/js/Components/Layout/` — AppLayout, Header (sin SelectorUsuarioDemo), Sidebar (permisos por rol), CampanaNotificaciones, PanelNotificaciones, ItemNotificacion
-- `resources/js/Components/Denuncias/` — ~63 → por feature: `Card/`, `Form/`, `Sheet/`, `Modales/{Admision,Flujo,Investigacion,InformeCierre,General}`, `Tabs/`, `Solicitud/`, `Descargo/`, `Shared/` + barrels `DenunciaCard.tsx` etc. para compat
+- `resources/js/Components/Denuncias/` — por feature: `Card/`, `Form/`, `Sheet/`, `Modales/{Admision,Flujo,Investigacion,InformeCierre,General}`, `Tabs/`, `Solicitud/`, `Descargo/`, `Shared/` (barrels de compatibilidad eliminados 21-sep-2026; importar rutas canónicas)
 - `resources/js/Components/Dashboard/` — KPICards, FiltrosDashboard (Sheet), TabOperativo/Resultados/Rendimiento, Grafico*, ModalExportar (usa `route()` Ziggy)
-- `resources/js/Pages/` — Bandeja, MisCasos, MiResumen, RegistroDenuncia, ConsultarCasos, Evaluaciones, Notificaciones/Index, Perfil, Seguimiento/Buscar, Admin/Catalogos, Reportes, Dashboard
+- `resources/js/Pages/` — Bandeja (478L; subcomponentes en `Pages/Denuncias/bandeja/`: tipos, helpers, Filtros, Modales, Lista), MisCasos, MiResumen, RegistroDenuncia, ConsultarCasos, Evaluaciones, Notificaciones/Index, Perfil, Seguimiento/Buscar, Admin/Catalogos, Reportes, Dashboard
 - `resources/js/types/denuncia.ts` — Denuncia/Solicitud/Descargo/PlazoInfo, `resources/js/constants/estados.ts`, `resources/js/helpers/diasHabiles.ts`
 - `resources/js/permissions.ts` + `resources/js/hooks/useCan.ts` + `resources/js/Components/Can.tsx`
+- `resources/js/Components/ui/` — shadcn estándar: Select/Dialog/Sheet sin parches aria-hidden (20-sep-2026); opciones con hover `bg-primary/10 + text-primary` y cursor pointer
 - `resources/js/types/index.d.ts` — Tipos globales (User, PageProps con `categorias`)
 
 ### Seeders
@@ -205,14 +215,16 @@ Ver `Sprints Pendientes - Contexto.md` + planes `Sprint 16`, `18A`, `18C`.
 
 > R1 ejecutado pre-13; R2 + auditoría backend van a Sprint 21. Decisiones D1–D25 en `Decisiones 12.5 - 13 (Log).md`.
 
-**Estado inmediato:** **16.1 ✅ + 16.2 ✅ + 18A ✅ + 18B ✅ + 18C ✅ cerrados** (17-sep-2026: roles por permisos, panel usuarios con CI, Mi Cuenta con clave forzada, delegaciones; 167 tests + tsc + build verdes; **review visual único pendiente**). Siguiente: **revisión visual completa** y luego Sprint 19/20/21.
+**Estado inmediato (21-sep-2026):** **Programa de Hallazgos cerrado** — archivos del caso con subida/descarga reales, dashboard con plazos en SQL (query count constante), Bandeja 1061→478L, contrato único de exportación + barrels eliminados, controllers 715/491/632→38/126/317L; fix dropdowns/aria-hidden/hover incluido. Suite **182 tests + tsc + build verdes**. **Review visual pendiente** de 16/18A/18B/18C. Siguiente: **pre-defensa técnica ante ingenieros de la institución** y luego Sprint 19/20/21.
 **Demo fresca (Sep 2026):** seeders con fechas relativas a hoy — 124 casos (85 activos: ~95% en plazo; 31 cerradas, 29 cumplidas). Siguiente ticket: 125. Time Machine solo-local en `/dev/tiempo` (+ enlace Sidebar dev-only) + alertas derivadas vivas (`AlertasPlazo`). Deuda/riesgos en `Deuda Tecnica y Riesgos.md`. Banco de 22 preguntas probadas en `Banco de Preguntas - Dashboard.md`. Rediseño visual con impeccable en `archivo/roadmap/Roadmap Disenio Visual.md` (Fase 0 tokens hecha).
 
-> Archivos del Sprint 13: `Sprint 13 - Portal Panel Informativo (Plan).md` (spec) + `Sprint 13 - Cierre Portal Panel Informativo.md` + `Decisiones 12.5 - 13 (Log).md`. Dashboard usa `Queries/Dashboard/*` y `DiasHabiles` con feriados.
+> Archivos del Sprint 13: en `archivo/sprints-cerrados/` (plan + cierre) + `Decisiones 12.5 - 13 (Log).md`. Dashboard usa `Queries/Dashboard/*` y `DiasHabiles` con feriados.
 
 Ver detalle completo en `Sprints Pendientes - Contexto.md`.
 
 ## Notas / Pendientes
+
+> ⏸️ **Próxima sesión:** preparar la **pre-defensa técnica** ante los ingenieros de sistemas de la institución — examinación completa del sistema, resumen de tecnologías con justificación y material de exposición/preguntas. Fuentes: `Análisis Completo`, `decisiones/`, `Banco de Preguntas - Dashboard.md`, guías QA.
 
 > ⏸️ **TODO — Preguntar al cliente:** ¿La funcionalidad de "archivar casos" debe ser
 > un subestado de `cerrada` (actual: `subestado: 'archivada'`) o un estado/proceso
