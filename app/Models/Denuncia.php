@@ -85,9 +85,14 @@ class Denuncia extends Model
             ? 5
             : ($this->tipo === 'corrupcion' ? 45 : 20);
 
-        $diasAmpliados = $this->relationLoaded('ampliaciones')
-            ? $this->ampliaciones->sum('dias')
-            : (int) $this->ampliaciones()->sum('dias');
+        if ($this->relationLoaded('ampliaciones')) {
+            $diasAmpliados = $this->ampliaciones->sum('dias');
+        } elseif (array_key_exists('ampliaciones_sum_dias', $this->attributes)) {
+            // Agregado SQL (withSum): evita hidratar ampliaciones y el N+1.
+            $diasAmpliados = (int) $this->attributes['ampliaciones_sum_dias'];
+        } else {
+            $diasAmpliados = (int) $this->ampliaciones()->sum('dias');
+        }
 
         return DiasHabiles::agregar($diasBase + $diasAmpliados, $baseFecha);
     }

@@ -21,16 +21,20 @@ class KpiQuery
 
         $activasColeccion = (clone $estadoQuery)
             ->whereNotIn('estado', self::ESTADOS_TERMINALES)
-            ->with('ampliaciones')
+            ->select(['id', 'estado', 'tipo', 'fecha_admitida', 'created_at'])
+            ->withSum('ampliaciones', 'dias')
             ->get();
 
-        $proximosAVencer = $activasColeccion
-            ->filter(fn ($d) => ($d->plazo['dias_restantes'] ?? 99) >= 0 && ($d->plazo['dias_restantes'] ?? 99) <= 5)
-            ->count();
-
-        $vencidos = $activasColeccion
-            ->filter(fn ($d) => ($d->plazo['dias_restantes'] ?? 99) < 0)
-            ->count();
+        $proximosAVencer = 0;
+        $vencidos = 0;
+        foreach ($activasColeccion as $d) {
+            $diasRestantes = $d->plazo['dias_restantes'] ?? 99;
+            if ($diasRestantes >= 0 && $diasRestantes <= 5) {
+                $proximosAVencer++;
+            } elseif ($diasRestantes < 0) {
+                $vencidos++;
+            }
+        }
 
         $cerradas = Denuncia::where('estado', 'cerrada')->whereNull('deleted_at')
             ->when($f['investigador_id'], fn ($q, $v) => $q->where('investigador_id', $v))
@@ -46,7 +50,9 @@ class KpiQuery
             })
             ->when($f['desde'], fn ($q) => $q->whereHas('cierre', fn ($c) => $c->where('eliminado', false)->whereDate('cerrado_at', '>=', $f['desde'])))
             ->when($f['hasta'], fn ($q) => $q->whereHas('cierre', fn ($c) => $c->where('eliminado', false)->whereDate('cerrado_at', '<=', $f['hasta'])))
-            ->with(['ampliaciones', 'cierre'])
+            ->select(['id', 'estado', 'tipo', 'fecha_admitida', 'created_at'])
+            ->withSum('ampliaciones', 'dias')
+            ->with('cierre:id,denuncia_id,cerrado_at,eliminado')
             ->get();
 
         $cumplidas = $cerradas->filter(function ($d) {

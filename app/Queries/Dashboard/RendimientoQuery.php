@@ -29,17 +29,33 @@ class RendimientoQuery
             $activas = DashboardQueryBase::denuncias($f, false)
                 ->whereNotIn('estado', self::ESTADOS_TERMINALES)
                 ->whereNotNull('investigador_id')
-                ->with('ampliaciones')
+                ->select(['id', 'investigador_id', 'estado', 'tipo', 'fecha_admitida', 'created_at'])
+                ->withSum('ampliaciones', 'dias')
                 ->get();
 
-            $carga = $investigadores->map(function ($t) use ($activas) {
-                $casos = $activas->where('investigador_id', $t->id);
+            $conteos = [];
+            foreach ($activas as $d) {
+                $diasRestantes = $d->plazo['dias_restantes'] ?? 99;
+                $investigadorId = (int) $d->investigador_id;
+                $conteos[$investigadorId] ??= ['enPlazo' => 0, 'proximos' => 0, 'vencidos' => 0];
+
+                if ($diasRestantes > 5) {
+                    $conteos[$investigadorId]['enPlazo']++;
+                } elseif ($diasRestantes >= 0) {
+                    $conteos[$investigadorId]['proximos']++;
+                } else {
+                    $conteos[$investigadorId]['vencidos']++;
+                }
+            }
+
+            $carga = $investigadores->map(function ($t) use ($conteos) {
+                $c = $conteos[$t->id] ?? ['enPlazo' => 0, 'proximos' => 0, 'vencidos' => 0];
 
                 return [
                     'investigador' => $t->name,
-                    'enPlazo' => $casos->filter(fn ($d) => ($d->plazo['dias_restantes'] ?? 99) > 5)->count(),
-                    'proximos' => $casos->filter(fn ($d) => ($d->plazo['dias_restantes'] ?? 99) >= 0 && ($d->plazo['dias_restantes'] ?? 99) <= 5)->count(),
-                    'vencidos' => $casos->filter(fn ($d) => ($d->plazo['dias_restantes'] ?? 99) < 0)->count(),
+                    'enPlazo' => $c['enPlazo'],
+                    'proximos' => $c['proximos'],
+                    'vencidos' => $c['vencidos'],
                 ];
             })
                 ->filter(fn ($c) => ($c['enPlazo'] + $c['proximos'] + $c['vencidos']) > 0)
@@ -74,17 +90,23 @@ class RendimientoQuery
                         ->where('informes_finales.clasificacion_id', $f['clasificacion_id']);
                 });
             })
-            ->with(['investigador', 'ampliaciones'])
+            ->select(['id', 'ticket', 'estado', 'tipo', 'fecha_admitida', 'created_at', 'investigador_id'])
+            ->withSum('ampliaciones', 'dias')
+            ->with('investigador:id,name')
             ->get();
 
         return $activas
-            ->map(fn ($d) => [
-                'ticket' => $d->ticket,
-                'investigador' => $d->investigador?->name ?? 'SIN ASIGNAR',
-                'diasRestantes' => $d->plazo['dias_restantes'] ?? 0,
-                'color' => $d->plazo['color'] ?? 'gray',
-                'estado' => $d->estado,
-            ])
+            ->map(function ($d) {
+                $plazo = $d->plazo;
+
+                return [
+                    'ticket' => $d->ticket,
+                    'investigador' => $d->investigador?->name ?? 'SIN ASIGNAR',
+                    'diasRestantes' => $plazo['dias_restantes'] ?? 0,
+                    'color' => $plazo['color'] ?? 'gray',
+                    'estado' => $d->estado,
+                ];
+            })
             ->sortBy('diasRestantes')
             ->take(10)
             ->values()
