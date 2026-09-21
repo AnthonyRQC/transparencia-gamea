@@ -48,17 +48,22 @@ The system is functionally complete (Sprints 0-13 + hallazgos program closed, 18
 - Chosen route: delegated-direct. Trigger evidence: system examination spans backend (8 Denuncia controllers + Queries/Services/Requests), frontend (Pages/Components), DB (22+ tables), tests — far beyond 4 files, so mapping + writing are delegated; parent keeps thin orchestration thread.
 
 ## Tasks
-- [ ] T1 — Code verification (delegated mappers): backend flows, frontend stack, DB schema, tests/permissions/decisions. Record observed `<command>: <result>` per unit.
-- [ ] T2 — Write `01-Examinacion-Sistema.md` (delegated writer) from verified findings only.
-- [ ] T3 — Write `02-Tecnologias-Justificacion.md` (same writer, second unit).
-- [ ] T4 — Write `03-Preguntas-Respuestas.md` + `04-Guion-Exposicion.md` (same writer, third unit).
-- [ ] T5 — Parent spot-check, work-unit commits, close with SHAs and next step.
+- [x] T1 — Code verification (delegated mappers): backend flows, frontend stack, DB schema, tests/permissions/decisions. Record observed `<command>: <result>` per unit.
+- [x] T2 — Write `01-Examinacion-Sistema.md` (delegated writer) from verified findings only.
+- [x] T3 — Write `02-Tecnologias-Justificacion.md` (same writer, second unit).
+- [x] T4 — Write `03-Preguntas-Respuestas.md` + `04-Guion-Exposicion.md` (same writer, third unit).
+- [x] T5 — Parent spot-check, work-unit commits, close with SHAs and next step.
 
 ## Progress
-- 2026-09-21: doc created on branch `docs/pre-defensa-tecnica`; Engram mirror pending; verification not yet run.
+- 2026-09-21: doc created on branch `docs/pre-defensa-tecnica`; verification run (3 mappers) + 4 docs written (198 lines) + 2 work-unit commits. Ready for user rehearsal; push/merge pending explicit order.
 
 ## Verification evidence
-- (pending)
+- `git status --short` (pre-commit): `?? odd/tasks/pre-defensa-tecnica.md`, `?? transparencia-proy/pre-defensa/` — docs only, no source edits.
+- Parent spot-check: `EstadoDenuncia.php:17 ARCHIVADA` exists + `CierreController.php:182-183 subestado toggle` — hallazgo archivar confirmed honest; `composer.json:23 collision ^8.6` confirmed (AI-CONTEXT 9.0 flagged PENDING).
+- `6be062b docs(odd): registrar feature doc pre-defensa tecnica` — 1 file, 64 insertions.
+- `af962e6 docs(pre-defensa): examinacion, tecnologias, preguntas y guion con evidencia verificada` — 4 files, 261 insertions (01:96, 02:47, 03:69, 04:49).
+- Doc-only verification: direct read of all 4 docs + `git diff --stat` review; N/A executable harness (passive docs per Native Checking Contract).
+- Honest PENDIENTES preserved in docs: dependencias 185 vs 122, suite 118 vs 21 files, MySQL prod version, `.env.example` confirmation.
 
 ## Next step
-- Launch T1 verification workers, then write units T2-T4 only from their observed evidence.
+- Rehearse once with timer using `04-Guion-Exposicion.md`; push branch only on explicit user order (`git push -u origin docs/pre-defensa-tecnica`).
