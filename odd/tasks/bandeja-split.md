@@ -71,17 +71,17 @@ the parent), backend, routes, database and `MisCasos.tsx`.
 
 ## Checklist
 
-- [ ] T1: feature doc created and mirrored in Engram before the first source write.
-- [ ] T2: `tipos.ts`, `helpers.ts` and `BandejaFiltros.tsx` extracted and consumed
+- [x] T1: feature doc created and mirrored in Engram before the first source write.
+- [x] T2: `tipos.ts`, `helpers.ts` and `BandejaFiltros.tsx` extracted and consumed
       by `Bandeja.tsx`; `npm run build` passes.
-- [ ] T3: `BandejaModales.tsx` extracted with the full modal surface
+- [x] T3: `BandejaModales.tsx` extracted with the full modal surface
       (states+setters, `investigadores`, `cargaInvestigadores`,
       `selectedDenuncia`, `investigadorActualId`); `npm run build` passes.
-- [ ] T4: `BandejaLista.tsx` extracted with the tab branches and empty states;
+- [x] T4: `BandejaLista.tsx` extracted with the tab branches and empty states;
       `npm run build` passes.
-- [ ] T5: verification recorded (`npm run build` per unit and final, line counts
+- [x] T5: verification recorded (`npm run build` per unit and final, line counts
       before/after per file, `git status --short`, SHAs, `git diff --stat`).
-- [ ] T6: evidence commit and Engram mirror update; tree clean.
+- [x] T6: evidence commit and Engram mirror update; tree clean.
 
 ## Authorized scope
 
@@ -90,13 +90,15 @@ the parent), backend, routes, database and `MisCasos.tsx`.
 
 ## Acceptance criteria
 
-- [ ] `Bandeja.tsx` keeps its path and default export, stays under 600 lines
+- [x] `Bandeja.tsx` keeps its path and default export, stays under 600 lines
       (target ≈350–450; the 212-line `DenunciaSheet` block stays by design),
       and each extracted file exists, compiles and is independently readable.
-- [ ] `npm run build` passes after each work-unit commit and at the end.
-- [ ] No `useMemo`/`useCallback` introduced; no behavior, string or class
+      Observed: 478 lines, 28 above the soft target; the sheet block plus the
+      57-prop modal call site and the 23-prop list call site are the floor.
+- [x] `npm run build` passes after each work-unit commit and at the end.
+- [x] No `useMemo`/`useCallback` introduced; no behavior, string or class
       change inside moved code; no PHP tests affected (frontend-only).
-- [ ] `git status --short` is clean after the evidence commit.
+- [x] `git status --short` is clean after the evidence commit.
 
 ## Applicable checks
 
@@ -117,5 +119,51 @@ one evidence commit; no further slicing is warranted.
 
 ## Verification evidence
 
-- Pending: recorded at close with commands, observed results, SHAs and
-  diff stats for each work-unit commit.
+- `npm run build` (Unit 1, `e922ce1`): passed (`tsc && vite build`, 4599
+  modules transformed, built in 8.93s).
+- `npm run build` (Unit 2, `033eeaf`): passed (built in 8.36s).
+- `npm run build` (Unit 3, `5b69164`): passed (built in 8.59s).
+- `npm run build` (final, `5b69164`): passed (built in 8.50s).
+- Move fidelity (trimmed-line comparison of the moved text against `c92086a`):
+  - `tipos.ts` (interfaces + `contadorConfig`): 127 lines identical.
+  - `helpers.ts` (`isNewHours` + `filterAndSort` bodies): 22 lines identical;
+    only the function wrappers and the options argument differ.
+  - `BandejaFiltros.tsx` (filter bar JSX): identical; only the component
+    return close (`);` + `}`) was added.
+  - `BandejaModales.tsx` (modal block): identical except the Traspaso
+    `investigadorActualId` IIFE (5 JSX lines) replaced by a prop computed in
+    the parent with the same expression and the same four-list lookup.
+  - `BandejaLista.tsx` (tab branches): identical except the 4 intended
+    `filterAndSort(list, { search, filterTipo, sortBy, activeTab })` calls.
+  - `DenunciaSheet` block kept in the parent: 205 non-empty lines identical.
+- Line counts: `Bandeja.tsx` 1061 → 478. New files: `tipos.ts` 138,
+  `helpers.ts` 40, `BandejaFiltros.tsx` 50, `BandejaModales.tsx` 280,
+  `BandejaLista.tsx` 306.
+- No memoization: `useMemo`/`useCallback` scan over the six files: 0 hits.
+- `preserveScroll` asymmetry: 3× `true`, 1× `false` + `router.reload()` in
+  `BandejaModales.tsx` (eliminar denuncia), same as the original.
+- `git status --short`: clean after each commit and after the evidence commit.
+- `git diff --name-only c92086a..HEAD`: only `odd/tasks/bandeja-split.md` and
+  the six files under `resources/js/Pages/Denuncias/`.
+- PHP tests: N/A — no PHP/backend file is touched; the change is frontend-only
+  and the PHP suite cannot observe it.
+- Commits:
+  - `e922ce18f1b8e7403152e42f8d787ac241bbe713`
+    `refactor(bandeja): extraer tipos, helpers y barra de filtros`
+    — 5 files, +365/-208 (this doc, `Bandeja.tsx`, `tipos.ts`, `helpers.ts`,
+    `BandejaFiltros.tsx`).
+  - `033eeafd53a6eb59d06d53cd4d381244ef2808fd`
+    `refactor(bandeja): extraer bloque de modales a BandejaModales`
+    — 2 files, +344/-213.
+  - `5b691642b09a892cca3f0289cb3e6e5b4627c278`
+    `refactor(bandeja): extraer lista de casos a BandejaLista`
+    — 2 files, +334/-270.
+  - `docs(odd): registrar evidencia de bandeja-split` — this evidence update;
+    its SHA is recorded in the Engram mirror (the committed copy lists it as
+    pending, same pattern as prior units).
+- Manual browser checks (pending, user): Bandeja tabs (por-admitir,
+  por-asignar, en-curso, historial, visión general), filters and pagination,
+  open a case sheet, each modal family (admisión, asignación/traspaso/reabrir,
+  solicitudes, descargos, eliminar, ampliación/archivos/conciliar,
+  delegar/reasumir, editar/eliminar denuncia) and the `destacar` query param
+  auto-opening the sheet.
