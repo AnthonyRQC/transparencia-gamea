@@ -75,9 +75,6 @@ export default function TraspasoModal({ ticket, investigadorActualId, open, inve
   };
 
   const handleClose = () => {
-    if (document.activeElement instanceof HTMLElement) {
-      document.activeElement.blur();
-    }
     onOpenChange(false);
   };
 
@@ -85,23 +82,10 @@ export default function TraspasoModal({ ticket, investigadorActualId, open, inve
     <Dialog
       open={open}
       onOpenChange={(v) => {
-        if (!processing) {
-          if (!v && document.activeElement instanceof HTMLElement) {
-            document.activeElement.blur();
-          }
-          onOpenChange(v);
-        }
+        if (!processing) onOpenChange(v);
       }}
     >
-      <DialogContent
-        className="sm:max-w-md"
-        onCloseAutoFocus={(e) => {
-          e.preventDefault();
-          if (document.activeElement instanceof HTMLElement) {
-            document.activeElement.blur();
-          }
-        }}
-      >
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Traspasar caso</DialogTitle>
           <DialogDescription>

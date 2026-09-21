@@ -54,9 +54,6 @@ export default function AsignacionModal({ ticket, open, investigadores: _investi
   };
 
   const handleClose = () => {
-    if (document.activeElement instanceof HTMLElement) {
-      document.activeElement.blur();
-    }
     onOpenChange(false);
   };
 
@@ -64,23 +61,10 @@ export default function AsignacionModal({ ticket, open, investigadores: _investi
     <Dialog
       open={open}
       onOpenChange={(v) => {
-        if (!processing) {
-          if (!v && document.activeElement instanceof HTMLElement) {
-            document.activeElement.blur();
-          }
-          onOpenChange(v);
-        }
+        if (!processing) onOpenChange(v);
       }}
     >
-      <DialogContent
-        className="sm:max-w-md"
-        onCloseAutoFocus={(e) => {
-          e.preventDefault();
-          if (document.activeElement instanceof HTMLElement) {
-            document.activeElement.blur();
-          }
-        }}
-      >
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Asignar investigador</DialogTitle>
           <DialogDescription>

@@ -158,23 +158,10 @@ export default function ModalArchivosDelCaso({ ticket, open, onOpenChange, conte
     <Dialog
       open={open}
       onOpenChange={(v) => {
-        if (!processing) {
-          if (!v && document.activeElement instanceof HTMLElement) {
-            document.activeElement.blur();
-          }
-          onOpenChange(v);
-        }
+        if (!processing) onOpenChange(v);
       }}
     >
-      <DialogContent
-        className="sm:max-w-lg max-h-[85vh] overflow-y-auto"
-        onCloseAutoFocus={(e) => {
-          e.preventDefault();
-          if (document.activeElement instanceof HTMLElement) {
-            document.activeElement.blur();
-          }
-        }}
-      >
+      <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Archivos del caso</DialogTitle>
         </DialogHeader>

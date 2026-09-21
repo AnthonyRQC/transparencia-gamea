@@ -60,9 +60,6 @@ export default function ModalDelegarEvaluacion({ ticket, open, investigadores: _
   };
 
   const handleClose = () => {
-    if (document.activeElement instanceof HTMLElement) {
-      document.activeElement.blur();
-    }
     onOpenChange(false);
   };
 
@@ -70,23 +67,10 @@ export default function ModalDelegarEvaluacion({ ticket, open, investigadores: _
     <Dialog
       open={open}
       onOpenChange={(v) => {
-        if (!processing) {
-          if (!v && document.activeElement instanceof HTMLElement) {
-            document.activeElement.blur();
-          }
-          onOpenChange(v);
-        }
+        if (!processing) onOpenChange(v);
       }}
     >
-      <DialogContent
-        className="sm:max-w-md"
-        onCloseAutoFocus={(e) => {
-          e.preventDefault();
-          if (document.activeElement instanceof HTMLElement) {
-            document.activeElement.blur();
-          }
-        }}
-      >
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Delegar evaluación a un investigador</DialogTitle>
           <DialogDescription>
