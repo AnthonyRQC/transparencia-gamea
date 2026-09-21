@@ -64,13 +64,13 @@ output, API/Inertia shape, `OperativoQuery`, `ResultadosQuery`,
 
 ## Checklist
 
-- [ ] T1: `KpiQuery` active/closed paths use `withSum` + partial selects.
-- [ ] T2: `KpiQuery` classifies active rows in a single pass.
-- [ ] T3: `RendimientoQuery` carga groups counts in a single pass; urgentes
+- [x] T1: `KpiQuery` active/closed paths use `withSum` + partial selects.
+- [x] T2: `KpiQuery` classifies active rows in a single pass.
+- [x] T3: `RendimientoQuery` carga groups counts in a single pass; urgentes
   uses `withSum` + partial selects and one `plazo` read per row.
-- [ ] T4: `Denuncia::calcularVencimiento` consumes the aggregate attribute
+- [x] T4: `Denuncia::calcularVencimiento` consumes the aggregate attribute
   without changing its output for existing callers.
-- [ ] T5: query-count regression + ampliaciones correctness tests; evidence
+- [x] T5: query-count regression + ampliaciones correctness tests; evidence
   recorded; Engram mirror updated; tree clean.
 
 ## Authorized scope
@@ -79,17 +79,17 @@ output, API/Inertia shape, `OperativoQuery`, `ResultadosQuery`,
 
 ## Acceptance criteria
 
-- [ ] No `with('ampliaciones')` / `with(['...ampliaciones...'])` remains in
+- [x] No `with('ampliaciones')` / `with(['...ampliaciones...'])` remains in
   `KpiQuery` or `RendimientoQuery`.
-- [ ] No `$activas->where('investigador_id', ...)` rescan remains in
+- [x] No `$activas->where('investigador_id', ...)` rescan remains in
   `RendimientoQuery`.
-- [ ] Query count for the dashboard request is the same with 5 and 40 active
+- [x] Query count for the dashboard request is the same with 5 and 40 active
   denuncias (observed value recorded).
-- [ ] KPI numbers are correct in both scenarios.
-- [ ] Ampliaciones summed from SQL change active classification and closed
+- [x] KPI numbers are correct in both scenarios.
+- [x] Ampliaciones summed from SQL change active classification and closed
   cumplimiento as expected.
-- [ ] `php artisan test --filter=Dashboard` and the full suite pass.
-- [ ] `git status --short` is clean after the evidence commit.
+- [x] `php artisan test --filter=Dashboard` and the full suite pass.
+- [x] `git status --short` is clean after the evidence commit.
 
 ## Applicable checks
 
@@ -99,4 +99,25 @@ output, API/Inertia shape, `OperativoQuery`, `ResultadosQuery`,
 
 ## Verification evidence
 
-Pending: filled by the evidence commit.
+- `& "C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe" artisan test --filter=DashboardPlazosSqlTest`:
+  3 passed (76 assertions).
+- `& "C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe" artisan test --filter=Dashboard`:
+  12 passed (195 assertions), including the unchanged `DashboardTest`.
+- `& "C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe" artisan test`:
+  180 passed (1255 assertions).
+- Query count observed in
+  `test_numero_de_consultas_constante_entre_5_y_40_activas`: 33 queries with
+  5 active denuncias and 33 with 40 (constant).
+- Guard check (temporary mutation: aggregate branch removed from
+  `calcularVencimiento` while the queries kept `withSum`): the same test
+  failed with 48 queries for 5 actives and 153 for 40, proving the test
+  catches the per-row ampliaciones N+1. The mutation was reverted.
+- Commits:
+  - `827cb9c57ef813f8bc5ed71bfe4b9378a050e711`
+    `perf(dashboard): agregados SQL y clasificacion de plazos en una pasada`
+    — 5 files, +401/-26 (model aggregate path, both queries, new test file,
+    this document).
+  - `docs(odd): registrar evidencia de dashboard-plazos-sql` — this evidence
+    update; its SHA is recorded in the Engram mirror (the committed copy
+    lists it as pending, same pattern as prior units).
+- `git status --short`: clean after the evidence commit.
