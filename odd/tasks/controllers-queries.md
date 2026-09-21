@@ -101,13 +101,13 @@ Out of scope: schema, routes, middleware, frontend, `app/Models/*`, the
 
 ## Checklist
 
-- [ ] T1: feature doc created and mirrored in Engram before the first source write.
-- [ ] T2: Unit 1 extracted; `--filter=CatalogoControllerTest` green; commit.
-- [ ] T3: Unit 2 extracted; `--filter=UsuarioAdminTest` green; commit.
-- [ ] T4: Unit 3 extracted; `--filter=Publicacion` green (admin + muro); commit.
-- [ ] T5: full suite green; line counts before/after and new files recorded.
-- [ ] T6: evidence commit with SHAs, diff stats and clean tree.
-- [ ] T7: Engram mirror updated with the evidence; no push, no PR.
+- [x] T1: feature doc created and mirrored in Engram before the first source write.
+- [x] T2: Unit 1 extracted; `--filter=CatalogoControllerTest` green; commit `bb9780b`.
+- [x] T3: Unit 2 extracted; `--filter=UsuarioAdminTest` green; commit `1621f80`.
+- [x] T4: Unit 3 extracted; `--filter=Publicacion` green (admin + muro); commit `ae06067`.
+- [x] T5: full suite green; line counts before/after and new files recorded.
+- [x] T6: evidence commit with SHAs, diff stats and clean tree.
+- [x] T7: Engram mirror updated with the evidence; no push, no PR.
 
 ## Authorized scope
 
@@ -115,11 +115,19 @@ Out of scope: schema, routes, middleware, frontend, `app/Models/*`, the
 
 ## Acceptance criteria
 
-- [ ] Each controller is a thin adapter under its target line count.
-- [ ] No test file is modified; the full suite passes with the same assertions.
-- [ ] Session keys, response shapes, JSON payloads and transaction boundaries
-      are unchanged.
-- [ ] `git status --short` is clean after the evidence commit.
+- [x] `CatalogoController` 715 → 38 lines and `UsuarioController` 491 → 126
+      lines, both under target.
+- [ ] `PublicacionController` 632 → 317 lines, 137 above the ~180 soft target.
+      Partial by design: the extraction list was executed in full and the
+      remainder is authorized in-place logic (guards, per-action state methods,
+      `store`/`update` business rules, `borradorDesdeCaso`, shims) that the
+      task did not authorize moving.
+- [x] No test file is modified; the full suite passes with the same assertions.
+- [x] Session keys, response shapes, JSON payloads and transaction boundaries
+      are unchanged (verified by the unchanged tests).
+- [x] `git status --short` shows no modified or untracked task file after the
+      evidence commit; only the pre-existing `.atl/` and the `.codegraph/`
+      index created by `gentle-ai codegraph init` remain untracked.
 
 ## Applicable checks
 
@@ -140,6 +148,56 @@ reversible, and behavior is verified by the same tests after every unit.
 ## Verification evidence
 
 - Baseline before Unit 1: `& "C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe" artisan test`:
-  182 passed (1280 assertions).
-- Pending: per-unit focused tests, final full suite, line counts, SHAs and
-  diff stats, recorded here and in the Engram mirror by T6/T7.
+  182 passed (1280 assertions), 41.22s.
+- Focused tests per unit (command: observed result):
+  - Unit 1 `--filter=CatalogoControllerTest`: 38 passed (146 assertions),
+    1.61s — commit `bb9780b`.
+  - Unit 2 `--filter=UsuarioAdminTest`: 20 passed (70 assertions), 1.20s —
+    commit `1621f80`.
+  - Unit 3 `--filter=Publicacion`: 22 passed (206 assertions), 1.52s,
+    including the unchanged reflection test
+    `test_termino_fulltext_exige_todas_las_palabras` — commit `ae06067`.
+- Final `artisan test`: 182 passed (1280 assertions), 6.72s — identical test
+  and assertion counts to the baseline.
+- Move fidelity (mechanical comparison of significant code lines between
+  `b151dfb` and the extracted classes, after the documented call-site
+  renames):
+  - Catalogo: 451 original vs 453 new lines; the only unmatched lines are the
+    `BitacoraService` parameterization (`entidad_tipo`/`entidad_id` become
+    parameters of the shared `registrar`).
+  - Usuario: 267 vs 268; the 3 `$actor = $request->user();` lines are inlined
+    as `$request->user()` delegation arguments and the 4 `return true;` are
+    FormRequest `authorize()` boilerplate.
+  - Publicacion: 336 vs 331; 7 lines of `logBitacora` moved into
+    `BitacoraService::registrar`, 1 `return [` is the admin query, 1
+    `return true;` is FormRequest boilerplate.
+- Line counts, before → after: `CatalogoController` 715 → 38;
+  `UsuarioController` 491 → 126; `PublicacionController` 632 → 317.
+- New classes (lines): Unit 1 `CatalogoIndexQuery` 190, `CatalogoService` 443,
+  `CatalogoConfigStore` 27, `CatalogoRules` 50, `BitacoraService` 42.
+  Unit 2 `UsuarioIndexQuery` 74, `UsuarioAdminService` 309,
+  `UsuarioStoreRequest` 28, `UsuarioUpdateRequest` 26,
+  `UsuarioDesactivarRequest` 22, `UsuarioMasivoRequest` 25. Unit 3
+  `MuroQuery` 191, `PublicacionAdminQuery` 60,
+  `PublicacionArchivoService` 77, `PublicacionRequest` 48.
+- Reflection constraint: `PublicacionController::terminoFulltext` remains a
+  declared method delegating to `MuroQuery::terminoFulltext()`; the unchanged
+  test passes and `new PublicacionController()` still works.
+- `git status --short`: no modified or untracked task file after the evidence
+  commit; `.atl/` (pre-existing) and `.codegraph/` (index created by the
+  mandated `gentle-ai codegraph init`) remain untracked and were not staged.
+- Frontend build: N/A — no frontend file is touched; the change is backend
+  only and `npm run build` cannot observe it.
+- Commits:
+  - `bb9780b7296e00c4d7939ced278e77c1ad10c1a1`
+    `refactor(catalogos): extraer queries y servicios de CatalogoController`
+    — 7 files, +904/-684.
+  - `1621f80e0e112513a3f58d410e7d5f34d9e0d055`
+    `refactor(usuarios): extraer queries, servicio y form requests de UsuarioController`
+    — 7 files, +503/-384.
+  - `ae060677538a79146e4d4771fcb81ebbd4eb7bf6`
+    `refactor(publicaciones): extraer queries, servicios y request de PublicacionController`
+    — 5 files, +400/-339.
+  - `docs(odd): registrar evidencia de controllers-queries` — this evidence
+    update; its SHA is recorded in the Engram mirror (the committed copy lists
+    it as pending, same pattern as prior units).
