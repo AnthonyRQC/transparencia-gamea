@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { formatearFechaCorta } from '@/helpers/fechas';
-import { Head, router } from '@inertiajs/react';
-import { toast } from 'sonner';
+import { Head } from '@inertiajs/react';
 import { cn } from '@/lib/utils';
 import {
   Inbox, CheckCircle2, ClipboardList, Eye, Archive,
@@ -19,28 +18,8 @@ import ContadorCard from '@/Components/Denuncias/Shared/ContadorCard';
 import TabsDenuncias from '@/Components/Denuncias/Shared/TabsDenuncias';
 import Paginacion from '@/Components/Denuncias/Shared/Paginacion';
 import ListaVacia from '@/Components/Denuncias/Shared/ListaVacia';
-import ModalAdmision from '@/Components/Denuncias/Modales/Admision/ModalAdmision';
-import ModalRechazo from '@/Components/Denuncias/Modales/Admision/ModalRechazo';
-import AsignacionModal from '@/Components/Denuncias/Modales/Flujo/AsignacionModal';
-import TraspasoModal from '@/Components/Denuncias/Modales/Flujo/TraspasoModal';
-import ReabrirModal from '@/Components/Denuncias/Modales/Flujo/ReabrirModal';
-import ModalNuevaSolicitud from '@/Components/Denuncias/Modales/Investigacion/ModalNuevaSolicitud';
-import ModalResponderSolicitud from '@/Components/Denuncias/Modales/Investigacion/ModalResponderSolicitud';
-import ModalAmpliarSolicitud from '@/Components/Denuncias/Modales/Investigacion/ModalAmpliarSolicitud';
-import ModalNotificarDescargo from '@/Components/Denuncias/Modales/Investigacion/ModalNotificarDescargo';
-import ModalResponderDescargo from '@/Components/Denuncias/Modales/Investigacion/ModalResponderDescargo';
-import ModalAmpliarDescargo from '@/Components/Denuncias/Modales/Investigacion/ModalAmpliarDescargo';
-import ModalCancelarSolicitud from '@/Components/Denuncias/Modales/Investigacion/ModalCancelarSolicitud';
-import ModalNuevoDescargo from '@/Components/Denuncias/Modales/Investigacion/ModalNuevoDescargo';
-import ModalCancelarDescargo from '@/Components/Denuncias/Modales/Investigacion/ModalCancelarDescargo';
-import ModalConfirmarEliminar from '@/Components/Denuncias/Shared/ConfirmDialog';
-import ModalAmpliacionPlazo from '@/Components/Denuncias/Modales/Flujo/ModalAmpliacionPlazo';
-import ModalDelegarEvaluacion from '@/Components/Denuncias/Modales/Flujo/ModalDelegarEvaluacion';
-import ModalEditarDenuncia from '@/Components/Denuncias/Modales/Flujo/ModalEditarDenuncia';
-import ModalArchivosDelCaso from '@/Components/Denuncias/Modales/General/ModalArchivosDelCaso';
-import ModalConciliarFechas from '@/Components/Denuncias/Modales/General/ModalConciliarFechas';
-import ModalConfirmar from '@/Components/Denuncias/Shared/ConfirmDialog';
 import BandejaFiltros from './bandeja/BandejaFiltros';
+import BandejaModales from './bandeja/BandejaModales';
 import { isNewHours, filterAndSort } from './bandeja/helpers';
 import { contadorConfig } from './bandeja/tipos';
 import type { PageProps, Denuncia, Solicitud, Descargo } from './bandeja/tipos';
@@ -178,6 +157,12 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
   };
 
   const pageSize = 10;
+
+  const investigadorActualId = (() => {
+    const found = modalTraspasoTicket ? [...denuncias, ...porAsignar, ...enCurso, ...historial].find(d => d.ticket === modalTraspasoTicket) : null;
+    if (!found) return null;
+    return (found as any).investigador_id || (typeof (found as any).investigador === 'object' ? (found as any).investigador?.id : null);
+  })();
 
   return (
     <AppLayout>
@@ -671,198 +656,64 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
         </DenunciaSheet>
       )}
 
-      <ModalAdmision
-        ticket={modalAdmisionTicket}
-        open={modalAdmisionTicket !== null}
-        onOpenChange={(v) => { if (!v) setModalAdmisionTicket(null); }}
-      />
-      <ModalRechazo
-        ticket={modalRechazoTicket}
-        open={modalRechazoTicket !== null}
-        onOpenChange={(v) => { if (!v) setModalRechazoTicket(null); }}
-      />
-      <AsignacionModal
-        ticket={modalAsignacionTicket}
-        open={modalAsignacionTicket !== null}
+      <BandejaModales
+        modalAdmisionTicket={modalAdmisionTicket}
+        setModalAdmisionTicket={setModalAdmisionTicket}
+        modalRechazoTicket={modalRechazoTicket}
+        setModalRechazoTicket={setModalRechazoTicket}
+        modalAsignacionTicket={modalAsignacionTicket}
+        setModalAsignacionTicket={setModalAsignacionTicket}
+        modalTraspasoTicket={modalTraspasoTicket}
+        setModalTraspasoTicket={setModalTraspasoTicket}
+        investigadorActualId={investigadorActualId}
+        modalReabrirTicket={modalReabrirTicket}
+        setModalReabrirTicket={setModalReabrirTicket}
+        modalNuevaSolTicket={modalNuevaSolTicket}
+        setModalNuevaSolTicket={setModalNuevaSolTicket}
+        modalRespondeSolId={modalRespondeSolId}
+        setModalRespondeSolId={setModalRespondeSolId}
+        modalAmpliaSolId={modalAmpliaSolId}
+        setModalAmpliaSolId={setModalAmpliaSolId}
+        modalNotificarDescId={modalNotificarDescId}
+        setModalNotificarDescId={setModalNotificarDescId}
+        modalRespDescId={modalRespDescId}
+        setModalRespDescId={setModalRespDescId}
+        modalAmpliaDescId={modalAmpliaDescId}
+        setModalAmpliaDescId={setModalAmpliaDescId}
+        modalCancelarSolId={modalCancelarSolId}
+        setModalCancelarSolId={setModalCancelarSolId}
+        modalCancelarDescId={modalCancelarDescId}
+        setModalCancelarDescId={setModalCancelarDescId}
+        modalNuevoDescTicket={modalNuevoDescTicket}
+        setModalNuevoDescTicket={setModalNuevoDescTicket}
+        modalEditarSol={modalEditarSol}
+        setModalEditarSol={setModalEditarSol}
+        modalEliminarSol={modalEliminarSol}
+        setModalEliminarSol={setModalEliminarSol}
+        modalEditarDesc={modalEditarDesc}
+        setModalEditarDesc={setModalEditarDesc}
+        modalEliminarDesc={modalEliminarDesc}
+        setModalEliminarDesc={setModalEliminarDesc}
+        processingEliminar={processingEliminar}
+        setProcessingEliminar={setProcessingEliminar}
+        modalAmpliarPlazoDenuncia={modalAmpliarPlazoDenuncia}
+        setModalAmpliarPlazoDenuncia={setModalAmpliarPlazoDenuncia}
+        modalArchivosTicket={modalArchivosTicket}
+        setModalArchivosTicket={setModalArchivosTicket}
+        modalConciliarDenuncia={modalConciliarDenuncia}
+        setModalConciliarDenuncia={setModalConciliarDenuncia}
+        modalDelegarEvaluacionTicket={modalDelegarEvaluacionTicket}
+        setModalDelegarEvaluacionTicket={setModalDelegarEvaluacionTicket}
+        modalReasumirEvaluacionTicket={modalReasumirEvaluacionTicket}
+        setModalReasumirEvaluacionTicket={setModalReasumirEvaluacionTicket}
+        modalEditarDenuncia={modalEditarDenuncia}
+        setModalEditarDenuncia={setModalEditarDenuncia}
+        modalEliminarDenunciaTicket={modalEliminarDenunciaTicket}
+        setModalEliminarDenunciaTicket={setModalEliminarDenunciaTicket}
+        setSelectedDenuncia={setSelectedDenuncia}
+        selectedDenuncia={selectedDenuncia}
         investigadores={investigadores}
         cargaInvestigadores={cargaInvestigadores}
-        onOpenChange={(v) => { if (!v) setModalAsignacionTicket(null); }}
-      />
-      <TraspasoModal
-        ticket={modalTraspasoTicket}
-        investigadorActualId={(() => {
-          const found = modalTraspasoTicket ? [...denuncias, ...porAsignar, ...enCurso, ...historial].find(d => d.ticket === modalTraspasoTicket) : null;
-          if (!found) return null;
-          return (found as any).investigador_id || (typeof (found as any).investigador === 'object' ? (found as any).investigador?.id : null);
-        })()}
-        open={modalTraspasoTicket !== null}
-        investigadores={investigadores}
-        cargaInvestigadores={cargaInvestigadores}
-        onOpenChange={(v) => { if (!v) setModalTraspasoTicket(null); }}
-      />
-      <ReabrirModal
-        ticket={modalReabrirTicket}
-        open={modalReabrirTicket !== null}
-        onOpenChange={(v) => { if (!v) setModalReabrirTicket(null); }}
-      />
-      <ModalNuevaSolicitud
-        ticket={modalEditarSol ? modalEditarSol.ticket : modalNuevaSolTicket}
-        solicitudToEdit={modalEditarSol}
-        open={modalNuevaSolTicket !== null || modalEditarSol !== null}
-        onOpenChange={(v) => { if (!v) { setModalNuevaSolTicket(null); setModalEditarSol(null); } }}
-      />
-      <ModalResponderSolicitud
-        solicitudId={modalRespondeSolId}
-        open={modalRespondeSolId !== null}
-        onOpenChange={(v) => { if (!v) setModalRespondeSolId(null); }}
-      />
-      <ModalAmpliarSolicitud
-        solicitudId={modalAmpliaSolId}
-        open={modalAmpliaSolId !== null}
-        onOpenChange={(v) => { if (!v) setModalAmpliaSolId(null); }}
-      />
-      <ModalNotificarDescargo
-        descargoId={modalNotificarDescId}
-        open={modalNotificarDescId !== null}
-        onOpenChange={(v) => { if (!v) setModalNotificarDescId(null); }}
-      />
-      <ModalResponderDescargo
-        descargoId={modalRespDescId}
-        open={modalRespDescId !== null}
-        onOpenChange={(v) => { if (!v) setModalRespDescId(null); }}
-      />
-      <ModalAmpliarDescargo
-        descargoId={modalAmpliaDescId}
-        open={modalAmpliaDescId !== null}
-        onOpenChange={(v) => { if (!v) setModalAmpliaDescId(null); }}
-      />
-      <ModalCancelarSolicitud
-        solicitudId={modalCancelarSolId}
-        open={modalCancelarSolId !== null}
-        onOpenChange={(v: boolean) => { if (!v) setModalCancelarSolId(null); }}
-      />
-      <ModalCancelarDescargo
-        descargoId={modalCancelarDescId}
-        open={modalCancelarDescId !== null}
-        onOpenChange={(v: boolean) => { if (!v) setModalCancelarDescId(null); }}
-      />
-      <ModalNuevoDescargo
-        ticket={modalEditarDesc ? modalEditarDesc.ticket : modalNuevoDescTicket}
-        denunciados={selectedDenuncia?.denunciados || []}
-        descargoToEdit={modalEditarDesc}
-        open={modalNuevoDescTicket !== null || modalEditarDesc !== null}
-        onOpenChange={(v: boolean) => { if (!v) { setModalNuevoDescTicket(null); setModalEditarDesc(null); } }}
-      />
-      <ModalConfirmarEliminar
-        open={modalEliminarSol !== null}
-        onOpenChange={(v) => { if (!v) setModalEliminarSol(null); }}
-        onConfirm={() => {
-          if (!modalEliminarSol) return;
-          setProcessingEliminar(true);
-          router.post(route('denuncias.solicitudes.eliminar', { id: modalEliminarSol.id }), {}, {
-            preserveScroll: true,
-            onSuccess: () => { toast.success('Solicitud eliminada correctamente'); setModalEliminarSol(null); setProcessingEliminar(false); },
-            onError: () => { toast.error('Error al eliminar solicitud'); setProcessingEliminar(false); },
-            onFinish: () => setProcessingEliminar(false),
-          });
-        }}
-        titulo="¿Eliminar solicitud?"
-        descripcion="Esta solicitud se ocultará de la lista. Los datos se conservarán para auditoría."
-        itemNombre={modalEliminarSol?.nombre || ''}
-        processing={processingEliminar}
-      />
-      <ModalConfirmarEliminar
-        open={modalEliminarDesc !== null}
-        onOpenChange={(v) => { if (!v) setModalEliminarDesc(null); }}
-        onConfirm={() => {
-          if (!modalEliminarDesc) return;
-          setProcessingEliminar(true);
-          router.post(route('denuncias.descargos.eliminar', { id: modalEliminarDesc.id }), {}, {
-            preserveScroll: true,
-            onSuccess: () => { toast.success('Descargo eliminado correctamente'); setModalEliminarDesc(null); setProcessingEliminar(false); },
-            onError: () => { toast.error('Error al eliminar descargo'); setProcessingEliminar(false); },
-            onFinish: () => setProcessingEliminar(false),
-          });
-        }}
-        titulo="¿Eliminar descargo?"
-        descripcion="Este descargo se ocultará de la lista. Los datos se conservarán para auditoría."
-        itemNombre={modalEliminarDesc?.nombre || ''}
-        processing={processingEliminar}
-      />
-      <ModalAmpliacionPlazo
-        denuncia={modalAmpliarPlazoDenuncia}
-        open={modalAmpliarPlazoDenuncia !== null}
-        onOpenChange={(v) => { if (!v) setModalAmpliarPlazoDenuncia(null); }}
-        investigadores={investigadores}
-      />
-      <ModalArchivosDelCaso
-        ticket={modalArchivosTicket}
-        open={modalArchivosTicket !== null}
-        onOpenChange={(v) => { if (!v) setModalArchivosTicket(null); }}
-      />
-      <ModalConciliarFechas
-        ticket={modalConciliarDenuncia?.ticket ?? null}
-        denuncia={modalConciliarDenuncia}
-        open={modalConciliarDenuncia !== null}
-        onOpenChange={(v) => { if (!v) setModalConciliarDenuncia(null); }}
-      />
-      <ModalDelegarEvaluacion
-        ticket={modalDelegarEvaluacionTicket}
-        open={modalDelegarEvaluacionTicket !== null}
-        onOpenChange={(v) => { if (!v) setModalDelegarEvaluacionTicket(null); }}
-        investigadores={investigadores}
-        cargaInvestigadores={cargaInvestigadores}
-      />
-      <ModalConfirmar
-        variant="confirm"
-        open={modalReasumirEvaluacionTicket !== null}
-        onOpenChange={(v) => { if (!v) setModalReasumirEvaluacionTicket(null); }}
-        onConfirm={() => {
-          if (!modalReasumirEvaluacionTicket) return;
-          const ticket = modalReasumirEvaluacionTicket;
-          setModalReasumirEvaluacionTicket(null);
-          router.post(route('denuncias.reasumir-evaluacion', { ticket }), {}, {
-            preserveScroll: true,
-            onSuccess: () => {
-              toast.success('Evaluación reasumida correctamente');
-            },
-            onError: () => toast.error('Error al reasumir evaluación'),
-          });
-        }}
-        titulo="¿Reasumir evaluación?"
-        descripcion="El investigador ya no tendrá esta delegación. La denuncia volverá a 'Por admitir'."
-        confirmText="Sí, reasumir"
-        cancelText="Cancelar"
-      />
-
-      <ModalEditarDenuncia
-        denuncia={modalEditarDenuncia as any}
-        open={modalEditarDenuncia !== null}
-        onOpenChange={(v) => { if (!v) setModalEditarDenuncia(null); }}
-      />
-
-      <ModalConfirmar
-        variant="confirm"
-        open={modalEliminarDenunciaTicket !== null}
-        onOpenChange={(v) => { if (!v) setModalEliminarDenunciaTicket(null); }}
-        onConfirm={() => {
-          if (!modalEliminarDenunciaTicket) return;
-          const ticket = modalEliminarDenunciaTicket;
-          setModalEliminarDenunciaTicket(null);
-          setSelectedDenuncia(null);
-          router.post(route('denuncias.eliminar', { ticket }), {}, {
-            preserveScroll: false,
-            onSuccess: () => {
-              toast.success(`Denuncia ${ticket} eliminada correctamente`);
-              router.reload();
-            },
-            onError: () => toast.error('Error al eliminar denuncia'),
-          });
-        }}
-        titulo="¿Eliminar denuncia?"
-        descripcion="Esta denuncia se ocultará del sistema. Los datos se conservarán para auditoría."
-        confirmText="Sí, eliminar"
-        cancelText="Cancelar"
       />
     </AppLayout>
   );
