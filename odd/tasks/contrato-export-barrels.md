@@ -71,18 +71,18 @@ enforcement, other `Components/Denuncias` refactors.
 
 ## Checklist
 
-- [ ] T1: feature doc created and mirrored in Engram before the first source write.
-- [ ] T2: `ReporteController` exposes `COLUMNAS_FIJAS` and a `preview` payload
+- [x] T1: feature doc created and mirrored in Engram before the first source write.
+- [x] T2: `ReporteController` exposes `COLUMNAS_FIJAS` and a `preview` payload
       with ordered `columnas` (`key`/`label`/`fija`) and `columnas_default`.
-- [ ] T3: tests assert `columnas` keys/order/labels match `COLUMNAS_EXCEL`,
+- [x] T3: tests assert `columnas` keys/order/labels match `COLUMNAS_EXCEL`,
       `fija` equals `COLUMNAS_FIJAS`, `columnas_default` equals the const and
       `columnasPedidas` still filters unknown keys.
-- [ ] T4: `ModalExportar` removes local catalogs, consumes the contract and
+- [x] T4: `ModalExportar` removes local catalogs, consumes the contract and
       initializes selection only on first load; types added to `types/dashboard.ts`.
-- [ ] T5: barrel mapping generated from barrel contents, all 76 root-level
+- [x] T5: barrel mapping generated from barrel contents, all 76 root-level
       imports rewritten, 63 barrels deleted; named exports preserved
       (`createDenunciadoItem`, `createPruebaItem`).
-- [ ] T6: evidence recorded (commands + results + SHAs + `git diff --stat`),
+- [x] T6: evidence recorded (commands + results + SHAs + `git diff --stat`),
       Engram mirror updated, tree clean.
 
 ## Authorized scope
@@ -91,16 +91,16 @@ enforcement, other `Components/Denuncias` refactors.
 
 ## Acceptance criteria
 
-- [ ] `preview()` returns the column contract; unknown requested keys are
+- [x] `preview()` returns the column contract; unknown requested keys are
       dropped and empty/invalid selection falls back to the default.
-- [ ] Modal renders checkboxes from the response (labels and `fija` included)
+- [x] Modal renders checkboxes from the response (labels and `fija` included)
       and never resets selection on pagination.
-- [ ] Zero `from '@/Components/Denuncias/<RootName>'` matches remain; zero
+- [x] Zero `from '@/Components/Denuncias/<RootName>'` matches remain; zero
       barrel files remain under `Components/Denuncias/` root.
-- [ ] Named exports consumed through barrels still resolve after deletion.
-- [ ] `artisan test --filter=Reporte`, full `artisan test` and `npm run build`
+- [x] Named exports consumed through barrels still resolve after deletion.
+- [x] `artisan test --filter=Reporte`, full `artisan test` and `npm run build`
       pass.
-- [ ] `git status --short` is clean after the evidence commit.
+- [x] `git status --short` is clean after the evidence commit.
 
 ## Applicable checks
 
@@ -112,4 +112,29 @@ enforcement, other `Components/Denuncias` refactors.
 
 ## Verification evidence
 
-- Pending; recorded in the evidence commit after both units land.
+- `& "C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe" artisan test --filter=Reporte`:
+  17 passed (101 assertions).
+- `& "C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe" artisan test`:
+  182 passed (1280 assertions).
+- `npm run build`: passed (`tsc && vite build`, 4639 modules transformed,
+  built in 9.07s).
+- Remnant scan (root-level barrel imports over `resources/js` `*.ts`/`*.tsx`):
+  76 before Unit 2 (11 files), 0 after. Barrel files: 63 before, 0 after.
+- Named-export verification: 9 barrels re-exported extra names via `export *`;
+  7 were no-ops (canonical modules export only default) and 2 carried
+  `createDenunciadoItem` / `createPruebaItem`, migrated to canonical
+  `Form/BloqueDenunciado` and `Form/BloquePrueba`; `tsc` and the build pass.
+- Commits:
+  - `f9c5961cf3ea6088334dc5163576170d59c852a1`
+    `refactor(reportes): contrato unico de columnas de exportacion desde backend`
+    — 5 files, +198/-33 (controller, modal, types, tests, this document).
+  - `1f4048eb669e1b464f7c2a048f6b4a95ad57fc3a`
+    `refactor(denuncias): eliminar barrels de compatibilidad e importar rutas canonicas`
+    — 74 files, +76/-148 (11 imports rewritten, 63 barrels deleted).
+  - `docs(odd): registrar evidencia de contrato-export-barrels` — this evidence
+    update; its SHA is recorded in the Engram mirror (the committed copy lists
+    it as pending, same pattern as prior units).
+- `git status --short`: clean after the evidence commit.
+- Manual browser checks (pending, user): export modal renders checkboxes from
+  the contract and the Excel download works; Bandeja and MisCasos open with
+  their modals (canonical imports).
