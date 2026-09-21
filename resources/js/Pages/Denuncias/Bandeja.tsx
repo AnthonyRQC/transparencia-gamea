@@ -10,8 +10,6 @@ import {
 } from 'lucide-react';
 import { FileText, FileSearch, Undo2, CalendarArrowUp, Trash2 } from 'lucide-react';
 import { RECOMENDACION_COLOR } from '@/Components/Denuncias/Shared/semantica';
-import { Input } from '@/Components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/Components/ui/tooltip';
 import AppLayout from '@/Components/Layout/AppLayout';
 import PageHeader from '@/Components/Layout/PageHeader';
@@ -42,143 +40,10 @@ import ModalEditarDenuncia from '@/Components/Denuncias/Modales/Flujo/ModalEdita
 import ModalArchivosDelCaso from '@/Components/Denuncias/Modales/General/ModalArchivosDelCaso';
 import ModalConciliarFechas from '@/Components/Denuncias/Modales/General/ModalConciliarFechas';
 import ModalConfirmar from '@/Components/Denuncias/Shared/ConfirmDialog';
-
-interface PlazoInfo {
-  dias_restantes: number;
-  color: 'green' | 'yellow' | 'red';
-  fecha_vencimiento?: string;
-}
-
-interface Denunciado {
-  conoce_identidad: boolean;
-  nombres?: string;
-  dependencia?: string;
-  descripcion?: string;
-}
-
-interface Prueba {
-  tipo: string;
-  descripcion: string;
-  testigo_nombre?: string;
-  testigo_telefono?: string;
-  archivo_nombre?: string;
-}
-
-interface BitacoraEntry {
-  fecha: string;
-  accion: string;
-  detalle: string;
-  usuario: string;
-}
-
-interface Solicitud {
-  id: number;
-  ticket: string;
-  dependencia_destino: string;
-  detalle: string;
-  fecha_envio: string;
-  fecha_vencimiento: string;
-  estado: string;
-  plazo_dias?: number;
-  fecha_respuesta?: string;
-  respuesta?: string;
-  motivo_cancelacion?: string;
-  fecha_cancelacion?: string;
-  archivos?: Array<{ nombre: string; tamano?: string; fecha_subida?: string }>;
-  ampliaciones?: Array<{ dias: number; justificacion: string; fecha: string; archivo?: unknown }>;
-  plazo_info?: { dias_restantes: number; color: string; texto: string; fecha_vencimiento: string };
-}
-
-interface Descargo {
-  id: number;
-  ticket: string;
-  denunciado_idx: number;
-  nombres_denunciado: string;
-  dependencia_denunciado?: string;
-  fecha_notificacion?: string | null;
-  medio?: string | null;
-  respaldo_archivo?: { nombre: string; tamano?: string } | null;
-  fecha_vencimiento?: string | null;
-  fecha_respuesta?: string | null;
-  estado: string;
-  resumen_descargo?: string | null;
-  documentos?: Array<{ nombre: string; tamano?: string; fecha_subida?: string }>;
-  ampliaciones?: Array<{ dias: number; justificacion: string; fecha: string }>;
-}
-
-interface Denuncia {
-  ticket: string;
-  tipo: string;
-  escenario?: string;
-  denunciante?: { nombres?: string; ci?: string; email?: string; telefono?: string };
-  denunciados?: Denunciado[];
-  detalles?: { categoria?: string; fecha?: string; hora?: string; lugar?: string };
-  hechos?: string;
-  pruebas?: Prueba[];
-  created_at: string;
-  justificacion_admision?: string | null;
-  fecha_admitida?: string | null;
-  justificacion_rechazo?: string | null;
-  justificacion_reapertura?: string | null;
-  fecha_reapertura?: string | null;
-  investigador_anterior?: string | null;
-  bitacora?: BitacoraEntry[];
-  estado: string;
-  subestado?: string | null;
-  investigador?: any;
-  fecha_asignada?: string | null;
-  fecha_traspaso?: string | null;
-  justificacion_traspaso?: string | null;
-  fecha_rechazada?: string | null;
-  evaluacion_tecnica_investigador_nombre?: string | null;
-  evaluacion_tecnica_recomendacion?: string | null;
-  evaluacion_tecnica_delegada_at?: string | null;
-  evaluacion_tecnica_texto?: string | null;
-  plazo: PlazoInfo | null;
-}
-
-interface Contador {
-  ingresada?: number;
-  evaluacion_tecnica?: number;
-  admitida?: number;
-  asignada?: number;
-  investigacion?: number;
-  informe?: number;
-  rechazada?: number;
-  cerrada?: number;
-  porAdmitir?: number;
-  porAsignar?: number;
-  enCurso?: number;
-  historial?: number;
-  activos?: number;
-  [key: string]: number | undefined;
-}
-
-interface PageProps {
-  denuncias: Denuncia[];
-  porAsignar: Denuncia[];
-  enCurso: Denuncia[];
-  historial: Denuncia[];
-  contadores: Contador;
-  investigadores: Record<string, { id: string; nombre: string; iniciales: string; color: string }>;
-  cargaInvestigadores?: Array<{ id: string; nombre: string; iniciales: string; color: string; activos: number; por_vencer: number; vencidos: number }>;
-  solicitudesByTicket?: Record<string, Solicitud[]>;
-  descargosByTicket?: Record<string, Descargo[]>;
-  evaluacionesByTicket?: Record<string, any[]>;
-  avisosPorTicket?: Record<string, string[]>;
-  canAct?: boolean;
-  destacar?: string;
-}
-
-const contadorConfig = [
-  { key: 'ingresada', label: 'Ingresadas', icon: Inbox, color: 'bg-primary/10 text-primary border border-primary/20 dark:bg-primary/20 dark:text-primary-foreground' },
-  { key: 'evaluacion_tecnica', label: 'En evaluación', icon: FileSearch, color: 'bg-amber-500/15 text-amber-900 border border-amber-500/30 dark:bg-amber-500/20 dark:text-amber-300' },
-  { key: 'admitida', label: 'Admitidas', icon: CheckCircle2, color: 'bg-teal-500/10 text-teal-800 border border-teal-500/30 dark:bg-teal-500/20 dark:text-teal-300' },
-  { key: 'asignada', label: 'Asignadas', icon: ClipboardList, color: 'bg-primary/10 text-primary border border-primary/20 dark:bg-primary/20 dark:text-primary-foreground' },
-  { key: 'investigacion', label: 'Investigación', icon: Eye, color: 'bg-primary/10 text-primary border border-primary/20 dark:bg-primary/20 dark:text-primary-foreground' },
-  { key: 'informe', label: 'Informe Final', icon: FileText, color: 'bg-amber-500/15 text-amber-900 border border-amber-500/30 dark:bg-amber-500/20 dark:text-amber-300' },
-  { key: 'cerrada', label: 'Cerradas', icon: Archive, color: 'bg-teal-500/10 text-teal-800 border border-teal-500/30 dark:bg-teal-500/20 dark:text-teal-300' },
-];
+import BandejaFiltros from './bandeja/BandejaFiltros';
+import { isNewHours, filterAndSort } from './bandeja/helpers';
+import { contadorConfig } from './bandeja/tipos';
+import type { PageProps, Denuncia, Solicitud, Descargo } from './bandeja/tipos';
 
 export default function Bandeja({ denuncias, porAsignar, enCurso, historial, contadores, investigadores, cargaInvestigadores, solicitudesByTicket = {}, descargosByTicket = {}, evaluacionesByTicket = {}, avisosPorTicket = {}, canAct = false, destacar }: PageProps) {
   const [selectedDenuncia, setSelectedDenuncia] = useState<Denuncia | null>(null);
@@ -290,38 +155,6 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
     { value: 'vision-general', label: 'Visión general' },
   ];
 
-  const isNewHours = (dateStr: string): boolean => {
-    if (!dateStr) return false;
-    const d = new Date(dateStr);
-    return (Date.now() - d.getTime()) / (1000 * 60 * 60) < 24;
-  };
-
-  const filterAndSort = (items: Denuncia[]): Denuncia[] => {
-    let filtered = items;
-    if (search.trim()) {
-      const q = search.trim().toLowerCase();
-      filtered = filtered.filter((d) =>
-        d.ticket.toLowerCase().includes(q) ||
-        (d.denunciante?.nombres && d.denunciante.nombres.toLowerCase().includes(q))
-      );
-    }
-    if (filterTipo !== 'all') {
-      filtered = filtered.filter((d) => d.tipo === filterTipo);
-    }
-    return [...filtered].sort((a, b) => {
-      if (sortBy === 'fecha') return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-      if (sortBy === 'investigador') {
-        const tecA = typeof a.investigador === 'object' ? (a.investigador?.name || '') : (a.investigador || '');
-        const tecB = typeof b.investigador === 'object' ? (b.investigador?.name || '') : (b.investigador || '');
-        return tecA.localeCompare(tecB);
-      }
-      if (activeTab === 'por-admitir') {
-        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-      }
-      return (a.plazo?.dias_restantes ?? 999) - (b.plazo?.dias_restantes ?? 999);
-    });
-  };
-
   const renderEmptyState = (icon: any, titulo: string, descripcion: string) => {
     const tieneFiltros = search.trim() !== '' || filterTipo !== 'all';
     if (tieneFiltros) {
@@ -356,44 +189,19 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
         subtitulo="Gestión de denuncias institucionales. Haz clic en un caso para ver su detalle y acciones."
       />
 
-      <div className="flex flex-col sm:flex-row gap-2 mb-4">
-        <div className="relative w-full sm:flex-1 sm:max-w-xs">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="Buscar por N° de denuncia o denunciante..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-8 h-9 text-sm w-full"
-          />
-        </div>
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <Select value={filterTipo} onValueChange={setFilterTipo}>
-            <SelectTrigger className="w-full sm:w-36 h-9 text-sm">
-              <SelectValue placeholder="Tipo" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos</SelectItem>
-              <SelectItem value="corrupcion">Corrupción</SelectItem>
-              <SelectItem value="negacion">Negación</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger className="w-full sm:w-36 h-9 text-sm">
-              <SelectValue placeholder="Ordenar" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="plazo">Plazo</SelectItem>
-              <SelectItem value="fecha">Fecha</SelectItem>
-              <SelectItem value="investigador">Investigador</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
+      <BandejaFiltros
+        search={search}
+        setSearch={setSearch}
+        filterTipo={filterTipo}
+        setFilterTipo={setFilterTipo}
+        sortBy={sortBy}
+        setSortBy={setSortBy}
+      />
 
       <TabsDenuncias tabs={tabs} value={activeTab} onValueChange={setActiveTab}>
         {(value) => {
           if (value === 'por-admitir') {
-            const filtered = filterAndSort(denuncias);
+            const filtered = filterAndSort(denuncias, { search, filterTipo, sortBy, activeTab });
             const totalPaginas = Math.ceil(filtered.length / pageSize) || 1;
             const paginated = filtered.slice((pagina - 1) * pageSize, pagina * pageSize);
             return filtered.length === 0 ? (
@@ -513,7 +321,7 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
           }
 
           if (value === 'por-asignar') {
-            const filtered = filterAndSort(porAsignar);
+            const filtered = filterAndSort(porAsignar, { search, filterTipo, sortBy, activeTab });
             const totalPaginas = Math.ceil(filtered.length / pageSize) || 1;
             const paginated = filtered.slice((pagina - 1) * pageSize, pagina * pageSize);
             return filtered.length === 0 ? (
@@ -559,7 +367,7 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
           }
 
           if (value === 'en-curso') {
-            const filtered = filterAndSort(enCurso);
+            const filtered = filterAndSort(enCurso, { search, filterTipo, sortBy, activeTab });
             const totalPaginas = Math.ceil(filtered.length / pageSize) || 1;
             const paginated = filtered.slice((pagina - 1) * pageSize, pagina * pageSize);
             return filtered.length === 0 ? (
@@ -594,7 +402,7 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
           }
 
           if (value === 'historial') {
-            const filtered = filterAndSort(historial);
+            const filtered = filterAndSort(historial, { search, filterTipo, sortBy, activeTab });
             const totalPaginas = Math.ceil(filtered.length / pageSize) || 1;
             const paginated = filtered.slice((pagina - 1) * pageSize, pagina * pageSize);
             return filtered.length === 0 ? (
