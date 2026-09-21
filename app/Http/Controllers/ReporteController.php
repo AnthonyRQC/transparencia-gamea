@@ -58,6 +58,27 @@ class ReporteController extends Controller
         'sitpreco', 'investigador', 'fecha_conclusion', 'resumen_conclusion', 'clasificacion',
     ];
 
+    /** Columnas que siempre viajan en el Excel cuando se exporta. */
+    public const COLUMNAS_FIJAS = ['fecha_ingreso', 'ticket'];
+
+    /**
+     * Contrato de columnas que consume el frontend: orden, etiqueta y fija.
+     * @return array<int,array{key:string,label:string,fija:bool}>
+     */
+    private static function columnasContrato(): array
+    {
+        $contrato = [];
+        foreach (self::COLUMNAS_EXCEL as $clave => $label) {
+            $contrato[] = [
+                'key' => $clave,
+                'label' => $label,
+                'fija' => in_array($clave, self::COLUMNAS_FIJAS, true),
+            ];
+        }
+
+        return $contrato;
+    }
+
     private function autorizar(string $permiso): void
     {
         if (! auth()->user()->puede($permiso)) {
@@ -97,6 +118,8 @@ class ReporteController extends Controller
                 'estado' => self::ESTADOS[$d->estado] ?? strtoupper($d->estado),
                 'created_at' => $d->created_at?->format('d/m/Y'),
             ]),
+            'columnas' => self::columnasContrato(),
+            'columnas_default' => self::COLUMNAS_DEFAULT,
         ]);
     }
 

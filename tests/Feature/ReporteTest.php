@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Http\Controllers\ReporteController;
 use App\Models\CategoriaDenuncia;
 use App\Models\Clasificacion;
 use App\Models\Denuncia;
@@ -10,6 +11,7 @@ use App\Models\MedioNotificacion;
 use App\Models\User;
 use App\Exports\ReporteExcel;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Request;
 use Tests\TestCase;
 
 class ReporteTest extends TestCase
@@ -128,6 +130,45 @@ class ReporteTest extends TestCase
         $response->assertOk()
             ->assertJsonStructure(['total', 'rows'])
             ->assertJsonPath('total', 1);
+    }
+
+    public function test_preview_expone_contrato_unico_de_columnas(): void
+    {
+        $this->denuncia();
+
+        $this->actingAs($this->jefe);
+
+        $response = $this->get('/reportes/preview')->assertOk();
+
+        $columnas = $response->json('columnas');
+
+        $this->assertSame(array_keys(ReporteController::COLUMNAS_EXCEL), array_column($columnas, 'key'));
+        $this->assertSame(array_values(ReporteController::COLUMNAS_EXCEL), array_column($columnas, 'label'));
+
+        foreach ($columnas as $columna) {
+            $this->assertSame(
+                in_array($columna['key'], ReporteController::COLUMNAS_FIJAS, true),
+                $columna['fija']
+            );
+        }
+
+        $this->assertSame(ReporteController::COLUMNAS_DEFAULT, $response->json('columnas_default'));
+    }
+
+    public function test_columnas_pedidas_filtra_desconocidas_y_usa_default(): void
+    {
+        $request = fn (array $input) => Request::create('/reportes/exportar', 'GET', $input);
+
+        $this->assertSame(
+            ['ticket', 'estado'],
+            ReporteController::columnasPedidas($request(['columnas' => ['ticket', 'invalida', 'estado']]))
+        );
+
+        $this->assertSame(ReporteController::COLUMNAS_DEFAULT, ReporteController::columnasPedidas($request([])));
+        $this->assertSame(
+            ReporteController::COLUMNAS_DEFAULT,
+            ReporteController::columnasPedidas($request(['columnas' => ['invalida']]))
+        );
     }
 
     public function test_exportar_excel(): void

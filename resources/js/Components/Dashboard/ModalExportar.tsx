@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from '@inertiajs/react';
 import { Download, FileText, FileSpreadsheet, ExternalLink, Loader2, FileDown, ChevronLeft, ChevronRight, Columns3, Eye } from 'lucide-react';
 import axios from 'axios';
@@ -9,7 +9,7 @@ import { Label } from '@/Components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/Components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/Components/ui/table';
 import { cn } from '@/lib/utils';
-import { ETIQUETAS_TIPO, type FiltrosDashboard } from '@/types/dashboard';
+import { ETIQUETAS_TIPO, type ColumnaExport, type FiltrosDashboard } from '@/types/dashboard';
 
 interface Props {
     filtros: FiltrosDashboard;
@@ -26,36 +26,11 @@ interface PreviewRow {
     created_at: string;
 }
 
-/** Columnas disponibles para el Excel (clave => etiqueta). Debe coincidir con ReporteController::COLUMNAS_EXCEL. */
-export const COLUMNAS_EXCEL: Array<{ key: string; label: string; fija?: boolean }> = [
-    { key: 'fecha_ingreso', label: 'Fecha de ingreso', fija: true },
-    { key: 'ticket', label: 'Nro de denuncia', fija: true },
-    { key: 'tipo', label: 'Tipo de denuncia' },
-    { key: 'denunciante', label: 'Datos del denunciante' },
-    { key: 'denunciados', label: 'Datos de los denunciados' },
-    { key: 'sitpreco', label: 'Nro SITPRECO' },
-    { key: 'investigador', label: 'Investigador encargado' },
-    { key: 'fecha_conclusion', label: 'Fecha de conclusión' },
-    { key: 'resumen_conclusion', label: 'Resumen de conclusión' },
-    { key: 'clasificacion', label: 'Clasificación final' },
-    { key: 'categoria', label: 'Categoría' },
-    { key: 'estado', label: 'Estado' },
-    { key: 'fecha_admision', label: 'Fecha de admisión' },
-    { key: 'fecha_rechazo', label: 'Fecha de rechazo' },
-    { key: 'escenario', label: 'Escenario' },
-    { key: 'medio_cierre', label: 'Medio de notificación de cierre' },
-    { key: 'fecha_cierre', label: 'Fecha de cierre' },
-    { key: 'dias_restantes', label: 'Días restantes de plazo' },
-];
-
-const COLUMNAS_DEFAULT = [
-    'fecha_ingreso', 'ticket', 'tipo', 'denunciante', 'denunciados',
-    'sitpreco', 'investigador', 'fecha_conclusion', 'resumen_conclusion', 'clasificacion',
-];
-
 export default function ModalExportar({ filtros, open, onOpenChange }: Props) {
     const [formato, setFormato] = useState<'pdf' | 'excel'>('excel');
-    const [columnas, setColumnas] = useState<string[]>(COLUMNAS_DEFAULT);
+    const [columnasDisponibles, setColumnasDisponibles] = useState<ColumnaExport[]>([]);
+    const [columnas, setColumnas] = useState<string[]>([]);
+    const inicializadoRef = useRef(false);
     const [rows, setRows] = useState<PreviewRow[]>([]);
     const [total, setTotal] = useState(0);
     const [pagina, setPagina] = useState(1);
@@ -85,6 +60,11 @@ export default function ModalExportar({ filtros, open, onOpenChange }: Props) {
                 setTotal(res.data.total ?? 0);
                 setPagina(res.data.current_page ?? 1);
                 setUltimaPagina(res.data.last_page ?? 1);
+                setColumnasDisponibles(res.data.columnas ?? []);
+                if (!inicializadoRef.current) {
+                    setColumnas(res.data.columnas_default ?? []);
+                    inicializadoRef.current = true;
+                }
             })
             .catch(() => {
                 setRows([]);
@@ -95,7 +75,7 @@ export default function ModalExportar({ filtros, open, onOpenChange }: Props) {
 
     useEffect(() => {
         if (!open) return;
-        setColumnas(COLUMNAS_DEFAULT);
+        inicializadoRef.current = false;
         cargar(1);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [open ]);
@@ -168,14 +148,14 @@ export default function ModalExportar({ filtros, open, onOpenChange }: Props) {
                     </button>
                 </div>
 
-                {formato === 'excel' && (
+                {formato === 'excel' && columnasDisponibles.length > 0 && (
                     <div className="border rounded-xl p-3 space-y-2">
                         <p className="text-xs font-bold flex items-center gap-1.5">
                             <Columns3 className="w-3.5 h-3.5" />
                             Columnas del Excel ({columnas.length} elegidas)
                         </p>
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
-                            {COLUMNAS_EXCEL.map((c) => (
+                            {columnasDisponibles.map((c) => (
                                 <label key={c.key} className="flex items-center gap-1.5 text-xs cursor-pointer">
                                     <Checkbox
                                         checked={columnas.includes(c.key)}

@@ -60,6 +60,12 @@ export interface Rendimiento {
   urgentes: Urgente[];
 }
 
+export interface ColumnaExport {
+  key: string;
+  label: string;
+  fija: boolean;
+}
+
 export interface FiltrosDashboard {
   desde: string | null;
   hasta: string | null;
