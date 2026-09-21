@@ -6,7 +6,7 @@ import PageHeader from '@/Components/Layout/PageHeader';
 import FiltrosReporte, { type ReportesFiltros, type ReportesOpciones } from '@/Components/Reportes/FiltrosReporte';
 import TablaReporte, { type ReporteRow } from '@/Components/Reportes/TablaReporte';
 import BotonExportar from '@/Components/Reportes/BotonExportar';
-import Paginacion from '@/Components/Denuncias/Paginacion';
+import Paginacion from '@/Components/Denuncias/Shared/Paginacion';
 import { route } from 'ziggy-js';
 
 interface Props {

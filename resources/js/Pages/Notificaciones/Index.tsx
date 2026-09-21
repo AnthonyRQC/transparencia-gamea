@@ -5,11 +5,11 @@ import { Bell, CheckCheck, SearchX } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
 import { Input } from '@/Components/ui/input';
 import { Button } from '@/Components/ui/button';
-import Paginacion from '@/Components/Denuncias/Paginacion';
+import Paginacion from '@/Components/Denuncias/Shared/Paginacion';
 import AppLayout from '@/Components/Layout/AppLayout';
 import PageHeader from '@/Components/Layout/PageHeader';
 import ItemNotificacion from '@/Components/Layout/ItemNotificacion';
-import ListaVacia from '@/Components/Denuncias/ListaVacia';
+import ListaVacia from '@/Components/Denuncias/Shared/ListaVacia';
 
 interface Notificacion {
   id: number;

@@ -5,8 +5,8 @@ import { Megaphone, Search, SearchX, ChevronDown } from 'lucide-react';
 import { Input } from '@/Components/ui/input';
 import { Button } from '@/Components/ui/button';
 import { cn } from '@/lib/utils';
-import Paginacion from '@/Components/Denuncias/Paginacion';
-import ListaVacia from '@/Components/Denuncias/ListaVacia';
+import Paginacion from '@/Components/Denuncias/Shared/Paginacion';
+import ListaVacia from '@/Components/Denuncias/Shared/ListaVacia';
 import AvisoCard, { type AvisoPublico } from '@/Components/Publico/AvisoCard';
 import AvisoDetailModal from '@/Components/Publico/AvisoDetailModal';
 

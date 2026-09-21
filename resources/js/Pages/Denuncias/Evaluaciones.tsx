@@ -7,10 +7,10 @@ import {
 } from 'lucide-react';
 import AppLayout from '@/Components/Layout/AppLayout';
 import PageHeader from '@/Components/Layout/PageHeader';
-import ListaVacia from '@/Components/Denuncias/ListaVacia';
-import TabsDenuncias from '@/Components/Denuncias/TabsDenuncias';
-import DenunciaSheet from '@/Components/Denuncias/DenunciaSheet';
-import ModalDevolverEvaluacion from '@/Components/Denuncias/ModalDevolverEvaluacion';
+import ListaVacia from '@/Components/Denuncias/Shared/ListaVacia';
+import TabsDenuncias from '@/Components/Denuncias/Shared/TabsDenuncias';
+import DenunciaSheet from '@/Components/Denuncias/Sheet/DenunciaSheet';
+import ModalDevolverEvaluacion from '@/Components/Denuncias/Modales/Flujo/ModalDevolverEvaluacion';
 import { cn } from '@/lib/utils';
 import { RECOMENDACION_COLOR, RECOMENDACION_LABEL } from '@/Components/Denuncias/Shared/semantica';
 

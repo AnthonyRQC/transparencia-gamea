@@ -13,18 +13,18 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/Components/ui/select';
-import SeccionEncabezado from '@/Components/Denuncias/SeccionEncabezado';
-import SeccionConfidencialidad from '@/Components/Denuncias/SeccionConfidencialidad';
-import SeccionDenunciante from '@/Components/Denuncias/SeccionDenunciante';
-import BloqueDenunciado, { createDenunciadoItem } from '@/Components/Denuncias/BloqueDenunciado';
-import SeccionDetalles from '@/Components/Denuncias/SeccionDetalles';
-import SeccionRelacionHechos from '@/Components/Denuncias/SeccionRelacionHechos';
-import BloquePrueba, { createPruebaItem } from '@/Components/Denuncias/BloquePrueba';
-import PieFormulario from '@/Components/Denuncias/PieFormulario';
-import ModalExito from '@/Components/Denuncias/ModalExito';
-import ProgressBar from '@/Components/Denuncias/ProgressBar';
-import StickyFooter from '@/Components/Denuncias/StickyFooter';
-import ModalConfirmar from '@/Components/Denuncias/ModalConfirmar';
+import SeccionEncabezado from '@/Components/Denuncias/Form/SeccionEncabezado';
+import SeccionConfidencialidad from '@/Components/Denuncias/Form/SeccionConfidencialidad';
+import SeccionDenunciante from '@/Components/Denuncias/Form/SeccionDenunciante';
+import BloqueDenunciado, { createDenunciadoItem } from '@/Components/Denuncias/Form/BloqueDenunciado';
+import SeccionDetalles from '@/Components/Denuncias/Form/SeccionDetalles';
+import SeccionRelacionHechos from '@/Components/Denuncias/Form/SeccionRelacionHechos';
+import BloquePrueba, { createPruebaItem } from '@/Components/Denuncias/Form/BloquePrueba';
+import PieFormulario from '@/Components/Denuncias/Form/PieFormulario';
+import ModalExito from '@/Components/Denuncias/Modales/General/ModalExito';
+import ProgressBar from '@/Components/Denuncias/Shared/ProgressBar';
+import StickyFooter from '@/Components/Denuncias/Shared/StickyFooter';
+import ModalConfirmar from '@/Components/Denuncias/Shared/ConfirmDialog';
 
 interface DenuncianteData {
     nombres: string;

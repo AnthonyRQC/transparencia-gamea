@@ -6,7 +6,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
 import AppLayout from '@/Components/Layout/AppLayout';
 import PageHeader from '@/Components/Layout/PageHeader';
-import ContadorCard from '@/Components/Denuncias/ContadorCard';
+import ContadorCard from '@/Components/Denuncias/Shared/ContadorCard';
 import { RESUMEN_COLOR } from '@/Components/Denuncias/Shared/semantica';
 
 interface Contadores {
