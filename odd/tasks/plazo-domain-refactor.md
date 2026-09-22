@@ -28,12 +28,12 @@ Close the remaining duplication and dead code found in the 22-sep-2026 inventory
 - Forbidden: push/merge; accessor renames; visual changes.
 
 ## Acceptance criteria
-- [ ] Stub removed; `grep esFeriadoEnFinDeSemana` = 0 in `app/`.
-- [ ] `plazoInfo()` is the only assembly point; 3 accessors delegate; overdue-weekend edge returns -1/red with test.
-- [ ] `PlazoInfo` single source; no inline re-declarations left.
-- [ ] MisCasos page < ~350L, subcomponents under `mis-casos/`, tsc+build green.
-- [ ] AI-CONTEXT shim claim fixed.
-- [ ] Suite + tsc + build green; one commit per unit with SHA recorded.
+- [x] Stub removed; `grep esFeriadoEnFinDeSemana` = 0 in `app/`.
+- [x] `plazoInfo()` is the only assembly point; 3 accessors delegate; overdue-weekend edge returns -1/red with test.
+- [x] `PlazoInfo` single source; no inline re-declarations left.
+- [x] MisCasos page < ~350L (241L), subcomponents under `mis-casos/`, tsc+build green.
+- [x] AI-CONTEXT shim claim fixed.
+- [x] Suite + tsc + build green; one commit per unit with SHA recorded.
 
 ## Applicable checks
 - `php artisan test` full; focused `--filter="DiasHabiles|Plazo|DashboardPlazosSql|DenunciaFlow"`; `npm run build` (tsc+vite).
@@ -42,17 +42,51 @@ Close the remaining duplication and dead code found in the 22-sep-2026 inventory
 - Delegated-direct: writer for 4 code units; parent closes.
 
 ## Tasks
-- [ ] U1 — Cleanups B1+B3+B4.
-- [ ] U2 — B2 `plazoInfo()` + fix + tests.
-- [ ] U3 — F2 shared `PlazoInfo`.
-- [ ] U4 — F1 MisCasos split.
-- [ ] U5 — Verification + parent close.
+- [x] U1 — Cleanups B1+B3+B4.
+- [x] U2 — B2 `plazoInfo()` + fix + tests.
+- [x] U3 — F2 shared `PlazoInfo`.
+- [x] U4 — F1 MisCasos split.
+- [ ] U5 — Verification + parent close (verification ejecutada por el writer; falta el cierre del parent).
 
 ## Progress
 - 2026-09-22: doc created on branch `refactor/plazo-domain-limpieza` (from main@039e8b0); inventory verified by parent.
+- 2026-09-22: U1–U4 implementados y commiteados (5 commits, ver evidencia). Suite y build verdes al cierre del writer.
 
 ## Verification evidence
-- (pending)
+- Baseline (antes de U1): `php artisan test` → 187 passed (1325 assertions); `npm run build` → OK.
+- U1 `62396bf` — `chore(limpieza): quitar stub redundante y unificar comparacion de escenario`
+  - Files: `app/Helpers/DiasHabiles.php`, `app/Http/Controllers/Denuncia/DenunciaController.php` (2 files, +5/−7).
+  - `php -l` ambos: sin errores. `grep esFeriadoEnFinDeSemana` en `app/`: 0 coincidencias.
+  - `php artisan test --filter="DiasHabiles|Plazo|DashboardPlazosSql|DenunciaFlow"` → 12 passed (125 assertions).
+  - Rollback: restaurar el stub y la comparación literal; aislado de U2–U4.
+- U1b `a43e679` — `docs(contexto): corregir referencia a shim inexistente`
+  - Files: `transparencia-proy/AI-CONTEXT.md` (1 file, +1/−1).
+  - Verificación: lectura directa del diff + `app/Helpers/` solo contiene `DiasHabiles.php` y `RollUpDependencias.php`.
+- U2 `2dd43d3` — `refactor(plazos): unificar accessores en DiasHabiles::plazoInfo`
+  - Files: `app/Helpers/DiasHabiles.php`, `app/Models/{Denuncia,SolicitudInformacion,Descargo}.php`, `tests/Unit/DiasHabilesTest.php` (5 files, +132/−43).
+  - `php -l` en los 5 archivos: sin errores.
+  - `php artisan test --filter="DiasHabiles|Plazo|DashboardPlazosSql|DenunciaFlow"` → 16 passed (169 assertions); 4 tests nuevos: límites color/texto, vencido en fin de semana, femenino+feriados, estructura/formato de fecha.
+  - Edge intencional verificado: vencido vie 18-09 consultado sáb 19-09 → `-1`/`red`/"Vencido hace 1 día hábil" (antes "Vence hoy" amarillo en solicitud/descargo).
+  - Denuncia: sin cambios de comportamiento; `texto` agregado aditivo (ningún test afirma la forma exacta del array, no hizo falta `unset`).
+  - Rollback: restaurar los 3 accessores y borrar `plazoInfo()`/tests; aislado de U1/U3/U4.
+- U3 `72238f0` — `refactor(types): unificar PlazoInfo en types/denuncia.ts`
+  - Files: 16 (`types/denuncia.ts` + 15 consumidores), +31/−50.
+  - `npx tsc --noEmit` → sin errores. `grep "interface PlazoInfo|PlazoInfoResult|plazo_info?: {"` en `resources/js` → solo la declaración compartida.
+  - Rollback: restaurar tipos inline; sin impacto en runtime (solo tipos).
+- U4 `1fb7a06` — `refactor(mis-casos): dividir pagina en subcomponentes`
+  - Files: `MisCasos.tsx` (639→241L) + 5 nuevos en `mis-casos/` (6 files, +673/−472): `tipos.ts` 106L, `helpers.ts` 30L, `MisCasosLista.tsx` 198L, `MisCasosModales.tsx` 146L, `MisCasosSheet.tsx` 114L.
+  - `npx tsc --noEmit` sin errores; `npm run build` OK.
+  - Auditoría de pureza (todas las líneas del original presentes en el nuevo conjunto salvo): imports reubicados + 2 imports muertos eliminados (`Search`, `CircleArrowRight`), renames de borde (`handleIniciar→onIniciar`, `handleToggleArchivar→onToggleArchivar`, `selectedDenuncia→denuncia` en Sheet), firmas movidas (`sortItems`, `countPendientes`, `isNewHours`) y `export` agregado a constantes.
+  - Rollback: eliminar `mis-casos/` y restaurar la página monolítica; no toca otros archivos.
+- Cierre (rama completa, HEAD 1fb7a06): `php artisan test` → 191 passed (1369 assertions); `npm run build` → OK (tsc + vite, 7.02s). Diff vs `main`: 29 files, +898/−571.
+
+### Desviaciones
+- `plazoInfo()` recibió un 4º parámetro opcional `?array $feriadosSet = null` para inyectar feriados en tests sin BD/cache, consistente con `esHabil/agregar/transcurridos/diasRestantes`. Los accessores lo llaman con ≤3 argumentos; la firma mandatada no cambia.
+- `PlazoInfo` conserva `'gray'` en la unión de `color` (contrato preexistente en `types/denuncia.ts`, superset del mínimo; encogerlo no aportaba y arriesgaba fricción de tipos).
+- `TablaCasosUrgentes.tsx` no tenía re-declaración inline: usa `Urgente` de `types/dashboard` (`camelCase`, `color: string`); se dejó intacto.
+- `PlazoProgress.tsx` conserva `PlazoProgressProps` local (props parciales descompuestas + `maxDias`); el spread desde `PlazoInfo` compila.
+- `handleInvestigadorChange` en `MisCasos.tsx` sigue sin consumidores (código muerto preexistente); se preservó para no cambiar comportamiento.
 
 ## Next step
-- Launch writer U1–U4; parent closes with suite evidence.
+- Parent cierra U5 con la evidencia anterior (suite 191/1369, build OK) y decide si la rama pasa a revisión.
+
