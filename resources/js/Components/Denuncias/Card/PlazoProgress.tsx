@@ -1,5 +1,6 @@
 import { Progress } from '@/Components/ui/progress';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/Components/ui/tooltip';
+import { formatearFechaCorta } from '@/helpers/fechas';
 
 interface PlazoProgressProps {
   dias_restantes?: number;
@@ -42,7 +43,7 @@ export default function PlazoProgress({ dias_restantes, color, texto, fecha_venc
           </div>
         </TooltipTrigger>
         <TooltipContent side="top" className="text-[11px]">
-          {fecha_vencimiento ? `Vence: ${fecha_vencimiento}` : texto || ''}
+          {fecha_vencimiento ? `Vence: ${formatearFechaCorta(fecha_vencimiento) ?? ''}` : texto || ''}
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>

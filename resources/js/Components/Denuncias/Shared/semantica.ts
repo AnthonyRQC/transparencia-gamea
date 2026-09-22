@@ -114,7 +114,7 @@ export const BOTON_CANCELAR_MODAL =
 /** Borde lateral de plazo en cards (DenunciaCard). */
 export const PLAZO_BORDE: Record<string, string> = {
   green: 'border-l-4 border-l-teal-600 dark:border-l-teal-400',
-  yellow: 'border-l-4 border-l-yellow-500 dark:border-l-yellow-400',
+  yellow: 'border-l-4 border-l-amber-500 dark:border-l-amber-400',
   red: 'border-l-4 border-l-destructive dark:border-l-destructive',
 };
 

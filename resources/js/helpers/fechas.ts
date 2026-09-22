@@ -41,21 +41,21 @@ export function formatearRangoFechas(desde: string | null | undefined, hasta: st
 /**
  * Convierte días restantes a texto claro en lenguaje natural para funcionarios y abogados.
  * Ejemplos:
- *  -12 → "Vencido hace 12 días"
+ *  -12 → "Vencido hace 12 días hábiles"
  *  -1  → "Vencido ayer"
  *   0  → "Vence hoy"
  *   1  → "Vence mañana"
- *   3  → "En 3 días"
+ *   3  → "En 3 días hábiles"
  */
 export function formatearDiasPlazo(dias: number, corto = false): string {
     if (dias < 0) {
         const abs = Math.abs(dias);
-        if (abs === 1) return corto ? 'Vencido ayer' : 'Vencido hace 1 día';
-        return corto ? `Vencido (${abs} d)` : `Vencido hace ${abs} días`;
+        if (corto) return `Vencido (${abs} ${abs === 1 ? 'd hábil' : 'd hábiles'})`;
+        return abs === 1 ? 'Vencido ayer' : `Vencido hace ${abs} días hábiles`;
     }
     if (dias === 0) return 'Vence hoy';
     if (dias === 1) return 'Vence mañana';
-    return corto ? `${dias} d` : `En ${dias} días`;
+    return corto ? `${dias} d hábiles` : `En ${dias} días hábiles`;
 }
 
 /**
