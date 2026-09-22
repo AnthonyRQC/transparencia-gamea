@@ -18,6 +18,12 @@ class DiasHabiles
     private const CACHE_KEY = 'feriados:fechas';
     private const CACHE_TTL = 3600;
 
+    /** Umbral rojo: ≤ 3 días hábiles (incluye vencidos y "vence hoy"). */
+    public const UMBRAL_ROJO = 3;
+
+    /** Umbral amarillo: ≤ 8 días hábiles. */
+    public const UMBRAL_AMARILLO = 8;
+
     /**
      * Set de feriados Y-m-d (solo días activos). Cache global.
      * @return array<string,true>
@@ -116,5 +122,21 @@ class DiasHabiles
             return -self::transcurridos($venc, $ahora, $feriadosSet);
         }
         return self::transcurridos($ahora, $venc, $feriadosSet);
+    }
+
+    /**
+     * Color semántico del plazo según días hábiles restantes.
+     * Fuente única para Denuncia, SolicitudInformacion y Descargo.
+     * ≤ UMBRAL_ROJO → red (incluye vencidos), ≤ UMBRAL_AMARILLO → yellow, resto green.
+     */
+    public static function colorPlazo(int $dias): string
+    {
+        if ($dias <= self::UMBRAL_ROJO) {
+            return 'red';
+        }
+        if ($dias <= self::UMBRAL_AMARILLO) {
+            return 'yellow';
+        }
+        return 'green';
     }
 }
