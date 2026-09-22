@@ -78,17 +78,7 @@ class SolicitudInformacion extends Model
             return null;
         }
         $venc = $this->fecha_vencimiento instanceof Carbon ? $this->fecha_vencimiento : Carbon::parse($this->fecha_vencimiento);
-        $dias = DiasHabiles::diasRestantes($venc);
-        $color = DiasHabiles::colorPlazo($dias);
-        $texto = $dias < 0
-            ? 'Vencida hace ' . abs($dias) . (abs($dias) === 1 ? ' día hábil' : ' días hábiles')
-            : ($dias === 0 ? 'Vence hoy' : "Vence en {$dias} " . ($dias === 1 ? 'día hábil' : 'días hábiles'));
-        return [
-            'dias_restantes' => $dias,
-            'color' => $color,
-            'texto' => $texto,
-            'fecha_vencimiento' => $venc->format('Y-m-d'),
-        ];
+        return DiasHabiles::plazoInfo($venc, null, true);
     }
 
     public function toArray()

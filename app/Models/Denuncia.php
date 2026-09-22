@@ -103,25 +103,7 @@ class Denuncia extends Model
             return null;
         }
 
-        $fechaVencimiento = $this->calcularVencimiento();
-
-        $now = Carbon::now('America/La_Paz')->startOfDay();
-        $venc = $fechaVencimiento->copy()->startOfDay();
-
-        if ($now->gt($venc)) {
-            $diasRestantes = -DiasHabiles::transcurridos($venc, $now);
-            if ($diasRestantes === 0) $diasRestantes = -1;
-        } else {
-            $diasRestantes = DiasHabiles::transcurridos($now, $venc);
-        }
-
-        $color = DiasHabiles::colorPlazo($diasRestantes);
-
-        return [
-            'dias_restantes' => $diasRestantes,
-            'color' => $color,
-            'fecha_vencimiento' => $fechaVencimiento->format('Y-m-d'),
-        ];
+        return DiasHabiles::plazoInfo($this->calcularVencimiento());
     }
 
     public static function generarSiguienteTicket(): string

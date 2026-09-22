@@ -122,6 +122,48 @@ class DiasHabiles
     }
 
     /**
+     * Payload estándar de plazo: días → color → texto → fecha.
+     * Fuente única de los accessors `plazo` / `plazo_info` (Denuncia,
+     * SolicitudInformacion, Descargo).
+     *
+     * Incluye el fallback `0 → -1` cuando el vencimiento ya pasó: un cierre
+     * caído en fin de semana o feriado no debe reportarse como "Vence hoy"
+     * (semáforo amarillo/verde) estando vencido.
+     *
+     * @param  bool  $femenino  true → "Vencida…" (solicitudes), false → "Vencido…" (denuncias/descargos)
+     * @param  array<string,true>|null  $feriadosSet  set inyectable (tests); null → cache global
+     * @return array{dias_restantes:int,color:string,texto:string,fecha_vencimiento:string}
+     */
+    public static function plazoInfo(Carbon $vencimiento, ?Carbon $desde = null, bool $femenino = false, ?array $feriadosSet = null): array
+    {
+        $ahora = ($desde ?? Carbon::now('America/La_Paz'))->copy()->startOfDay();
+        $venc = $vencimiento->copy()->startOfDay();
+
+        $dias = self::diasRestantes($vencimiento, $desde, $feriadosSet);
+        if ($dias === 0 && $ahora->gt($venc)) {
+            $dias = -1;
+        }
+
+        $abs = abs($dias);
+        $unidad = $abs === 1 ? 'día hábil' : 'días hábiles';
+
+        if ($dias < 0) {
+            $texto = ($femenino ? 'Vencida' : 'Vencido') . " hace {$abs} {$unidad}";
+        } elseif ($dias === 0) {
+            $texto = 'Vence hoy';
+        } else {
+            $texto = "Vence en {$dias} {$unidad}";
+        }
+
+        return [
+            'dias_restantes' => $dias,
+            'color' => self::colorPlazo($dias),
+            'texto' => $texto,
+            'fecha_vencimiento' => $venc->format('Y-m-d'),
+        ];
+    }
+
+    /**
      * Color semántico del plazo según días hábiles restantes.
      * Fuente única para Denuncia, SolicitudInformacion y Descargo.
      * ≤ UMBRAL_ROJO → red (incluye vencidos), ≤ UMBRAL_AMARILLO → yellow, resto green.
