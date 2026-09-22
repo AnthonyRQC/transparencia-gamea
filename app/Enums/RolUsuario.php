@@ -7,6 +7,7 @@ enum RolUsuario: string
     case JEFE = 'jefe';
     case INVESTIGADOR = 'investigador';
     case REGISTRADOR = 'registrador';
+    case ADMIN = 'admin';
 
     public static function valores(): array
     {
