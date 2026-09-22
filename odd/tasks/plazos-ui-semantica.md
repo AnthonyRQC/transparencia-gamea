@@ -49,7 +49,7 @@ User review (screenshot): yellow/green stripes missing; asked to standardize thr
 - [x] U2 — `colorPlazo` single source + textos + boundary test (`37403d0`).
 - [x] U3 — Frontend copy (badge/tooltip/helpers/PlazoProgress) (`7a29c94`).
 - [x] U4 — Visible estimated date (card + sheet) (`b81cfcc`).
-- [x] U5 — Verification (build + suite + boundary test). PENDING parent: ADR D28 + feature doc.
+- [x] U5 — Verification (build + suite + boundary test); ADR D28 y cierre del feature doc (padre).
 
 ## Progress
 - 2026-09-22: doc created on branch `fix/plazos-ui-semantica` (from main@f6afd90); root cause + threshold inventory verified by parent.
@@ -63,7 +63,10 @@ User review (screenshot): yellow/green stripes missing; asked to standardize thr
 - U3 build: `npm run build` → OK; CSS `app-t6cTY7-v.css` (102,184 B): `border-l-amber-500`, `dark:border-l-amber-400`, `border-l-teal-600`, `dark:border-l-teal-400` all True; `border-l-yellow-500`/`dark:border-l-yellow-400` now absent BY DESIGN (U3 replaced them; grep confirmed no remaining `border-l-yellow` reference). Runtime harness (Node 24 `--experimental-strip-types`): `formatearDiasPlazo(-2/-1/0/1/2/12)` → "Vencido hace 2 días hábiles" / "Vencido ayer" / "Vence hoy" / "Vence mañana" / "En 2 días hábiles" / "En 12 días hábiles" (short: "Vencido (2 d hábiles)", "2 d hábiles").
 - U4 build: `npm run build` → OK; bundle grep: `ClasificacionBadge-*.js` holds PlazoBadge copy (`Queda 1 día hábil`, `Venció el`, `hoy es el último día`), `DenunciaCard-*.js` holds `Vence el`/`Venció el`, `DenunciaSheet-*.js` holds `Vencimiento estimado`.
 - FINAL (all units in place): `npm run build` → `✓ built in 8.53s`, CSS `app-t6cTY7-v.css`; audit semantica 44/44 + tipos 15/16 (`lucide-react` false positive); `php artisan test` → 187 passed (1325 assertions), 8.06s.
+- Padre (spot-check, 22-sep-2026): suite completa re-ejecutada → **187 passed (1325 assertions)**; `PlazoBadge` con textos singular-aware ("Queda 1 día hábil" / "Quedan N días hábiles" / "Venció el …"); `DiasHabiles::colorPlazo` con umbrales `UMBRAL_ROJO=3` / `UMBRAL_AMARILLO=8` y docblock de fuente única.
+- ADR: `transparencia-proy/decisiones/D28-plazos-ui-unificados.md` + fila en `Indice.md`.
 - Deviations: (1) backend `texto` for solicitud keeps feminine "Vencida hace N días hábiles" for grammar agreement (descargo stays "Vencido…"); (2) beyond the 4 listed classes the audit found `dark:border-l-destructive` missing pre-fix, now compiled; (3) U3's amber swap makes the literal yellow classes vanish from the final CSS, so the U1 acceptance criterion is evidenced at the U1 commit boundary plus equivalent `.ts`-only classes in the final state.
 
 ## Next step
-- Parent closes with ADR D28 + feature doc; the 4 work-unit commits are push/merge candidates (forbidden for the writer).
+- Rama `fix/plazos-ui-semantica` lista para merge/push cuando el usuario lo ordene (no mergeada a main).
+- Revisión visual sugerida: abrir MisCasos y confirmar franjas amarilla/verde visibles y fecha en tarjetas amarillas/rojas; la ficha del caso muestra "Vencimiento estimado (sin nuevas ampliaciones)".
