@@ -29,7 +29,7 @@
 | Ciclo y estados | `01-Examinacion-Sistema.md §1`; `EstadoDenuncia.php:7-17`; `routes/denuncias.php:39-69` |
 | Permisos/delegaciones | `PermisosCatalogo.php:7-86` (66 permisos, 28 delegables); `CasoAuth.php`; `PermisosEfectivos.php` |
 | Stack y porqués | `02-Tecnologias-Justificacion.md` (Laravel 13/PHP 8.3, Inertia v2, React 18+TS, MySQL, Tailwind+shadcn, Vite…) |
-| Preguntas y guion | `03-Preguntas-Respuestas.md` (23) + `04-Guion-Exposicion.md` (35 min) |
+| Preguntas y guion | `03-Preguntas-Respuestas.md` (24) + `04-Guion-Exposicion.md` (35 min) |
 
 ## Pendiente (completar con tu tutor)
 

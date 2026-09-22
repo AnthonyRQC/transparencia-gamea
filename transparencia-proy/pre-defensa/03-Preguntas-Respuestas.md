@@ -66,6 +66,14 @@ Si solo hay tiempo para 5: Q1 (máquina de estados), Q4 (admin no opera), Q7 (d�
 
 > Los umbrales de alerta por defecto (3/2/2) son más estrictos que el amarillo visual (8) a propósito: el semáforo comunica urgencia legal siempre visible; las alertas son avisos personales cercanos al vencimiento (control de ruido). Dos propósitos, dos números.
 
+## Validación en cliente
+
+| # | Pregunta | Respuesta + evidencia | Mostrar en vivo |
+|---|----------|----------------------|-----------------|
+| 24 | ¿Por qué no usan Zod (validación de esquemas en el cliente)? | Zod es validación/parseo en runtime, no una capa de seguridad: el cliente corre en la máquina del atacante (DevTools, `curl`) y la validación client-side es UX. Autenticación y autorización son 100% backend (sesión Laravel, gates `can:`, `CasoAuth`, `EnsureActive`), y la validación server-side ya vuelve como props de Inertia (`errors.tipo` en `RegistroDenuncia.tsx:412-423`). Duplicar reglas en TS crearía una segunda fuente de verdad — la clase de drift que resolvimos en D27/D28 — sin ganancia de seguridad. EVIDENCIA: 11 Form Requests + `Rule::enum`; zod no está en `package.json` | Enviar payload inválido con DevTools → el servidor lo rechaza igual |
+
+> Despliegue: un solo servidor. Vite compila React/TS a JS/CSS estáticos; Laravel sirve el shell Blade (`app.blade.php`) y luego Inertia intercambia props (JSON) sin recargar página. No hay servidor Node ni puerto adicional de React en producción — Inertia no compila, es el protocolo que conecta ambos lados.
+
 ## Checklist
 
 - [ ] Cada respuesta cita ruta:línea, no memoria.
