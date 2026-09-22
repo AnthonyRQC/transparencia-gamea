@@ -55,5 +55,5 @@ User request (22-sep-2026): "repasar toda la estructura del proyecto y cómo est
 - Doc-only change: verificado por lectura directa + diff; N/A harness ejecutable.
 
 ## Next step
-- Rama lista para merge cuando el usuario lo ordene.
+- Mergeada a `main` por fast-forward a `91dd1b4` (22-sep-2026); push de `main` pendiente de orden explícita.
 - Candidato derivado (no incluido): cablear los 3 Form Requests de `Denuncia/` a sus controllers (o retirarlos) y migrar las reglas inline de `DenunciaController::store` a `Rule::enum` — cierra la deuda y hace plenamente vigente la afirmación de D27.
