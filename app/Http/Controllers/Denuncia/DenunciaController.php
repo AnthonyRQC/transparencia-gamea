@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Denuncia;
 
+use App\Enums\EscenarioDenuncia;
 use App\Http\Controllers\Controller;
 use App\Models\CategoriaDenuncia;
 use App\Models\Denuncia;
@@ -30,7 +31,7 @@ class DenunciaController extends Controller
         ];
 
         if (in_array($request->tipo, ['corrupcion', 'negacion'])) {
-            if ($request->escenario !== 'anonimo') {
+            if ($request->escenario !== EscenarioDenuncia::ANONIMO->value) {
                 $rules = array_merge($rules, [
                     'denunciante.nombres' => 'required|string|min:2|max:100',
                     'denunciante.ci' => 'nullable|digits_between:6,9',

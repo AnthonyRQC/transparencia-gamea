@@ -10,7 +10,9 @@ use Illuminate\Support\Facades\Cache;
  * Helper de días hábiles (Lun-Vie, sin sáb/dom ni feriados).
  *
  * Día 1 = mañana hábil siguiente a $desde (no cuenta hoy — Ley 2341).
- * Feriado en sáb/dom no descuenta doble: primero se filtra finde.
+ * Feriado en sáb/dom no descuenta doble: en `agregar()` y `transcurridos()`
+ * el filtro de fin de semana (`dayOfWeekIso >= 6`) corre ANTES que el de
+ * feriado, así que un feriado que cae sáb/dom nunca suma ni resta dos veces.
  * Cache global `feriados:fechas` (TTL 1h) con todas las fechas activas.
  */
 class DiasHabiles
@@ -55,11 +57,6 @@ class DiasHabiles
         }
         $set = $feriadosSet ?? self::feriadosSet();
         return !isset($set[$fecha->format('Y-m-d')]);
-    }
-
-    public static function esFeriadoEnFinDeSemana(Carbon $fecha): bool
-    {
-        return $fecha->dayOfWeekIso >= 6;
     }
 
     public static function agregar(int $dias, ?Carbon $desde = null, ?array $feriadosSet = null): Carbon
