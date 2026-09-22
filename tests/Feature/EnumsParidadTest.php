@@ -102,6 +102,14 @@ class EnumsParidadTest extends TestCase
             'El tipo RolUsuario de types/denuncia.ts no cubre RolUsuario::valores()'
         );
 
+        $estados = $this->archivoTs('resources/js/constants/estados.ts');
+
+        $this->assertMismoConjunto(
+            RolUsuario::valores(),
+            $this->valoresDeObjetoTs($estados, 'ROLES'),
+            'La const ROLES de estados.ts no cubre RolUsuario::valores()'
+        );
+
         foreach (RolUsuario::valores() as $rol) {
             $this->assertStringContainsString("'{$rol}'", $permisos, "Falta '{$rol}' en permissions.ts");
             $this->assertStringContainsString("'{$rol}'", $tipos, "Falta '{$rol}' en types/denuncia.ts");
