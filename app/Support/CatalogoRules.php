@@ -2,6 +2,9 @@
 
 namespace App\Support;
 
+use App\Enums\TipoDenuncia;
+use Illuminate\Validation\Rule;
+
 class CatalogoRules
 {
     public static function rulesFor(string $tipo, bool $isUpdate = false): array
@@ -10,7 +13,7 @@ class CatalogoRules
             'categorias' => [
                 'nombre' => 'required|string|max:255',
                 'descripcion' => 'nullable|string',
-                'tipo_denuncia' => 'required|in:corrupcion,negacion',
+                'tipo_denuncia' => ['required', Rule::enum(TipoDenuncia::class)],
                 'activa' => 'boolean',
             ],
             'unidades' => [

@@ -57,4 +57,5 @@ export const ROLES = {
   JEFE: 'jefe',
   INVESTIGADOR: 'investigador',
   REGISTRADOR: 'registrador',
+  ADMIN: 'admin',
 } as const;

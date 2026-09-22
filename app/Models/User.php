@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\RolUsuario;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -91,22 +92,22 @@ class User extends Authenticatable
 
     public function esJefe(): bool
     {
-        return $this->rol === 'jefe';
+        return $this->rol === RolUsuario::JEFE->value;
     }
 
     public function esInvestigador(): bool
     {
-        return $this->rol === 'investigador';
+        return $this->rol === RolUsuario::INVESTIGADOR->value;
     }
 
     public function esRegistrador(): bool
     {
-        return $this->rol === 'registrador';
+        return $this->rol === RolUsuario::REGISTRADOR->value;
     }
 
     public function esAdmin(): bool
     {
-        return $this->rol === 'admin';
+        return $this->rol === RolUsuario::ADMIN->value;
     }
 
     public function puede(string $permiso): bool

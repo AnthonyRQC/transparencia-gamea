@@ -12,7 +12,7 @@ export type SubestadoDenuncia = 'archivada' | null;
 
 export type TipoDenuncia = 'corrupcion' | 'negacion';
 export type EscenarioDenuncia = 'revelada' | 'reservada' | 'anonimo';
-export type RolUsuario = 'jefe' | 'investigador' | 'registrador';
+export type RolUsuario = 'jefe' | 'investigador' | 'registrador' | 'admin';
 
 export interface PlazoInfo {
   dias_restantes: number;
