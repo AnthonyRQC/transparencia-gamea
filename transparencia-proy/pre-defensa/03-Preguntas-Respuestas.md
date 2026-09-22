@@ -58,6 +58,14 @@ Si solo hay tiempo para 5: Q1 (máquina de estados), Q4 (admin no opera), Q7 (d�
 | 21 | ¿sqlite o MySQL? | sqlite `:memory:` solo tests (`phpunit.xml:26-27`); producción MySQL. Sin contradicción si se explica el entorno | Ambos archivos |
 | 22 | ¿Conteos que no cuadran? | Migraciones 40 (vs 22 histórico), modelos 25 (vs 20), notif seed 12 = 5 base + 7 (`NotificacionSeeder.php:14-161`, vs 5 reclamado), dependencias 122 planas (`CatalogoSeeder.php:221-343` vs 185 árbol). PENDIENTE conteo DB `parent_id` y rerun suite | Conteos con `ls`/`grep -c` en vivo |
 
+## Configurabilidad por usuario
+
+| # | Pregunta | Respuesta + evidencia | Mostrar en vivo |
+|---|----------|----------------------|-----------------|
+| 23 | ¿Las preferencias de notificación por usuario (umbrales 0–10) pueden alterar el semáforo legal de plazos? | No: son capas separadas por diseño. El semáforo (badges, franjas, fecha) usa `DiasHabiles::colorPlazo()` fijo (rojo ≤3, amarillo ≤8) igual para todos; `users.preferencias` (master + 4 umbrales) solo decide qué avisos genera `AlertasPlazo` para la campana. Apagar el master vacía la campana, nunca el semáforo. EVIDENCIA `AlertasPlazo.php:38-46`; `DiasHabiles::colorPlazo` (ADR D28); `HandleInertiaRequests.php:63` | Mi Cuenta → apagar notificaciones → campana vacía y franjas intactas |
+
+> Los umbrales de alerta por defecto (3/2/2) son más estrictos que el amarillo visual (8) a propósito: el semáforo comunica urgencia legal siempre visible; las alertas son avisos personales cercanos al vencimiento (control de ruido). Dos propósitos, dos números.
+
 ## Checklist
 
 - [ ] Cada respuesta cita ruta:línea, no memoria.
