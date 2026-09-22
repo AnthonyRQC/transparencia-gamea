@@ -2,7 +2,10 @@
 
 namespace App\Http\Requests\Denuncia;
 
+use App\Enums\EscenarioDenuncia;
+use App\Enums\TipoDenuncia;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreDenunciaRequest extends FormRequest
 {
@@ -14,8 +17,8 @@ class StoreDenunciaRequest extends FormRequest
     public function rules(): array
     {
         $rules = [
-            'tipo' => 'required|in:corrupcion,negacion',
-            'escenario' => 'required|in:revelada,reservada,anonimo',
+            'tipo' => ['required', Rule::enum(TipoDenuncia::class)],
+            'escenario' => ['required', Rule::enum(EscenarioDenuncia::class)],
             'declaracion_jurada' => 'required|boolean|accepted',
         ];
 

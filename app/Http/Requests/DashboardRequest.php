@@ -20,10 +20,10 @@ class DashboardRequest extends FormRequest
             'desde' => ['nullable', 'date', 'before_or_equal:hasta'],
             'hasta' => ['nullable', 'date', 'after_or_equal:desde'],
             'investigador_id' => ['nullable', 'integer', 'exists:users,id'],
-            'tipo' => ['nullable', Rule::in(TipoDenuncia::valores())],
+            'tipo' => ['nullable', Rule::enum(TipoDenuncia::class)],
             'categoria_id' => ['nullable', 'integer', 'exists:categorias_denuncia,id'],
             'clasificacion_id' => ['nullable', 'integer', 'exists:clasificaciones,id'],
-            'estado' => ['nullable', Rule::in([...EstadoDenuncia::valores(), 'archivada'])],
+            'estado' => ['nullable', Rule::enum(EstadoDenuncia::class)],
             'incluir_inactivos' => ['nullable', 'boolean'],
             'tab' => ['nullable', Rule::in(['operativo', 'resultados', 'rendimiento'])],
         ];
