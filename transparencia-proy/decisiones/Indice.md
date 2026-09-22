@@ -23,6 +23,7 @@ conserva como referencia y no se modifica.
 | ID | Título | Estado | Enlace |
 |----|--------|--------|--------|
 | D-histórico | Decisiones 12.5 - 13 (log anterior) | Histórica | [Ver log histórico](../Decisiones%2012.5%20-%2013%20(Log).md) |
+| D27 | Enums de dominio sin casts de modelo | Vigente | [Ver](D27-enums-sin-casts.md) |
 
 Nota: el log anterior se mantiene como documento histórico. No se copia
 su contenido en este índice; se enlaza como referencia.
