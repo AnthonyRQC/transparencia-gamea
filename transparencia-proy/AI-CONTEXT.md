@@ -149,7 +149,7 @@ Ver `Sprints Pendientes - Contexto.md` + planes ejecutados en `archivo/sprints-c
   - Catálogos: `CategoriaDenuncia`, `Clasificacion`, `MedioNotificacion`, `DependenciaExterna`, `Feriado`, `ConfiguracionSistema`
   - Auth: `User` (extendido con username, rol, iniciales, color, activo, telefono, preferencias)
   - Negocio: `Denuncia` (SoftDeletes), `Denunciante`, `Denunciado`, `Prueba`, `DenunciaArchivo` (polimórfico), `EvaluacionTecnica`, `SolicitudInformacion`, `Descargo`, `Ampliacion` (polimórfico), `InformeFinal`, `Cierre`, `Bitacora`, `Notificacion`
-- `app/Traits/UppercaseText.php` — Trait `Str::upper()` en `saving` (shim en `Helpers/` por compat)
+- `app/Traits/UppercaseText.php` — Trait `Str::upper()` en `saving`
 - `app/Helpers/DiasHabiles.php` — Días hábiles lun-vie sin feriados (cache `feriados:fechas` global, deduplica sáb/dom, día 1 = mañana)
 - `config/plantilla_feriados.php` — 14 refs neutra (fijos/móviles/dept 16-jul/mun 06-mar) guía manual, anticipa traslados jue→vie
 - `app/Enums/{EstadoDenuncia,TipoDenuncia,EscenarioDenuncia,RolUsuario}.php` — Enums del dominio
