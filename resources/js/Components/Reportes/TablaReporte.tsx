@@ -5,6 +5,7 @@ import { Badge } from '@/Components/ui/badge';
 import { ETIQUETAS_TIPO } from '@/types/dashboard';
 import { formatearDiasPlazo, formatearFechaCorta } from '@/helpers/fechas';
 import { PLAZO_COLOR } from '@/Components/Denuncias/Shared/semantica';
+import type { PlazoInfo } from '@/types/denuncia';
 
 export interface ReporteRow {
     ticket: string;
@@ -16,7 +17,7 @@ export interface ReporteRow {
     fecha_rechazada?: string | null;
     categoria?: { nombre: string } | null;
     investigador?: { name: string } | null;
-    plazo?: { dias_restantes: number; color: string } | null;
+    plazo?: PlazoInfo | null;
 }
 
 const badgeColor: Record<string, string> = {

@@ -12,6 +12,7 @@ import { Checkbox } from '@/Components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
 import { Separator } from '@/Components/ui/separator';
 import { cn } from '@/lib/utils';
+import type { PlazoInfo } from '@/types/denuncia';
 
 interface AmpliacionItem {
   id: number;
@@ -29,7 +30,7 @@ interface DenunciaInfo {
   created_at: string;
   ampliaciones?: AmpliacionItem[];
   plazo_reapertura?: string | null;
-  plazo?: { dias_restantes: number; color: string; fecha_vencimiento?: string } | null;
+  plazo?: PlazoInfo | null;
 }
 
 interface InvestigadorOption {

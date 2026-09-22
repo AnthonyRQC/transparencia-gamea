@@ -3,6 +3,7 @@ import PlazoProgress from '../Card/PlazoProgress';
 import { Badge } from '@/Components/ui/badge';
 import { BOTON_CANCELAR_CARD, SOLICITUD_ESTADO as estadoBadge } from '../Shared/semantica';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/Components/ui/tooltip';
+import type { PlazoInfo } from '@/types/denuncia';
 
 interface SolicitudArchivo {
   nombre: string;
@@ -19,7 +20,7 @@ interface Solicitud {
   fecha_vencimiento: string;
   fecha_respuesta?: string;
   estado: string;
-  plazo_info?: { dias_restantes: number; color: string; texto: string; fecha_vencimiento: string };
+  plazo_info?: PlazoInfo;
   archivos?: SolicitudArchivo[];
   ampliaciones?: Array<{ dias: number; justificacion: string; fecha: string; archivo?: unknown }>;
 }

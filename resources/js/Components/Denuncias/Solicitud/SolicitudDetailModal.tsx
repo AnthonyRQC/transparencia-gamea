@@ -6,6 +6,7 @@ import { Badge } from '@/Components/ui/badge';
 import { Separator } from '@/Components/ui/separator';
 import PlazoProgress from '../Card/PlazoProgress';
 import { SOLICITUD_ESTADO as estadoBadgeVar, BOTON_CANCELAR_MODAL } from '../Shared/semantica';
+import type { PlazoInfo } from '@/types/denuncia';
 
 interface SolicitudAmpliacion {
   dias: number;
@@ -40,7 +41,7 @@ interface Solicitud {
   archivos?: SolicitudArchivo[];
   estado: string;
   ampliaciones?: SolicitudAmpliacion[];
-  plazo_info?: { dias_restantes: number; color: string; texto: string; fecha_vencimiento: string };
+  plazo_info?: PlazoInfo;
   motivo_cancelacion?: string;
   fecha_cancelacion?: string;
   ediciones?: SolicitudEdicion[];

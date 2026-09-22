@@ -28,12 +28,7 @@ import ModalNuevoDescargo from '@/Components/Denuncias/Modales/Investigacion/Mod
 import ModalCancelarDescargo from '@/Components/Denuncias/Modales/Investigacion/ModalCancelarDescargo';
 import ModalConfirmarEliminar from '@/Components/Denuncias/Shared/ConfirmDialog';
 import ModalArchivosDelCaso from '@/Components/Denuncias/Modales/General/ModalArchivosDelCaso';
-
-interface PlazoInfo {
-  dias_restantes: number;
-  color: 'green' | 'yellow' | 'red';
-  fecha_vencimiento?: string;
-}
+import type { PlazoInfo } from '@/types/denuncia';
 
 interface Denunciado {
   conoce_identidad: boolean;
@@ -72,7 +67,7 @@ interface Solicitud {
   fecha_cancelacion?: string;
   archivos?: Array<{ nombre: string; tamano?: string; fecha_subida?: string }>;
   ampliaciones?: Array<{ dias: number; justificacion: string; fecha: string; archivo?: unknown }>;
-  plazo_info?: { dias_restantes: number; color: string; texto: string; fecha_vencimiento: string };
+  plazo_info?: PlazoInfo;
 }
 
 interface Descargo {

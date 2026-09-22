@@ -3,6 +3,7 @@ import { UserX, Bell, Plus } from 'lucide-react';
 import DescargoCard from '../Descargo/DescargoCard';
 import DescargoDetailModal from '../Descargo/DescargoDetailModal';
 import ListaVacia from '../Shared/ListaVacia';
+import type { PlazoInfo } from '@/types/denuncia';
 
 interface DescargoDocumento {
   nombre: string;
@@ -38,7 +39,7 @@ interface Descargo {
   documentos?: DescargoDocumento[];
   estado: string;
   ampliaciones?: DescargoAmpliacion[];
-  plazo_info?: { dias_restantes: number; color: string; texto: string; fecha_vencimiento: string };
+  plazo_info?: PlazoInfo;
   ediciones?: DescargoEdicion[];
 }
 

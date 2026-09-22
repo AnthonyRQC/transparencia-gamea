@@ -5,6 +5,7 @@ import { DESCARGO_ESTADO as estadoBadge, BOTON_CANCELAR_CARD } from '../Shared/s
 import { Badge } from '@/Components/ui/badge';
 import InvestigadorAvatar from '../Shared/InvestigadorAvatar';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/Components/ui/tooltip';
+import type { PlazoInfo } from '@/types/denuncia';
 
 interface DescargoDocumento {
   nombre: string;
@@ -24,7 +25,7 @@ interface Descargo {
   estado: string;
   resumen_descargo?: string | null;
   documentos?: DescargoDocumento[];
-  plazo_info?: { dias_restantes: number; color: string; texto: string; fecha_vencimiento: string };
+  plazo_info?: PlazoInfo;
 }
 
 interface DescargoCardProps {

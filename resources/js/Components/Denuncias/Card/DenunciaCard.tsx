@@ -7,12 +7,7 @@ import ClasificacionBadge from '../Card/ClasificacionBadge';
 import InvestigadorAvatar from '../Shared/InvestigadorAvatar';
 import { User, Clock, ArrowRightLeft, FileSearch, Megaphone } from 'lucide-react';
 import { ESCENARIO_LABEL as escenarioLabel, PLAZO_BORDE as plazoBorderColor, RECOMENDACION_COLOR, sinAvisoPublicado } from '../Shared/semantica';
-
-interface PlazoInfo {
-  dias_restantes: number;
-  color: 'green' | 'yellow' | 'red';
-  fecha_vencimiento?: string;
-}
+import type { PlazoInfo } from '@/types/denuncia';
 
 interface InvestigadorData {
   id: string;

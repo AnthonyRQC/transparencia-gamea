@@ -1,10 +1,7 @@
 import { Inbox, CheckCircle2, ClipboardList, Eye, FileText, FileSearch, Archive } from 'lucide-react';
+import type { PlazoInfo } from '@/types/denuncia';
 
-export interface PlazoInfo {
-  dias_restantes: number;
-  color: 'green' | 'yellow' | 'red';
-  fecha_vencimiento?: string;
-}
+export type { PlazoInfo };
 
 export interface Denunciado {
   conoce_identidad: boolean;
@@ -43,7 +40,7 @@ export interface Solicitud {
   fecha_cancelacion?: string;
   archivos?: Array<{ nombre: string; tamano?: string; fecha_subida?: string }>;
   ampliaciones?: Array<{ dias: number; justificacion: string; fecha: string; archivo?: unknown }>;
-  plazo_info?: { dias_restantes: number; color: string; texto: string; fecha_vencimiento: string };
+  plazo_info?: PlazoInfo;
 }
 
 export interface Descargo {

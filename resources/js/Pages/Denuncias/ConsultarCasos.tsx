@@ -17,12 +17,12 @@ import { Button } from '@/Components/ui/button';
 import { Separator } from '@/Components/ui/separator';
 import { route } from 'ziggy-js';
 import { ETIQUETAS_ESTADO_CORTO as estadoLabels } from '@/Components/Denuncias/Shared/semantica';
+import type { PlazoInfo } from '@/types/denuncia';
 
 const ESTADOS = ['ingresada', 'evaluacion_tecnica', 'admitida', 'rechazada', 'asignada', 'investigacion', 'informe', 'cerrada'];
 
 interface Denunciante { nombres?: string; ci?: string; email?: string; telefono?: string }
 interface DenunciadoItem { conoce_identidad: boolean; nombres?: string; dependencia?: string; descripcion?: string }
-interface PlazoInfoResult { dias_restantes: number; color: string; fecha_vencimiento?: string }
 interface PruebaItem { tipo: string; descripcion: string; testigo_nombre?: string; testigo_telefono?: string; archivo_nombre?: string }
 
 interface Denuncia {
@@ -33,7 +33,7 @@ interface Denuncia {
   fecha_reapertura?: string | null; justificacion_rechazo?: string | null;
   ampliaciones?: Array<{ id: number; fecha: string; dias: number; justificacion: string; aprobado_por: string }>;
   bitacora?: Array<{ fecha: string; accion: string; detalle: string; usuario: string }>;
-  plazo?: PlazoInfoResult | null;
+  plazo?: PlazoInfo | null;
   token_consulta?: string;
   [key: string]: unknown;
 }

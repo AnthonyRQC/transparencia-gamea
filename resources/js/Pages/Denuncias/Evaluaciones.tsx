@@ -13,6 +13,7 @@ import DenunciaSheet from '@/Components/Denuncias/Sheet/DenunciaSheet';
 import ModalDevolverEvaluacion from '@/Components/Denuncias/Modales/Flujo/ModalDevolverEvaluacion';
 import { cn } from '@/lib/utils';
 import { RECOMENDACION_COLOR, RECOMENDACION_LABEL } from '@/Components/Denuncias/Shared/semantica';
+import type { PlazoInfo } from '@/types/denuncia';
 
 interface Evaluacion {
   id: number;
@@ -23,12 +24,6 @@ interface Evaluacion {
   recomendacion?: string | null;
   devuelta_at?: string | null;
   estado: string;
-}
-
-interface PlazoInfo {
-  dias_restantes: number;
-  color: 'green' | 'yellow' | 'red';
-  fecha_vencimiento?: string;
 }
 
 interface DenunciaInfo {

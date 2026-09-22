@@ -3,6 +3,7 @@ import { FileSearch, Plus } from 'lucide-react';
 import SolicitudCard from '../Solicitud/SolicitudCard';
 import SolicitudDetailModal from '../Solicitud/SolicitudDetailModal';
 import ListaVacia from '../Shared/ListaVacia';
+import type { PlazoInfo } from '@/types/denuncia';
 
 interface SolicitudArchivo {
   nombre: string;
@@ -34,7 +35,7 @@ interface Solicitud {
   estado: string;
   archivos?: SolicitudArchivo[];
   ampliaciones?: SolicitudAmpliacion[];
-  plazo_info?: { dias_restantes: number; color: string; texto: string; fecha_vencimiento: string };
+  plazo_info?: PlazoInfo;
   plazo_dias?: number;
   fecha_respuesta?: string;
   respuesta?: string;

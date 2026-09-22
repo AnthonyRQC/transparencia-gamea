@@ -7,6 +7,7 @@ import { Separator } from '@/Components/ui/separator';
 import InvestigadorAvatar from '../Shared/InvestigadorAvatar';
 import PlazoProgress from '../Card/PlazoProgress';
 import { DESCARGO_ESTADO as estadoBadgeVar, BOTON_CANCELAR_MODAL } from '../Shared/semantica';
+import type { PlazoInfo } from '@/types/denuncia';
 
 interface DescargoAmpliacion {
   dias: number;
@@ -42,7 +43,7 @@ interface Descargo {
   documentos?: DescargoDocumento[];
   estado: string;
   ampliaciones?: DescargoAmpliacion[];
-  plazo_info?: { dias_restantes: number; color: string; texto: string; fecha_vencimiento: string };
+  plazo_info?: PlazoInfo;
   ediciones?: DescargoEdicion[];
 }
 

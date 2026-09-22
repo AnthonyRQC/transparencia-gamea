@@ -4,12 +4,7 @@ import { CalendarClock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { formatearFechaLarga } from '@/helpers/fechas';
 import { PLAZO_COLOR as colorStyles } from '../Shared/semantica';
-
-interface PlazoInfo {
-  dias_restantes: number;
-  color: 'green' | 'yellow' | 'red';
-  fecha_vencimiento?: string;
-}
+import type { PlazoInfo } from '@/types/denuncia';
 
 interface PlazoBadgeProps {
   plazo: PlazoInfo | null;

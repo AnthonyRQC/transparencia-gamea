@@ -17,12 +17,7 @@ import InvestigadorAvatar from '../Shared/InvestigadorAvatar';
 import { ESCENARIO_LABEL as escenarioLabel, eventosEsperadosAviso, sinAvisoPublicado } from '../Shared/semantica';
 import { useCan } from '@/hooks/useCan';
 import { CheckCircle2, History, UserPlus, ArrowRightLeft, RotateCcw, XCircle, X as XIcon, FileSearch, UserX, FileText, ScrollText, FolderOpen, ChevronDown, Megaphone } from 'lucide-react';
-
-interface PlazoInfo {
-  dias_restantes: number;
-  color: 'green' | 'yellow' | 'red';
-  fecha_vencimiento?: string;
-}
+import type { PlazoInfo } from '@/types/denuncia';
 
 interface Denunciado {
   conoce_identidad: boolean;
