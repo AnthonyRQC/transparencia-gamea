@@ -66,4 +66,5 @@ The system is functionally complete (Sprints 0-13 + hallazgos program closed, 18
 - Honest PENDIENTES preserved in docs: dependencias 185 vs 122, suite 118 vs 21 files, MySQL prod version, `.env.example` confirmation.
 
 ## Next step
-- Rehearse once with timer using `04-Guion-Exposicion.md`; push branch only on explicit user order (`git push -u origin docs/pre-defensa-tecnica`).
+- Rehearse once with timer using `04-Guion-Exposicion.md`.
+- Mergeada a `main` por fast-forward a `8237b87` (22-sep-2026); push de `main` pendiente de orden explícita.

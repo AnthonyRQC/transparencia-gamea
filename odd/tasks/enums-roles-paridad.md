@@ -87,5 +87,5 @@ User explicitly ordered the 3 fixes after joint review, demanding a prior blast-
 - `activo=false` en `catalogo_estados`/`catalogo_tipos_denuncia` no se aplica en validación — pendiente de decisión.
 
 ## Next step
-- Rama `fix/enums-roles-paridad` cerrada y verde: lista para revisión/push cuando el usuario lo ordene (no mergeada a main).
+- Mergeada a `main` vía merge commit `1379712` (22-sep-2026); push de `main` pendiente de orden explícita.
 - Si se retoma la deuda de casts: seguir el requisito bloqueante de D27 (migración atómica de las 41 comparaciones + suite completa).
