@@ -92,17 +92,17 @@ class User extends Authenticatable
 
     public function esJefe(): bool
     {
-        return $this->rol === 'jefe';
+        return $this->rol === RolUsuario::JEFE->value;
     }
 
     public function esInvestigador(): bool
     {
-        return $this->rol === 'investigador';
+        return $this->rol === RolUsuario::INVESTIGADOR->value;
     }
 
     public function esRegistrador(): bool
     {
-        return $this->rol === 'registrador';
+        return $this->rol === RolUsuario::REGISTRADOR->value;
     }
 
     public function esAdmin(): bool
