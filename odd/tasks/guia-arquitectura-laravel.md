@@ -39,15 +39,21 @@ User request (22-sep-2026): "repasar toda la estructura del proyecto y cómo est
 - Delegated-direct: explorer (structure map) + writer (doc). No SDD.
 
 ## Tasks
-- [ ] E1 — Explorer: full structure inventory (counts, purposes, unseen areas).
-- [ ] W1 — Writer: `06-Estructura-y-Arquitectura.md` from E1 + verified session evidence.
-- [ ] V1 — Parent spot-check + close.
+- [x] E1 — Explorer: full structure inventory (counts, purposes, unseen areas).
+- [x] W1 — Writer: `06-Estructura-y-Arquitectura.md` (`6fa6bf2`, 228 líneas).
+- [x] V1 — Parent spot-check + close.
 
 ## Progress
 - 2026-09-22: doc created on branch `docs/guia-arquitectura-laravel` (from main@0d2cf29).
+- 2026-09-22: E1 explorer + W1 writer completados; doc commiteado (`6fa6bf2`). Correcciones del writer sobre el brief: 66 permisos (no 65), 28 Pages / 139 Components `.tsx`, BandejaController 90L y MisCasosController 110L (no 453/225).
+- 2026-09-22: V1 padre — doc leído completo (228L), conteos re-verificados en disco (28/139/66) y hallazgo confirmado con grep.
 
 ## Verification evidence
-- (pending)
+- `6fa6bf2` docs(pre-defensa): agregar guia de estructura y arquitectura — 1 file, +228.
+- Conteos re-verificados por el padre: `Get-ChildItem -Recurse resources/js/Pages -Filter *.tsx` → 28; `Components` → 139; `Select-String PermisosCatalogo` → 66.
+- Hallazgo confirmado (deuda documentada en el doc, fila "3 Form Requests de Denuncia/ sin cablear"): grep de `StoreDenunciaRequest|GuardarCierreRequest|GuardarInformeRequest` en `app/` solo encuentra sus declaraciones de clase; `DenunciaController::store` valida inline con literales (`DenunciaController.php:28-29` `in:corrupcion,negacion` / `in:revelada,reservada,anonimo`). Impacto en D27: la unificación `Rule::enum` de `StoreDenunciaRequest` es inerte mientras el request no esté cableado.
+- Doc-only change: verificado por lectura directa + diff; N/A harness ejecutable.
 
 ## Next step
-- Launch E1 explorer; then W1 writer.
+- Rama lista para merge cuando el usuario lo ordene.
+- Candidato derivado (no incluido): cablear los 3 Form Requests de `Denuncia/` a sus controllers (o retirarlos) y migrar las reglas inline de `DenunciaController::store` a `Rule::enum` — cierra la deuda y hace plenamente vigente la afirmación de D27.
