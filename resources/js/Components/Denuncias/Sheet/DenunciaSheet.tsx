@@ -223,6 +223,11 @@ export default function DenunciaSheet({
           <p className="text-[11px] text-muted-foreground">
             N° de denuncia · Ingreso: {fecha}
           </p>
+          {plazo?.fecha_vencimiento && (
+            <p className="text-[11px] text-muted-foreground">
+              Vencimiento estimado (sin nuevas ampliaciones): <strong>{formatearFechaLarga(plazo.fecha_vencimiento) ?? ''}</strong>
+            </p>
+          )}
         </SheetHeader>
 
         {avisosFaltantes.length > 0 && (

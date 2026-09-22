@@ -213,6 +213,11 @@ export default function DenunciaCard({ denuncia, plazo, avisosPublicados, invest
           ) : null}
           <Clock className="w-3 h-3 shrink-0" />
           <span>{reabiertaText || contextualText}</span>
+          {plazo && (plazo.color === 'yellow' || plazo.color === 'red') && plazo.fecha_vencimiento && (
+            <span className="text-[11px] text-muted-foreground">
+              · {plazo.dias_restantes < 0 ? 'Venció el' : 'Vence el'} {formatearFechaCorta(plazo.fecha_vencimiento)}
+            </span>
+          )}
         </p>
         {/* Fila 3.5: Clasificación + SITPRECO (cerradas) */}
         {denuncia.estado === 'cerrada' && (

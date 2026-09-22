@@ -115,13 +115,7 @@ class Denuncia extends Model
             $diasRestantes = DiasHabiles::transcurridos($now, $venc);
         }
 
-        if ($diasRestantes <= 3) {
-            $color = 'red';
-        } elseif ($diasRestantes <= 8) {
-            $color = 'yellow';
-        } else {
-            $color = 'green';
-        }
+        $color = DiasHabiles::colorPlazo($diasRestantes);
 
         return [
             'dias_restantes' => $diasRestantes,
