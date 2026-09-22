@@ -68,5 +68,5 @@ User review (screenshot): yellow/green stripes missing; asked to standardize thr
 - Deviations: (1) backend `texto` for solicitud keeps feminine "Vencida hace N días hábiles" for grammar agreement (descargo stays "Vencido…"); (2) beyond the 4 listed classes the audit found `dark:border-l-destructive` missing pre-fix, now compiled; (3) U3's amber swap makes the literal yellow classes vanish from the final CSS, so the U1 acceptance criterion is evidenced at the U1 commit boundary plus equivalent `.ts`-only classes in the final state.
 
 ## Next step
-- Rama `fix/plazos-ui-semantica` lista para merge/push cuando el usuario lo ordene (no mergeada a main).
+- Mergeada a `main` vía merge commit `a57942d` (22-sep-2026); push de `main` pendiente de orden explícita.
 - Revisión visual sugerida: abrir MisCasos y confirmar franjas amarilla/verde visibles y fecha en tarjetas amarillas/rojas; la ficha del caso muestra "Vencimiento estimado (sin nuevas ampliaciones)".

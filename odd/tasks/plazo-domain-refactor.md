@@ -88,5 +88,6 @@ Close the remaining duplication and dead code found in the 22-sep-2026 inventory
 - `handleInvestigadorChange` en `MisCasos.tsx` sigue sin consumidores (código muerto preexistente); se preservó para no cambiar comportamiento.
 
 ## Next step
-- Parent cierra U5 con la evidencia anterior (suite 191/1369, build OK) y decide si la rama pasa a revisión.
+- Mergeada a `main` por fast-forward a `8f4f3f0` (22-sep-2026); push de `main` pendiente de orden explícita.
+- Revisión visual sugerida: abrir MisCasos y confirmar lista, filtros, modales y sheet (F1 fue movimiento puro, sin tests de frontend).
 
