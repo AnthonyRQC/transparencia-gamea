@@ -31,6 +31,7 @@ Notas:
 
 | Vía | URL | Cuándo usarla |
 |---|---|---|
+| Laragon (vhost) | `http://transparencia.test` | La más cómoda en tu máquina (verificado: DocumentRoot apunta a `.../transparencia/public`) |
 | Configurada en `.env` (LAN) | `http://192.168.1.10/transparencia/public` | Para que los ingenieros entren desde su celular/PC en la misma red |
 | `php artisan serve` | `http://localhost:8000` | Plan B si cambia la red o el IP |
 
@@ -42,14 +43,29 @@ Notas:
 php artisan cache:clear
 php artisan config:clear
 php artisan migrate:fresh --seed   # opcional: demo fresca (124 casos, siguiente ticket 125)
-npm run dev                        # o npm run build si no querés Vite corriendo
-php artisan serve                  # o Laragon; verificar login con PM4864213
+npm run build                      # assets optimizados (sin Vite) — ver sección de velocidad
+php artisan optimize               # cachea config, rutas y vistas
 ```
 
 - [ ] Login del jefe entra a la Bandeja.
 - [ ] Franjas de color visibles en MisCasos (rojo/ámbar/verde).
 - [ ] Campana abre y muestra alertas.
 - [ ] No se toca `.env` durante la demo.
+
+## Preparación de velocidad para la demo (recomendado)
+
+**Por qué**: medido el 23-sep-2026 — cada navegación autenticada paga ~**376 ms** de `AlertasPlazo` (corre en cada request vía `HandleInertiaRequests::share()`), y el modo dev de Vite sirve los assets sin empaquetar por la LAN. Con estos pasos la demo se siente notablemente más fluida.
+
+**Pasos exactos (5 minutos):**
+
+1. **Cerrar Vite**: en la terminal donde corre `npm run dev`, `Ctrl+C`. Al cerrar limpio, Vite borra `public/hot`.
+2. **Verificar `public/hot`**: si no existe, seguí. Si quedó (cierre forzado), borralo a mano — mientras exista, Laravel carga los assets del dev server aunque esté apagado.
+3. **Compilar assets**: `npm run build` (ejecuta `tsc` + `vite build` → `public/build`).
+4. **Cachear el framework**: `php artisan optimize` (config + rutas + vistas).
+5. **Probar**: abrir `http://transparencia.test` y hacer login con `PM4864213`.
+6. **Volver al modo desarrollo** (después de la demo): `php artisan optimize:clear` y `npm run dev`.
+
+> Si después del paso 4 tocás `.env` o rutas: ejecutá `php artisan optimize:clear` antes de volver a probar.
 
 ## Guion por rol (qué probar con cada uno)
 

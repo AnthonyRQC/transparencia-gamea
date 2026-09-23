@@ -1,7 +1,7 @@
 # Deuda Técnica y Riesgos
 
 > **Propósito:** Registro vivo de deuda, riesgos y mejoras diferidas para trabajar a futuro. No es roadmap de sprints.
-> **Actualizado:** 2026-09-17 (replan D18–D25). Stack: Laravel 13 / PHP 8.3. Suite 118 tests.
+> **Actualizado:** 2026-09-23. Stack: Laravel 13 / PHP 8.3. Suite 191 tests (1369 aserciones).
 
 ## Planificado 17-sep-2026 (Sprint 16 / 18A / 18C)
 
@@ -67,6 +67,8 @@
 | 11 | 43× `as any` + eslint-disable | `TablaCatalogo`, `ConsultarCasos`, `Bandeja`, `AppLayout/Header`, `TablaCatalogo.tsx:177`, `ModalExportar.tsx:60` | Tipar `PageProps`, quitar disables (Layouts hechos en 12.3 con `SharedPageProps`; resto pendiente) | M |
 | 12 | `routes/web.php:198L` monolito | `routes/web.php` | Split `routes/denuncia.php`, `routes/reportes.php` (hecho `routes/dev.php` en 12.3) | S |
 
+> Actualización 23-sep-2026: `Bandeja.tsx` (941→453L) y `MisCasos.tsx` (599→225L) ya divididos; `CatalogoController` (527→38L) y `UsuarioController` (491→126L) adelgazados a Queries/Services/Requests. El resto de la tabla queda sin re-verificar.
+
 ## P2 — Higiene / seguridad demo
 
 | # | Deuda | Dónde | Fix | Esfuerzo |
@@ -78,6 +80,22 @@
 | 17 | Teclado en barras Recharts | `GraficoEmbudo/Barras/Carga/Evolucion` (solo `onClick`) | `tabIndex`+`role`+alternativa tabular (badge ya focuseable) | S |
 | ~~18~~ | ~~Chips con fechas crudas + Reset→Limpiar~~ | ~~`FiltrosDashboard.tsx`~~ | ✅ Resuelto Sprint 12.2 | — |
 | ~~19~~ | ~~`AuthenticatedLayout.tsx` y `Modal.tsx` Breeze sin consumers~~ | — | ✅ Eliminados en Sprint 12.3 | — |
+
+## Rendimiento (medido 23-sep-2026)
+
+> Medición local con demo seed (124 casos), Laragon + MySQL, `APP_DEBUG=true`, sin caches.
+
+| Escenario | Tiempo |
+|---|---|
+| Página de login (invitado) vía localhost | 0.32 s |
+| Página de login vía `transparencia.test` | 0.55 s |
+| Página de login vía LAN (192.168.1.10) | 0.85 s |
+| `AlertasPlazo::paraUsuario(jefe)` — corre en **cada** request autenticado (`HandleInertiaRequests::share()`) | **376 ms** |
+
+- **Hotspot**: `AlertasPlazo` (`app/Services/AlertasPlazo.php`) consulta hasta 100 denuncias + 50 solicitudes + 50 descargos y calcula plazos con `DiasHabiles` (bucles día a día). Es la **única causa que persistiría en producción**.
+- Opciones a evaluar con medición antes/después: (a) cachear el resultado por usuario 30–60 s (los avisos toleran ese lag); (b) calcular plazos en SQL como el dashboard (`app/Queries/Dashboard/*`); (c) bajar límites / consultar solo vencidos.
+- Factores **solo-dev** (no afectan producción): Vite en modo dev por LAN (`public/hot` → `192.168.1.10:5173`, assets sin empaquetar) y `APP_DEBUG=true` sin cache de config/rutas.
+- Receta producción: `npm run build` + `APP_DEBUG=false` + `php artisan optimize` + OPcache. Pasos operativos de demo en `pre-defensa/07-Demo-Kit.md`.
 
 ## Diferido a post-13/16 → 21 (decisión 09-sep-2026)
 
@@ -98,6 +116,7 @@
 | B8 | Seeds split prod/dev + `.env.production.example` + gitignore backups | 21 | `AdminInicialSeeder` con password por env; demo123 solo dev |
 | B9 | Dashboard 2 modos (unidad / personal); registrador ve unidad | Futuro, no 16 | D25. Hoy 4 ramas por rol |
 | B10 | Impersonation / simular páginas como otro rol | No Fase 1 | `Notas - Admin simulacion (futuro).md`. Consultar Sistemas |
+| B11 | `AlertasPlazo` en `share()`: 376 ms medidos por request autenticado | 21 o pre-producción | Cache por usuario / plazos SQL-side; ver sección **Rendimiento** |
 
 **Guardarraíl pre-13 (no arrastrar deuda contagiosa):** no nuevos wrappers
 `formatDate`, no avatares manuales, importar de `constants/semantica.ts`,
