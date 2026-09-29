@@ -22,4 +22,9 @@ deploy section. No sprint or dev-history content.
 - [ ] Evidence (SHA + `diff --stat`) recorded below before closing.
 
 ## Evidence
-- Pending.
+- Unit commit: `12c7a2bd36f22cb75625867fd18202e447276088`
+  (`docs(transparencia): reemplazar README template por README institucional`)
+- `git show --stat HEAD`: README.md (+133/-45), odd/tasks/readme-refresh.md (+25).
+- Verification: full rewrite read after write; diff confirms all Laravel
+  template lines removed (logo, sponsors, bootcamp, Laracasts) and no
+  template additions. Executable test: N/A (docs-only change).
