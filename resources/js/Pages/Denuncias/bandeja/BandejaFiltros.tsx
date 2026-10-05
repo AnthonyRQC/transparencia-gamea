@@ -11,23 +11,15 @@ import type { OpcionesBandeja } from './tipos';
 
 const ESTADOS = ['ingresada', 'evaluacion_tecnica', 'admitida', 'rechazada', 'asignada', 'investigacion', 'informe', 'cerrada'];
 
-type InvestigadorItem = { id: number | string; name?: string; nombre?: string };
-
 interface BandejaFiltrosProps {
   api: DenunciaFiltersApi;
   activeTab: string;
-  investigadores: Array<InvestigadorItem> | Record<string, InvestigadorItem>;
   opciones: OpcionesBandeja;
   onRestablecer: () => void;
 }
 
-function listaInvestigadores(inv: BandejaFiltrosProps['investigadores']): InvestigadorItem[] {
-  return Array.isArray(inv) ? inv : Object.values(inv);
-}
-
-export default function BandejaFiltros({ api, activeTab, investigadores, opciones, onRestablecer }: BandejaFiltrosProps) {
+export default function BandejaFiltros({ api, activeTab, opciones, onRestablecer }: BandejaFiltrosProps) {
   const { form, setCampo, toggleEstado, showFilters, setShowFilters, cantidadFiltros } = api;
-  const investigadoresList = listaInvestigadores(investigadores);
 
   const quitar = (next: FiltrosBandejaForm) => api.aplicarCon(next, activeTab);
   const sin = (patch: Partial<FiltrosBandejaForm>): FiltrosBandejaForm => ({ ...form, ...patch });
@@ -52,14 +44,6 @@ export default function BandejaFiltros({ api, activeTab, investigadores, opcione
       key: 'rango',
       label: `Fecha: ${ETIQUETAS_PRESET[preset]} (${formatearRangoFechas(form.fecha_desde || null, form.fecha_hasta || null)})`,
       clear: () => quitar(sin({ fecha_desde: '', fecha_hasta: '' })),
-    });
-  }
-  if (form.investigador_id) {
-    const t = investigadoresList.find((x) => String(x.id) === form.investigador_id);
-    chips.push({
-      key: 'investigador',
-      label: `Investigador: ${t?.name ?? t?.nombre ?? 'Investigador'}`,
-      clear: () => quitar(sin({ investigador_id: '' })),
     });
   }
   if (form.categoria_id) {
@@ -99,8 +83,29 @@ export default function BandejaFiltros({ api, activeTab, investigadores, opcione
             className="pl-8 h-9 text-sm w-full"
           />
         </div>
+        <Button
+          type="button"
+          size="icon"
+          aria-label="Buscar"
+          onClick={() => api.aplicarCon(form, activeTab)}
+          className="h-9 w-9 shrink-0 cursor-pointer"
+        >
+          <Search className="w-4 h-4" />
+        </Button>
+        {form.search !== '' && (
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            aria-label="Limpiar búsqueda"
+            onClick={() => api.aplicarCon({ ...form, search: '' }, activeTab)}
+            className="h-9 w-9 shrink-0 cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+          </Button>
+        )}
         <div className="flex items-center gap-2 w-full sm:w-auto">
-          <Select value={form.tipo} onValueChange={(v) => { setCampo('tipo', v); }}>
+          <Select value={form.tipo} onValueChange={(v) => { api.aplicarCon({ ...form, tipo: v }, activeTab); }}>
             <SelectTrigger className="w-full sm:w-36 h-9 text-sm">
               <SelectValue placeholder="Tipo" />
             </SelectTrigger>
@@ -186,18 +191,6 @@ export default function BandejaFiltros({ api, activeTab, investigadores, opcione
                   <SelectItem value="revelada">Revelada</SelectItem>
                   <SelectItem value="reservada">Reservada</SelectItem>
                   <SelectItem value="anonimo">Anónimo</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1">
-              <p className="text-[10px] font-semibold text-muted-foreground uppercase">Investigador</p>
-              <Select value={form.investigador_id || 'todos'} onValueChange={(v) => setCampo('investigador_id', v === 'todos' ? '' : v)}>
-                <SelectTrigger><SelectValue placeholder="Todos" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="todos">Todos</SelectItem>
-                  {investigadoresList.map((t) => (
-                    <SelectItem key={t.id} value={String(t.id)}>{t.name ?? t.nombre}</SelectItem>
-                  ))}
                 </SelectContent>
               </Select>
             </div>

@@ -119,7 +119,6 @@ export function useDenunciaFilters(initial?: Partial<FiltrosEcho> | null) {
     (form.tipo !== 'all' ? 1 : 0) +
     (form.escenario ? 1 : 0) +
     (form.fecha_desde || form.fecha_hasta ? 1 : 0) +
-    (form.investigador_id ? 1 : 0) +
     (form.categoria_id ? 1 : 0) +
     (form.clasificacion_id ? 1 : 0);
 
