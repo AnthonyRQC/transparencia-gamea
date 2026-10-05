@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { formatearFechaLarga } from '@/helpers/fechas';
@@ -8,31 +9,38 @@ import DenunciaCard from '@/Components/Denuncias/Card/DenunciaCard';
 import TabsDenuncias from '@/Components/Denuncias/Shared/TabsDenuncias';
 import Paginacion from '@/Components/Denuncias/Shared/Paginacion';
 import ListaVacia from '@/Components/Denuncias/Shared/ListaVacia';
-import { isNewHours, sortItems } from './helpers';
+import { isNewHours } from './helpers';
 import { estadoLabels } from './tipos';
-import type { Denuncia, Grouped } from './tipos';
+import type { Denuncia } from './tipos';
+
+interface MetaPagina {
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  total: number;
+}
 
 interface MisCasosListaProps {
   tabs: Array<{ value: string; label: string; count?: number }>;
   activeTab: string;
   setActiveTab: (value: string) => void;
-  grouped: Grouped;
-  sortBy: string;
+  /** Ítems de la página actual del servidor (ya con orden visual aplicado). */
+  items: Denuncia[];
+  meta: MetaPagina;
+  onPaginaChange: (pagina: number) => void;
   investigadores: Record<string, { id: string; nombre: string; iniciales: string; color: string }>;
   avisosPorTicket: Record<string, string[]>;
   evaluacionesDelegadas: any[];
-  pageSize: number;
-  pagina: number;
-  setPagina: (pagina: number) => void;
   setSelectedDenuncia: (denuncia: Denuncia) => void;
   processingTicket: string | null;
   onIniciar: (ticket: string) => void;
   onToggleArchivar: (ticket: string) => void;
   archivadasOpen: boolean;
   setArchivadasOpen: (open: boolean) => void;
+  renderEmptyState: (icon: any, titulo: string, descripcion: string) => ReactNode;
 }
 
-export default function MisCasosLista({ tabs, activeTab, setActiveTab, grouped, sortBy, investigadores, avisosPorTicket, evaluacionesDelegadas, pageSize, pagina, setPagina, setSelectedDenuncia, processingTicket, onIniciar, onToggleArchivar, archivadasOpen, setArchivadasOpen }: MisCasosListaProps) {
+export default function MisCasosLista({ tabs, activeTab, setActiveTab, items, meta, onPaginaChange, investigadores, avisosPorTicket, evaluacionesDelegadas, setSelectedDenuncia, processingTicket, onIniciar, onToggleArchivar, archivadasOpen, setArchivadasOpen, renderEmptyState }: MisCasosListaProps) {
   const renderActions = (denuncia: Denuncia) => {
     if (denuncia.estado === 'asignada') {
       return (
@@ -78,14 +86,6 @@ export default function MisCasosLista({ tabs, activeTab, setActiveTab, grouped, 
   return (
     <TabsDenuncias tabs={tabs} value={activeTab} onValueChange={setActiveTab}>
       {(value) => {
-        const items = grouped[value] || [];
-        const isCierre = value === 'cerrada';
-        const sorted = sortItems(items, sortBy, activeTab);
-        const visible = isCierre ? sorted.filter((d) => !d.subestado) : sorted;
-        const archivadas = isCierre ? items.filter((d) => d.subestado === 'archivada') : [];
-        const totalPaginas = Math.ceil(visible.length / pageSize) || 1;
-        const paginated = visible.slice((pagina - 1) * pageSize, pagina * pageSize);
-
         if (value === 'evaluaciones') {
           const evaluacionesList = evaluacionesDelegadas;
           return (
@@ -122,17 +122,24 @@ export default function MisCasosLista({ tabs, activeTab, setActiveTab, grouped, 
           );
         }
 
+        // Página del servidor (filtros + scope del tab ya aplicados).
+        const isCierre = value === 'cerrada';
+        const visible = isCierre ? items.filter((d) => !d.subestado) : items;
+        const archivadas = isCierre ? items.filter((d) => d.subestado === 'archivada') : [];
+
         return (
           <div className="space-y-3">
             {visible.length === 0 && archivadas.length === 0 && (
-              <ListaVacia
-                icon={estadoLabels[value]?.icon || ClipboardList}
-                titulo={`Sin casos en ${estadoLabels[value]?.label?.toLowerCase() || value}`}
-                descripcion="No hay denuncias en esta fase actualmente."
-              />
+              <>
+                {renderEmptyState(
+                  estadoLabels[value]?.icon || ClipboardList,
+                  `Sin casos en ${estadoLabels[value]?.label?.toLowerCase() || value}`,
+                  'No hay denuncias en esta fase actualmente.',
+                )}
+              </>
             )}
 
-            {paginated.map((d) => (
+            {visible.map((d) => (
               <DenunciaCard
                 key={d.ticket}
                 denuncia={d}
@@ -149,11 +156,11 @@ export default function MisCasosLista({ tabs, activeTab, setActiveTab, grouped, 
             ))}
 
             <Paginacion
-              paginaActual={pagina}
-              totalPaginas={totalPaginas}
-              totalElementos={visible.length}
-              elementosPorPagina={pageSize}
-              onPaginaChange={(p) => setPagina(p)}
+              paginaActual={meta.current_page}
+              totalPaginas={meta.last_page}
+              totalElementos={meta.total}
+              elementosPorPagina={meta.per_page}
+              onPaginaChange={onPaginaChange}
             />
 
             {archivadas.length > 0 && (
@@ -172,7 +179,7 @@ export default function MisCasosLista({ tabs, activeTab, setActiveTab, grouped, 
                 </button>
                 {archivadasOpen && (
                   <div className="space-y-2 p-3">
-                    {sortItems(archivadas, sortBy, activeTab).map((d) => (
+                    {archivadas.map((d) => (
                       <DenunciaCard
                         key={d.ticket}
                         denuncia={d}

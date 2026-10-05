@@ -1,24 +1,28 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Head, router } from '@inertiajs/react';
 import { toast } from 'sonner';
 import { route } from 'ziggy-js';
-import { ClipboardList, ArrowUpDown } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
+import { ClipboardList, Search } from 'lucide-react';
 import AppLayout from '@/Components/Layout/AppLayout';
 import PageHeader from '@/Components/Layout/PageHeader';
+import ListaVacia from '@/Components/Denuncias/Shared/ListaVacia';
+import BandejaFiltros from './bandeja/BandejaFiltros';
 import MisCasosLista from './mis-casos/MisCasosLista';
 import MisCasosSheet from './mis-casos/MisCasosSheet';
 import MisCasosModales from './mis-casos/MisCasosModales';
 import { estadoLabels, estadoOrden } from './mis-casos/tipos';
 import type { PageProps, Denuncia, Solicitud, Descargo } from './mis-casos/tipos';
-
-export default function MisCasos({ grouped, investigadorActual, investigadores,
-solicitudesByTicket = {}, descargosByTicket = {}, evaluacionesByTicket = {}, avisosPorTicket = {}, evaluacionesDelegadas = [],
-evaluacionesDevueltas = [], canAct = true, destacar }: PageProps) {
+import { esDelTab, sortItems, tabDesdeEstado } from './mis-casos/helpers';
+import { useMisCasosFilters } from './mis-casos/useMisCasosFilters';
+export default function MisCasos({ denuncias, contadores = {}, investigadorActual, investigadores,
+solicitudesByTicket = {}, descargosByTicket = {}, evaluacionesByTicket = {}, avisosPorTicket = {}, opciones, filters, evaluacionesDelegadas = [],
+evaluacionesDevueltas = [], canAct = true, destacar, destacarDenuncia = null }: PageProps) {
   const [selectedDenuncia, setSelectedDenuncia] = useState<Denuncia | null>(null);
   const [archivadasOpen, setArchivadasOpen] = useState(false);
   const [processingTicket, setProcessingTicket] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState('plazo');
+  // Slice 2: filtros server-side (init desde el eco `filters` del servidor).
+  // El filtro de investigador queda oculto: solo casos propios (forzado en servidor).
+  const filtrosApi = useMisCasosFilters(filters);
   // Sprint 4 modals
   const [modalNuevaSolTicket, setModalNuevaSolTicket] = useState<string | null>(null);
   const [modalRespondeSolId, setModalRespondeSolId] = useState<number | null>(null);
@@ -37,22 +41,67 @@ evaluacionesDevueltas = [], canAct = true, destacar }: PageProps) {
   const [modalEliminarDesc, setModalEliminarDesc] = useState<{ id: number; nombre: string } | null>(null);
   const [processingEliminar, setProcessingEliminar] = useState(false);
 
-  const [activeTab, setActiveTab] = useState<string>('asignada');
-  const [pagina, setPagina] = useState(1);
+  const [activeTab, setActiveTab] = useState<string>(() => tabDesdeEstado(filters?.estado));
 
-  useEffect(() => {
-    setPagina(1);
-  }, [activeTab, sortBy]);
+  // Página actual del servidor + orden visual del cliente (plazo display-only).
+  // El servidor ya aplicó el scope del tab; se re-filtra por tab para la
+  // semántica de intersección (igual que Bandeja: estado refina en el tab).
+  const items = useMemo(
+    () => sortItems(
+      (denuncias?.data ?? []).filter((d) => activeTab === 'evaluaciones' || esDelTab(d.estado, activeTab)),
+      filtrosApi.form.sortBy,
+      activeTab,
+    ),
+    [denuncias, filtrosApi.form.sortBy, activeTab],
+  );
+  const meta = {
+    current_page: denuncias?.current_page ?? 1,
+    last_page: denuncias?.last_page ?? 1,
+    per_page: denuncias?.per_page ?? 10,
+    total: denuncias?.total ?? 0,
+  };
+
+  const cambiarTab = (nuevo: string) => {
+    setActiveTab(nuevo);
+    if (nuevo !== 'evaluaciones') filtrosApi.cambiarTab(nuevo);
+  };
+
+  const restablecerTodo = () => {
+    setActiveTab('asignada');
+    filtrosApi.restablecer();
+  };
+
+  const renderEmptyState = (icon: any, titulo: string, descripcion: string) => {
+    if (filtrosApi.hayFiltros) {
+      return (
+        <ListaVacia
+          icon={Search}
+          titulo="Sin resultados para la búsqueda"
+          descripcion="No se encontraron casos propios que coincidan con los filtros aplicados."
+          accionLabel="Limpiar filtros"
+          onAccion={restablecerTodo}
+        />
+      );
+    }
+    return (
+      <ListaVacia
+        icon={icon}
+        titulo={titulo}
+        descripcion={descripcion}
+      />
+    );
+  };
 
   useEffect(() => {
     const ticketToHighlight = destacar || (typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('destacar') : null);
     if (ticketToHighlight) {
-      const todas: Denuncia[] = Object.values(grouped).flatMap(g => g);
-      const found = todas.find((d) => d.ticket === ticketToHighlight);
+      const candidatas = destacarDenuncia ? [destacarDenuncia, ...(denuncias?.data ?? [])] : (denuncias?.data ?? []);
+      const found = candidatas.find((d) => d.ticket === ticketToHighlight);
       if (found) {
         setSelectedDenuncia(found);
-        if (found.estado && estadoOrden.includes(found.estado)) {
-          setActiveTab(found.estado);
+        const tab = found.estado === 'admitida' ? 'asignada' : found.estado;
+        if (estadoOrden.includes(tab)) {
+          setActiveTab(tab);
         }
         window.scrollTo({ top: 0, behavior: 'smooth' });
         const timer = setTimeout(() => {
@@ -61,20 +110,16 @@ evaluacionesDevueltas = [], canAct = true, destacar }: PageProps) {
         return () => clearTimeout(timer);
       }
     }
-  }, [destacar, grouped]);
+  }, [destacar, destacarDenuncia, denuncias]);
 
   // Sincroniza la denuncia seleccionada con los datos frescos que llegan de Inertia
   useEffect(() => {
     if (selectedDenuncia) {
-      const todas: Denuncia[] = Object.values(grouped).flatMap(g => g as Denuncia[]);
-      const updated = todas.find((d) => d.ticket === selectedDenuncia.ticket);
+      const candidatas = destacarDenuncia ? [destacarDenuncia, ...(denuncias?.data ?? [])] : (denuncias?.data ?? []);
+      const updated = candidatas.find((d) => d.ticket === selectedDenuncia.ticket);
       if (updated) setSelectedDenuncia(updated);
     }
-  }, [grouped]);
-
-  const handleInvestigadorChange = (value: string) => {
-    router.get(route('denuncias.mis-casos'), { investigador: value }, { preserveState: true, preserveScroll: true });
-  };
+  }, [denuncias, destacarDenuncia]);
 
   const handleIniciar = (ticket: string) => {
     setProcessingTicket(ticket);
@@ -107,17 +152,16 @@ evaluacionesDevueltas = [], canAct = true, destacar }: PageProps) {
   };
 
   const evaluacionesPendientes = evaluacionesDelegadas.length ?? 0;
-  const countVisible = (estado: string) => {
-    const items = grouped[estado] || [];
-    return estado === 'cerrada' ? items.filter(d => !d.subestado).length : items.length;
-  };
 
   const tabs = [
     ...estadoOrden.map((estado) => {
+      const count = estado === 'asignada'
+        ? ((contadores?.asignada ?? 0) + (contadores?.admitida ?? 0))
+        : (contadores?.[estado] ?? 0);
       return {
         value: estado,
         label: estadoLabels[estado]?.label || estado,
-        count: countVisible(estado),
+        count,
       };
     }),
     ...(evaluacionesPendientes > 0 ? [{
@@ -127,8 +171,6 @@ evaluacionesDevueltas = [], canAct = true, destacar }: PageProps) {
     }] : []),
   ];
 
-  const pageSize = 10;
-
   return (
     <AppLayout>
       <Head title="Mis Casos — Transparencia UTLCC" />
@@ -137,41 +179,32 @@ evaluacionesDevueltas = [], canAct = true, destacar }: PageProps) {
         icon={<ClipboardList className="shrink-0" />}
         titulo="Mis Casos"
         subtitulo="Gestión de casos asignados y seguimiento de plazos de investigación."
-        acciones={
-          <>
-            <span className="text-xs text-muted-foreground font-medium hidden sm:inline">Ordenar:</span>
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-32 h-8 text-sm cursor-pointer">
-                <ArrowUpDown className="w-3.5 h-3.5 mr-1" />
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="plazo">Plazo</SelectItem>
-                <SelectItem value="fecha">Fecha</SelectItem>
-              </SelectContent>
-            </Select>
-          </>
-        }
+      />
+
+      <BandejaFiltros
+        api={filtrosApi}
+        activeTab={activeTab}
+        opciones={opciones}
+        onRestablecer={restablecerTodo}
       />
 
       <MisCasosLista
         tabs={tabs}
         activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        grouped={grouped}
-        sortBy={sortBy}
+        setActiveTab={cambiarTab}
+        items={items}
+        meta={meta}
+        onPaginaChange={(p) => filtrosApi.irAPagina(activeTab, p)}
         investigadores={investigadores}
         avisosPorTicket={avisosPorTicket}
         evaluacionesDelegadas={evaluacionesDelegadas}
-        pageSize={pageSize}
-        pagina={pagina}
-        setPagina={setPagina}
         setSelectedDenuncia={setSelectedDenuncia}
         processingTicket={processingTicket}
         onIniciar={handleIniciar}
         onToggleArchivar={handleToggleArchivar}
         archivadasOpen={archivadasOpen}
         setArchivadasOpen={setArchivadasOpen}
+        renderEmptyState={renderEmptyState}
       />
 
       {selectedDenuncia && (
