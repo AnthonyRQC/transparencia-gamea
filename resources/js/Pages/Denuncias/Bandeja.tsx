@@ -192,7 +192,6 @@ export default function Bandeja({ denuncias, contadores, investigadores, cargaIn
       <BandejaFiltros
         api={filtrosApi}
         activeTab={activeTab}
-        investigadores={investigadores}
         opciones={opciones}
         onRestablecer={restablecerTodo}
       />
