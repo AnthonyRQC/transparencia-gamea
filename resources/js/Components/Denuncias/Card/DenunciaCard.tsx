@@ -5,16 +5,10 @@ import TipoDenunciaBadge from './TipoDenunciaBadge';
 import SubestadoBadge from './SubestadoBadge';
 import ClasificacionBadge from '../Card/ClasificacionBadge';
 import InvestigadorAvatar from '../Shared/InvestigadorAvatar';
+import { resolverInvestigador, type InvestigadorAsignado, type InvestigadoresFuente } from '../Shared/resolverInvestigador';
 import { User, Clock, ArrowRightLeft, FileSearch, Megaphone } from 'lucide-react';
 import { ESCENARIO_LABEL as escenarioLabel, PLAZO_BORDE as plazoBorderColor, RECOMENDACION_COLOR, sinAvisoPublicado } from '../Shared/semantica';
 import type { PlazoInfo } from '@/types/denuncia';
-
-interface InvestigadorData {
-  id: string;
-  nombre: string;
-  iniciales: string;
-  color: string;
-}
 
 interface AmpliacionItem {
   id: number;
@@ -30,7 +24,7 @@ interface DenunciaData {
   created_at: string;
   estado: string;
   subestado?: string | null;
-  investigador?: string | null;
+  investigador?: InvestigadorAsignado;
   fecha_traspaso?: string | null;
   fecha_admitida?: string | null;
   fecha_asignada?: string | null;
@@ -51,7 +45,7 @@ interface DenunciaCardProps {
   plazo: PlazoInfo | null;
   /** Eventos de aviso ya publicados (Sprint 13.3, indicador "Sin aviso"). */
   avisosPublicados?: string[];
-  investigadores?: Record<string, InvestigadorData>;
+  investigadores?: InvestigadoresFuente;
   onClick?: () => void;
   className?: string;
   children?: React.ReactNode;
@@ -106,7 +100,7 @@ export default function DenunciaCard({ denuncia, plazo, avisosPublicados, invest
     ? (plazoBorderColor[plazo.color] || 'border-l-4 border-l-border')
     : 'border-l-4 border-l-border';
   const denuncianteNombre = denuncia.denunciante?.nombres || 'Anónimo';
-  const investigadorInfo = denuncia.investigador && investigadores ? investigadores[denuncia.investigador] : null;
+  const investigadorInfo = resolverInvestigador(denuncia.investigador, investigadores);
   const isRecentlyTraspasado = denuncia.fecha_traspaso && daysAgo(denuncia.fecha_traspaso) < 7;
   const totalAmpliacionesDias = (denuncia.ampliaciones || []).reduce((sum, a) => sum + a.dias, 0);
   const contextualText = getContextualText(denuncia);
