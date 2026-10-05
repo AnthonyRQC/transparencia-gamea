@@ -10,28 +10,29 @@ import DenunciaCard from '@/Components/Denuncias/Card/DenunciaCard';
 import ContadorCard from '@/Components/Denuncias/Shared/ContadorCard';
 import TabsDenuncias from '@/Components/Denuncias/Shared/TabsDenuncias';
 import Paginacion from '@/Components/Denuncias/Shared/Paginacion';
-import { filterAndSort, isNewHours } from './helpers';
+import { isNewHours } from './helpers';
 import { contadorConfig } from './tipos';
 import type { Denuncia, Contador } from './tipos';
 import type { ReactNode } from 'react';
 
+export interface BandejaPaginaMeta {
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  total: number;
+}
+
 interface BandejaListaProps {
   tabs: Array<{ value: string; label: string; count?: number }>;
   activeTab: string;
-  setActiveTab: (value: string) => void;
-  denuncias: Denuncia[];
-  porAsignar: Denuncia[];
-  enCurso: Denuncia[];
-  historial: Denuncia[];
+  onTabChange: (value: string) => void;
+  /** Página actual del tab activo (filtrada en servidor, orden visual aplicado). */
+  items: Denuncia[];
+  meta: BandejaPaginaMeta;
   contadores: Contador;
   investigadores: Record<string, { id: string; nombre: string; iniciales: string; color: string }>;
   avisosPorTicket: Record<string, string[]>;
-  search: string;
-  filterTipo: string;
-  sortBy: string;
-  pageSize: number;
-  pagina: number;
-  setPagina: (pagina: number) => void;
+  onPaginaChange: (pagina: number) => void;
   renderEmptyState: (icon: any, titulo: string, descripcion: string) => ReactNode;
   setSelectedDenuncia: (denuncia: Denuncia) => void;
   setModalAdmisionTicket: (ticket: string) => void;
@@ -41,15 +42,22 @@ interface BandejaListaProps {
   setModalAsignacionTicket: (ticket: string) => void;
 }
 
-export default function BandejaLista({ tabs, activeTab, setActiveTab, denuncias, porAsignar, enCurso, historial, contadores, investigadores, avisosPorTicket, search, filterTipo, sortBy, pageSize, pagina, setPagina, renderEmptyState, setSelectedDenuncia, setModalAdmisionTicket, setModalRechazoTicket, setModalDelegarEvaluacionTicket, setModalReasumirEvaluacionTicket, setModalAsignacionTicket }: BandejaListaProps) {
+export default function BandejaLista({ tabs, activeTab, onTabChange, items, meta, contadores, investigadores, avisosPorTicket, onPaginaChange, renderEmptyState, setSelectedDenuncia, setModalAdmisionTicket, setModalRechazoTicket, setModalDelegarEvaluacionTicket, setModalReasumirEvaluacionTicket, setModalAsignacionTicket }: BandejaListaProps) {
+  const paginacion = (
+    <Paginacion
+      paginaActual={meta.current_page}
+      totalPaginas={meta.last_page}
+      totalElementos={meta.total}
+      elementosPorPagina={meta.per_page}
+      onPaginaChange={onPaginaChange}
+    />
+  );
+
   return (
-    <TabsDenuncias tabs={tabs} value={activeTab} onValueChange={setActiveTab}>
+    <TabsDenuncias tabs={tabs} value={activeTab} onValueChange={onTabChange}>
       {(value) => {
         if (value === 'por-admitir') {
-          const filtered = filterAndSort(denuncias, { search, filterTipo, sortBy, activeTab });
-          const totalPaginas = Math.ceil(filtered.length / pageSize) || 1;
-          const paginated = filtered.slice((pagina - 1) * pageSize, pagina * pageSize);
-          return filtered.length === 0 ? (
+          return items.length === 0 ? (
             renderEmptyState(
               Inbox,
               "No hay denuncias por admitir",
@@ -58,7 +66,7 @@ export default function BandejaLista({ tabs, activeTab, setActiveTab, denuncias,
           ) : (
             <div>
               <div className="space-y-3">
-                {paginated.map((d) => {
+                {items.map((d) => {
                   const enEvaluacion = d.estado === 'evaluacion_tecnica';
                   const evaluacionDevuelta = d.estado === 'ingresada' && (d.evaluacion_tecnica_recomendacion || d.evaluacion_tecnica_texto);
                   return (
@@ -154,22 +162,13 @@ export default function BandejaLista({ tabs, activeTab, setActiveTab, denuncias,
                   );
                 })}
               </div>
-              <Paginacion
-                paginaActual={pagina}
-                totalPaginas={totalPaginas}
-                totalElementos={filtered.length}
-                elementosPorPagina={pageSize}
-                onPaginaChange={(p) => setPagina(p)}
-              />
+              {paginacion}
             </div>
           );
         }
 
         if (value === 'por-asignar') {
-          const filtered = filterAndSort(porAsignar, { search, filterTipo, sortBy, activeTab });
-          const totalPaginas = Math.ceil(filtered.length / pageSize) || 1;
-          const paginated = filtered.slice((pagina - 1) * pageSize, pagina * pageSize);
-          return filtered.length === 0 ? (
+          return items.length === 0 ? (
             renderEmptyState(
               ClipboardList,
               "No hay denuncias por asignar",
@@ -178,7 +177,7 @@ export default function BandejaLista({ tabs, activeTab, setActiveTab, denuncias,
           ) : (
             <div>
               <div className="space-y-3">
-                {paginated.map((d) => (
+                {items.map((d) => (
                   <DenunciaCard
                     key={d.ticket}
                     denuncia={d}
@@ -200,22 +199,13 @@ export default function BandejaLista({ tabs, activeTab, setActiveTab, denuncias,
                   </DenunciaCard>
                 ))}
               </div>
-              <Paginacion
-                paginaActual={pagina}
-                totalPaginas={totalPaginas}
-                totalElementos={filtered.length}
-                elementosPorPagina={pageSize}
-                onPaginaChange={(p) => setPagina(p)}
-              />
+              {paginacion}
             </div>
           );
         }
 
         if (value === 'en-curso') {
-          const filtered = filterAndSort(enCurso, { search, filterTipo, sortBy, activeTab });
-          const totalPaginas = Math.ceil(filtered.length / pageSize) || 1;
-          const paginated = filtered.slice((pagina - 1) * pageSize, pagina * pageSize);
-          return filtered.length === 0 ? (
+          return items.length === 0 ? (
             renderEmptyState(
               Eye,
               "No hay denuncias en curso",
@@ -224,7 +214,7 @@ export default function BandejaLista({ tabs, activeTab, setActiveTab, denuncias,
           ) : (
             <div>
               <div className="space-y-3">
-                {paginated.map((d) => (
+                {items.map((d) => (
                   <DenunciaCard
                     key={d.ticket}
                     denuncia={d}
@@ -235,22 +225,13 @@ export default function BandejaLista({ tabs, activeTab, setActiveTab, denuncias,
                   />
                 ))}
               </div>
-              <Paginacion
-                paginaActual={pagina}
-                totalPaginas={totalPaginas}
-                totalElementos={filtered.length}
-                elementosPorPagina={pageSize}
-                onPaginaChange={(p) => setPagina(p)}
-              />
+              {paginacion}
             </div>
           );
         }
 
         if (value === 'historial') {
-          const filtered = filterAndSort(historial, { search, filterTipo, sortBy, activeTab });
-          const totalPaginas = Math.ceil(filtered.length / pageSize) || 1;
-          const paginated = filtered.slice((pagina - 1) * pageSize, pagina * pageSize);
-          return filtered.length === 0 ? (
+          return items.length === 0 ? (
             renderEmptyState(
               Archive,
               "No hay denuncias en el historial",
@@ -259,7 +240,7 @@ export default function BandejaLista({ tabs, activeTab, setActiveTab, denuncias,
           ) : (
             <div>
               <div className="space-y-3">
-                {paginated.map((d) => (
+                {items.map((d) => (
                   <DenunciaCard
                     key={d.ticket}
                     denuncia={d}
@@ -276,13 +257,7 @@ export default function BandejaLista({ tabs, activeTab, setActiveTab, denuncias,
                   </DenunciaCard>
                 ))}
               </div>
-              <Paginacion
-                paginaActual={pagina}
-                totalPaginas={totalPaginas}
-                totalElementos={filtered.length}
-                elementosPorPagina={pageSize}
-                onPaginaChange={(p) => setPagina(p)}
-              />
+              {paginacion}
             </div>
           );
         }

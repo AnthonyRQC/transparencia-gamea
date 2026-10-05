@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Head } from '@inertiajs/react';
 import {
   CheckCircle2,
@@ -14,9 +14,11 @@ import ListaVacia from '@/Components/Denuncias/Shared/ListaVacia';
 import BandejaFiltros from './bandeja/BandejaFiltros';
 import BandejaLista from './bandeja/BandejaLista';
 import BandejaModales from './bandeja/BandejaModales';
+import { useDenunciaFilters } from './bandeja/useDenunciaFilters';
+import { sortItems } from './bandeja/helpers';
 import type { PageProps, Denuncia, Solicitud, Descargo } from './bandeja/tipos';
 
-export default function Bandeja({ denuncias, porAsignar, enCurso, historial, contadores, investigadores, cargaInvestigadores, solicitudesByTicket = {}, descargosByTicket = {}, evaluacionesByTicket = {}, avisosPorTicket = {}, canAct = false, destacar }: PageProps) {
+export default function Bandeja({ denuncias, contadores, investigadores, cargaInvestigadores, solicitudesByTicket = {}, descargosByTicket = {}, evaluacionesByTicket = {}, avisosPorTicket = {}, opciones, filters, tab, canAct = false, destacar, destacarDenuncia = null }: PageProps) {
   const [selectedDenuncia, setSelectedDenuncia] = useState<Denuncia | null>(null);
   const [menuMasAbierto, setMenuMasAbierto] = useState(false);
   const menuMasRef = useRef<HTMLDivElement>(null);
@@ -53,16 +55,37 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
   const [modalEditarDesc, setModalEditarDesc] = useState<Descargo | null>(null);
   const [modalEliminarDesc, setModalEliminarDesc] = useState<{ id: number; nombre: string } | null>(null);
   const [processingEliminar, setProcessingEliminar] = useState(false);
-  const [search, setSearch] = useState('');
-  const [filterTipo, setFilterTipo] = useState('all');
-  const [sortBy, setSortBy] = useState('plazo');
+  // Slice 1: filtros server-side (init desde el eco `filters` del servidor).
+  const filtrosApi = useDenunciaFilters(filters);
 
-  const [activeTab, setActiveTab] = useState<string>('por-admitir');
-  const [pagina, setPagina] = useState(1);
+  const [activeTab, setActiveTab] = useState<string>(tab || 'por-admitir');
 
+  // El servidor resuelve el tab (?destacar o ?tab): sincroniza al recibirlo.
   useEffect(() => {
-    setPagina(1);
-  }, [activeTab, search, filterTipo, sortBy]);
+    if (tab) setActiveTab(tab);
+  }, [tab]);
+
+  // Página actual del tab activo + orden visual del cliente (plazo display-only).
+  const items = useMemo(
+    () => sortItems(denuncias.data ?? [], filtrosApi.form.sortBy, activeTab),
+    [denuncias.data, filtrosApi.form.sortBy, activeTab],
+  );
+  const meta = {
+    current_page: denuncias.current_page ?? 1,
+    last_page: denuncias.last_page ?? 1,
+    per_page: denuncias.per_page ?? 10,
+    total: denuncias.total ?? 0,
+  };
+
+  const cambiarTab = (nuevo: string) => {
+    setActiveTab(nuevo);
+    filtrosApi.cambiarTab(nuevo);
+  };
+
+  const restablecerTodo = () => {
+    setActiveTab('por-admitir');
+    filtrosApi.restablecer();
+  };
 
   // Cerrar menú Más al hacer click afuera o cambiar/cerrar denuncia seleccionada
   useEffect(() => {
@@ -80,12 +103,14 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
     setMenuMasAbierto(false);
   }, [selectedDenuncia]);
 
-  // Auto-abrir sheet si viene desde notificación
+  // Auto-abrir sheet si viene desde notificación (?destacar=TICKET).
+  // El servidor ya resolvió el tab y precargó `destacarDenuncia`.
   useEffect(() => {
     const ticketToHighlight = destacar || (typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('destacar') : null);
     if (ticketToHighlight) {
-      const todas = [...denuncias, ...porAsignar, ...enCurso, ...historial];
-      const found = todas.find((d) => d.ticket === ticketToHighlight);
+      const found = destacarDenuncia && destacarDenuncia.ticket === ticketToHighlight
+        ? destacarDenuncia
+        : (denuncias.data ?? []).find((d) => d.ticket === ticketToHighlight);
       if (found) {
         setSelectedDenuncia(found);
         if (['ingresada', 'evaluacion_tecnica'].includes(found.estado)) setActiveTab('por-admitir');
@@ -98,16 +123,16 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
         return () => clearTimeout(timer);
       }
     }
-  }, [destacar, denuncias, porAsignar, enCurso, historial]);
+  }, [destacar, destacarDenuncia, denuncias.data]);
 
   // Sincroniza la denuncia seleccionada con los datos frescos que llegan de Inertia
   useEffect(() => {
     if (selectedDenuncia) {
-      const todas = [...denuncias, ...porAsignar, ...enCurso, ...historial];
-      const updated = todas.find((d) => d.ticket === selectedDenuncia.ticket);
+      const candidatas = destacarDenuncia ? [destacarDenuncia, ...(denuncias.data ?? [])] : (denuncias.data ?? []);
+      const updated = candidatas.find((d) => d.ticket === selectedDenuncia.ticket);
       if (updated) setSelectedDenuncia(updated);
     }
-  }, [denuncias, porAsignar, enCurso, historial]);
+  }, [denuncias.data, destacarDenuncia]);
 
   useEffect(() => {
     if (destacar) {
@@ -127,15 +152,14 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
   ];
 
   const renderEmptyState = (icon: any, titulo: string, descripcion: string) => {
-    const tieneFiltros = search.trim() !== '' || filterTipo !== 'all';
-    if (tieneFiltros) {
+    if (filtrosApi.hayFiltros) {
       return (
         <ListaVacia
           icon={Search}
           titulo="Sin resultados para la búsqueda"
-          descripcion={`No se encontraron denuncias que coincidan con ${search.trim() ? `"${search.trim()}"` : 'los filtros seleccionados'}.`}
+          descripcion="No se encontraron denuncias que coincidan con los filtros aplicados."
           accionLabel="Limpiar filtros"
-          onAccion={() => { setSearch(''); setFilterTipo('all'); }}
+          onAccion={restablecerTodo}
         />
       );
     }
@@ -148,10 +172,9 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
     );
   };
 
-  const pageSize = 10;
-
   const investigadorActualId = (() => {
-    const found = modalTraspasoTicket ? [...denuncias, ...porAsignar, ...enCurso, ...historial].find(d => d.ticket === modalTraspasoTicket) : null;
+    const paginaActual = [...(denuncias.data ?? []), ...(destacarDenuncia ? [destacarDenuncia] : [])];
+    const found = modalTraspasoTicket ? paginaActual.find(d => d.ticket === modalTraspasoTicket) : null;
     if (!found) return null;
     return (found as any).investigador_id || (typeof (found as any).investigador === 'object' ? (found as any).investigador?.id : null);
   })();
@@ -167,31 +190,23 @@ export default function Bandeja({ denuncias, porAsignar, enCurso, historial, con
       />
 
       <BandejaFiltros
-        search={search}
-        setSearch={setSearch}
-        filterTipo={filterTipo}
-        setFilterTipo={setFilterTipo}
-        sortBy={sortBy}
-        setSortBy={setSortBy}
+        api={filtrosApi}
+        activeTab={activeTab}
+        investigadores={investigadores}
+        opciones={opciones}
+        onRestablecer={restablecerTodo}
       />
 
       <BandejaLista
         tabs={tabs}
         activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        denuncias={denuncias}
-        porAsignar={porAsignar}
-        enCurso={enCurso}
-        historial={historial}
+        onTabChange={cambiarTab}
+        items={items}
+        meta={meta}
         contadores={contadores}
         investigadores={investigadores}
         avisosPorTicket={avisosPorTicket}
-        search={search}
-        filterTipo={filterTipo}
-        sortBy={sortBy}
-        pageSize={pageSize}
-        pagina={pagina}
-        setPagina={setPagina}
+        onPaginaChange={(p) => filtrosApi.irAPagina(activeTab, p)}
         renderEmptyState={renderEmptyState}
         setSelectedDenuncia={setSelectedDenuncia}
         setModalAdmisionTicket={setModalAdmisionTicket}

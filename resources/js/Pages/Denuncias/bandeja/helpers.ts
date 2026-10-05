@@ -6,26 +6,13 @@ export function isNewHours(dateStr: string): boolean {
   return (Date.now() - d.getTime()) / (1000 * 60 * 60) < 24;
 }
 
-export interface FiltrosBandeja {
-  search: string;
-  filterTipo: string;
-  sortBy: string;
-  activeTab: string;
-}
-
-export function filterAndSort(items: Denuncia[], { search, filterTipo, sortBy, activeTab }: FiltrosBandeja): Denuncia[] {
-  let filtered = items;
-  if (search.trim()) {
-    const q = search.trim().toLowerCase();
-    filtered = filtered.filter((d) =>
-      d.ticket.toLowerCase().includes(q) ||
-      (d.denunciante?.nombres && d.denunciante.nombres.toLowerCase().includes(q))
-    );
-  }
-  if (filterTipo !== 'all') {
-    filtered = filtered.filter((d) => d.tipo === filterTipo);
-  }
-  return [...filtered].sort((a, b) => {
+/**
+ * Orden visual de la página actual (Slice 1: el filtrado vive en el
+ * servidor; el cliente solo reordena la página recibida).
+ * `plazo` sigue siendo display-only: no hay filtro SQL por plazo.
+ */
+export function sortItems(items: Denuncia[], sortBy: string, activeTab: string): Denuncia[] {
+  return [...items].sort((a, b) => {
     if (sortBy === 'fecha') return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     if (sortBy === 'investigador') {
       const tecA = typeof a.investigador === 'object' ? (a.investigador?.name || '') : (a.investigador || '');
