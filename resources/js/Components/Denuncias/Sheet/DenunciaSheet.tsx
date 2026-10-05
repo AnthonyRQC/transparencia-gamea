@@ -14,6 +14,7 @@ import TabDescargos from '../Tabs/TabDescargos';
 import TabInformeCierre from '../Tabs/TabInformeCierre';
 import TabEvaluacionPrevia from '../Tabs/TabEvaluacionPrevia';
 import InvestigadorAvatar from '../Shared/InvestigadorAvatar';
+import { resolverInvestigador, type InvestigadorAsignado, type InvestigadoresFuente, type InvestigadorResuelto } from '../Shared/resolverInvestigador';
 import { ESCENARIO_LABEL as escenarioLabel, eventosEsperadosAviso, sinAvisoPublicado } from '../Shared/semantica';
 import { useCan } from '@/hooks/useCan';
 import { CheckCircle2, History, UserPlus, ArrowRightLeft, RotateCcw, XCircle, X as XIcon, FileSearch, UserX, FileText, ScrollText, FolderOpen, ChevronDown, Megaphone } from 'lucide-react';
@@ -56,8 +57,9 @@ interface DenunciaDetail {
   detalles?: { categoria?: string; fecha?: string; hora?: string; lugar?: string };
   hechos?: string;
   pruebas?: Prueba[];
-  investigador?: string | null;
-  investigador_anterior?: string | null;
+  investigador?: InvestigadorAsignado;
+  investigador_anterior?: InvestigadorAsignado;
+  investigador_anterior_id?: string | number | null;
   created_at: string;
   estado: string;
   subestado?: string | null;
@@ -129,7 +131,7 @@ interface Descargo {
 interface DenunciaSheetProps {
   denuncia: DenunciaDetail | null;
   plazo: PlazoInfo | null;
-  investigadores?: Record<string, { id: string; nombre: string; iniciales: string; color: string }>;
+  investigadores?: InvestigadoresFuente;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   children?: React.ReactNode;
@@ -200,8 +202,11 @@ export default function DenunciaSheet({
     .filter((e) => !(avisosPorTicket?.[denuncia.ticket] ?? []).includes(e));
 
   const fecha = formatearFechaLarga(denuncia.created_at) ?? '';
-  const investigadorInfo = denuncia.investigador && investigadores ? investigadores[denuncia.investigador] : null;
-  const investigadorAnteriorInfo = denuncia.investigador_anterior && investigadores ? investigadores[denuncia.investigador_anterior] : null;
+  const investigadorInfo = resolverInvestigador(denuncia.investigador, investigadores);
+  const investigadorAnteriorInfo = resolverInvestigador(
+    denuncia.investigador_anterior ?? denuncia.investigador_anterior_id ?? null,
+    investigadores,
+  );
   const hechos = denuncia.hechos || '';
   const bitacora = denuncia.bitacora?.slice().reverse() || [];
   const showTabs = estadosConTabs.includes(denuncia.estado);
@@ -377,8 +382,8 @@ export default function DenunciaSheet({
 function SheetInfoContent({ denuncia, hechos, investigadorInfo, investigadorAnteriorInfo, bitacora }: {
   denuncia: DenunciaDetail;
   hechos: string;
-  investigadorInfo: { color: string; iniciales: string; nombre: string } | null;
-  investigadorAnteriorInfo: { color: string; iniciales: string; nombre: string } | null;
+  investigadorInfo: InvestigadorResuelto | null;
+  investigadorAnteriorInfo: InvestigadorResuelto | null;
   bitacora: BitacoraEntry[];
 }) {
   const [historialOpen, setHistorialOpen] = useState(false);
@@ -542,39 +547,39 @@ function SheetInfoContent({ denuncia, hechos, investigadorInfo, investigadorAnte
         </>
       )}
 
-      {investigadorInfo && (
-        <>
-          <Separator />
-          <section>
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1.5">
-              <UserPlus className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-              Investigador Asignado
-            </h4>
-            <div className="flex items-center gap-2 text-sm">
-              <TooltipProvider delayDuration={300}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <InvestigadorAvatar nombre={investigadorInfo.nombre} color={investigadorInfo.color} size="sm" className="cursor-help" />
-                  </TooltipTrigger>
-                  <TooltipContent side="top">Ver carga de trabajo</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              <div>
-                <p className="font-medium">{investigadorInfo.nombre}</p>
-                {denuncia.fecha_asignada && (
-                  <p className="text-[11px] text-muted-foreground">Asignado: {formatearFechaLarga(denuncia.fecha_asignada) ?? ''}</p>
-                )}
-              </div>
+      <Separator />
+      <section>
+        <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1.5">
+          <UserPlus className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+          Investigador actual
+        </h4>
+        {investigadorInfo ? (
+          <div className="flex items-center gap-2 text-sm">
+            <TooltipProvider delayDuration={300}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <InvestigadorAvatar nombre={investigadorInfo.nombre} color={investigadorInfo.color} size="sm" className="cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent side="top">Ver carga de trabajo</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <div>
+              <p className="font-medium">{investigadorInfo.nombre}</p>
+              {denuncia.fecha_asignada && (
+                <p className="text-[11px] text-muted-foreground">Asignado: {formatearFechaLarga(denuncia.fecha_asignada) ?? ''}</p>
+              )}
             </div>
-            {investigadorAnteriorInfo && denuncia.fecha_traspaso && (
-              <div className="mt-2 text-xs text-muted-foreground flex items-center gap-1">
-                <ArrowRightLeft className="w-3 h-3" />
-                Traspasado desde {investigadorAnteriorInfo.nombre} el {formatearFechaLarga(denuncia.fecha_traspaso) ?? ''}
-              </div>
-            )}
-          </section>
-        </>
-      )}
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground italic">Sin asignar</p>
+        )}
+        {investigadorAnteriorInfo && denuncia.fecha_traspaso && (
+          <div className="mt-2 text-xs text-muted-foreground flex items-center gap-1">
+            <ArrowRightLeft className="w-3 h-3" />
+            Traspasado desde {investigadorAnteriorInfo.nombre} el {formatearFechaLarga(denuncia.fecha_traspaso) ?? ''}
+          </div>
+        )}
+      </section>
 
       {denuncia.fecha_reapertura && (
         <>

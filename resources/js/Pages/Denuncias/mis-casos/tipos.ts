@@ -82,7 +82,42 @@ export interface Grouped {
   [estado: string]: Denuncia[];
 }
 
+/** Forma plana con la que Inertia serializa LengthAwarePaginator (toArray). */
+export interface Paginado<T> {
+  data: T[];
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  total: number;
+  [key: string]: unknown;
+}
+
+/** Eco normalizado de DenunciaFilterRequest::filtros() (investigador forzado al propio). */
+export interface FiltrosEcho {
+  search: string | null;
+  ticket: string | null;
+  estado: string[] | null;
+  tipo: string | null;
+  escenario: string | null;
+  fecha_desde: string | null;
+  fecha_hasta: string | null;
+  investigador_id: number | null;
+  categoria_id: number | null;
+  clasificacion_id: number | null;
+  tab: string;
+}
+
+export interface OpcionesMisCasos {
+  categorias: Array<{ id: number; nombre: string }>;
+  clasificaciones: Array<{ id: number; nombre: string }>;
+}
+
 export interface PageProps {
+  /** Página actual de casos propios (filtros + scope aplicados en servidor). */
+  denuncias: Paginado<Denuncia>;
+  /** Conteo por estado con los mismos filtros excepto estado (badges de tabs). */
+  contadores: Record<string, number>;
+  /** Grouped de la página actual (fold admitida→asignada, para compat). */
   grouped: Grouped;
   investigadorActual: string;
   investigadores: Record<string, { id: string; nombre: string; iniciales: string; color: string }>;
@@ -94,6 +129,11 @@ export interface PageProps {
   evaluacionesDevueltas?: any[];
   canAct?: boolean;
   destacar?: string;
+  /** Caso destacado cargado directo (abre el Sheet aunque los filtros no lo incluyan). */
+  destacarDenuncia?: Denuncia | null;
+  /** Eco normalizado de DenunciaFilterRequest::filtros(). */
+  filters: FiltrosEcho;
+  opciones: OpcionesMisCasos;
 }
 
 export const estadoLabels: Record<string, { label: string; icon: any }> = {

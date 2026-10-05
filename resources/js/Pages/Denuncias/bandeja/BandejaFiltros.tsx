@@ -104,27 +104,33 @@ export default function BandejaFiltros({ api, activeTab, opciones, onRestablecer
             <X className="w-4 h-4" />
           </Button>
         )}
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <Select value={form.tipo} onValueChange={(v) => { api.aplicarCon({ ...form, tipo: v }, activeTab); }}>
-            <SelectTrigger className="w-full sm:w-36 h-9 text-sm">
-              <SelectValue placeholder="Tipo" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos</SelectItem>
-              <SelectItem value="corrupcion">Corrupción</SelectItem>
-              <SelectItem value="negacion">Negación</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={form.sortBy} onValueChange={(v) => setCampo('sortBy', v)}>
-            <SelectTrigger className="w-full sm:w-36 h-9 text-sm">
-              <SelectValue placeholder="Ordenar" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="plazo">Plazo</SelectItem>
-              <SelectItem value="fecha">Fecha</SelectItem>
-              <SelectItem value="investigador">Investigador</SelectItem>
-            </SelectContent>
-          </Select>
+        <div className="flex items-end gap-2 w-full sm:w-auto">
+          <div className="flex flex-col gap-1 w-full sm:w-auto">
+            <label htmlFor="filtro-tipo" className="text-[10px] font-semibold text-muted-foreground uppercase">Tipo</label>
+            <Select value={form.tipo} onValueChange={(v) => { api.aplicarCon({ ...form, tipo: v }, activeTab); }}>
+              <SelectTrigger id="filtro-tipo" aria-label="Tipo" className="w-full sm:w-36 h-9 text-sm">
+                <SelectValue placeholder="Tipo" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos los tipos</SelectItem>
+                <SelectItem value="corrupcion">Corrupción</SelectItem>
+                <SelectItem value="negacion">Negación</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex flex-col gap-1 w-full sm:w-auto">
+            <label htmlFor="filtro-orden" className="text-[10px] font-semibold text-muted-foreground uppercase">Ordenar</label>
+            <Select value={form.sortBy} onValueChange={(v) => setCampo('sortBy', v)}>
+              <SelectTrigger id="filtro-orden" aria-label="Ordenar" className="w-full sm:w-36 h-9 text-sm">
+                <SelectValue placeholder="Ordenar" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="plazo">Plazo (por vencer)</SelectItem>
+                <SelectItem value="fecha">Más recientes</SelectItem>
+                <SelectItem value="investigador">Investigador A–Z</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           <Button
             type="button"
             variant="outline"
