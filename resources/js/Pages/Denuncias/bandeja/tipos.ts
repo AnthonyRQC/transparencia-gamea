@@ -109,10 +109,8 @@ export interface Contador {
 }
 
 export interface PageProps {
-  denuncias: Denuncia[];
-  porAsignar: Denuncia[];
-  enCurso: Denuncia[];
-  historial: Denuncia[];
+  /** Página actual del tab activo (forma plana de LengthAwarePaginator). */
+  denuncias: Paginado<Denuncia>;
   contadores: Contador;
   investigadores: Record<string, { id: string; nombre: string; iniciales: string; color: string }>;
   cargaInvestigadores?: Array<{ id: string; nombre: string; iniciales: string; color: string; activos: number; por_vencer: number; vencidos: number }>;
@@ -120,8 +118,44 @@ export interface PageProps {
   descargosByTicket?: Record<string, Descargo[]>;
   evaluacionesByTicket?: Record<string, any[]>;
   avisosPorTicket?: Record<string, string[]>;
+  opciones: OpcionesBandeja;
+  /** Eco normalizado de DenunciaFilterRequest::filtros(). */
+  filters: FiltrosEcho;
+  /** Tab activo resuelto por el servidor (incluye resolución de ?destacar). */
+  tab: string;
   canAct?: boolean;
-  destacar?: string;
+  destacar?: string | null;
+  /** Caso destacado cargado directo (abre el Sheet aunque los filtros no lo incluyan). */
+  destacarDenuncia?: Denuncia | null;
+}
+
+/** Forma plana con la que Inertia serializa LengthAwarePaginator (toArray). */
+export interface Paginado<T> {
+  data: T[];
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  total: number;
+  [key: string]: unknown;
+}
+
+export interface FiltrosEcho {
+  search: string | null;
+  ticket: string | null;
+  estado: string[] | null;
+  tipo: string | null;
+  escenario: string | null;
+  fecha_desde: string | null;
+  fecha_hasta: string | null;
+  investigador_id: number | null;
+  categoria_id: number | null;
+  clasificacion_id: number | null;
+  tab: string;
+}
+
+export interface OpcionesBandeja {
+  categorias: Array<{ id: number; nombre: string }>;
+  clasificaciones: Array<{ id: number; nombre: string }>;
 }
 
 export const contadorConfig = [

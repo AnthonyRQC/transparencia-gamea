@@ -156,7 +156,9 @@ class AvisoCasoTest extends TestCase
             'publicado_at' => now(),
         ]);
 
-        $this->actingAs($this->jefe)->get('/denuncias')->assertOk()->assertInertia(fn($page) => $page
+        // Slice 1 (server filters): la bandeja pagina por tab; el caso de
+        // prueba está en estado cerrada, así que se pide el tab historial.
+        $this->actingAs($this->jefe)->get('/denuncias?tab=historial')->assertOk()->assertInertia(fn($page) => $page
             ->has('avisosPorTicket.DEN-2026-0001', fn($eventos) => $eventos
                 ->where('0', 'admitida')));
     }
