@@ -1,7 +1,8 @@
-import { Search, ChevronDown, ChevronUp, X, RotateCcw, SlidersHorizontal } from 'lucide-react';
+import { Search, ChevronDown, ChevronUp, X, RotateCcw, SlidersHorizontal, Info } from 'lucide-react';
 import { Input } from '@/Components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
 import { Button } from '@/Components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/Components/ui/tooltip';
 import { ETIQUETAS_ESTADO_CORTO } from '@/Components/Denuncias/Shared/semantica';
 import { ETIQUETAS_TIPO } from '@/types/dashboard';
 import { formatearRangoFechas } from '@/helpers/fechas';
@@ -72,38 +73,68 @@ export default function BandejaFiltros({ api, activeTab, opciones, onRestablecer
 
   return (
     <div className="space-y-2 mb-4">
-      <div className="flex flex-col sm:flex-row gap-2">
-        <div className="relative w-full sm:flex-1 sm:max-w-xs">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="Buscar por N° de denuncia, hechos o nombres..."
-            value={form.search}
-            onChange={(e) => setCampo('search', e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter') api.aplicar(activeTab); }}
-            className="pl-8 h-9 text-sm w-full"
-          />
+      <div className="flex flex-col sm:flex-row gap-2 sm:items-end">
+        <div className="flex flex-col gap-1 w-full sm:flex-1 sm:max-w-xs">
+          <span className="flex items-center gap-1 text-[10px] font-semibold text-muted-foreground uppercase">
+            <label htmlFor="busqueda-bandeja">Búsqueda</label>
+            <TooltipProvider delayDuration={200}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    aria-label="Qué cubre la búsqueda"
+                    className="rounded-full hover:bg-muted p-0.5 transition-colors cursor-pointer"
+                  >
+                    <Info className="w-3 h-3" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-[240px] text-xs">
+                  <p className="font-semibold mb-1">La búsqueda cubre:</p>
+                  <ul className="list-disc pl-4 space-y-0.5 font-normal">
+                    <li>N° de denuncia y hechos</li>
+                    <li>Nombre del denunciante</li>
+                    <li>Nombres y dependencia de los denunciados</li>
+                    <li>Resumen de rechazo</li>
+                  </ul>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </span>
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                id="busqueda-bandeja"
+                placeholder="Buscar por N° de denuncia, hechos o nombres..."
+                value={form.search}
+                onChange={(e) => setCampo('search', e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') api.aplicar(activeTab); }}
+                className="pl-8 h-9 text-sm w-full"
+              />
+            </div>
+            <Button
+              type="button"
+              size="icon"
+              aria-label="Buscar"
+              onClick={() => api.aplicarCon(form, activeTab)}
+              className="h-9 w-9 shrink-0 cursor-pointer"
+            >
+              <Search className="w-4 h-4" />
+            </Button>
+            {form.search !== '' && (
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                aria-label="Limpiar búsqueda"
+                onClick={() => api.aplicarCon({ ...form, search: '' }, activeTab)}
+                className="h-9 w-9 shrink-0 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            )}
+          </div>
         </div>
-        <Button
-          type="button"
-          size="icon"
-          aria-label="Buscar"
-          onClick={() => api.aplicarCon(form, activeTab)}
-          className="h-9 w-9 shrink-0 cursor-pointer"
-        >
-          <Search className="w-4 h-4" />
-        </Button>
-        {form.search !== '' && (
-          <Button
-            type="button"
-            variant="outline"
-            size="icon"
-            aria-label="Limpiar búsqueda"
-            onClick={() => api.aplicarCon({ ...form, search: '' }, activeTab)}
-            className="h-9 w-9 shrink-0 cursor-pointer"
-          >
-            <X className="w-4 h-4" />
-          </Button>
-        )}
         <div className="flex items-end gap-2 w-full sm:w-auto">
           <div className="flex flex-col gap-1 w-full sm:w-auto">
             <label htmlFor="filtro-tipo" className="text-[10px] font-semibold text-muted-foreground uppercase">Tipo</label>
