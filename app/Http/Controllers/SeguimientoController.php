@@ -13,9 +13,14 @@ class SeguimientoController extends Controller
 {
     public function buscar(Request $request)
     {
-        $query = $request->query('ticket', '');
+        // Normalización insensible a mayúsculas: tokens nuevos alfanuméricos,
+        // pegados con espacios o guiones largos desde el celular.
+        $query = mb_strtoupper((string) $request->query('ticket', ''));
+        $query = preg_replace('/\s+/u', '', trim($query));
+        $query = str_replace(['–', '—'], '-', $query ?? '');
 
-        if (empty($query)) {
+        // Sin parámetro: estado inicial de la página (sin error).
+        if ($query === '') {
             return Inertia::render('Seguimiento/Buscar', [
                 'encontrado' => false,
                 'denuncia' => null,
@@ -23,17 +28,17 @@ class SeguimientoController extends Controller
             ]);
         }
 
-        if (!preg_match('/^DEN-\d{4}-\d{4}-\d{4}$/', $query)) {
-            return Inertia::render('Seguimiento/Buscar', [
-                'encontrado' => false,
-                'denuncia' => null,
-                'error' => 'invalido',
-            ]);
+        // Formato dual: legacy DEN-AAAA-NNNN-PPPP (4 dígitos) o nuevo
+        // DEN-AAAA-NNNN-XXXXXX (6 alfanuméricos). El error es único y genérico
+        // para no distinguir formato inválido de par inexistente (Ley 974,
+        // Arts. 24 y 29: sin oráculo de enumeración).
+        if (!preg_match('/^DEN-\d{4}-\d{4}-(\d{4}|[A-Z0-9]{6})$/', $query ?? '', $matches)) {
+            return self::respuestaGenerica();
         }
 
-        $parts = explode('-', $query);
-        $ticket = 'DEN-' . $parts[1] . '-' . $parts[2];
-        $token = $parts[3];
+        $pos = strrpos($query, '-');
+        $ticket = substr($query, 0, $pos);
+        $token = substr($query, $pos + 1);
 
         $denuncia = Denuncia::where('ticket', $ticket)
             ->where('token_consulta', $token)
@@ -41,17 +46,22 @@ class SeguimientoController extends Controller
             ->first();
 
         if (!$denuncia) {
-            return Inertia::render('Seguimiento/Buscar', [
-                'encontrado' => false,
-                'denuncia' => null,
-                'error' => 'no_encontrado',
-            ]);
+            return self::respuestaGenerica();
         }
 
         return Inertia::render('Seguimiento/Buscar', [
             'encontrado' => true,
             'denuncia' => self::mapPublicData($denuncia),
             'error' => null,
+        ]);
+    }
+
+    private static function respuestaGenerica()
+    {
+        return Inertia::render('Seguimiento/Buscar', [
+            'encontrado' => false,
+            'denuncia' => null,
+            'error' => 'no_encontrado',
         ]);
     }
 
@@ -102,14 +112,14 @@ class SeguimientoController extends Controller
             'tipo_legible' => $d->tipo === 'corrupcion' ? 'Corrupción' : ($d->tipo === 'negacion' ? 'Negación de Información' : ($d->tipo ?? '')),
             'estado' => $estado,
             'estado_legible' => $estadoLegible[$estado] ?? $estado,
-            'fecha_ingreso' => $d->created_at?->toDateTimeString(),
+            'fecha_ingreso' => $d->created_at?->toDateString(),
             'fecha_vencimiento' => null,
             'plazo_total_dias' => $d->tipo === 'corrupcion' ? 45 : 20,
             'mensaje_avance' => self::getMensajeAvance($d, $tieneSolicitudes, $tieneDescargos),
             'pasos' => $pasos,
             'resumen_rechazo' => $d->resumen_rechazo ?? null,
             'clasificacion' => $d->informe?->clasificacion ?? null,
-            'fecha_cierre' => $d->cierre?->cerrado_at?->toDateTimeString(),
+            'fecha_cierre' => $d->cierre?->cerrado_at?->toDateString(),
         ];
     }
 

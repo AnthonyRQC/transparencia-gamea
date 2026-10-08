@@ -14,6 +14,25 @@
 
 > Fórmula del título (del PDF): [Desarrollo] + [plataforma digital] + [gestión de denuncias] + [UTLCC/GAMEA] + [control de plazos Ley 974]. "Plataforma digital" porque integra varios módulos y usuarios (denuncias, dashboard, reportes, notificaciones, portal). Alternativas válidas: "Solución tecnológica…" / "Módulo web…".
 
+## Opciones de Título y Sigla (Propuestas para debate con el Tutor)
+
+> **Criterios del Tutor y Estándar UPEA / UMSA:**
+> 1. **Estructura institucional:** Ubicar la unidad y el caso al cierre: `... para la Unidad de Transparencia y Lucha Contra la Corrupción CASO: Gobierno Autónomo Municipal de El Alto`.
+> 2. **Síntesis de alcance:** Evaluar acortar "corrupción y negación de información" usando *«denuncias conforme a la Ley 974»* o *«denuncias ciudadanas»* (la Ley 974 define ambos hechos, por lo que no se pierde alcance legal ni técnico).
+> 3. **Seguimiento externo:** El término *«gestión y seguimiento»* da respaldo académico al portal público de consulta de estado por ticket.
+> 4. **Acrónimos pronunciables:** Evitar siglas complejas de deletreo (como `SISGDP`); preferir acrónimos fonéticos según la tradición pública boliviana (*SITRAD*, *PLATRAD*, *SISDEN*).
+
+### Banco de Opciones
+
+| Opción | Título Propuesto | Enfoque / Justificación | Sigla Sugerida |
+|--------|------------------|-------------------------|----------------|
+| **A (Recomendada)** | **Plataforma digital para la gestión y seguimiento de denuncias con control de plazos conforme a la Ley 974 para la Unidad de Transparencia y Lucha Contra la Corrupción CASO: Gobierno Autónomo Municipal de El Alto** | Destaca la arquitectura moderna (portal ciudadano + dashboard interno + motor de días hábiles). Redacción balanceada y fluida. | **PLATRAD** / **PLAGED** |
+| **B (Clásica UPEA/UMSA)** | **Sistema web para la gestión, seguimiento y control de plazos de denuncias ciudadanas para la Unidad de Transparencia y Lucha Contra la Corrupción CASO: Gobierno Autónomo Municipal de El Alto** | Fórmula clásica de Ingeniería de Sistemas. Muy natural y probada ante tribunales académicos. | **SITRAD** / **SISDEN** |
+| **C (Enfocada en Procesos)** | **Sistema de información web para la gestión de procesos de denuncias conforme a la Ley 974 para la Unidad de Transparencia y Lucha Contra la Corrupción CASO: Gobierno Autónomo Municipal de El Alto** | Retoma la inquietud del tutor de reflejar "gestión de procesos" y marco legal, con estilo formal. | **SISDEN-974** |
+| **D (Descriptiva Completa)** | **Plataforma web para la gestión y seguimiento de denuncias de corrupción y negación de información para la Unidad de Transparencia y Lucha Contra la Corrupción CASO: Gobierno Autónomo Municipal de El Alto** | Mantiene explícitos ambos tipos de denuncia si el tutor prefiere no sintetizarlos. | **SITRAD-GAMEA** |
+
+---
+
 ## Matriz (copiable a Word)
 
 | PROBLEMAS DE LA INVESTIGACIÓN | OBJETIVOS | METODOLOGÍA DE DESARROLLO | ÍNDICE DEL MARCO TEÓRICO | CONCLUSIÓN |

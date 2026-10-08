@@ -14,7 +14,7 @@ class DenunciaFactory extends Factory
     {
         return [
             'ticket' => 'DEN-' . now()->year . '-' . fake()->unique()->numerify('####'),
-            'token_consulta' => fake()->numerify('####'),
+            'token_consulta' => Denuncia::generarToken(),
             'tipo' => fake()->randomElement(['corrupcion', 'negacion']),
             'escenario' => 'revelada',
             'estado' => 'ingresada',

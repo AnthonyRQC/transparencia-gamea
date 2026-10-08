@@ -22,9 +22,9 @@ Route::get('/', [PublicacionController::class, 'muro'])
     ->middleware('throttle:60,1')
     ->name('home');
 
-// Seguimiento público (Sprint 6)
+// Seguimiento público (Sprint 6; endurecido seguimiento-publico-seguro: 10/min)
 Route::get('/seguimiento', [SeguimientoController::class, 'buscar'])
-    ->middleware('throttle:30,1')
+    ->middleware('throttle:10,1')
     ->name('seguimiento.buscar');
 
 // Descarga pública de adjuntos (solo avisos publicados, sin auth)

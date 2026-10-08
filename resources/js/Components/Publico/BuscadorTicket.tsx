@@ -8,7 +8,8 @@ interface BuscadorTicketProps {
   onProcessingChange: (p: boolean) => void;
 }
 
-const TICKET_REGEX = /^DEN-\d{4}-\d{4}-\d{4}$/;
+// Legacy: DEN-AAAA-NNNN-PPPP (4 dígitos) · Nuevo: DEN-AAAA-NNNN-XXXXXX (6 alfanuméricos)
+const TICKET_REGEX = /^DEN-\d{4}-\d{4}-(\d{4}|[A-Z0-9]{6})$/;
 
 export default function BuscadorTicket({ processing, onProcessingChange }: BuscadorTicketProps) {
   const [value, setValue] = useState('');
@@ -49,22 +50,24 @@ export default function BuscadorTicket({ processing, onProcessingChange }: Busca
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <label className="block text-sm font-semibold text-foreground">
+      <label htmlFor="buscador-ticket" className="block text-sm font-semibold text-foreground">
         Número de Ticket y Código de Seguridad
       </label>
       <div className="flex flex-col sm:flex-row gap-2">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
+            id="buscador-ticket"
             ref={inputRef}
             type="text"
             value={value}
             onChange={handleChange}
             placeholder="DEN-2026-0004-1004"
-            maxLength={19}
+            maxLength={20}
             autoComplete="off"
             spellCheck={false}
-            className="w-full pl-10 pr-4 py-3 bg-background border border-input rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 font-mono tracking-wider"
+            aria-describedby="buscador-ticket-ayuda"
+            className="w-full pl-10 pr-4 py-3 bg-background border border-input rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus-visible:ring-2 focus-visible:ring-primary font-mono tracking-wider"
             disabled={processing}
           />
         </div>
@@ -89,8 +92,9 @@ export default function BuscadorTicket({ processing, onProcessingChange }: Busca
           )}
         </button>
       </div>
-      <p className="text-[11px] text-muted-foreground">
-        Formato: <code className="font-mono text-primary">DEN-AAAA-NNNN-PPPP</code> — incluya los guiones tal como aparece en su comprobante
+      <p id="buscador-ticket-ayuda" className="text-[11px] text-muted-foreground">
+        Formato: <code className="font-mono text-primary">DEN-AAAA-NNNN-PPPP</code> (comprobante anterior) o{' '}
+        <code className="font-mono text-primary">DEN-AAAA-NNNN-XXXXXX</code> (nuevo) — incluya los guiones tal como aparece en su comprobante
       </p>
     </form>
   );

@@ -5,7 +5,9 @@ use App\Http\Middleware\ForzarCambioPassword;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -50,5 +52,25 @@ return Application::configure(basePath: dirname(__DIR__))
             }
 
             return redirect()->route('login');
+        });
+
+        // Throttle amable solo para la consulta pública por ticket: el 429
+        // responde en español e invita a reintentar (Inertia-aware).
+        $exceptions->render(function (ThrottleRequestsException $e, Request $request) {
+            if (!$request->routeIs('seguimiento.buscar')) {
+                return null;
+            }
+
+            $mensaje = 'DEMASIADAS CONSULTAS. ESPERA UN MINUTO E INTENTA NUEVAMENTE.';
+
+            if ($request->header('X-Inertia')) {
+                return Inertia::render('Seguimiento/Buscar', [
+                    'encontrado' => false,
+                    'denuncia' => null,
+                    'error' => 'limite',
+                ])->toResponse($request)->setStatusCode(429);
+            }
+
+            return response($mensaje, 429);
         });
     })->create();

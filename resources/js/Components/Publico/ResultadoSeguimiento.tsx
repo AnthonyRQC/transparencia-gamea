@@ -85,12 +85,6 @@ export default function ResultadoSeguimiento({ denuncia }: ResultadoSeguimientoP
               <p className="text-muted-foreground">Fecha de ingreso</p>
               <p className="font-semibold text-foreground">{formatearFechaLarga(denuncia.fecha_ingreso) ?? '—'}</p>
             </div>
-            {denuncia.fecha_vencimiento && !isRechazada && !denuncia.fecha_cierre && (
-              <div>
-                <p className="text-muted-foreground">Fecha estimada de cierre</p>
-                <p className="font-semibold text-foreground">{formatearFechaLarga(denuncia.fecha_vencimiento) ?? '—'}</p>
-              </div>
-            )}
             {denuncia.fecha_cierre && (
               <div>
                 <p className="text-muted-foreground">Fecha de cierre</p>

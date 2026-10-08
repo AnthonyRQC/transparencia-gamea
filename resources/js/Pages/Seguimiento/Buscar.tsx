@@ -45,9 +45,11 @@ export default function Buscar() {
   }, []);
 
   const showResult = encontrado && denuncia;
+  // Error único y genérico: el servidor no distingue formato inválido de par
+  // inexistente (sin oráculo de enumeración, Ley 974 Arts. 24 y 29).
   const showNotFound = encontrado === false && error === 'no_encontrado';
-  const showFormatError = encontrado === false && error === 'invalido';
-  const showServerError = encontrado === false && error && error !== 'no_encontrado' && error !== 'invalido';
+  const showLimite = encontrado === false && error === 'limite';
+  const showServerError = encontrado === false && error && error !== 'no_encontrado' && error !== 'limite';
   const showInitial = encontrado === false && !error;
 
   const confidencialidadItems = [
@@ -85,21 +87,13 @@ export default function Buscar() {
             </h1>
             <p className="text-muted-foreground max-w-xl mx-auto leading-relaxed">
               Ingresa el número de ticket y código de seguridad que se te entregó al momento de registrar tu denuncia
-              para conocer su fase actual y las fechas estimadas del proceso.
+              para conocer su fase actual. Los plazos de referencia (5 días hábiles para la admisión; 20 o 45 días hábiles
+              de proceso según el tipo de denuncia) pueden extenderse por prórrogas legales.
             </p>
           </section>
 
-          <section className="bg-card border rounded-2xl p-6 sm:p-8 shadow-sm space-y-4">
+          <section className="bg-card border rounded-2xl p-6 sm:p-8 shadow-sm space-y-4" aria-live="polite">
             <BuscadorTicket processing={processing} onProcessingChange={setProcessing} />
-
-            {showFormatError && (
-              <div className="flex items-start gap-2 p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive animate-fade-in">
-                <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
-                <p className="text-xs leading-relaxed">
-                  Formato inválido. El ticket debe tener el formato <strong>DEN-AAAA-NNNN-PPPP</strong>.
-                </p>
-              </div>
-            )}
           </section>
 
           {processing && (
@@ -109,12 +103,31 @@ export default function Buscar() {
           )}
 
           {showResult && !processing && (
-            <ResultadoSeguimiento denuncia={denuncia} />
+            <section aria-live="polite">
+              <ResultadoSeguimiento denuncia={denuncia} />
+            </section>
           )}
 
           {showNotFound && !processing && (
-            <section className="bg-card border rounded-2xl p-6 sm:p-8 shadow-sm">
+            <section className="bg-card border rounded-2xl p-6 sm:p-8 shadow-sm" aria-live="polite">
               <EstadoNoEncontrado onReintentar={handleReintentar} />
+            </section>
+          )}
+
+          {showLimite && !processing && (
+            <section className="bg-card border rounded-2xl p-6 sm:p-8 shadow-sm text-center space-y-3" aria-live="polite">
+              <AlertTriangle className="w-10 h-10 text-amber-500 mx-auto" />
+              <h3 className="font-bold text-base">Demasiadas consultas</h3>
+              <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+                Realizaste muchas consultas en poco tiempo. Espera un minuto e intenta nuevamente.
+              </p>
+              <button
+                type="button"
+                onClick={handleReintentar}
+                className="mt-2 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors cursor-pointer"
+              >
+                Reintentar
+              </button>
             </section>
           )}
 

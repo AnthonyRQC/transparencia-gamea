@@ -140,11 +140,15 @@ class Denuncia extends Model
         }
     }
 
-    public static function generarToken(int $length = 4): string
+    public static function generarToken(int $length = 6): string
     {
+        // Alfabeto sin caracteres ambiguos en comprobantes impresos (0/O, 1/I).
+        // Los tokens legacy de 4 dígitos numéricos siguen siendo válidos.
+        $alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+        $max = strlen($alphabet) - 1;
         $token = '';
         for ($i = 0; $i < $length; $i++) {
-            $token .= random_int(0, 9);
+            $token .= $alphabet[random_int(0, $max)];
         }
         return $token;
     }
