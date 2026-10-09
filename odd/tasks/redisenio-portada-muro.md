@@ -156,4 +156,12 @@ User-approved grill Q1–Q4 (08-oct-2026): hero-first task-critical flow under L
 - `npm run build`: `tsc && vite build` clean, 7.89s.
 - `artisan test --filter=PublicacionMuroTest`: 10 passed (179 assertions).
 - Badge DIFUSIÓN confirmado ausente (removido en ronda G; sin reintroducción).
-- No commit (awaiting explicit order).
+
+## Cierre de sesión (Slice 4)
+- Estado: Verificado e integrado en `main`.
+- Commits:
+  - `0365dd9`: `feat(publico): rediseño editorial de portada, vitrina y visualizador de avisos`
+  - `8637208`: `feat(admin): soporte de difusión, sincronización de editor y acciones rápidas`
+- Merge: Fast-forward en `main`. Suite completa OK (217 tests, 1679 assertions) y build Vite limpio.
+- OpenSpec: Cambio `redisenio-portada-muro` validado y archivado en `openspec/changes/archive/2026-10-09-redisenio-portada-muro/`; especificación viva sincronizada en `openspec/specs/public-portal/spec.md`.
+- Pendiente para siguiente sesión: Slice de feedback visual y estados de carga globales (Inertia global progress, skeletons de imágenes y micro-spinners en botones).
