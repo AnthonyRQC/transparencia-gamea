@@ -223,12 +223,37 @@ class PublicacionController extends Controller
 
         $direccion = $request->validate(['direccion' => 'required|in:subir,bajar'])['direccion'];
         $actual = Publicacion::findOrFail($id);
+        $esDifusion = $actual->tipo?->clave === 'difusion';
 
-        if (!$actual->fijada) {
-            return back()->withErrors(['error' => 'Solo se puede ordenar avisos fijados.']);
+        if (!$esDifusion && !$actual->fijada) {
+            return back()->withErrors(['error' => 'Solo se puede ordenar avisos fijados o de difusión.']);
         }
 
-        $vecino = Publicacion::where('fijada', true)
+        // Vecinos aislados por contexto: difusión solo entre difusión;
+        // formales solo entre fijados no-difusión.
+        $contexto = fn() => Publicacion::query()
+            ->when(
+                $esDifusion,
+                fn($q) => $q->whereHas('tipo', fn($t) => $t->where('clave', 'difusion')),
+                fn($q) => $q->where('fijada', true)->whereDoesntHave('tipo', fn($t) => $t->where('clave', 'difusion')),
+            );
+
+        // Estado cero: normaliza el contexto a secuencia 1..N antes de
+        // buscar vecino (si no, el intercambio 0↔0 no ordena nada).
+        if ($actual->orden == 0) {
+            $i = 1;
+            foreach ($contexto()->orderBy('orden')->orderBy('id')->get() as $p) {
+                if ($p->orden != $i) {
+                    $p->orden = $i;
+                    $p->save();
+                }
+                $i++;
+            }
+            $actual->refresh();
+        }
+
+        $vecino = $contexto()
+            ->where('id', '!=', $actual->id)
             ->when($direccion === 'subir', fn($q) => $q->where('orden', '<', $actual->orden)->orderByDesc('orden'))
             ->when($direccion === 'bajar', fn($q) => $q->where('orden', '>', $actual->orden)->orderBy('orden'))
             ->first();

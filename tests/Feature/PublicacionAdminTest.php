@@ -114,6 +114,27 @@ class PublicacionAdminTest extends TestCase
         $this->assertFalse($dos->fresh()->fijada);
     }
 
+    public function test_mover_difusion_sin_fijar_y_vecinos_aislados(): void
+    {
+        $difId = TipoPublicacion::create(['clave' => 'difusion', 'nombre' => 'DIFUSIÓN'])->id;
+        $base = ['prioridad_id' => $this->prioId, 'emisor' => 'UTLCC', 'publicado_por_id' => $this->jefe->id];
+
+        // Formal fijado en otro contexto (orden 5) + 2 difusion sin fijar en cero.
+        $formal = Publicacion::create($base + ['tipo_id' => $this->tipoId, 'ref_titulo' => 'FORMAL', 'fijada' => true, 'orden' => 5]);
+        $a = Publicacion::create($base + ['tipo_id' => $difId, 'ref_titulo' => 'AFICHE A', 'fijada' => false, 'orden' => 0]);
+        $b = Publicacion::create($base + ['tipo_id' => $difId, 'ref_titulo' => 'AFICHE B', 'fijada' => false, 'orden' => 0]);
+
+        // Difusión se ordena sin fijada: el estado cero se normaliza y B sube.
+        $this->actingAs($this->jefe)->post("/admin/publicaciones/{$b->id}/mover", ['direccion' => 'subir'])->assertSessionHasNoErrors();
+        $this->assertTrue($b->fresh()->orden < $a->fresh()->orden);
+        // El formal ajeno no se tocó.
+        $this->assertEquals(5, $formal->fresh()->orden);
+
+        // Formal sin fijar sigue rechazado.
+        $formal->update(['fijada' => false]);
+        $this->actingAs($this->jefe)->post("/admin/publicaciones/{$formal->id}/mover", ['direccion' => 'subir'])->assertSessionHasErrors('error');
+    }
+
     public function test_eliminar_preserva_fisicos_y_audita(): void
     {
         Storage::fake('public');

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { router, usePage } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/Components/ui/dialog';
+import { Megaphone } from 'lucide-react';
 import { Button } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
@@ -40,6 +41,8 @@ interface Props {
   tipos: Array<{ id: number; clave: string; nombre: string }>;
   prioridades: Array<{ id: number; clave: string; nombre: string }>;
   publicacion?: PublicacionFormData | null;
+  /** Tipo preseleccionado al crear (botón "Nueva Campaña / Difusión"). */
+  tipoInicial?: number | null;
 }
 
 const VACIO = {
@@ -57,7 +60,7 @@ const VACIO = {
   portada_archivo_id: '',
 };
 
-export default function PublicacionFormModal({ open, onOpenChange, tipos, prioridades, publicacion }: Props) {
+export default function PublicacionFormModal({ open, onOpenChange, tipos, prioridades, publicacion, tipoInicial }: Props) {
   const { errors } = usePage().props as unknown as { errors: Record<string, string> };
   const [form, setForm] = useState<Record<string, string | boolean>>({ ...VACIO });
   const [archivosNuevos, setArchivosNuevos] = useState<File[]>([]);
@@ -92,13 +95,35 @@ export default function PublicacionFormModal({ open, onOpenChange, tipos, priori
         portada_archivo_id: publicacion.portada_archivo_id ? String(publicacion.portada_archivo_id) : '',
       });
     } else {
-      setForm({ ...VACIO });
+      const prioAuto = tipoInicial
+        ? prioridades.find((p) => p.clave === 'prioritario')?.id
+        : undefined;
+      setForm({
+        ...VACIO,
+        tipo_id: tipoInicial ? String(tipoInicial) : '',
+        prioridad_id: prioAuto ? String(prioAuto) : '',
+      });
     }
     setArchivosNuevos([]);
     setAvisoSinPdf(false);
-  }, [open, publicacion]);
+  }, [open, publicacion, tipoInicial]);
 
   const set = (key: string, value: string | boolean) => setForm((f) => ({ ...f, [key]: value }));
+
+  const tipoDifusionId = tipos.find((t) => t.clave === 'difusion')?.id;
+  const esDifusion = tipoDifusionId !== undefined && String(form.tipo_id) !== '' && String(form.tipo_id) === String(tipoDifusionId);
+  // El formulario formal no ofrece difusión (vive en su propio flujo).
+  const tiposFormales = tipos.filter((t) => t.clave !== 'difusion');
+
+  // Blindaje: en modo difusión la prioridad siempre es prioritario
+  // (cubre el cambio manual del selector a DIFUSIÓN).
+  useEffect(() => {
+    if (esDifusion && !form.prioridad_id) {
+      const prio = prioridades.find((p) => p.clave === 'prioritario')?.id;
+      if (prio) set('prioridad_id', String(prio));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [esDifusion]);
 
   const tieneAdjunto = (publicacion?.archivos_count ?? 0) > 0 || archivosNuevos.length > 0;
 
@@ -153,25 +178,32 @@ export default function PublicacionFormModal({ open, onOpenChange, tipos, priori
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{esEdicion ? 'Editar aviso' : 'Nuevo aviso'}</DialogTitle>
+            <DialogTitle>{esEdicion ? (esDifusion ? 'Editar campaña de difusión' : 'Editar aviso') : esDifusion ? 'Nueva Campaña de Difusión' : 'Nuevo aviso'}</DialogTitle>
           </DialogHeader>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="text-xs font-semibold mb-1 block">Tipo *</label>
-                <Select value={String(form.tipo_id)} onValueChange={(v) => set('tipo_id', v)}>
-                  <SelectTrigger className="h-9 text-sm">
-                    <SelectValue placeholder="Seleccionar tipo" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {tipos.map((t) => (
-                      <SelectItem key={t.id} value={String(t.id)}>{t.nombre}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                {esDifusion ? (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-xs font-bold border border-primary/20">
+                    <Megaphone className="w-3.5 h-3.5" /> DIFUSIÓN (Vitrina de Portada)
+                  </span>
+                ) : (
+                  <Select value={String(form.tipo_id)} onValueChange={(v) => set('tipo_id', v)}>
+                    <SelectTrigger className="h-9 text-sm">
+                      <SelectValue placeholder="Seleccionar tipo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {tiposFormales.map((t) => (
+                        <SelectItem key={t.id} value={String(t.id)}>{t.nombre}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
                 {err('tipo_id')}
               </div>
+              {!esDifusion && (
               <div>
                 <label className="text-xs font-semibold mb-1 block">Prioridad *</label>
                 <Select value={String(form.prioridad_id)} onValueChange={(v) => set('prioridad_id', v)}>
@@ -186,8 +218,10 @@ export default function PublicacionFormModal({ open, onOpenChange, tipos, priori
                 </Select>
                 {err('prioridad_id')}
               </div>
+              )}
             </div>
 
+            {!esDifusion && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="text-xs font-semibold mb-1 block">CITE</label>
@@ -211,7 +245,9 @@ export default function PublicacionFormModal({ open, onOpenChange, tipos, priori
                 {err('fecha_documento')}
               </div>
             </div>
+            )}
 
+            {!esDifusion && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="text-xs font-semibold mb-1 block">Emisor *</label>
@@ -233,16 +269,17 @@ export default function PublicacionFormModal({ open, onOpenChange, tipos, priori
                 {err('destinatario_display')}
               </div>
             </div>
+            )}
 
             <div>
               <div className="flex justify-between items-center mb-1">
-                <label className="text-xs font-semibold">Referencia / título *</label>
+                <label className="text-xs font-semibold">{esDifusion ? 'Título de la campaña *' : 'Referencia / título *'}</label>
                 <span className="text-[11px] text-muted-foreground">{String(form.ref_titulo).length}/140</span>
               </div>
               <Input
                 value={String(form.ref_titulo)}
                 onChange={(e) => set('ref_titulo', e.target.value.slice(0, 140))}
-                placeholder="REF.: ..."
+                placeholder={esDifusion ? 'Título de la campaña...' : 'REF.: ...'}
                 className="h-9 text-sm font-semibold"
               />
               {err('ref_titulo')}
@@ -260,12 +297,13 @@ export default function PublicacionFormModal({ open, onOpenChange, tipos, priori
             </div>
 
             <div>
-              <label className="text-xs font-semibold mb-1 block">Contenido</label>
+              <label className="text-xs font-semibold mb-1 block">Contenido{esDifusion ? ' (opcional)' : ''}</label>
               <EditorRico value={String(form.cuerpo)} onChange={(html) => set('cuerpo', html)} />
               {err('cuerpo')}
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {!esDifusion && (
               <div>
                 <label className="text-xs font-semibold mb-1 block">Referencia externa</label>
                 <Input
@@ -276,10 +314,14 @@ export default function PublicacionFormModal({ open, onOpenChange, tipos, priori
                 />
                 {err('referencia_externa')}
               </div>
+              )}
               <div>
                 <label className="text-xs font-semibold mb-1 block">
-                  Documentos (PDF/imagen/webp, máx 20MB c/u — puede elegir varios, máx 5 en total)
+                  {esDifusion ? 'Afiche / Imagen de portada *' : 'Documentos (PDF/imagen/webp, máx 20MB c/u — puede elegir varios, máx 5 en total)'}
                 </label>
+                {esDifusion && (
+                  <p className="text-[11px] text-muted-foreground mb-1">Se recomienda imagen horizontal 16:9.</p>
+                )}
                 <Input
                   type="file"
                   accept=".pdf,.jpg,.jpeg,.png,.webp"

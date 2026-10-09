@@ -2,8 +2,15 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import {
-  Megaphone, Plus, Pencil, Trash2, Pin, PinOff,
-  ChevronUp, ChevronDown, Eye, EyeOff, FileText, Search,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/Components/ui/dropdown-menu';
+import { MoreVertical, Pencil, Eye, EyeOff, Pin, PinOff, ChevronUp, ChevronDown, Trash2 } from 'lucide-react';
+import {
+  Megaphone, Plus, FileText, Search, Image as ImageIcon,
 } from 'lucide-react';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
@@ -43,6 +50,7 @@ interface PageProps {
 export default function Publicaciones() {
   const { publicaciones, tipos, prioridades } = usePage().props as unknown as PageProps;
   const [modalForm, setModalForm] = useState<PublicacionFormData | null | undefined>(undefined);
+  const [presetTipo, setPresetTipo] = useState<number | null>(null);
   const [eliminarTarget, setEliminarTarget] = useState<PublicacionRow | null>(null);
   const puedeCrear = useCan('publicacion.crear');
   const puedeEditar = useCan('publicacion.editar');
@@ -55,53 +63,97 @@ export default function Publicaciones() {
     ? (publicaciones.find((p) => p.id === modalForm.id) ?? modalForm)
     : modalForm;
 
+  const abrirCampana = () => {
+    const dif = tipos.find((t) => t.clave === 'difusion');
+    setPresetTipo(dif ? dif.id : null);
+    setModalForm(null);
+  };
+
+  const abrirAvisoFormal = () => {
+    setPresetTipo(null);
+    setModalForm(null);
+  };
+
   const post = (id: number, accion: string, data: { [key: string]: any } = {}) => {
     router.post(route(`admin.publicaciones.${accion}`, { id }), data, { preserveScroll: true });
   };
 
   const AccionesFila = ({ p }: { p: PublicacionRow }) => (
-    <div className="flex items-center justify-end gap-1 flex-wrap">
-      {puedeEditar && (
-        <Button variant="ghost" size="icon" title="Editar" onClick={() => setModalForm(p)} className="cursor-pointer">
-          <Pencil className="w-4 h-4" />
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-8 px-2.5 gap-1.5 text-xs font-semibold cursor-pointer border-border/80 hover:bg-muted"
+          aria-label="Abrir opciones"
+        >
+          <MoreVertical className="w-3.5 h-3.5 text-muted-foreground" />
+          <span>Opciones</span>
         </Button>
-      )}
-      {puedePublicar && (
-        p.publicado ? (
-          <Button variant="ghost" size="icon" title="Devolver a borrador" onClick={() => post(p.id, 'despublicar')} className="cursor-pointer">
-            <EyeOff className="w-4 h-4" />
-          </Button>
-        ) : (
-          <Button variant="ghost" size="icon" title="Publicar" onClick={() => post(p.id, 'publicar')} className="cursor-pointer">
-            <Eye className="w-4 h-4" />
-          </Button>
-        )
-      )}
-      {puedeEditar && (
-        p.fijada ? (
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-52">
+        {puedeEditar && (
+          <DropdownMenuItem onClick={() => setModalForm(p)} className="cursor-pointer gap-2">
+            <Pencil className="w-4 h-4 text-muted-foreground" />
+            Editar {p.tipo === 'difusion' ? 'campaña' : 'aviso'}
+          </DropdownMenuItem>
+        )}
+
+        {puedePublicar && (
+          p.publicado ? (
+            <DropdownMenuItem onClick={() => post(p.id, 'despublicar')} className="cursor-pointer gap-2">
+              <EyeOff className="w-4 h-4 text-muted-foreground" />
+              Devolver a borrador
+            </DropdownMenuItem>
+          ) : (
+            <DropdownMenuItem onClick={() => post(p.id, 'publicar')} className="cursor-pointer gap-2">
+              <Eye className="w-4 h-4 text-primary" />
+              Publicar en el panel
+            </DropdownMenuItem>
+          )
+        )}
+
+        {puedeEditar && p.tipo !== 'difusion' && (
+          p.fijada ? (
+            <DropdownMenuItem onClick={() => post(p.id, 'desfijar')} className="cursor-pointer gap-2">
+              <PinOff className="w-4 h-4 text-muted-foreground" />
+              Desfijar del inicio
+            </DropdownMenuItem>
+          ) : (
+            <DropdownMenuItem onClick={() => post(p.id, 'fijar')} className="cursor-pointer gap-2">
+              <Pin className="w-4 h-4 text-secondary" />
+              Fijar al inicio
+            </DropdownMenuItem>
+          )
+        )}
+
+        {puedeEditar && p.fijada && p.tipo !== 'difusion' && (
           <>
-            <Button variant="ghost" size="icon" title="Subir orden" onClick={() => post(p.id, 'mover', { direccion: 'subir' })} className="cursor-pointer">
-              <ChevronUp className="w-4 h-4" />
-            </Button>
-            <Button variant="ghost" size="icon" title="Bajar orden" onClick={() => post(p.id, 'mover', { direccion: 'bajar' })} className="cursor-pointer">
-              <ChevronDown className="w-4 h-4" />
-            </Button>
-            <Button variant="ghost" size="icon" title="Desfijar" onClick={() => post(p.id, 'desfijar')} className="cursor-pointer">
-              <PinOff className="w-4 h-4" />
-            </Button>
+            <DropdownMenuItem onClick={() => post(p.id, 'mover', { direccion: 'subir' })} className="cursor-pointer gap-2">
+              <ChevronUp className="w-4 h-4 text-muted-foreground" />
+              Subir posición
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => post(p.id, 'mover', { direccion: 'bajar' })} className="cursor-pointer gap-2">
+              <ChevronDown className="w-4 h-4 text-muted-foreground" />
+              Bajar posición
+            </DropdownMenuItem>
           </>
-        ) : (
-          <Button variant="ghost" size="icon" title="Fijar en el panel" onClick={() => post(p.id, 'fijar')} className="cursor-pointer">
-            <Pin className="w-4 h-4" />
-          </Button>
-        )
-      )}
-      {puedeEliminar && (
-        <Button variant="ghost" size="icon" title="Eliminar" onClick={() => setEliminarTarget(p)} className="cursor-pointer text-destructive hover:text-destructive">
-          <Trash2 className="w-4 h-4" />
-        </Button>
-      )}
-    </div>
+        )}
+
+        {puedeEliminar && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() => setEliminarTarget(p)}
+              className="cursor-pointer gap-2 text-destructive focus:text-destructive focus:bg-destructive/10"
+            >
+              <Trash2 className="w-4 h-4" />
+              Eliminar {p.tipo === 'difusion' ? 'campaña' : 'aviso'}
+            </DropdownMenuItem>
+          </>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 
   const [buscarInput, setBuscarInput] = useState('');
@@ -111,7 +163,7 @@ export default function Publicaciones() {
   const [filtroTipo, setFiltroTipo] = useState('');
   const [soloFijadas, setSoloFijadas] = useState(false);
   const [orden, setOrden] = useState('fecha-doc');
-  const [tab, setTab] = useState<'borradores' | 'publicados'>('borradores');
+  const [tab, setTab] = useState<'borradores' | 'publicados' | 'difusion'>('borradores');
   const [pagina, setPagina] = useState(1);
   const POR_PAGINA = 10;
   const queryLeida = useRef(false);
@@ -156,9 +208,12 @@ export default function Publicaciones() {
 
   const filtrados = useMemo(() => {
     const q = buscar.trim().toUpperCase();
-    const base = tab === 'borradores'
-      ? publicaciones.filter((p) => !p.publicado)
-      : publicaciones.filter((p) => p.publicado);
+    const esDif = (p: PublicacionRow) => p.tipo === 'difusion';
+    const base = tab === 'difusion'
+      ? publicaciones.filter(esDif)
+      : tab === 'borradores'
+        ? publicaciones.filter((p) => !p.publicado && !esDif(p))
+        : publicaciones.filter((p) => p.publicado && !esDif(p));
     const lista = base.filter((p) => {
       if (filtroTipo && p.tipo !== filtroTipo) return false;
       if (soloFijadas && !p.fijada) return false;
@@ -172,6 +227,15 @@ export default function Publicaciones() {
     });
     const porFechaDoc = (p: PublicacionRow) => p.fecha_documento ?? '';
     lista.sort((a, b) => {
+      // Difusión: posición manual (orden; 0 = sin ordenar, al final).
+      if (tab === 'difusion') {
+        const oa = a.orden || Number.MAX_SAFE_INTEGER;
+        const ob = b.orden || Number.MAX_SAFE_INTEGER;
+        if (oa !== ob) return oa - ob;
+        return b.id - a.id;
+      }
+      // Publicados: fijados primero.
+      if (tab === 'publicados' && a.fijada !== b.fijada) return a.fijada ? -1 : 1;
       if (orden === 'recientes') return (b.publicado_at ?? '').localeCompare(a.publicado_at ?? '');
       if (orden === 'titulo') return a.ref_titulo.localeCompare(b.ref_titulo);
       // fecha-doc (default): sin fecha al final, resto descendente.
@@ -209,13 +273,20 @@ export default function Publicaciones() {
     setPagina(1);
   };
 
-  const cambiarTab = (t: 'borradores' | 'publicados') => {
+  const cambiarTab = (t: 'borradores' | 'publicados' | 'difusion') => {
     setTab(t);
     setPagina(1);
   };
 
-  const nBorradores = publicaciones.filter((p) => !p.publicado).length;
-  const nPublicados = publicaciones.length - nBorradores;
+  const esDifusionRow = (p: PublicacionRow) => p.tipo === 'difusion';
+  const nBorradores = publicaciones.filter((p) => !p.publicado && !esDifusionRow(p)).length;
+  const nPublicados = publicaciones.filter((p) => p.publicado && !esDifusionRow(p)).length;
+  const nDifusion = publicaciones.filter(esDifusionRow).length;
+
+  const portadaDifusion = (p: PublicacionRow) => {
+    const imgs = p.archivos.filter((a) => !a.eliminado && /\.(jpe?g|png|webp)$/i.test(a.nombre));
+    return imgs.find((a) => a.id === p.portada_archivo_id) ?? imgs[0] ?? null;
+  };
 
   const hayFiltros = buscar !== '' || filtroTipo !== '' || soloFijadas
     || Object.values(avanzados).some((v) => v.trim() !== '');
@@ -231,10 +302,16 @@ export default function Publicaciones() {
           subtitulo="Redacción y publicación de avisos del panel informativo."
           acciones={
             puedeCrear ? (
-              <Button size="sm" onClick={() => setModalForm(null)} className="cursor-pointer">
-                <Plus className="w-4 h-4" />
-                Nuevo aviso
-              </Button>
+              <div className="flex flex-wrap gap-2">
+                <Button size="sm" onClick={abrirCampana} className="cursor-pointer bg-secondary/10 hover:bg-secondary/20 text-foreground font-bold">
+                  <Megaphone className="w-4 h-4" />
+                  Nueva Campaña / Difusión
+                </Button>
+                <Button size="sm" onClick={abrirAvisoFormal} className="cursor-pointer">
+                  <Plus className="w-4 h-4" />
+                  Nuevo aviso formal
+                </Button>
+              </div>
             ) : undefined
           }
         />
@@ -243,7 +320,7 @@ export default function Publicaciones() {
           <ListaVacia
             icon={Megaphone}
             titulo="Sin avisos"
-            descripcion="Aún no hay avisos creados. Use Nuevo aviso para redactar el primero."
+            descripcion="Aún no hay avisos creados. Use Nueva Campaña / Difusión o Nuevo aviso formal para redactar el primero."
           />
         ) : (
           <>
@@ -329,13 +406,16 @@ export default function Publicaciones() {
               </div>
             </div>
 
-            <Tabs value={tab} onValueChange={(v) => cambiarTab(v as 'borradores' | 'publicados')} className="w-full">
-              <TabsList className="grid w-full max-w-md grid-cols-2">
+            <Tabs value={tab} onValueChange={(v) => cambiarTab(v as 'borradores' | 'publicados' | 'difusion')} className="w-full">
+              <TabsList className="grid w-full max-w-xl grid-cols-3">
                 <TabsTrigger value="borradores" className="text-xs">
                   Borradores ({nBorradores})
                 </TabsTrigger>
                 <TabsTrigger value="publicados" className="text-xs">
                   Publicados ({nPublicados})
+                </TabsTrigger>
+                <TabsTrigger value="difusion" className="text-xs">
+                  Difusión ({nDifusion})
                 </TabsTrigger>
               </TabsList>
             </Tabs>
@@ -346,6 +426,159 @@ export default function Publicaciones() {
                 titulo="Sin resultados"
                 descripcion="No hay avisos con esos filtros."
               />
+            ) : tab === 'difusion' ? (
+          <TablaResponsive
+            desktop={
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-24">Posición</TableHead>
+                  <TableHead className="w-24">Afiche</TableHead>
+                  <TableHead>Título y resumen</TableHead>
+                  <TableHead className="w-28">Estado</TableHead>
+                  <TableHead className="w-44 text-right">Acciones</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {visibles.map((p, i) => {
+                  const portada = portadaDifusion(p);
+                  return (
+                  <TableRow key={p.id}>
+                    <TableCell>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-sm font-mono font-bold">#{i + 1}</span>
+                        {i === 0 && (
+                          <span className="text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wide bg-secondary text-secondary-foreground">
+                            Lead
+                          </span>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {portada ? (
+                        <img
+                          src={route('admin.publicaciones.descargar', { id: portada.id }) as unknown as string}
+                          alt=""
+                          loading="lazy"
+                          className="w-16 h-10 object-cover rounded-lg border border-border"
+                        />
+                      ) : (
+                        <span className="flex items-center justify-center w-16 h-10 rounded-lg border border-border bg-muted/40 text-muted-foreground">
+                          <ImageIcon className="w-4 h-4" />
+                        </span>
+                      )}
+                    </TableCell>
+                    <TableCell className="max-w-xs">
+                      <p className="text-sm font-semibold truncate">{p.ref_titulo}</p>
+                      {p.resumen && (
+                        <p className="text-xs text-muted-foreground truncate">{p.resumen}</p>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={p.publicado ? 'default' : 'secondary'} className="text-[11px]">
+                        {p.publicado ? 'Publicado' : 'Borrador'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center justify-end gap-1.5">
+                        {puedeEditar && (
+                          <div className="inline-flex items-center rounded-md border border-border bg-card p-0.5">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 cursor-pointer hover:bg-muted disabled:opacity-30 disabled:pointer-events-none"
+                              title="Subir posición"
+                              disabled={paginaSegura === 1 && i === 0}
+                              onClick={() => post(p.id, 'mover', { direccion: 'subir' })}
+                            >
+                              <ChevronUp className="w-3.5 h-3.5" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 cursor-pointer hover:bg-muted disabled:opacity-30 disabled:pointer-events-none"
+                              title="Bajar posición"
+                              disabled={paginaSegura === totalPaginas && i === visibles.length - 1}
+                              onClick={() => post(p.id, 'mover', { direccion: 'bajar' })}
+                            >
+                              <ChevronDown className="w-3.5 h-3.5" />
+                            </Button>
+                          </div>
+                        )}
+                        <AccionesFila p={p} />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+            }
+            mobile={visibles.map((p, i) => {
+              const portada = portadaDifusion(p);
+              return (
+              <details key={p.id} className="bg-card border border-border rounded-xl">
+                <summary className="cursor-pointer list-none p-3.5 flex items-center gap-2">
+                  <span className="text-sm font-mono font-bold shrink-0">#{i + 1}</span>
+                  {portada ? (
+                    <img
+                      src={route('admin.publicaciones.descargar', { id: portada.id }) as unknown as string}
+                      alt=""
+                      loading="lazy"
+                      className="w-16 h-10 object-cover rounded-lg border border-border shrink-0"
+                    />
+                  ) : (
+                    <span className="flex items-center justify-center w-16 h-10 rounded-lg border border-border bg-muted/40 text-muted-foreground shrink-0">
+                      <ImageIcon className="w-4 h-4" />
+                    </span>
+                  )}
+                  <span className="text-sm font-semibold truncate flex-1">{p.ref_titulo}</span>
+                  <Badge variant={p.publicado ? 'default' : 'secondary'} className="text-[11px] shrink-0">
+                    {p.publicado ? 'Publicado' : 'Borrador'}
+                  </Badge>
+                  <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
+                </summary>
+                <div className="px-3.5 pb-3.5 pt-3 space-y-2 border-t border-border/60 text-sm">
+                  {i === 0 && (
+                    <span className="inline-block text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wide bg-secondary text-secondary-foreground">
+                      Lead — portada dominante
+                    </span>
+                  )}
+                  {p.resumen && (
+                    <p className="text-xs text-muted-foreground leading-relaxed">{p.resumen}</p>
+                  )}
+                  <div className="pt-2 flex items-center justify-between gap-2">
+                    {puedeEditar ? (
+                      <div className="flex items-center gap-1.5">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-8 px-2.5 text-xs gap-1 cursor-pointer disabled:opacity-30 disabled:pointer-events-none"
+                          disabled={paginaSegura === 1 && i === 0}
+                          onClick={() => post(p.id, 'mover', { direccion: 'subir' })}
+                        >
+                          <ChevronUp className="w-3.5 h-3.5" />
+                          Subir
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-8 px-2.5 text-xs gap-1 cursor-pointer disabled:opacity-30 disabled:pointer-events-none"
+                          disabled={paginaSegura === totalPaginas && i === visibles.length - 1}
+                          onClick={() => post(p.id, 'mover', { direccion: 'bajar' })}
+                        >
+                          <ChevronDown className="w-3.5 h-3.5" />
+                          Bajar
+                        </Button>
+                      </div>
+                    ) : <div />}
+                    <AccionesFila p={p} />
+                  </div>
+                </div>
+              </details>
+              );
+            })}
+          />
             ) : (
           <TablaResponsive
             desktop={
@@ -477,10 +710,11 @@ export default function Publicaciones() {
         {modalForm !== undefined && (
           <PublicacionFormModal
             open={modalForm !== undefined}
-            onOpenChange={(v) => { if (!v) setModalForm(undefined); }}
+            onOpenChange={(v) => { if (!v) { setModalForm(undefined); setPresetTipo(null); } }}
             tipos={tipos}
             prioridades={prioridades}
             publicacion={filaViva}
+            tipoInicial={presetTipo}
           />
         )}
 

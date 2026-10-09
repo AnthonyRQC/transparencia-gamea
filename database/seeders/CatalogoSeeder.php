@@ -94,6 +94,7 @@ class CatalogoSeeder extends Seeder
             ['clave' => 'instructivo', 'nombre' => 'INSTRUCTIVO'],
             ['clave' => 'respuesta_nota', 'nombre' => 'RESPUESTA A NOTA'],
             ['clave' => 'comunicado', 'nombre' => 'COMUNICADO'],
+            ['clave' => 'difusion', 'nombre' => 'DIFUSIÓN'],
             ['clave' => 'otro', 'nombre' => 'OTRO'],
         ];
 

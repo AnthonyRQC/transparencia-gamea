@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { Bold, Italic, Heading3, List, ListOrdered, Undo2, Redo2 } from 'lucide-react';
@@ -33,6 +34,16 @@ export default function EditorRico({ value, onChange }: Props) {
       },
     },
   });
+
+  // Sincroniza reactivamente el HTML cuando se abre un aviso existente
+  // para editar (el editor se monta una vez y el value llega después).
+  useEffect(() => {
+    if (!editor) return;
+    const htmlActual = editor.getHTML();
+    if (value !== htmlActual) {
+      editor.commands.setContent(value || '', { emitUpdate: false });
+    }
+  }, [value, editor]);
 
   if (!editor) return null;
 

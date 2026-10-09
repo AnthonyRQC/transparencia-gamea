@@ -56,9 +56,10 @@ Route::middleware('auth')->group(function () {
     require __DIR__.'/admin.php';
     require __DIR__.'/cuenta.php';
 
-    // ----- Time Machine (solo local, ver routes/dev.php) -----
-    require __DIR__.'/dev.php';
-
 }); // end auth middleware group
 
 require __DIR__.'/auth.php';
+
+// ----- Herramientas Dev (solo local, ver routes/dev.php) -----
+require __DIR__.'/dev.php';
+
