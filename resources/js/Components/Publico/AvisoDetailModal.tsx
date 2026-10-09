@@ -56,7 +56,15 @@ export default function AvisoDetailModal({ aviso, open, onOpenChange }: Props) {
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto">
+        <DialogContent
+          onPointerDownOutside={(e) => {
+            if (lightbox !== null) e.preventDefault();
+          }}
+          onInteractOutside={(e) => {
+            if (lightbox !== null) e.preventDefault();
+          }}
+          className="sm:max-w-2xl max-h-[90vh] overflow-y-auto"
+        >
           <DialogHeader>
             <div className="flex items-center gap-2 flex-wrap pr-6">
               {aviso.tipo_nombre && (

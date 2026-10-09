@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Head, Link } from '@inertiajs/react';
 import PublicHeader from '@/Components/Publico/PublicHeader';
-import InstitutionalLogo from '@/Components/Layout/InstitutionalLogo';
+import LogoBlancoGamea from '@/Components/Publico/LogoBlancoGamea';
 import {
     Search,
     FileText,
@@ -18,11 +18,14 @@ import {
     HelpCircle,
     PhoneCall,
     Mail,
-    FileSpreadsheet,
-    Eye
+    FileSpreadsheet
 } from 'lucide-react';
 import { Button } from '@/Components/ui/button';
 import PanelInformativo from '@/Components/Publico/PanelInformativo';
+import VitrinaDifusion from '@/Components/Publico/VitrinaDifusion';
+import AvisoDetailModal from '@/Components/Publico/AvisoDetailModal';
+import type { AvisoPublico } from '@/Components/Publico/AvisoCard';
+import SimboloS from '@/Components/Publico/SimboloS';
 
 interface PanelAviso {
     id: number;
@@ -60,6 +63,7 @@ interface WelcomeProps {
             per_page: number;
             total: number;
         };
+        vitrina?: PanelAviso[];
         tipos: Array<{ id: number; clave: string; nombre: string }>;
         recientes: boolean;
         filtros: {
@@ -96,6 +100,8 @@ export default function Welcome({ auth, jacha_url, canLogin, canRegister, panel 
         localStorage.setItem('dark_mode', String(nextState));
     };
 
+    const [detalleAviso, setDetalleAviso] = useState<AvisoPublico | null>(null);
+
     return (
         <div className="min-h-screen bg-background text-foreground transition-colors duration-300 flex flex-col font-sans relative overflow-x-hidden">
             <Head title="Seguimiento Ciudadano - Transparencia" />
@@ -122,10 +128,10 @@ export default function Welcome({ auth, jacha_url, canLogin, canRegister, panel 
                     animation: orbital-float 5s ease-in-out infinite 2s;
                 }
                 .glow-effect {
-                    box-shadow: 0 0 40px 10px rgba(75, 0, 144, 0.15);
+                    box-shadow: 0 0 40px 10px oklch(var(--primary) / 0.15);
                 }
                 .glow-secondary {
-                    box-shadow: 0 0 30px 5px rgba(245, 180, 0, 0.2);
+                    box-shadow: 0 0 30px 5px oklch(var(--secondary) / 0.2);
                 }
             `}</style>
 
@@ -184,39 +190,46 @@ export default function Welcome({ auth, jacha_url, canLogin, canRegister, panel 
 
             <main className="flex-1 max-w-6xl mx-auto w-full px-4 py-8 sm:py-16 space-y-16">
 
-                <section className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-                    <div className="space-y-6 text-left order-2 lg:order-1">
-                        <div className="space-y-2">
-                            <span className="text-xs sm:text-sm font-extrabold tracking-widest text-primary dark:text-secondary uppercase block">
-                                GESTIÓN INSTITUCIONAL TRANSPARENTE
-                            </span>
-                            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] text-foreground">
-                                Consulta el estado actual de tu denuncia
-                            </h2>
+                {/* Nivel 1 — Hero Ciudadano (consulta de ticket y radicación) */}
+                <section className="relative grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+                    <SimboloS size={380} className="absolute -right-8 top-0 hidden text-secondary opacity-[0.08] pointer-events-none md:block" />
+                    <div className="relative space-y-6 text-left order-2 lg:order-1">
+                        <SimboloS size={360} className="absolute -left-10 -top-8 hidden text-secondary opacity-[0.06] pointer-events-none md:block -z-10" />
+                        <div className="relative space-y-3">
+                            <div className="flex items-center gap-3">
+                                <span aria-hidden="true" className="h-px w-10 bg-secondary" />
+                                <span className="text-xs sm:text-sm font-extrabold tracking-widest text-primary dark:text-secondary uppercase block">
+                                    UNIDAD DE TRANSPARENCIA Y LUCHA CONTRA LA CORRUPCIÓN
+                                </span>
+                            </div>
+                            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] text-foreground">
+                                Transparencia en cada etapa de tu denuncia
+                            </h1>
+                            <div aria-hidden="true" className="h-1 w-24 rounded-full bg-secondary mt-3" />
                         </div>
 
                         <p className="text-muted-foreground text-sm sm:text-base md:text-lg leading-relaxed max-w-xl">
-                            Verifica en qué etapa se encuentra tu denuncia y conoce su estado de forma rápida, segura y transparente, garantizando siempre el debido proceso.
+                            Ingresa el código de tu trámite para conocer actuaciones, resoluciones y plazos del debido proceso sin intermediarios.
                         </p>
 
                         <div className="flex flex-wrap gap-3 pt-2">
                             <Link
                                 href={route('seguimiento.buscar')}
-                                className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-primary text-primary-foreground font-extrabold shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all text-sm"
+                                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-primary text-primary-foreground font-extrabold shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all text-sm"
                             >
                                 <Search className="w-4 h-4" />
-                                Consultar estado de denuncia
+                                Rastrear caso por ticket
                                 <ArrowRight className="w-4 h-4" />
                             </Link>
                         </div>
-                        
-                        <div className="flex items-center gap-3 pt-4 border-t border-border mt-6">
-                            <div className="flex -space-x-2">
-                                <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center border-2 border-background"><ShieldCheck className="w-4 h-4 text-primary" /></div>
-                                <div className="w-8 h-8 rounded-full bg-secondary/20 flex items-center justify-center border-2 border-background"><Lock className="w-4 h-4 text-secondary-foreground" /></div>
-                                <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center border-2 border-background"><Eye className="w-4 h-4 text-emerald-600" /></div>
+
+                        <div className="flex items-center gap-3 pt-4 border-t border-border mt-6 text-muted-foreground">
+                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-primary">
+                                <ShieldCheck className="w-4 h-4" />
                             </div>
-                            <span className="text-xs font-semibold text-muted-foreground">Proceso Seguro, Transparente y Auditado</span>
+                            <span className="text-xs sm:text-sm font-semibold">
+                                Reserva de identidad garantizada bajo la Ley 974
+                            </span>
                         </div>
                     </div>
 
@@ -237,18 +250,32 @@ export default function Welcome({ auth, jacha_url, canLogin, canRegister, panel 
                                     <h3 className="text-white font-bold text-lg sm:text-xl leading-none mb-1 shadow-black/50 drop-shadow-md">Casa Municipal Jacha Uta</h3>
                                     <p className="text-white/80 text-xs sm:text-sm font-medium shadow-black/50 drop-shadow-md">Sede Ejecutiva del GAMEA</p>
                                 </div>
-                                <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur flex items-center justify-center border border-white/30">
-                                    <InstitutionalLogo size="sm" className="brightness-0 invert" />
+                                <div className="flex items-center justify-center drop-shadow-lg">
+                                    <LogoBlancoGamea className="h-10 sm:h-12 w-auto text-white" />
                                 </div>
                             </div>
                         </div>
                     </div>
                 </section>
 
+                {/* Nivel 2 — Vitrina de Difusión (afiches y campañas visuales) */}
+                {panel && (
+                    <VitrinaDifusion avisos={panel.vitrina ?? []} onVer={setDetalleAviso} />
+                )}
+
+                {/* Nivel 3 — Gaceta Oficial (avisos administrativos) */}
                 {panel && <PanelInformativo panel={panel} />}
 
-                <section className="space-y-6 pt-2">
-                    <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-center">Información y Preguntas Frecuentes</h3>
+                <AvisoDetailModal
+                    aviso={detalleAviso}
+                    open={detalleAviso !== null}
+                    onOpenChange={(v) => { if (!v) setDetalleAviso(null); }}
+                />
+
+                {/* Nivel 4 — Garantías procesales, FAQ y contacto */}
+                <section className="relative space-y-6 pt-2">
+                    <SimboloS size={300} className="absolute -right-10 top-0 hidden text-secondary opacity-[0.08] pointer-events-none lg:block" />
+                    <h3 className="relative text-xl sm:text-2xl font-bold tracking-tight text-center">Información y Preguntas Frecuentes</h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div className="bg-card border rounded-2xl p-5 space-y-3 hover:shadow-md transition-shadow relative overflow-hidden">
                             <div className="absolute top-0 right-0 w-24 h-24 bg-primary/2.5 rounded-bl-full pointer-events-none" />

@@ -156,6 +156,53 @@ class PublicacionMuroTest extends TestCase
             ->where('panel.avisos.data.0.titulo', 'AVISO LIGADO A CASO'));
     }
 
+    public function test_vitrina_difusion_desacoplada_de_gaceta(): void
+    {
+        $this->sembrar();
+        $tipoDif = TipoPublicacion::create(['clave' => 'difusion', 'nombre' => 'DIFUSIÓN']);
+        $prio = PrioridadPublicacion::first()->id;
+        $jefe = User::where('rol', 'jefe')->first();
+        for ($i = 1; $i <= 2; $i++) {
+            Publicacion::create([
+                'tipo_id' => $tipoDif->id, 'prioridad_id' => $prio,
+                'ref_titulo' => "AFICHE DIFUSIÓN {$i}",
+                'publicado_por_id' => $jefe->id,
+                'publicado_at' => now()->subMinutes(3 - $i),
+            ]);
+        }
+
+        // Gaceta limpia por defecto; vitrina con las 2 piezas (reciente primero).
+        $this->get('/')->assertOk()->assertInertia(fn($page) => $page
+            ->where('panel.avisos.total', 2)
+            ->has('panel.vitrina', 2)
+            ->where('panel.vitrina.0.titulo', 'AFICHE DIFUSIÓN 2'));
+
+        // El filtro explícito por tipo difusion sigue resolviendo.
+        $this->get('/?tipo=difusion')->assertOk()->assertInertia(fn($page) => $page
+            ->where('panel.avisos.total', 2));
+    }
+
+    public function test_vitrina_limitada_a_cinco(): void
+    {
+        TipoPublicacion::create(['clave' => 'difusion', 'nombre' => 'DIFUSIÓN']);
+        PrioridadPublicacion::create(['clave' => 'ordinario', 'nombre' => 'ORDINARIO']);
+        $jefe = User::factory()->create(['rol' => 'jefe']);
+        $tipo = TipoPublicacion::where('clave', 'difusion')->first()->id;
+        $prio = PrioridadPublicacion::first()->id;
+        for ($i = 1; $i <= 6; $i++) {
+            Publicacion::create([
+                'tipo_id' => $tipo, 'prioridad_id' => $prio,
+                'ref_titulo' => "AFICHE {$i}",
+                'publicado_por_id' => $jefe->id,
+                'publicado_at' => now()->subMinutes($i),
+            ]);
+        }
+
+        $this->get('/')->assertOk()->assertInertia(fn($page) => $page
+            ->has('panel.vitrina', 5)
+            ->where('panel.avisos.total', 0));
+    }
+
     public function test_catalogos_incluyen_publicaciones(): void
     {
         $this->sembrar();

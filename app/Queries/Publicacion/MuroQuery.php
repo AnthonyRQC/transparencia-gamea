@@ -12,7 +12,7 @@ class MuroQuery
      * Datos del muro para Welcome (Sprint 13.1). Todo anonimizado:
      * ticket completo sin PIN, sin denunciante/denunciados/hechos.
      *
-     * @return array{avisos: array, tipos: array}
+     * @return array{avisos: array, vitrina: array, tipos: array}
      */
     public static function construir(Request $request): array
     {
@@ -44,7 +44,50 @@ class MuroQuery
         $query = self::baseQuery($filtros);
 
         $paginado = $query->paginate(10);
-        $paginado->setCollection($paginado->getCollection()->map(fn(Publicacion $p) => [
+        $paginado->setCollection($paginado->getCollection()->map(fn(Publicacion $p) => self::mapear($p)));
+
+        // Vitrina de Difusión (Nivel 2): hasta 5 piezas activas de tipo
+        // difusion, independientes de los filtros de la Gaceta.
+        $vitrina = Publicacion::muro()
+            ->whereHas('tipo', fn($q) => $q->where('clave', 'difusion'))
+            ->with([
+                'tipo:id,clave,nombre',
+                'prioridad:id,clave,nombre',
+                'archivos' => fn($q) => $q->activos()->select('id', 'publicacion_id', 'nombre', 'tamano', 'mime_type'),
+                'denuncia:id,ticket,tipo',
+            ])
+            ->limit(5)
+            ->get()
+            ->map(fn(Publicacion $p) => self::mapear($p))
+            ->toArray();
+
+        return [
+            'avisos' => $paginado,
+            'vitrina' => $vitrina,
+            'tipos' => TipoPublicacion::activas()->orderBy('nombre')->get(['id', 'clave', 'nombre'])->toArray(),
+            'recientes' => $recientes,
+            'filtros' => [
+                'tipo' => $filtros['tipo'] ?? '',
+                'buscar' => $request->input('buscar', ''),
+                'cite' => $request->input('cite', ''),
+                'ref' => $request->input('ref', ''),
+                'destinatario' => $request->input('destinatario', ''),
+                'ref_externa' => $request->input('ref_externa', ''),
+                'ticket' => $request->input('ticket', ''),
+                'emisor' => $request->input('emisor', ''),
+                'desde' => $request->input('desde', ''),
+                'hasta' => $request->input('hasta', ''),
+                'historial' => $verHistorial,
+            ],
+        ];
+    }
+
+    /**
+     * Mismo formato de aviso público para Gaceta y Vitrina.
+     */
+    private static function mapear(Publicacion $p): array
+    {
+        return [
             'id' => $p->id,
             'tipo' => $p->tipo?->clave,
             'tipo_nombre' => $p->tipo?->nombre,
@@ -68,25 +111,6 @@ class MuroQuery
                 'tamano' => $a->tamano,
                 'mime' => $a->mime_type,
             ])->toArray(),
-        ]));
-
-        return [
-            'avisos' => $paginado,
-            'tipos' => TipoPublicacion::activas()->orderBy('nombre')->get(['id', 'clave', 'nombre'])->toArray(),
-            'recientes' => $recientes,
-            'filtros' => [
-                'tipo' => $filtros['tipo'] ?? '',
-                'buscar' => $request->input('buscar', ''),
-                'cite' => $request->input('cite', ''),
-                'ref' => $request->input('ref', ''),
-                'destinatario' => $request->input('destinatario', ''),
-                'ref_externa' => $request->input('ref_externa', ''),
-                'ticket' => $request->input('ticket', ''),
-                'emisor' => $request->input('emisor', ''),
-                'desde' => $request->input('desde', ''),
-                'hasta' => $request->input('hasta', ''),
-                'historial' => $verHistorial,
-            ],
         ];
     }
 
@@ -105,6 +129,10 @@ class MuroQuery
 
         if (!empty($filtros['tipo'])) {
             $query->whereHas('tipo', fn($q) => $q->where('clave', $filtros['tipo']));
+        } else {
+            // La Gaceta documental excluye difusión: esas piezas viven
+            // en la Vitrina (Nivel 2) y distorsionarían la grilla.
+            $query->whereDoesntHave('tipo', fn($q) => $q->where('clave', 'difusion'));
         }
 
         if (!empty($filtros['buscar'])) {

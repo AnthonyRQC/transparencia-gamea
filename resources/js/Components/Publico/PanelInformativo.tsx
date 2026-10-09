@@ -9,6 +9,8 @@ import Paginacion from '@/Components/Denuncias/Shared/Paginacion';
 import ListaVacia from '@/Components/Denuncias/Shared/ListaVacia';
 import AvisoCard, { type AvisoPublico } from '@/Components/Publico/AvisoCard';
 import AvisoDetailModal from '@/Components/Publico/AvisoDetailModal';
+import RomboLogo from '@/Components/Publico/RomboLogo';
+import SimboloS from '@/Components/Publico/SimboloS';
 
 interface TipoOption {
   id: number;
@@ -66,6 +68,18 @@ export default function PanelInformativo({ panel }: { panel: PanelData }) {
   const [hasta, setHasta] = useState(filtros.hasta ?? '');
   const [historial, setHistorial] = useState(filtros.historial ?? false);
   const [detalle, setDetalle] = useState<AvisoPublico | null>(null);
+  const [filtrosAbiertos, setFiltrosAbiertos] = useState(false);
+
+  const filtrosActivos =
+    (buscar.trim() ? 1 : 0) +
+    (tipo ? 1 : 0) +
+    (desde ? 1 : 0) +
+    (hasta ? 1 : 0) +
+    (historial ? 1 : 0) +
+    Object.values(avanzados).filter((v) => v.trim() !== '').length;
+
+  const lead = avisos.data.find((a) => a.fijada) ?? null;
+  const restoAvisos = lead ? avisos.data.filter((a) => a.id !== lead.id) : avisos.data;
 
   const setAvanzado = (clave: string, valor: string) =>
     setAvanzados((a) => ({ ...a, [clave]: valor }));
@@ -108,15 +122,27 @@ export default function PanelInformativo({ panel }: { panel: PanelData }) {
   };
 
   return (
-    <section id="panel" className="space-y-6 pt-2 scroll-mt-6" aria-label="Panel informativo">
-      <div className="text-center space-y-2">
+    <section id="panel" className="relative space-y-6 pt-2 scroll-mt-6" aria-label="Panel informativo">
+      <SimboloS size={420} className="absolute -right-12 top-24 hidden text-destructive opacity-[0.07] pointer-events-none lg:block" />
+      <SimboloS size={340} className="absolute -left-10 bottom-16 hidden text-primary opacity-[0.08] pointer-events-none lg:block" />
+      <div className="relative text-center space-y-2">
         <span className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-extrabold tracking-widest text-primary dark:text-secondary uppercase">
           <Megaphone className="w-4 h-4" />
           Panel informativo
         </span>
-        <h3 className="text-xl sm:text-2xl font-bold tracking-tight">
-          Avisos de la Unidad
+        <h3 className="text-xl sm:text-2xl font-extrabold tracking-tight">
+          Avisos de la Unidad de Transparencia (UTLCC)
         </h3>
+        <div aria-hidden="true" className="mx-auto flex max-w-md items-center justify-center gap-2.5 pt-1.5 pb-2">
+          {Array.from({ length: 9 }).map((_, i) => (
+            <RomboLogo
+              key={i}
+              size={16}
+              fill="currentColor"
+              className={['text-primary', 'text-destructive', 'text-teal-600', 'text-secondary'][i % 4]}
+            />
+          ))}
+        </div>
         <p className="text-xs sm:text-sm text-muted-foreground max-w-2xl mx-auto">
           Consulta instructivos, respuestas, comunicados y notificaciones de casos publicadas por la Unidad.
         </p>
@@ -124,9 +150,23 @@ export default function PanelInformativo({ panel }: { panel: PanelData }) {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         <aside className="lg:col-span-3 lg:sticky lg:top-6 self-start bg-card border border-border rounded-2xl p-4 space-y-4">
-          <p className="text-xs font-extrabold uppercase tracking-wider text-primary">
-            Filtro documental
-          </p>
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-xs font-extrabold uppercase tracking-wider text-primary">
+              Filtro documental
+            </p>
+            <button
+              type="button"
+              onClick={() => setFiltrosAbiertos((v) => !v)}
+              aria-expanded={filtrosAbiertos}
+              aria-controls="filtros-documentales"
+              className="lg:hidden inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-border text-xs font-bold text-foreground hover:bg-muted transition-colors cursor-pointer"
+            >
+              {filtrosActivos > 0 ? `Filtros (${filtrosActivos})` : 'Filtros'}
+              <ChevronDown className={cn('w-3.5 h-3.5 transition-transform', filtrosAbiertos && 'rotate-180')} />
+            </button>
+          </div>
+
+          <div id="filtros-documentales" className={cn(filtrosAbiertos ? 'space-y-4' : 'hidden', 'lg:space-y-4 lg:block')}>
 
           <div className="relative">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -229,6 +269,8 @@ export default function PanelInformativo({ panel }: { panel: PanelData }) {
             </Button>
           </div>
 
+          </div>
+
           {recientes && !historial && (
             <p className="text-[11px] text-muted-foreground leading-relaxed bg-muted/40 rounded-lg px-2.5 py-2">
               Mostrando los últimos 12 meses.{' '}
@@ -243,7 +285,7 @@ export default function PanelInformativo({ panel }: { panel: PanelData }) {
           )}
         </aside>
 
-        <div className="lg:col-span-9 space-y-4 min-w-0">
+        <div className="relative lg:col-span-9 min-w-0 space-y-4 rounded-2xl bg-muted/20 p-3 sm:p-4">
           {avisos.data.length === 0 ? (
             <ListaVacia
               icon={SearchX}
@@ -251,19 +293,26 @@ export default function PanelInformativo({ panel }: { panel: PanelData }) {
               descripcion="No se encontraron avisos con esos filtros."
             />
           ) : (
-            avisos.data.map((aviso) => (
-              <AvisoCard key={aviso.id} aviso={aviso} onVer={setDetalle} />
-            ))
+            <div className="space-y-4">
+              {lead && (
+                <AvisoCard aviso={lead} onVer={setDetalle} variant="lead" />
+              )}
+              {restoAvisos.map((aviso) => (
+                <AvisoCard key={aviso.id} aviso={aviso} onVer={setDetalle} />
+              ))}
+            </div>
           )}
 
-          <Paginacion
-            mode="server"
-            paginaActual={avisos.current_page}
-            totalPaginas={avisos.last_page}
-            totalElementos={avisos.total}
-            elementosPorPagina={avisos.per_page}
-            onPaginaChange={(p) => aplicar(p)}
-          />
+          <div className="border-t border-border pt-2">
+            <Paginacion
+              mode="server"
+              paginaActual={avisos.current_page}
+              totalPaginas={avisos.last_page}
+              totalElementos={avisos.total}
+              elementosPorPagina={avisos.per_page}
+              onPaginaChange={(p) => aplicar(p)}
+            />
+          </div>
         </div>
       </div>
 
