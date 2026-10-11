@@ -23,7 +23,7 @@ class ReporteExcel implements FromCollection, WithHeadings, WithStyles, ShouldAu
     public function collection(): Collection
     {
         return $this->denuncias->map(fn ($d) => array_map(
-            fn (string $col) => $this->valor($d, $col),
+            fn (string $col) => $this->sanitizar($this->valor($d, $col)),
             $this->columnas
         ));
     }
@@ -45,6 +45,17 @@ class ReporteExcel implements FromCollection, WithHeadings, WithStyles, ShouldAu
             ->getStartColor()->setARGB('4B0090');
 
         return [];
+    }
+
+    /**
+     * Neutraliza formula injection (OWASP CSV): las celdas de texto que
+     * inician con = + - @ se prefijan con comilla simple.
+     */
+    private function sanitizar(string $valor): string
+    {
+        return $valor !== '' && preg_match('/^[=+\-@]/', $valor) === 1
+            ? "'" . $valor
+            : $valor;
     }
 
     private function valor(mixed $d, string $col): string

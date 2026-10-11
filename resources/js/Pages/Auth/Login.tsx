@@ -1,6 +1,7 @@
 import Checkbox from '@/Components/Form/Checkbox';
 import InputError from '@/Components/Form/InputError';
 import InputLabel from '@/Components/Form/InputLabel';
+import PasswordInput from '@/Components/Form/PasswordInput';
 import TextInput from '@/Components/Form/TextInput';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Button } from '@/Components/ui/button';
@@ -61,9 +62,8 @@ export default function Login({
                 <div>
                     <InputLabel htmlFor="password" value="Contraseña" />
 
-                    <TextInput
+                    <PasswordInput
                         id="password"
-                        type="password"
                         name="password"
                         value={data.password}
                         className="mt-1 block w-full"

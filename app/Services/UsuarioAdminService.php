@@ -106,7 +106,7 @@ class UsuarioAdminService
 
     public static function resetPassword(User $target)
     {
-        $temporal = 'UTLCC-' . Str::upper(Str::random(4)) . Str::lower(Str::random(2)) . random_int(10, 99);
+        $temporal = 'Gamea-' . ($target->ci ?: Str::upper(Str::random(4)) . Str::lower(Str::random(2)) . random_int(10, 99));
 
         DB::transaction(function () use ($target, $temporal) {
             $t = User::whereKey($target->id)->lockForUpdate()->firstOrFail();

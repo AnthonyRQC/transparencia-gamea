@@ -191,8 +191,8 @@ export default function PublicacionFormModal({ open, onOpenChange, tipos, priori
                   </span>
                 ) : (
                   <Select value={String(form.tipo_id)} onValueChange={(v) => set('tipo_id', v)}>
-                    <SelectTrigger className="h-9 text-sm">
-                      <SelectValue placeholder="Seleccionar tipo" />
+                    <SelectTrigger className="h-9 text-sm max-w-full">
+                      <SelectValue placeholder="Seleccionar tipo" className="truncate" />
                     </SelectTrigger>
                     <SelectContent>
                       {tiposFormales.map((t) => (
@@ -207,8 +207,8 @@ export default function PublicacionFormModal({ open, onOpenChange, tipos, priori
               <div>
                 <label className="text-xs font-semibold mb-1 block">Prioridad *</label>
                 <Select value={String(form.prioridad_id)} onValueChange={(v) => set('prioridad_id', v)}>
-                  <SelectTrigger className="h-9 text-sm">
-                    <SelectValue placeholder="Seleccionar prioridad" />
+                  <SelectTrigger className="h-9 text-sm max-w-full">
+                    <SelectValue placeholder="Seleccionar prioridad" className="truncate" />
                   </SelectTrigger>
                   <SelectContent>
                     {prioridades.map((p) => (

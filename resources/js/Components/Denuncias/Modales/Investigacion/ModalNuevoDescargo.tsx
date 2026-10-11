@@ -183,13 +183,22 @@ export default function ModalNuevoDescargo({ ticket, denunciados, open, onOpenCh
                 Denunciado
               </Label>
               <Select value={denunciadoIdx} onValueChange={setDenunciadoIdx}>
-                <SelectTrigger id="denunciado-select">
-                  <SelectValue placeholder="Seleccionar denunciado..." />
+                <SelectTrigger id="denunciado-select" className="max-w-full">
+                  <SelectValue placeholder="Seleccionar denunciado..." className="truncate" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="w-[var(--radix-select-trigger-width)] max-w-[var(--radix-select-trigger-width)]">
                   {denunciados.map((d, i) => (
-                    <SelectItem key={i} value={String(i)} disabled={!d.conoce_identidad && !d.nombres}>
-                      {d.conoce_identidad ? `${d.nombres} — ${d.dependencia || 'Sin dependencia'}` : 'Anónimo / No se conoce identidad'}
+                    <SelectItem key={i} value={String(i)} disabled={!d.conoce_identidad && !d.nombres} className="cursor-pointer">
+                      <div className="flex flex-col py-1 text-left min-w-0 w-full">
+                        <span className="font-semibold text-xs leading-snug break-words whitespace-normal text-foreground">
+                          {d.conoce_identidad ? d.nombres : 'Anónimo / No se conoce identidad'}
+                        </span>
+                        {d.conoce_identidad && d.dependencia && (
+                          <span className="text-[11px] text-muted-foreground leading-snug break-words whitespace-normal mt-0.5">
+                            {d.dependencia}
+                          </span>
+                        )}
+                      </div>
                     </SelectItem>
                   ))}
                 </SelectContent>

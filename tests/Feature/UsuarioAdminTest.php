@@ -253,6 +253,7 @@ class UsuarioAdminTest extends TestCase
         $this->assertNotSame($viejo, $this->inv1->password);
         $this->assertTrue((bool) $this->inv1->debe_cambiar_password);
         $this->assertSame($this->inv1->username, session('credencialTemporal')['username']);
+        $this->assertSame('Gamea-' . $this->inv1->ci, session('credencialTemporal')['password']);
     }
 
     public function test_reset_propio_bloqueado(): void

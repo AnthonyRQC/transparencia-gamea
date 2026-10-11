@@ -40,6 +40,7 @@ export interface Prueba {
   descripcion: string;
   testigo_nombre?: string;
   testigo_telefono?: string;
+  testigo_ci?: string;
   archivo_nombre?: string;
 }
 

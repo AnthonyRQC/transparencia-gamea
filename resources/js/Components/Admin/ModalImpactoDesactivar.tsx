@@ -90,7 +90,7 @@ export default function ModalImpactoDesactivar({ usuario, investigadores, onOpen
             <div className="space-y-1.5">
               <Label>Investigador destino *</Label>
               <Select value={destino} onValueChange={setDestino}>
-                <SelectTrigger><SelectValue placeholder="Seleccionar destino" /></SelectTrigger>
+                <SelectTrigger className="max-w-full"><SelectValue placeholder="Seleccionar destino" className="truncate" /></SelectTrigger>
                 <SelectContent>
                   {investigadores
                     .filter((i) => i.id !== usuario.id)

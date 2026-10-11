@@ -32,7 +32,7 @@ export type PageProps<
 /** Props compartidas por el middleware (guest o autenticado). Sprint 12.3. */
 export interface SharedPageProps extends Record<string, unknown> {
     auth: {
-        user: Pick<User, 'id' | 'name' | 'username' | 'rol' | 'iniciales' | 'color' | 'permisos'> | null;
+        user: Pick<User, 'id' | 'name' | 'username' | 'nombres' | 'apellidos' | 'ci' | 'email' | 'telefono' | 'rol' | 'iniciales' | 'color' | 'permisos'> | null;
     };
     logo_url?: string;
     utlcc_logo_url?: string;

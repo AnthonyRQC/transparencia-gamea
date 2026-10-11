@@ -165,6 +165,7 @@ export default function RegistroDenuncia() {
                     descripcion: 'El señor asistente de almacén presenció el momento en que se exigió el dinero.',
                     testigo_nombre: 'Pedro Quispe Callisaya',
                     testigo_telefono: '60123456',
+                    testigo_ci: '',
                 },
                 {
                     id: 'mock-prb-2',
@@ -172,6 +173,7 @@ export default function RegistroDenuncia() {
                     descripcion: 'Capturas de pantalla del chat de WhatsApp donde se menciona el porcentaje.',
                     testigo_nombre: '',
                     testigo_telefono: '',
+                    testigo_ci: '',
                 }
             ],
             declaracion_jurada: true,
@@ -223,6 +225,7 @@ export default function RegistroDenuncia() {
                     descripcion: 'Copia digitalizada de la nota de solicitud inicial con sello de recepción y fecha visible.',
                     testigo_nombre: '',
                     testigo_telefono: '',
+                    testigo_ci: '',
                 }
             ],
             declaracion_jurada: true,

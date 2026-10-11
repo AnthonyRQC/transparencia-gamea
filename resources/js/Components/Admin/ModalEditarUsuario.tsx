@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/Components/ui/dialog';
 import { Button } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
+import InputError from '@/Components/Form/InputError';
 import { Label } from '@/Components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
 import { ROL_LABEL, type UsuarioRow } from './usuarios';
@@ -18,6 +19,7 @@ interface Props {
 export default function ModalEditarUsuario({ usuario, onOpenChange, rolesCreables }: Props) {
   const [form, setForm] = useState({ nombres: '', apellidos: '', email: '', telefono: '', rol: '' });
   const [processing, setProcessing] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (usuario) {
@@ -29,6 +31,7 @@ export default function ModalEditarUsuario({ usuario, onOpenChange, rolesCreable
         telefono: usuario.telefono ?? '',
         rol: usuario.rol,
       });
+      setErrors({});
     }
   }, [usuario]);
 
@@ -41,13 +44,14 @@ export default function ModalEditarUsuario({ usuario, onOpenChange, rolesCreable
 
   const guardar = () => {
     setProcessing(true);
+    setErrors({});
     router.post(route('admin.usuarios.update', { id: usuario.id }), { ...form, email: form.email || null }, {
       preserveScroll: true,
       onSuccess: () => {
         toast.success('Usuario actualizado.');
         onOpenChange(false);
       },
-      onError: (errors) => toast.error(Object.values(errors)[0] as string),
+      onError: (errs) => setErrors(errs as Record<string, string>),
       onFinish: () => setProcessing(false),
     });
   };
@@ -67,29 +71,34 @@ export default function ModalEditarUsuario({ usuario, onOpenChange, rolesCreable
           <div className="space-y-1.5">
             <Label htmlFor="e-nombres">Nombres *</Label>
             <Input id="e-nombres" value={form.nombres} onChange={set('nombres')} autoComplete="off" />
+            <InputError message={errors.nombres} className="mt-1" />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="e-apellidos">Apellidos *</Label>
             <Input id="e-apellidos" value={form.apellidos} onChange={set('apellidos')} autoComplete="off" />
+            <InputError message={errors.apellidos} className="mt-1" />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="e-email">Email</Label>
             <Input id="e-email" type="email" value={form.email} onChange={set('email')} autoComplete="off" />
+            <InputError message={errors.email} className="mt-1" />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="e-tel">Teléfono</Label>
             <Input id="e-tel" value={form.telefono} onChange={set('telefono')} autoComplete="off" />
+            <InputError message={errors.telefono} className="mt-1" />
           </div>
           <div className="space-y-1.5 sm:col-span-2">
             <Label htmlFor="e-rol">Rol *</Label>
             <Select value={form.rol} onValueChange={(v) => setForm((f) => ({ ...f, rol: v }))}>
-              <SelectTrigger id="e-rol"><SelectValue /></SelectTrigger>
+              <SelectTrigger id="e-rol" className="max-w-full"><SelectValue className="truncate" /></SelectTrigger>
               <SelectContent>
                 {rolesCreables.map((r) => (
                   <SelectItem key={r} value={r}>{ROL_LABEL[r] ?? r}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
+            <InputError message={errors.rol} className="mt-1" />
           </div>
         </div>
 

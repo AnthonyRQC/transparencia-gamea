@@ -101,8 +101,8 @@ export default function TraspasoModal({ ticket, investigadorActualId, open, inve
               Investigador destino
             </Label>
             <Select value={investigadorId} onValueChange={setInvestigadorId}>
-              <SelectTrigger id="investigador-destino">
-                <SelectValue placeholder="Seleccionar investigador..." />
+              <SelectTrigger id="investigador-destino" className="max-w-full">
+                <SelectValue placeholder="Seleccionar investigador..." className="truncate" />
               </SelectTrigger>
               <SelectContent>
                 {investigadoresList.map((t) => (

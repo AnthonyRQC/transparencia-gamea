@@ -11,7 +11,7 @@ class Prueba extends Model
     use UppercaseText;
 
     protected $fillable = [
-        'denuncia_id', 'tipo', 'descripcion', 'testigo_nombre', 'testigo_telefono',
+        'denuncia_id', 'tipo', 'descripcion', 'testigo_nombre', 'testigo_telefono', 'testigo_ci',
     ];
 
     protected array $uppercaseFields = [

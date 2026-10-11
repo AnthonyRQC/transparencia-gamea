@@ -1,7 +1,8 @@
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/Components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/Components/ui/dialog';
 import { Button } from '@/Components/ui/button';
 import { Copy, KeyRound } from 'lucide-react';
 import { toast } from 'sonner';
+import { copiarTexto } from '@/helpers/clipboard';
 
 export interface CredencialTemporal {
   username: string;
@@ -18,16 +19,15 @@ interface Props {
 export default function ModalCredencialTemporal({ credencial, onClose }: Props) {
   if (!credencial) return null;
 
-  const copiar = (texto: string, que: string) => {
-    navigator.clipboard.writeText(texto).then(
-      () => toast.success(`${que} copiado.`),
-      () => toast.error('No se pudo copiar.')
-    );
+  const copiar = async (texto: string, que: string) => {
+    const ok = await copiarTexto(texto);
+    if (ok) toast.success(`${que} copiado.`);
+    else toast.error('No se pudo copiar.');
   };
 
   return (
     <Dialog open={!!credencial} onOpenChange={(v) => { if (!v) onClose(); }}>
-      <DialogContent className="sm:max-w-md" onInteractOutside={(e) => e.preventDefault()}>
+      <DialogContent className="sm:max-w-md overflow-hidden" onInteractOutside={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <KeyRound className="w-5 h-5 text-primary" />
@@ -57,9 +57,19 @@ export default function ModalCredencialTemporal({ credencial, onClose }: Props) 
           ))}
         </div>
 
-        <DialogFooter>
-          <Button onClick={onClose} className="cursor-pointer">Entendido, ya la anoté</Button>
-        </DialogFooter>
+        <div className="flex flex-col gap-2 w-full pt-3 border-t border-border/40">
+          <Button
+            variant="outline"
+            onClick={() => copiar(`Usuario: ${credencial.username}\nContraseña: ${credencial.password}`, 'Credenciales')}
+            className="gap-1.5 cursor-pointer w-full justify-center"
+          >
+            <Copy className="w-4 h-4" />
+            Copiar credenciales completas
+          </Button>
+          <Button onClick={onClose} className="cursor-pointer w-full justify-center">
+            Entendido, ya la anoté
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );

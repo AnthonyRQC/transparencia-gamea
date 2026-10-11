@@ -104,6 +104,40 @@ class ArchivosCasoSubidaTest extends TestCase
         $this->assertDatabaseCount('denuncias_archivos', 0);
     }
 
+    public function test_subir_registra_bitacora_archivo_subido(): void
+    {
+        $this->actingAs($this->jefe);
+
+        $this->post("/denuncias/{$this->denuncia->ticket}/archivos", [
+            'archivo' => UploadedFile::fake()->create('informe.pdf', 100, 'application/pdf'),
+            'nombre' => 'INFORME REAL',
+            'descripcion' => 'DOCUMENTO DE PRUEBA',
+            'contexto' => 'general',
+        ])->assertSessionHas('success');
+
+        $this->assertDatabaseHas('bitacora', [
+            'denuncia_id' => $this->denuncia->id,
+            'accion' => 'archivo_subido',
+            'usuario_id' => $this->jefe->id,
+        ]);
+    }
+
+    public function test_subir_fallido_no_registra_bitacora(): void
+    {
+        $this->actingAs($this->jefe);
+
+        $this->post("/denuncias/{$this->denuncia->ticket}/archivos", [
+            'archivo' => UploadedFile::fake()->create('programa.exe', 10, 'application/x-msdownload'),
+            'nombre' => 'EJECUTABLE',
+            'contexto' => 'general',
+        ])->assertSessionHasErrors('archivo');
+
+        $this->assertDatabaseMissing('bitacora', [
+            'denuncia_id' => $this->denuncia->id,
+            'accion' => 'archivo_subido',
+        ]);
+    }
+
     public function test_descargar_devuelve_el_archivo_almacenado(): void
     {
         Storage::disk('local')->put('archivos/test/real.pdf', 'CONTENIDO');

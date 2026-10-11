@@ -245,9 +245,9 @@ export default function DescargoDetailModal({
                         <span>{formatearFechaHora(e.fecha) ?? ''}</span>
                       </div>
                       <div className="text-muted-foreground">
-                        <span className="line-through">{String(e.anterior ?? 'â€”')}</span>
-                        <span className="mx-1">â†’</span>
-                        <span className="font-medium text-foreground">{String(e.nuevo ?? 'â€”')}</span>
+                        <span className="line-through">{String(e.anterior ?? '—')}</span>
+                        <span className="mx-1">→</span>
+                        <span className="font-medium text-foreground">{String(e.nuevo ?? '—')}</span>
                       </div>
                     </div>
                   ))}

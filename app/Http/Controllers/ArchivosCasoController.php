@@ -51,6 +51,13 @@ class ArchivosCasoController extends Controller
             'fecha_subida' => now(),
         ]);
 
+        $denuncia->bitacora()->create([
+            'accion' => 'archivo_subido',
+            'detalle' => "ARCHIVO '{$validated['nombre']}' SUBIDO AL CASO {$ticket}",
+            'usuario_id' => Auth::id(),
+            'fecha' => now(),
+        ]);
+
         return redirect()->back()->with('success', "Archivo '{$validated['nombre']}' subido correctamente.");
     }
 

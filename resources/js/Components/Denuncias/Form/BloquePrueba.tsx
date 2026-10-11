@@ -19,6 +19,7 @@ export interface PruebaItem {
     descripcion: string;
     testigo_nombre: string;
     testigo_telefono: string;
+    testigo_ci: string;
 }
 
 interface BloquePruebaProps {
@@ -39,6 +40,7 @@ export function createPruebaItem(): PruebaItem {
         descripcion: '',
         testigo_nombre: '',
         testigo_telefono: '',
+        testigo_ci: '',
     };
 }
 
@@ -118,6 +120,7 @@ export default function BloquePrueba({ items, onChange, errors }: BloquePruebaPr
                                     if (v !== 'testigo') {
                                         patch.testigo_nombre = '';
                                         patch.testigo_telefono = '';
+                                        patch.testigo_ci = '';
                                     }
                                     updateItem(item.id, patch);
                                 }}
@@ -215,6 +218,26 @@ export default function BloquePrueba({ items, onChange, errors }: BloquePruebaPr
                                             {getError(index, 'testigo_telefono') && (
                                                 <div className="absolute right-2.5 top-1/2 -translate-y-1/2">
                                                     <InputError message={getError(index, 'testigo_telefono')} />
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <Label className={cn('text-xs font-medium', getError(index, 'testigo_ci') ? 'text-destructive' : 'text-muted-foreground')}>
+                                            CI del Testigo <span className="text-muted-foreground font-normal">(opcional)</span>
+                                        </Label>
+                                        <div className="relative">
+                                            <Input
+                                                placeholder="7654321-2B"
+                                                value={item.testigo_ci}
+                                                maxLength={20}
+                                                onChange={(e) => updateItem(item.id, { testigo_ci: e.target.value })}
+                                                className={cn(getError(index, 'testigo_ci') && 'border-destructive/50 pr-8')}
+                                                style={{ textTransform: 'uppercase' }}
+                                            />
+                                            {getError(index, 'testigo_ci') && (
+                                                <div className="absolute right-2.5 top-1/2 -translate-y-1/2">
+                                                    <InputError message={getError(index, 'testigo_ci')} />
                                                 </div>
                                             )}
                                         </div>

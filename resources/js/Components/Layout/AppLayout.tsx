@@ -73,13 +73,13 @@ export default function AppLayout({ children, headerBottom }: AppLayoutProps) {
     };
 
     return (
-        <div className="h-screen flex bg-background text-foreground transition-colors duration-300 font-sans overflow-hidden">
+        <div className="fixed inset-0 flex bg-background text-foreground transition-colors duration-300 font-sans overflow-hidden">
             {/*
               * Toaster top-center: los toasts de notificación SSE aparecen debajo
               * del navbar, centrados en la pantalla. expand=false limita a 3 toasts
               * visibles apilados. closeButton para cerrar manualmente.
               */}
-            <Toaster position="top-center" richColors expand={false} closeButton />
+            <Toaster position="top-center" richColors expand={false} closeButton className="z-[9999]" />
 
             {isSidebarOpenMobile && (
                 <div

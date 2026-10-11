@@ -67,7 +67,7 @@ export default function DescargoCard({ descargo, canAct, onClick, onNotificar, o
       {descargo.fecha_notificacion && (
         <p className="text-[11px] text-muted-foreground">
           Notificado: {formatearFechaCorta(descargo.fecha_notificacion) ?? ''}
-          {descargo.medio ? ` Â· ${descargo.medio}` : ''}
+          {descargo.medio ? ` · ${descargo.medio}` : ''}
         </p>
       )}
 

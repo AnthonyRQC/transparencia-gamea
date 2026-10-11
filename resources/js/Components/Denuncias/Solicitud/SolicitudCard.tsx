@@ -63,7 +63,7 @@ export default function SolicitudCard({ solicitud, canAct, onClick, onResponder,
             <p className="text-[11px] text-muted-foreground">
               <Clock className="w-3 h-3 inline mr-0.5" />
               Enviada {daysAgo(solicitud.fecha_envio)}
-              {solicitud.estado === 'respondida' && ` Â· Respondida ${solicitud.fecha_respuesta ? daysAgo(solicitud.fecha_respuesta) : ''}`}
+              {solicitud.estado === 'respondida' && ` · Respondida ${solicitud.fecha_respuesta ? daysAgo(solicitud.fecha_respuesta) : ''}`}
             </p>
           </div>
         </div>

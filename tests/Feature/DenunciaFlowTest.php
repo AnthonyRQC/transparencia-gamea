@@ -110,6 +110,120 @@ class DenunciaFlowTest extends TestCase
         $this->assertEquals($this->registrador->id, $denuncia->registrado_por_id);
     }
 
+    public function test_registro_acepta_ci_alfanumerico_boliviano(): void
+    {
+        $this->actingAs($this->registrador);
+
+        $response = $this->post('/denuncias', [
+            'tipo' => 'corrupcion',
+            'escenario' => 'revelada',
+            'declaracion_jurada' => true,
+            'denunciante' => [
+                'nombres' => 'TEST DENUNCIANTE',
+                'ci' => '1234567-1E',
+                'email' => 'test@email.com',
+                'telefono' => '71234567',
+            ],
+            'denunciados' => [
+                [
+                    'conoce_identidad' => true,
+                    'nombres' => 'TEST DENUNCIADO',
+                    'dependencia' => 'OFICINA TEST',
+                ],
+            ],
+            'detalles' => [
+                'categoria' => 'cohecho',
+                'fecha' => now()->subDays(5)->format('Y-m-d'),
+                'hora' => '10:00',
+                'lugar' => 'OFICINA TEST',
+            ],
+            'hechos' => 'ESTE ES UN TEST DE CREACIÓN DE DENUNCIA CON TODOS LOS CAMPOS REQUERIDOS',
+        ]);
+
+        $response->assertSessionHas('ticket');
+        $ticket = session('ticket');
+        $denuncia = Denuncia::where('ticket', $ticket)->firstOrFail();
+        $this->assertSame('1234567-1E', $denuncia->denunciante->ci);
+    }
+
+    public function test_registro_rechaza_ci_mayor_a_20(): void
+    {
+        $this->actingAs($this->registrador);
+
+        $response = $this->post('/denuncias', [
+            'tipo' => 'corrupcion',
+            'escenario' => 'revelada',
+            'declaracion_jurada' => true,
+            'denunciante' => [
+                'nombres' => 'TEST DENUNCIANTE',
+                'ci' => '123456789012345678901',
+                'email' => 'test@email.com',
+                'telefono' => '71234567',
+            ],
+            'denunciados' => [
+                [
+                    'conoce_identidad' => true,
+                    'nombres' => 'TEST DENUNCIADO',
+                    'dependencia' => 'OFICINA TEST',
+                ],
+            ],
+            'detalles' => [
+                'categoria' => 'cohecho',
+                'fecha' => now()->subDays(5)->format('Y-m-d'),
+                'hora' => '10:00',
+                'lugar' => 'OFICINA TEST',
+            ],
+            'hechos' => 'ESTE ES UN TEST DE CREACIÓN DE DENUNCIA CON TODOS LOS CAMPOS REQUERIDOS',
+        ]);
+
+        $response->assertSessionHasErrors('denunciante.ci');
+    }
+
+    public function test_registro_persiste_testigo_ci_opcional(): void
+    {
+        $this->actingAs($this->registrador);
+
+        $response = $this->post('/denuncias', [
+            'tipo' => 'corrupcion',
+            'escenario' => 'revelada',
+            'declaracion_jurada' => true,
+            'denunciante' => [
+                'nombres' => 'TEST DENUNCIANTE',
+                'ci' => '1234567',
+                'email' => 'test@email.com',
+                'telefono' => '71234567',
+            ],
+            'denunciados' => [
+                [
+                    'conoce_identidad' => true,
+                    'nombres' => 'TEST DENUNCIADO',
+                    'dependencia' => 'OFICINA TEST',
+                ],
+            ],
+            'detalles' => [
+                'categoria' => 'cohecho',
+                'fecha' => now()->subDays(5)->format('Y-m-d'),
+                'hora' => '10:00',
+                'lugar' => 'OFICINA TEST',
+            ],
+            'hechos' => 'ESTE ES UN TEST DE CREACIÓN DE DENUNCIA CON TODOS LOS CAMPOS REQUERIDOS',
+            'pruebas' => [
+                [
+                    'tipo' => 'testigo',
+                    'descripcion' => 'TESTIGO PRESENCIAL',
+                    'testigo_nombre' => 'JUAN TESTIGO',
+                    'testigo_telefono' => '71234567',
+                    'testigo_ci' => '7654321-2B',
+                ],
+            ],
+        ]);
+
+        $response->assertSessionHas('ticket');
+        $ticket = session('ticket');
+        $denuncia = Denuncia::where('ticket', $ticket)->firstOrFail();
+        $this->assertSame('7654321-2B', $denuncia->pruebas()->firstOrFail()->testigo_ci);
+    }
+
     public function test_jefe_can_admit_denuncia(): void
     {
         $denuncia = Denuncia::factory()->create([

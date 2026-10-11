@@ -26,7 +26,7 @@ class StoreDenunciaRequest extends FormRequest
             if ($this->input('escenario') !== 'anonimo') {
                 $rules = array_merge($rules, [
                     'denunciante.nombres' => 'required|string|min:2|max:100',
-                    'denunciante.ci' => 'nullable|digits_between:6,9',
+                    'denunciante.ci' => 'nullable|string|max:20',
                     'denunciante.email' => 'nullable|email',
                     'denunciante.telefono' => 'nullable|digits:8',
                 ]);
@@ -53,6 +53,7 @@ class StoreDenunciaRequest extends FormRequest
                 'pruebas.*.descripcion' => 'nullable|string',
                 'pruebas.*.testigo_nombre' => 'required_if:pruebas.*.tipo,testigo|nullable|string|max:100',
                 'pruebas.*.testigo_telefono' => 'required_if:pruebas.*.tipo,testigo|nullable|digits:8',
+                'pruebas.*.testigo_ci' => 'nullable|string|max:20',
             ]);
         }
 

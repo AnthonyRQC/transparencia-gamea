@@ -155,11 +155,11 @@ function InformePreview({ informe, canAct, onEdit, onDelete }: {
         </div>
         <div>
           <span className="text-muted-foreground">Redactado por:</span>
-          <p className="font-medium">{informe.concluido_por || 'â€”'}</p>
+          <p className="font-medium">{informe.concluido_por || '—'}</p>
         </div>
         <div className="col-span-2">
           <span className="text-muted-foreground">SITPRECO:</span>
-          <p className="font-mono text-xs font-medium">{informe.sitpreco || 'â€”'}</p>
+          <p className="font-mono text-xs font-medium">{informe.sitpreco || '—'}</p>
         </div>
       </div>
 

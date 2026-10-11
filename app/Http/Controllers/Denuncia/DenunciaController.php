@@ -34,7 +34,7 @@ class DenunciaController extends Controller
             if ($request->escenario !== EscenarioDenuncia::ANONIMO->value) {
                 $rules = array_merge($rules, [
                     'denunciante.nombres' => 'required|string|min:2|max:100',
-                    'denunciante.ci' => 'nullable|digits_between:6,9',
+                    'denunciante.ci' => 'nullable|string|max:20',
                     'denunciante.email' => 'nullable|email',
                     'denunciante.telefono' => 'nullable|digits:8',
                 ]);
@@ -61,6 +61,7 @@ class DenunciaController extends Controller
                 'pruebas.*.descripcion' => 'nullable|string',
                 'pruebas.*.testigo_nombre' => 'required_if:pruebas.*.tipo,testigo|nullable|string|max:100',
                 'pruebas.*.testigo_telefono' => 'required_if:pruebas.*.tipo,testigo|nullable|digits:8',
+                'pruebas.*.testigo_ci' => 'nullable|string|max:20',
             ]);
         }
 
@@ -114,6 +115,7 @@ class DenunciaController extends Controller
                         'descripcion' => $p['descripcion'] ?? '',
                         'testigo_nombre' => $p['testigo_nombre'] ?? null,
                         'testigo_telefono' => $p['testigo_telefono'] ?? null,
+                        'testigo_ci' => $p['testigo_ci'] ?? null,
                     ]);
                 }
             }
@@ -163,7 +165,7 @@ class DenunciaController extends Controller
         $validated = $request->validate([
             'escenario' => 'required|in:revelada,reservada,anonimo',
             'denunciante.nombres' => 'nullable|string|max:100',
-            'denunciante.ci' => 'nullable|digits_between:6,9',
+            'denunciante.ci' => 'nullable|string|max:20',
             'denunciante.email' => 'nullable|email',
             'denunciante.telefono' => 'nullable|digits:8',
             'denunciados' => 'required|array|min:1',

@@ -318,6 +318,33 @@ class ReporteTest extends TestCase
         $this->assertSame('NO IDENTIFICADO', $fila[1]);
     }
 
+    public function test_exportar_excel_neutraliza_formula_injection(): void
+    {
+        $d = $this->denuncia(['estado' => 'informe', 'escenario' => 'revelada']);
+        $d->denunciante()->create(['nombres' => '=CMD("calc")']);
+        $d->denunciados()->create([
+            'orden' => 0, 'conoce_identidad' => true,
+            'nombres' => '+SUMA(A1:A2)', 'dependencia' => '@MUNICIPIO',
+        ]);
+        $d->informe()->create([
+            'clasificacion_id' => Clasificacion::first()->id,
+            'sitpreco' => '-RESTA',
+            'justificacion' => 'RESUMEN NORMAL',
+            'concluido_por' => 'INVESTIGADOR UNO',
+            'redactado_at' => now()->subDays(2),
+        ]);
+
+        $export = new ReporteExcel(
+            Denuncia::with(['investigador', 'categoria', 'denunciante', 'denunciados', 'informe.clasificacionRel'])->get()
+        );
+
+        $fila = $export->collection()->firstWhere(fn ($r) => $r[1] === $d->ticket);
+        $this->assertStringStartsWith("'", $fila[3]);
+        $this->assertStringStartsWith("'", $fila[4]);
+        $this->assertStringStartsWith("'", $fila[5]);
+        $this->assertSame('RESUMEN NORMAL', $fila[8]);
+    }
+
     public function test_preview_clasificacion_usa_fecha_informe(): void
     {
         // Informe reciente de un caso ingresado hace 60 días: el gráfico lo

@@ -238,8 +238,8 @@ export default function ModalAmpliacionPlazo({ denuncia, open, onOpenChange, inv
               {huboSolicitud && (
                 <div className="pt-2">
                   <Select value={solicitadoPor} onValueChange={setSolicitadoPor} disabled={processing}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Seleccionar investigador..." />
+                    <SelectTrigger className="w-full max-w-full">
+                      <SelectValue placeholder="Seleccionar investigador..." className="truncate" />
                     </SelectTrigger>
                     <SelectContent>
                       {investigadoresList.map((t) => (
