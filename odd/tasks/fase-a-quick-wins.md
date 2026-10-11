@@ -49,3 +49,9 @@ keeping the 217-test PHPUnit suite green and `npm run build` clean.
 - `php artisan test --filter` CI/testigo/Excel focused: green per unit
 - `php artisan test`: 223 passed (1694 assertions) — baseline 217 + 6 new
 - `npm run build`: clean (tsc + vite, 4652 modules, built in 1m40s)
+
+## Evidence
+- Commit `14b741b` (single unit per explicit user order covering Fase A +
+  stacked UI fixes), fast-forward merged into `main`, branch
+  `feature/fase-a-quick-wins` deleted.
+- `diff --stat`: 56 files, 1089 insertions, 135 deletions.
