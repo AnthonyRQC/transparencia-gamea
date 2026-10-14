@@ -2,6 +2,8 @@ export type Permiso =
   | 'denuncia.crear'
   | 'denuncia.editar'
   | 'denuncia.eliminar'
+  | 'denuncia.cargar-legacy'
+  | 'denuncia.cargar-historico'
   | 'menu.dashboard'
   | 'menu.registrar-denuncia'
   | 'menu.bandeja'
@@ -75,6 +77,7 @@ export const PERMISOS_POR_ROL: Record<Rol, Permiso[]> = {
     'menu.consultar-casos',
     'denuncia.crear',
     'denuncia.editar',
+    'denuncia.cargar-historico',
     'consulta.ver',
     'consulta.codigo',
     'archivo.ver',
@@ -93,6 +96,8 @@ export const PERMISOS_POR_ROL: Record<Rol, Permiso[]> = {
     'denuncia.crear',
     'denuncia.editar',
     'denuncia.eliminar',
+    'denuncia.cargar-legacy',
+    'denuncia.cargar-historico',
     'caso.admitir',
     'caso.rechazar',
     'caso.asignar',
@@ -136,6 +141,7 @@ export const PERMISOS_POR_ROL: Record<Rol, Permiso[]> = {
     'menu.mi-resumen',
     'menu.evaluaciones',
     'menu.notificaciones',
+    'denuncia.cargar-legacy',
     'caso.evaluar',
     'caso.iniciar',
     'caso.avanzar-fase',

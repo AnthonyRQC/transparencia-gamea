@@ -8,6 +8,8 @@ class PermisosCatalogo
         'denuncia.crear' => 'Crear nueva denuncia',
         'denuncia.editar' => 'Editar denuncia raíz',
         'denuncia.eliminar' => 'Eliminar denuncia raíz',
+        'denuncia.cargar-legacy' => 'Cargar expediente preexistente en curso (legacy)',
+        'denuncia.cargar-historico' => 'Cargar expediente cerrado de gestiones pasadas (histórico)',
 
         'menu.dashboard' => 'Ver inicio/dashboard',
         'menu.registrar-denuncia' => 'Ver página de registro de denuncia',
@@ -92,6 +94,7 @@ class PermisosCatalogo
             'menu.consultar-casos',
             'denuncia.crear',
             'denuncia.editar',
+            'denuncia.cargar-historico',
             'consulta.ver',
             'consulta.codigo',
             'archivo.ver',
@@ -111,6 +114,8 @@ class PermisosCatalogo
             'denuncia.crear',
             'denuncia.editar',
             'denuncia.eliminar',
+            'denuncia.cargar-legacy',
+            'denuncia.cargar-historico',
             'caso.admitir',
             'caso.rechazar',
             'caso.asignar',
@@ -155,6 +160,7 @@ class PermisosCatalogo
             'menu.mi-resumen',
             'menu.evaluaciones',
             'menu.notificaciones',
+            'denuncia.cargar-legacy',
             'caso.evaluar',
             'caso.iniciar',
             'caso.avanzar-fase',
@@ -209,6 +215,7 @@ class PermisosCatalogo
      * `menu.usuarios` ni `admin.*`. Crear cuentas se hace en 18A.
      */
     public const DELEGABLE = [
+        'denuncia.cargar-legacy',
         'caso.admitir',
         'caso.rechazar',
         'caso.asignar',
@@ -246,6 +253,7 @@ class PermisosCatalogo
     public const PAQUETES = [
         'jefe_interino' => [
             'menu.bandeja',
+            'denuncia.cargar-legacy',
             'caso.admitir',
             'caso.rechazar',
             'caso.asignar',

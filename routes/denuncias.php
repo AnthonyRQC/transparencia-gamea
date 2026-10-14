@@ -11,6 +11,7 @@ use App\Http\Controllers\Denuncia\DelegacionController;
 use App\Http\Controllers\Denuncia\DenunciaController;
 use App\Http\Controllers\Denuncia\InformeController;
 use App\Http\Controllers\Denuncia\InvestigacionController;
+use App\Http\Controllers\Denuncia\LegacyController;
 use App\Http\Controllers\Denuncia\ReaperturaController;
 use App\Http\Controllers\DescargoController;
 use App\Http\Controllers\EvaluacionController;
@@ -34,6 +35,9 @@ Route::prefix('denuncias')->name('denuncias.')->group(function () {
     // Registro de nueva denuncia (Sprint 1)
     Route::get('/registrar', [DenunciaController::class, 'create'])->can('denuncia.crear')->name('registrar');
     Route::post('/', [DenunciaController::class, 'store'])->can('denuncia.crear')->name('store');
+
+    // Fase B — Carga legacy/histórica (autoriza el Request: dos permisos alternativos)
+    Route::post('/legacy', [LegacyController::class, 'store'])->name('legacy');
 
     // Acciones (Sprint 2) — AdmisionController
     Route::post('/{ticket}/admitir', [AdmisionController::class, 'admitir'])->can('caso.admitir')->name('admitir');

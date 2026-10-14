@@ -34,6 +34,7 @@ class Denuncia extends Model
         'declaracion_jurada',
         'investigador_id',
         'investigador_anterior_id',
+        'investigador_referencia',
         'fecha_admitida',
         'justificacion_admision',
         'fecha_rechazada',
@@ -53,6 +54,7 @@ class Denuncia extends Model
     protected array $uppercaseFields = [
         'lugar_hechos', 'hechos', 'justificacion_admision',
         'justificacion_rechazo', 'resumen_rechazo',
+        'investigador_referencia',
     ];
 
     protected function casts(): array

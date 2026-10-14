@@ -9,14 +9,10 @@ import { Textarea } from '@/Components/ui/textarea';
 import { Button } from '@/Components/ui/button';
 import { CalendarArrowUp } from 'lucide-react';
 
-interface ModalConciliarFechasProps {
+interface ModalConciliarRechazoProps {
   ticket: string | null;
   denuncia: {
-    created_at?: string | null;
-    fecha_admitida?: string | null;
-    fecha_asignada?: string | null;
     fecha_rechazada?: string | null;
-    fecha_reapertura?: string | null;
   } | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -27,19 +23,13 @@ function toDateInput(d?: string | null): string {
   return d.substring(0, 10);
 }
 
-export default function ModalConciliarFechas({ ticket, denuncia, open, onOpenChange }: ModalConciliarFechasProps) {
-  const [createdAt, setCreatedAt] = useState('');
-  const [fechaAdmitida, setFechaAdmitida] = useState('');
-  const [fechaAsignada, setFechaAsignada] = useState('');
+export default function ModalConciliarRechazo({ ticket, denuncia, open, onOpenChange }: ModalConciliarRechazoProps) {
   const [fechaRechazada, setFechaRechazada] = useState('');
   const [justificacion, setJustificacion] = useState('');
   const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
     if (open && denuncia) {
-      setCreatedAt(toDateInput(denuncia.created_at));
-      setFechaAdmitida(toDateInput(denuncia.fecha_admitida));
-      setFechaAsignada(toDateInput(denuncia.fecha_asignada));
       setFechaRechazada(toDateInput(denuncia.fecha_rechazada));
       setJustificacion('');
     }
@@ -53,21 +43,18 @@ export default function ModalConciliarFechas({ ticket, denuncia, open, onOpenCha
     router.post(
       route('denuncias.conciliar-fechas', { ticket }),
       {
-        created_at: createdAt || null,
-        fecha_admitida: fechaAdmitida || null,
-        fecha_asignada: fechaAsignada || null,
         fecha_rechazada: fechaRechazada || null,
         justificacion,
       },
       {
         preserveScroll: true,
         onSuccess: () => {
-          toast.success(`Fechas conciliadas para ${ticket}`);
+          toast.success(`Fecha de rechazo conciliada para ${ticket}`);
           onOpenChange(false);
         },
         onError: (errors) => {
           const keys = Object.keys(errors);
-          toast.error(keys.length > 0 ? errors[keys[0]] : 'Error al conciliar fechas');
+          toast.error(keys.length > 0 ? errors[keys[0]] : 'Error al conciliar fecha');
         },
         onFinish: () => setProcessing(false),
       }
@@ -78,52 +65,19 @@ export default function ModalConciliarFechas({ ticket, denuncia, open, onOpenCha
     <Dialog open={open} onOpenChange={(v) => { if (!processing) onOpenChange(v); }}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Conciliar fechas</DialogTitle>
+          <DialogTitle>Conciliar fecha de rechazo</DialogTitle>
           <DialogDescription>
             {ticket
-              ? `Ajuste las fechas de ${ticket}. La justificación es obligatoria.`
+              ? `Ajuste la fecha de rechazo de ${ticket}. La justificación es obligatoria.`
               : 'Seleccione una denuncia.'}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-2">
           <div className="space-y-2">
-            <Label htmlFor="cf-created-at">Fecha de ingreso</Label>
+            <Label htmlFor="cr-rechazada">Fecha de rechazo</Label>
             <Input
-              id="cf-created-at"
-              type="date"
-              value={createdAt}
-              onChange={(e) => setCreatedAt(e.target.value)}
-              disabled={processing}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="cf-admitida">Fecha de admisión</Label>
-            <Input
-              id="cf-admitida"
-              type="date"
-              value={fechaAdmitida}
-              onChange={(e) => setFechaAdmitida(e.target.value)}
-              disabled={processing}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="cf-asignada">Fecha de asignación</Label>
-            <Input
-              id="cf-asignada"
-              type="date"
-              value={fechaAsignada}
-              onChange={(e) => setFechaAsignada(e.target.value)}
-              disabled={processing}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="cf-rechazada">Fecha de rechazo</Label>
-            <Input
-              id="cf-rechazada"
+              id="cr-rechazada"
               type="date"
               value={fechaRechazada}
               onChange={(e) => setFechaRechazada(e.target.value)}
@@ -132,12 +86,12 @@ export default function ModalConciliarFechas({ ticket, denuncia, open, onOpenCha
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="cf-justificacion" className="after:content-['*'] after:text-destructive after:ml-0.5">
+            <Label htmlFor="cr-justificacion" className="after:content-['*'] after:text-destructive after:ml-0.5">
               Justificación
             </Label>
             <Textarea
-              id="cf-justificacion"
-              placeholder="Explique detalladamente por qué se ajustan las fechas..."
+              id="cr-justificacion"
+              placeholder="Explique detalladamente por qué se ajusta la fecha..."
               value={justificacion}
               onChange={(e) => setJustificacion(e.target.value)}
               rows={3}
@@ -161,7 +115,7 @@ export default function ModalConciliarFechas({ ticket, denuncia, open, onOpenCha
           </Button>
           <Button disabled={processing || !canSubmit} onClick={handleSubmit}>
             {processing ? 'Conciliando...' : (
-              <><CalendarArrowUp className="w-4 h-4 mr-1.5" />Conciliar fechas</>
+              <><CalendarArrowUp className="w-4 h-4 mr-1.5" />Conciliar fecha</>
             )}
           </Button>
         </DialogFooter>

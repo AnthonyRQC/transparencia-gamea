@@ -19,7 +19,8 @@ import ModalAmpliacionPlazo from '@/Components/Denuncias/Modales/Flujo/ModalAmpl
 import ModalDelegarEvaluacion from '@/Components/Denuncias/Modales/Flujo/ModalDelegarEvaluacion';
 import ModalEditarDenuncia from '@/Components/Denuncias/Modales/Flujo/ModalEditarDenuncia';
 import ModalArchivosDelCaso from '@/Components/Denuncias/Modales/General/ModalArchivosDelCaso';
-import ModalConciliarFechas from '@/Components/Denuncias/Modales/General/ModalConciliarFechas';
+import ModalConciliarAdmision from '@/Components/Denuncias/Modales/General/ModalConciliarAdmision';
+import ModalConciliarRechazo from '@/Components/Denuncias/Modales/General/ModalConciliarRechazo';
 import ModalConfirmar from '@/Components/Denuncias/Shared/ConfirmDialog';
 import type { Denuncia, Solicitud, Descargo } from './tipos';
 
@@ -211,12 +212,21 @@ export default function BandejaModales({ modalAdmisionTicket, setModalAdmisionTi
         open={modalArchivosTicket !== null}
         onOpenChange={(v) => { if (!v) setModalArchivosTicket(null); }}
       />
-      <ModalConciliarFechas
-        ticket={modalConciliarDenuncia?.ticket ?? null}
-        denuncia={modalConciliarDenuncia}
-        open={modalConciliarDenuncia !== null}
-        onOpenChange={(v) => { if (!v) setModalConciliarDenuncia(null); }}
-      />
+      {modalConciliarDenuncia?.estado === 'rechazada' ? (
+        <ModalConciliarRechazo
+          ticket={modalConciliarDenuncia?.ticket ?? null}
+          denuncia={modalConciliarDenuncia}
+          open={modalConciliarDenuncia !== null}
+          onOpenChange={(v) => { if (!v) setModalConciliarDenuncia(null); }}
+        />
+      ) : (
+        <ModalConciliarAdmision
+          ticket={modalConciliarDenuncia?.ticket ?? null}
+          denuncia={modalConciliarDenuncia}
+          open={modalConciliarDenuncia !== null}
+          onOpenChange={(v) => { if (!v) setModalConciliarDenuncia(null); }}
+        />
+      )}
       <ModalDelegarEvaluacion
         ticket={modalDelegarEvaluacionTicket}
         open={modalDelegarEvaluacionTicket !== null}
