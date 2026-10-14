@@ -5,11 +5,14 @@ import {
   InboxIcon, X, UserPlus, RotateCcw, ArrowRightLeft, Search,
   MoreHorizontal, FolderOpen, Pencil
 } from 'lucide-react';
-import { FileSearch, Undo2, CalendarArrowUp, Trash2 } from 'lucide-react';
+import { FileSearch, Undo2, CalendarArrowUp, Trash2, FolderInput } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/Components/ui/tooltip';
 import AppLayout from '@/Components/Layout/AppLayout';
 import PageHeader from '@/Components/Layout/PageHeader';
 import DenunciaSheet from '@/Components/Denuncias/Sheet/DenunciaSheet';
+import ModalCargarLegacy from '@/Components/Denuncias/Modales/General/ModalCargarLegacy';
+import { Button } from '@/Components/ui/button';
+import { useCan } from '@/hooks/useCan';
 import ListaVacia from '@/Components/Denuncias/Shared/ListaVacia';
 import BandejaFiltros from './bandeja/BandejaFiltros';
 import BandejaLista from './bandeja/BandejaLista';
@@ -34,6 +37,9 @@ export default function Bandeja({ denuncias, contadores, investigadores, cargaIn
   const [modalEliminarDenunciaTicket, setModalEliminarDenunciaTicket] = useState<string | null>(null);
   // Sprint 7.6 — Archivos del caso
   const [modalArchivosTicket, setModalArchivosTicket] = useState<string | null>(null);
+  // Fase B — Carga legacy/histórica (jefe: ambos modos + selector)
+  const [modalLegacyOpen, setModalLegacyOpen] = useState(false);
+  const puedeCargarLegacy = useCan(['denuncia.cargar-legacy', 'denuncia.cargar-historico']);
   // Sprint 7.5 — Conciliación de fechas
   const [modalConciliarDenuncia, setModalConciliarDenuncia] = useState<Denuncia | null>(null);
   // Sprint 7 modals
@@ -187,6 +193,14 @@ export default function Bandeja({ denuncias, contadores, investigadores, cargaIn
         icon={<InboxIcon className="shrink-0" />}
         titulo="Bandeja de Admisión"
         subtitulo="Gestión de denuncias institucionales. Haz clic en un caso para ver su detalle y acciones."
+        acciones={
+          puedeCargarLegacy ? (
+            <Button type="button" variant="outline" size="sm" onClick={() => setModalLegacyOpen(true)} className="gap-1.5 cursor-pointer">
+              <FolderInput className="w-3.5 h-3.5" />
+              Cargar expediente
+            </Button>
+          ) : undefined
+        }
       />
 
       <BandejaFiltros
@@ -427,6 +441,12 @@ export default function Bandeja({ denuncias, contadores, investigadores, cargaIn
           </div>
         </DenunciaSheet>
       )}
+
+      <ModalCargarLegacy
+        open={modalLegacyOpen}
+        onOpenChange={setModalLegacyOpen}
+        investigadores={(cargaInvestigadores ?? []).map((t) => ({ id: t.id, nombre: t.nombre }))}
+      />
 
       <BandejaModales
         modalAdmisionTicket={modalAdmisionTicket}

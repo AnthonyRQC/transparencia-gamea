@@ -2,10 +2,13 @@ import { useState, useEffect, useMemo } from 'react';
 import { Head, router } from '@inertiajs/react';
 import { toast } from 'sonner';
 import { route } from 'ziggy-js';
-import { ClipboardList, Search } from 'lucide-react';
+import { ClipboardList, Search, FolderInput } from 'lucide-react';
 import AppLayout from '@/Components/Layout/AppLayout';
 import PageHeader from '@/Components/Layout/PageHeader';
 import ListaVacia from '@/Components/Denuncias/Shared/ListaVacia';
+import ModalCargarLegacy from '@/Components/Denuncias/Modales/General/ModalCargarLegacy';
+import { Button } from '@/Components/ui/button';
+import { useCan } from '@/hooks/useCan';
 import BandejaFiltros from './bandeja/BandejaFiltros';
 import MisCasosLista from './mis-casos/MisCasosLista';
 import MisCasosSheet from './mis-casos/MisCasosSheet';
@@ -42,6 +45,9 @@ evaluacionesDevueltas = [], canAct = true, destacar, destacarDenuncia = null }: 
   const [processingEliminar, setProcessingEliminar] = useState(false);
 
   const [activeTab, setActiveTab] = useState<string>(() => tabDesdeEstado(filters?.estado));
+  // Fase B — Carga legacy (investigador: en curso autoasignado)
+  const [modalLegacyOpen, setModalLegacyOpen] = useState(false);
+  const puedeCargarLegacy = useCan('denuncia.cargar-legacy');
 
   // Página actual del servidor + orden visual del cliente (plazo display-only).
   // El servidor ya aplicó el scope del tab; se re-filtra por tab para la
@@ -179,6 +185,14 @@ evaluacionesDevueltas = [], canAct = true, destacar, destacarDenuncia = null }: 
         icon={<ClipboardList className="shrink-0" />}
         titulo="Mis Casos"
         subtitulo="Gestión de casos asignados y seguimiento de plazos de investigación."
+        acciones={
+          puedeCargarLegacy ? (
+            <Button type="button" variant="outline" size="sm" onClick={() => setModalLegacyOpen(true)} className="gap-1.5 cursor-pointer">
+              <FolderInput className="w-3.5 h-3.5" />
+              Cargar caso en curso
+            </Button>
+          ) : undefined
+        }
       />
 
       <BandejaFiltros
@@ -235,6 +249,8 @@ evaluacionesDevueltas = [], canAct = true, destacar, destacarDenuncia = null }: 
           onEliminarDescargo={setModalEliminarDesc}
         />
       )}
+
+      <ModalCargarLegacy open={modalLegacyOpen} onOpenChange={setModalLegacyOpen} />
 
       <MisCasosModales
         modalNuevaSolTicket={modalNuevaSolTicket}

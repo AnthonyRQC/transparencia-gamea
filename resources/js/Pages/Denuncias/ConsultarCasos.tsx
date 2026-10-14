@@ -1,9 +1,11 @@
 import { useState, useMemo, useEffect } from 'react';
 import { formatearFechaCorta } from '@/helpers/fechas';
 import { Head, router, usePage } from '@inertiajs/react';
-import { Search, Eye, Key, ChevronDown, ChevronUp, Pencil } from 'lucide-react';
+import { Search, Eye, Key, ChevronDown, ChevronUp, Pencil, FolderInput } from 'lucide-react';
 import AppLayout from '@/Components/Layout/AppLayout';
 import PageHeader from '@/Components/Layout/PageHeader';
+import ModalCargarLegacy from '@/Components/Denuncias/Modales/General/ModalCargarLegacy';
+import { useCan } from '@/hooks/useCan';
 import DenunciaSheet from '@/Components/Denuncias/Sheet/DenunciaSheet';
 import TipoDenunciaBadge from '@/Components/Denuncias/Card/TipoDenunciaBadge';
 import PlazoBadge from '@/Components/Denuncias/Card/PlazoBadge';
@@ -61,6 +63,9 @@ export default function ConsultarCasos({ denuncias, investigadores, filters }: P
   const [filterFechaHasta, setFilterFechaHasta] = useState(filters.fecha_hasta as string || '');
   const [filterInvestigador, setFilterInvestigador] = useState(filters.investigador as string || '');
   const [showFilters, setShowFilters] = useState(false);
+  // Fase B — Carga histórica de archivo (registrador)
+  const [modalLegacyOpen, setModalLegacyOpen] = useState(false);
+  const puedeCargarHistorico = useCan('denuncia.cargar-historico');
 
   const investigadoresList = useMemo(() => Object.values(investigadores), [investigadores]);
 
@@ -115,18 +120,34 @@ export default function ConsultarCasos({ denuncias, investigadores, filters }: P
         titulo="Consultar Casos"
         subtitulo="Búsqueda avanzada y filtrado histórico en toda la base de denuncias."
         acciones={
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => setShowFilters(!showFilters)}
-            className="gap-1.5 cursor-pointer"
-          >
-            {showFilters ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-            {showFilters ? 'Ocultar filtros' : 'Mostrar filtros'}
-          </Button>
+          <>
+            {puedeCargarHistorico && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setModalLegacyOpen(true)}
+                className="gap-1.5 cursor-pointer"
+              >
+                <FolderInput className="w-3.5 h-3.5" />
+                Cargar histórico
+              </Button>
+            )}
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setShowFilters(!showFilters)}
+              className="gap-1.5 cursor-pointer"
+            >
+              {showFilters ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+              {showFilters ? 'Ocultar filtros' : 'Mostrar filtros'}
+            </Button>
+          </>
         }
       />
+
+      <ModalCargarLegacy open={modalLegacyOpen} onOpenChange={setModalLegacyOpen} />
 
       {/* Panel de 7 filtros */}
       {showFilters && (
