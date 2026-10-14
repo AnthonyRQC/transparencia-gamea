@@ -17,7 +17,7 @@ class ConsultaCasosController extends Controller
             return redirect()->route('dashboard')->with('error', 'NO TIENES PERMISO PARA ESA SECCIÓN.');
         }
 
-        $query = Denuncia::with(['denunciante', 'denunciados', 'investigador', 'categoria', 'solicitudes.dependenciaDestino', 'solicitudes.ampliaciones', 'descargos.denunciado', 'descargos.ampliaciones', 'evaluaciones', 'bitacora.usuario'])
+        $query = Denuncia::with(['denunciante', 'denunciados', 'investigador', 'registradoPor:id,name', 'categoria', 'solicitudes.dependenciaDestino', 'solicitudes.ampliaciones', 'descargos.denunciado', 'descargos.ampliaciones', 'evaluaciones', 'bitacora.usuario'])
             ->whereNull('deleted_at');
 
         if ($busqueda = $request->input('busqueda')) {

@@ -47,6 +47,7 @@ class DenunciaListQuery
     {
         return [
             'denunciante', 'denunciados', 'pruebas', 'categoria', 'investigador',
+            'registradoPor:id,name',
             'informe.clasificacionRel', 'cierre.medioNotificacion',
             'solicitudes.dependenciaDestino', 'solicitudes.ampliaciones',
             'descargos.denunciado', 'descargos.ampliaciones',

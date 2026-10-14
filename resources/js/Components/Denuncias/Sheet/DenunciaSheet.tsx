@@ -61,6 +61,9 @@ interface DenunciaDetail {
   investigador?: InvestigadorAsignado;
   investigador_anterior?: InvestigadorAsignado;
   investigador_anterior_id?: string | number | null;
+  investigador_referencia?: string | null;
+  es_legacy?: boolean;
+  registrado_por?: { id?: number; name?: string } | null;
   created_at: string;
   estado: string;
   subestado?: string | null;
@@ -222,6 +225,11 @@ export default function DenunciaSheet({
             </SheetTitle>
             <TipoDenunciaBadge tipo={denuncia.tipo} />
             <PlazoBadge plazo={plazo} />
+            {denuncia.es_legacy && (
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-500/15 text-slate-800 dark:text-slate-200 border border-slate-500/30">
+                PREEXISTENTE
+              </span>
+            )}
           </div>
         </SheetHeader>
 
@@ -252,7 +260,7 @@ export default function DenunciaSheet({
             </TabsList>
 
             <TabsContent value="info" className="flex-1 overflow-y-auto py-4 space-y-5 mt-0 data-[state=inactive]:hidden">
-              <BloqueMetadatos fecha={fecha} plazo={plazo} ticket={denuncia.ticket} avisosFaltantes={avisosFaltantes} puedePublicar={puedePublicar} />
+              <BloqueMetadatos fecha={fecha} plazo={plazo} ticket={denuncia.ticket} avisosFaltantes={avisosFaltantes} puedePublicar={puedePublicar} registradoPor={denuncia.es_legacy ? denuncia.registrado_por?.name ?? null : null} />
               <SheetInfoContent denuncia={denuncia} hechos={hechos} investigadorInfo={investigadorInfo} investigadorAnteriorInfo={investigadorAnteriorInfo} bitacora={bitacora} />
             </TabsContent>
 
@@ -312,7 +320,7 @@ export default function DenunciaSheet({
           </Tabs>
         ) : (
           <div className="flex-1 overflow-y-auto py-4 space-y-5">
-            <BloqueMetadatos fecha={fecha} plazo={plazo} ticket={denuncia.ticket} avisosFaltantes={avisosFaltantes} puedePublicar={puedePublicar} />
+            <BloqueMetadatos fecha={fecha} plazo={plazo} ticket={denuncia.ticket} avisosFaltantes={avisosFaltantes} puedePublicar={puedePublicar} registradoPor={denuncia.es_legacy ? denuncia.registrado_por?.name ?? null : null} />
             <SheetInfoContent denuncia={denuncia} hechos={hechos} investigadorInfo={investigadorInfo} investigadorAnteriorInfo={investigadorAnteriorInfo} bitacora={bitacora} />
           </div>
         )}
@@ -341,17 +349,21 @@ export default function DenunciaSheet({
   );
 }
 
-function BloqueMetadatos({ fecha, plazo, ticket, avisosFaltantes, puedePublicar }: {
+function BloqueMetadatos({ fecha, plazo, ticket, avisosFaltantes, puedePublicar, registradoPor }: {
   fecha: string;
   plazo: PlazoInfo | null;
   ticket: string;
   avisosFaltantes: string[];
   puedePublicar: boolean;
+  registradoPor?: string | null;
 }) {
   return (
     <div className="space-y-3">
       <div className="rounded-xl bg-muted/40 p-3 border border-border/50 text-xs space-y-1">
         <p className="text-muted-foreground">Ingreso: <strong className="text-foreground">{fecha}</strong></p>
+        {registradoPor && (
+          <p className="text-muted-foreground">Digitalizado por: <strong className="text-foreground">{registradoPor}</strong></p>
+        )}
         {plazo?.fecha_vencimiento && (
           <p className="text-muted-foreground">Vencimiento estimado: <strong className="text-foreground">{formatearFechaLarga(plazo.fecha_vencimiento) ?? ''}</strong></p>
         )}
@@ -600,6 +612,8 @@ function SheetInfoContent({ denuncia, hechos, investigadorInfo, investigadorAnte
               )}
             </div>
           </div>
+        ) : denuncia.es_legacy ? (
+          <p className="text-sm text-muted-foreground">Responsable histórico: {denuncia.investigador_referencia || 'ARCHIVO HISTÓRICO'}</p>
         ) : (
           <p className="text-sm text-muted-foreground italic">Sin asignar</p>
         )}
