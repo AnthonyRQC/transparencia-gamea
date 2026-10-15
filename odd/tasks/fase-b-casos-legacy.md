@@ -60,23 +60,22 @@ ticket) and closed historical records (`historico`, state `cerrada`,
    reference, strict permissions.ts mirror — all approved.
 
 ## Acceptance criteria
-- [ ] Investigator ongoing load self-assigns (`investigador_id = Auth::id()`).
-- [ ] Historico is `cerrada` with `investigador_id = null` and `plazo === null`.
-- [ ] `investigador_referencia` + `clasificacion_id` persisted (informe row).
-- [ ] Manual folder number respected; counter bumped per high-water mark.
-- [ ] Unauthorized roles redirect to `/dashboard`.
-- [ ] `phpunit` suite green + `npm run build` clean.
+- [x] Investigator ongoing load self-assigns (`investigador_id = Auth::id()`).
+- [x] Historico is `cerrada` with `investigador_id = null` and `plazo === null`.
+- [x] `investigador_referencia` + `clasificacion_id` persisted (informe row).
+- [x] Manual folder number respected; counter bumped per high-water mark.
+- [x] Unauthorized roles redirect to `/dashboard`.
+- [x] `phpunit` suite green + `npm run build` clean.
 
 ## Verification
 - `phpunit --filter=CargaLegacyTest`: OK (8 tests, 38 assertions) — 2026-10-11
 - `npm run build`: clean (tsc + vite, 4650 modules, built in 1m04s) — 2026-10-11
 - `phpunit` full suite: OK (231 tests, 1741 assertions) — 2026-10-11 (baseline 223 + 8 new)
+- `phpunit` full suite final: OK (239 tests, 1790 assertions) — 2026-10-14
 
 ## Evidence
-- Branch `feat/fase-b-casos-legacy`; changes left uncommitted in working tree
-  for review in Lazygit (per project rule: no self commit).
-- `diff --stat` (tracked): 9 files, 107 insertions, 191 deletions + 10 new
-  files (LegacyController, StoreLegacyDenunciaRequest, migration
-  2026_10_11_000001, ModalCargarLegacy, ModalConciliarAdmision/Rechazo,
-  CargaLegacyTest, odd/tasks doc, openspec/changes/fase-b-casos-legacy/ ×4).
-- (SHA + diff --stat recorded on close)
+- Branch `feat/fase-b-casos-legacy` and `feat/fase-b-pulido` merged to `main` via fast-forward.
+- Commits:
+  - `4036846` feat(denuncias): agregar soporte para carga de casos preexistentes y legado institucional
+  - `a85643b` feat(ui): implementar modal de carga legacy con dependencias hibridas y validacion inline
+  - `28f11d5` feat(sheet): exhibir trazabilidad legacy, responsable historico y digitalizador

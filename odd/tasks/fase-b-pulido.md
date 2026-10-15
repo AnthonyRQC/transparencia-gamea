@@ -37,14 +37,14 @@ uploads, future-date guards, and a verified uppercase policy (TipTap excluded).
    passwords/emails untouched (verified: no code change needed).
 
 ## Acceptance criteria
-- [ ] No voseo left in the legacy flow.
-- [ ] Each declarant scenario persists correctly (incl. reserva badge).
-- [ ] Repeater creates N accused with correct identidad/descripcion branches.
-- [ ] Hybrid dependencia accepts catalog pick and free text.
-- [ ] With/without attachments both succeed; invalid mime 422s.
-- [ ] Future dates unselectable in UI and rejected by backend.
-- [ ] Uppercase exclusions covered by tests.
-- [ ] Full suite + build green.
+- [x] No voseo left in the legacy flow.
+- [x] Each declarant scenario persists correctly (incl. reserva badge).
+- [x] Repeater creates N accused with correct identidad/descripcion branches.
+- [x] Hybrid dependencia accepts catalog pick and free text.
+- [x] With/without attachments both succeed; invalid mime 422s.
+- [x] Future dates unselectable in UI and rejected by backend.
+- [x] Uppercase exclusions covered by tests.
+- [x] Full suite + build green.
 
 ## Verification
 - `phpunit --filter=CargaLegacyTest`: OK (12 tests, 58 assertions) — 2026-10-13
@@ -61,5 +61,8 @@ uploads, future-date guards, and a verified uppercase policy (TipTap excluded).
 - Ajuste multilínea + recorte 45 caracteres + `overflow-x-hidden` en diálogo: `npm run build` clean (tsc + vite, 4650 modules, built in 44.78s) — 2026-10-14
 
 ## Evidence
-- Branch `feat/fase-b-pulido` (sobre base Fase B sin commitear); cambios sin
-  commit en working tree para revisión en Lazygit.
+- Commits mergeados a `main`:
+  - `4036846` feat(denuncias): agregar soporte para carga de casos preexistentes y legado institucional
+  - `a85643b` feat(ui): implementar modal de carga legacy con dependencias hibridas y validacion inline
+  - `28f11d5` feat(sheet): exhibir trazabilidad legacy, responsable historico y digitalizador
+- Estado final verificado: 239 tests passing, build limpio, UI verificada en navegador.
