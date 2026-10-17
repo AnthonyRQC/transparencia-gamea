@@ -51,7 +51,12 @@ class DenunciaListQuery
             'informe.clasificacionRel', 'cierre.medioNotificacion',
             'solicitudes.dependenciaDestino', 'solicitudes.ampliaciones',
             'descargos.denunciado', 'descargos.ampliaciones',
-            'evaluaciones', 'bitacora.usuario',
+            'evaluaciones',
+            'bitacora' => fn ($q) => $q->select([
+                'id', 'denuncia_id', 'entidad_tipo', 'entidad_id',
+                'accion', 'detalle', 'usuario_id', 'fecha', 'created_at', 'updated_at',
+            ]),
+            'bitacora.usuario:id,name',
         ];
     }
 

@@ -144,7 +144,17 @@ class MisCasosController extends Controller
             ->where('estado', 'devuelta')
             ->get();
 
-        $with = ['denunciante', 'denunciados', 'pruebas', 'categoria', 'investigador', 'informe.clasificacionRel', 'cierre.medioNotificacion', 'solicitudes.dependenciaDestino', 'solicitudes.ampliaciones', 'descargos.denunciado', 'descargos.ampliaciones', 'evaluaciones', 'bitacora.usuario'];
+        $with = [
+            'denunciante', 'denunciados', 'pruebas', 'categoria', 'investigador',
+            'informe.clasificacionRel', 'cierre.medioNotificacion',
+            'solicitudes.dependenciaDestino', 'solicitudes.ampliaciones',
+            'descargos.denunciado', 'descargos.ampliaciones', 'evaluaciones',
+            'bitacora' => fn ($q) => $q->select([
+                'id', 'denuncia_id', 'entidad_tipo', 'entidad_id',
+                'accion', 'detalle', 'usuario_id', 'fecha', 'created_at', 'updated_at',
+            ]),
+            'bitacora.usuario:id,name',
+        ];
 
         $denunciaIds = $evaluacionesDelegadas->pluck('denuncia_id')->concat($evaluacionesDevueltas->pluck('denuncia_id'))->filter()->unique();
         $denuncias = Denuncia::with($with)->whereIn('id', $denunciaIds)->get();
