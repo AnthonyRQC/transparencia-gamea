@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuditoriaController;
 use App\Http\Controllers\CatalogoController;
 use App\Http\Controllers\DelegacionTemporalController;
 use App\Http\Controllers\PublicacionController;
@@ -50,4 +51,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/delegaciones', [DelegacionTemporalController::class, 'index'])->can('menu.usuarios')->name('delegaciones.index');
     Route::post('/delegaciones', [DelegacionTemporalController::class, 'store'])->can('usuario.editar')->name('delegaciones.store');
     Route::post('/delegaciones/{id}/revocar', [DelegacionTemporalController::class, 'revocar'])->can('usuario.editar')->name('delegaciones.revocar');
+
+    // Auditoría (Fase C)
+    Route::get('/auditoria', [AuditoriaController::class, 'index'])
+        ->can('menu.auditoria')->name('auditoria.index');
+    Route::get('/auditoria/extracto/{ticket}', [AuditoriaController::class, 'extractoTecnico'])
+        ->can('auditoria.extracto-tecnico')->name('auditoria.extracto');
 });

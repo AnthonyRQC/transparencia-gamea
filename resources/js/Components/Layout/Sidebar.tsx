@@ -15,6 +15,7 @@ import {
     Megaphone,
     Users,
     KeyRound,
+    ShieldCheck,
     FlaskConical,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -154,6 +155,14 @@ export default function Sidebar({
             routeName: 'admin.delegaciones.*',
             icon: <KeyRound className="w-5 h-5 shrink-0" />,
             permiso: 'menu.usuarios',
+        },
+        {
+            key: 'auditoria',
+            label: 'Auditoría',
+            href: route('admin.auditoria.index'),
+            routeName: 'admin.auditoria.*',
+            icon: <ShieldCheck className="w-5 h-5 shrink-0" />,
+            permiso: 'menu.auditoria',
         },
     ];
 

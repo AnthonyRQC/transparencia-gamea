@@ -23,6 +23,10 @@ class PermisosCatalogo
         'menu.catalogos' => 'Ver admin de catálogos',
         'menu.publicaciones' => 'Ver admin de avisos',
         'menu.usuarios' => 'Ver administración de usuarios',
+        'menu.auditoria' => 'Ver panel de auditoría',
+        'auditoria.extracto-operativo' => 'Exportar extracto operativo del caso',
+        'auditoria.extracto-tecnico' => 'Exportar extracto técnico del caso',
+        'constancia.propia' => 'Generar constancia propia de acciones',
 
         'caso.admitir' => 'Admitir denuncia',
         'caso.rechazar' => 'Rechazar denuncia',
@@ -103,6 +107,7 @@ class PermisosCatalogo
             'publicacion.editar',
             'publicacion.eliminar',
             'publicacion.publicar',
+            'constancia.propia',
         ],
 
         'jefe' => [
@@ -152,6 +157,8 @@ class PermisosCatalogo
             'usuario.editar',
             'usuario.desactivar',
             'usuario.reset-password',
+            'auditoria.extracto-operativo',
+            'constancia.propia',
         ],
 
         'investigador' => [
@@ -187,6 +194,7 @@ class PermisosCatalogo
             'archivo.subir',
             'archivo.eliminar',
             'notificacion.ver',
+            'constancia.propia',
         ],
 
         'admin' => [
@@ -207,6 +215,8 @@ class PermisosCatalogo
             'publicacion.editar',
             'publicacion.eliminar',
             'publicacion.publicar',
+            'menu.auditoria',
+            'auditoria.extracto-tecnico',
         ],
     ];
 

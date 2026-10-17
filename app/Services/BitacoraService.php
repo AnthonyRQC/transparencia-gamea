@@ -39,4 +39,17 @@ class BitacoraService
             'usuario_id' => auth()->id(),
         ]);
     }
+
+    public static function registrarAuditoria(string $accion, array $detalle = []): void
+    {
+        Bitacora::create([
+            'denuncia_id' => null,
+            'entidad_tipo' => 'auditoria',
+            'entidad_id' => null,
+            'accion' => $accion,
+            'detalle' => json_encode($detalle),
+            'usuario_id' => auth()->id(),
+            'fecha' => now(),
+        ]);
+    }
 }

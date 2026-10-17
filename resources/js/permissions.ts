@@ -66,7 +66,11 @@ export type Permiso =
   | 'publicacion.editar'
   | 'publicacion.eliminar'
   | 'publicacion.publicar'
-  | 'notificacion.ver';
+  | 'notificacion.ver'
+  | 'menu.auditoria'
+  | 'auditoria.extracto-operativo'
+  | 'auditoria.extracto-tecnico'
+  | 'constancia.propia';
 
 export type Rol = 'registrador' | 'jefe' | 'investigador' | 'admin';
 
@@ -86,6 +90,7 @@ export const PERMISOS_POR_ROL: Record<Rol, Permiso[]> = {
     'publicacion.editar',
     'publicacion.eliminar',
     'publicacion.publicar',
+    'constancia.propia',
   ],
   jefe: [
     'menu.dashboard',
@@ -134,6 +139,8 @@ export const PERMISOS_POR_ROL: Record<Rol, Permiso[]> = {
     'usuario.editar',
     'usuario.desactivar',
     'usuario.reset-password',
+    'auditoria.extracto-operativo',
+    'constancia.propia',
   ],
   investigador: [
     'menu.dashboard',
@@ -168,6 +175,7 @@ export const PERMISOS_POR_ROL: Record<Rol, Permiso[]> = {
     'archivo.subir',
     'archivo.eliminar',
     'notificacion.ver',
+    'constancia.propia',
   ],
   admin: [
     'menu.dashboard',
@@ -187,6 +195,8 @@ export const PERMISOS_POR_ROL: Record<Rol, Permiso[]> = {
     'publicacion.editar',
     'publicacion.eliminar',
     'publicacion.publicar',
+    'menu.auditoria',
+    'auditoria.extracto-tecnico',
   ],
 };
 
