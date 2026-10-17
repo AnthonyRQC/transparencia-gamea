@@ -71,6 +71,16 @@ class ArchivosCasoController extends Controller
 
         $archivo->update(['fecha_eliminacion' => now()]);
 
+        $ticket = $archivo->denuncia->ticket;
+        $archivo->denuncia->bitacora()->create([
+            'accion' => 'archivo_eliminado',
+            'entidad_tipo' => DenunciaArchivo::class,
+            'entidad_id' => $archivo->id,
+            'detalle' => "ARCHIVO #{$archivo->id} ELIMINADO DEL CASO {$ticket}",
+            'usuario_id' => Auth::id(),
+            'fecha' => now(),
+        ]);
+
         return redirect()->back()->with('success', "Archivo '{$archivo->nombre}' eliminado correctamente.");
     }
 
@@ -85,6 +95,16 @@ class ArchivosCasoController extends Controller
         if (!Storage::disk('local')->exists($archivo->path)) {
             return redirect()->back()->with('error', 'Archivo no encontrado en el almacenamiento.');
         }
+
+        $ticket = $archivo->denuncia->ticket;
+        $archivo->denuncia->bitacora()->create([
+            'accion' => 'archivo_descargado',
+            'entidad_tipo' => DenunciaArchivo::class,
+            'entidad_id' => $archivo->id,
+            'detalle' => "DESCARGA DEL ARCHIVO #{$archivo->id} DEL CASO {$ticket}",
+            'usuario_id' => Auth::id(),
+            'fecha' => now(),
+        ]);
 
         return Storage::disk('local')->download($archivo->path, $archivo->nombre);
     }
