@@ -475,6 +475,11 @@ genuine-console behavior.
 - `php artisan test`: `PASS` (267 tests, 2071 assertions — suite completa verde).
 - `npm.cmd run build`: `clean` (tsc + vite, DenunciaSheet-BTbuoXoA.js 79.60 kB, built in 7.47s).
 
+### U5 — Constancias personales de acciones por caso
+- `php artisan test --filter=ConstanciaTest`: `PASS Tests\Feature\ConstanciaTest` (7 tests, 21 assertions).
+- `php artisan test`: `PASS` (274 tests, 2092 assertions — suite completa verde).
+- `npm.cmd run build`: `clean` (tsc + vite, DenunciaSheet-Cqpu_vCw.js 79.92 kB, built in 7.33s).
+
 ## 12. Evidence (record at close)
 
 - Branch: `feat/fase-c-auditoria` (created before file changes; per `AGENTS.md §2`).
@@ -482,6 +487,7 @@ genuine-console behavior.
   - U1: `bd5d913` `feat(auditoria): registrar user-agent en bitácora, blindaje append-only y proyección operativa` (6 files changed, 331 insertions(+), 4 deletions(-))
   - U2: `3979e05` `feat(auditoria): registrar descarga y eliminación de archivos del caso` (2 files changed, 167 insertions(+))
   - U3: `35a2a2d` `feat(auditoria): permisos, panel técnico /admin/auditoria y huella de consultas` (11 files changed, 872 insertions(+), 1 deletion(-))
+  - U4: `043b73b` `feat(auditoria): extractos role-aware por caso (operativo/técnico) con PDF y Excel` (9 files changed, 1414 insertions(+), 14 deletions(-))
 - Engram mirror: topic_key `odd/fase-c-auditoria-trazabilidad/tasks` updated at close.
 - Spec freeze pass 2026-10-17: F1–F3 + hostile edge hardening (§14); mirror updated after the pass.
 - Final amendment 2026-10-17 (user decisions): IP addresses not persisted; `user_agent`

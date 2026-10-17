@@ -7,6 +7,7 @@ use App\Http\Controllers\Denuncia\AdmisionController;
 use App\Http\Controllers\Denuncia\AmpliacionController;
 use App\Http\Controllers\Denuncia\AsignacionController;
 use App\Http\Controllers\Denuncia\CierreController;
+use App\Http\Controllers\Denuncia\ConstanciaController;
 use App\Http\Controllers\Denuncia\DelegacionController;
 use App\Http\Controllers\Denuncia\DenunciaController;
 use App\Http\Controllers\Denuncia\ExtractoController;
@@ -91,6 +92,7 @@ Route::prefix('denuncias')->name('denuncias.')->group(function () {
 
     // Fase C — Extracto operativo del caso
     Route::get('/{ticket}/extracto', [ExtractoController::class, 'operativo'])->can('auditoria.extracto-operativo')->name('extracto.operativo');
+    Route::get('/{ticket}/constancia', [ConstanciaController::class, 'propia'])->can('constancia.propia')->name('constancia.propia');
 
     // Sprint 4 — Solicitudes
     Route::post('/{ticket}/solicitudes', [SolicitudController::class, 'store'])->can('solicitud.crear')->name('solicitudes.store');

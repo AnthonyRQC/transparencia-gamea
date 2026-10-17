@@ -437,6 +437,7 @@ function SheetInfoContent({ denuncia, hechos, investigadorInfo, investigadorAnte
 }) {
   const [historialOpen, setHistorialOpen] = useState(false);
   const puedeExtracto = useCan('auditoria.extracto-operativo');
+  const puedeConstancia = useCan('constancia.propia');
 
   return (
     <>
@@ -651,39 +652,53 @@ function SheetInfoContent({ denuncia, hechos, investigadorInfo, investigadorAnte
         </>
       )}
 
-      {puedeExtracto && (
+      {(puedeExtracto || puedeConstancia) && (
         <>
           <Separator />
           <div className="flex items-center justify-end gap-2 flex-wrap">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button size="sm" variant="outline" className="text-xs h-8 gap-1.5 cursor-pointer">
-                  <FileDown className="w-3.5 h-3.5" />
-                  Exportar extracto
-                  <ChevronDown className="w-3 h-3 opacity-60" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem asChild>
-                  <a
-                    href={route('denuncias.extracto.operativo', { ticket: denuncia.ticket, formato: 'pdf' })}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="cursor-pointer"
-                  >
-                    PDF (legible)
-                  </a>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <a
-                    href={route('denuncias.extracto.operativo', { ticket: denuncia.ticket, formato: 'xlsx' })}
-                    className="cursor-pointer"
-                  >
-                    Excel (cotejo)
-                  </a>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {puedeExtracto && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button size="sm" variant="outline" className="text-xs h-8 gap-1.5 cursor-pointer">
+                    <FileDown className="w-3.5 h-3.5" />
+                    Exportar extracto
+                    <ChevronDown className="w-3 h-3 opacity-60" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem asChild>
+                    <a
+                      href={route('denuncias.extracto.operativo', { ticket: denuncia.ticket, formato: 'pdf' })}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="cursor-pointer"
+                    >
+                      PDF (legible)
+                    </a>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <a
+                      href={route('denuncias.extracto.operativo', { ticket: denuncia.ticket, formato: 'xlsx' })}
+                      className="cursor-pointer"
+                    >
+                      Excel (cotejo)
+                    </a>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+            {puedeConstancia && (
+              <Button size="sm" variant="outline" asChild className="text-xs h-8 gap-1.5 cursor-pointer">
+                <a
+                  href={route('denuncias.constancia.propia', denuncia.ticket)}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <ScrollText className="w-3.5 h-3.5" />
+                  Mi constancia de acciones
+                </a>
+              </Button>
+            )}
           </div>
         </>
       )}
