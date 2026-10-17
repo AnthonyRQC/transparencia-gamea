@@ -17,7 +17,9 @@ import InvestigadorAvatar from '../Shared/InvestigadorAvatar';
 import { resolverInvestigador, type InvestigadorAsignado, type InvestigadoresFuente, type InvestigadorResuelto } from '../Shared/resolverInvestigador';
 import { ESCENARIO_LABEL as escenarioLabel, eventosEsperadosAviso, sinAvisoPublicado } from '../Shared/semantica';
 import { useCan } from '@/hooks/useCan';
-import { CheckCircle2, History, UserPlus, ArrowRightLeft, RotateCcw, XCircle, X as XIcon, FileSearch, UserX, FileText, ScrollText, FolderOpen, ChevronDown, Megaphone } from 'lucide-react';
+import { Button } from '@/Components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/Components/ui/dropdown-menu';
+import { CheckCircle2, History, UserPlus, ArrowRightLeft, RotateCcw, XCircle, X as XIcon, FileSearch, UserX, FileText, ScrollText, FolderOpen, ChevronDown, Megaphone, Download, Trash2, ShieldCheck, FileDown } from 'lucide-react';
 import type { PlazoInfo } from '@/types/denuncia';
 
 interface Denunciado {
@@ -183,6 +185,11 @@ const accionIcon: Record<string, React.ReactNode> = {
   investigacion: <History className="w-3.5 h-3.5 text-primary" />,
   reapertura: <RotateCcw className="w-3.5 h-3.5 text-primary" />,
   saltar_fase: <ArrowRightLeft className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />,
+  archivo_descargado: <Download className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />,
+  archivo_eliminado: <Trash2 className="w-3.5 h-3.5 text-destructive" />,
+  constancia_generada: <ScrollText className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />,
+  auditoria_panel: <ShieldCheck className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />,
+  auditoria_extracto: <ShieldCheck className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />,
 };
 
 const estadosConTabs = ['asignada', 'investigacion', 'informe', 'cerrada'];
@@ -429,6 +436,7 @@ function SheetInfoContent({ denuncia, hechos, investigadorInfo, investigadorAnte
   bitacora: BitacoraEntry[];
 }) {
   const [historialOpen, setHistorialOpen] = useState(false);
+  const puedeExtracto = useCan('auditoria.extracto-operativo');
 
   return (
     <>
@@ -643,6 +651,43 @@ function SheetInfoContent({ denuncia, hechos, investigadorInfo, investigadorAnte
         </>
       )}
 
+      {puedeExtracto && (
+        <>
+          <Separator />
+          <div className="flex items-center justify-end gap-2 flex-wrap">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button size="sm" variant="outline" className="text-xs h-8 gap-1.5 cursor-pointer">
+                  <FileDown className="w-3.5 h-3.5" />
+                  Exportar extracto
+                  <ChevronDown className="w-3 h-3 opacity-60" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem asChild>
+                  <a
+                    href={route('denuncias.extracto.operativo', { ticket: denuncia.ticket, formato: 'pdf' })}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="cursor-pointer"
+                  >
+                    PDF (legible)
+                  </a>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <a
+                    href={route('denuncias.extracto.operativo', { ticket: denuncia.ticket, formato: 'xlsx' })}
+                    className="cursor-pointer"
+                  >
+                    Excel (cotejo)
+                  </a>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </>
+      )}
+
       {bitacora.length > 0 && (
         <>
           <Separator />
@@ -683,7 +728,7 @@ function SheetInfoContent({ denuncia, hechos, investigadorInfo, investigadorAnte
                   {bitacora.map((entry, i) => (
                     <div key={i} className="flex gap-2.5 text-sm">
                       <div className="mt-0.5 shrink-0">
-                        {accionIcon[entry.accion] || <History className="w-3.5 h-3.5 text-muted-foreground" />}
+                        {accionIcon[entry.accion] || (entry.accion?.startsWith('auditoria_') ? <ShieldCheck className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" /> : <History className="w-3.5 h-3.5 text-muted-foreground" />)}
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center justify-between gap-2">
