@@ -24,6 +24,7 @@ Tailwind v3 · shadcn/ui (New York) · Laragon (Windows local, PHP 8.3.30)
 **Sprint 13 — Portal Panel Informativo** — Cerrado ✅ (14-sep-2026)
 **Planificación Sprint 16 + 18A + 18C** — Cerrada ✅ (17-sep-2026; **replan tarde D18–D25** — docs `Sprint 16`, `18A`, `18C`; decisiones D11–D25 en `Decisiones 12.5 - 13 (Log).md`)
 **Programa de Hallazgos del Análisis Completo** — Cerrado ✅ (20–21-sep-2026; 5 hallazgos resueltos + fix dropdowns/aria-hidden — ver `Análisis Completo - App (Sep 2026).md`)
+**Fase C — Panel de Auditoría y Trazabilidad (Doble Llave)** — Cerrada ✅ (17-oct-2026; panel técnico `/admin/auditoria`, bitácora enriquecida append-only con `user_agent`, extractos operativos y técnicos en PDF/Excel con proyecciones anti-fuga, constancias individuales de actuaciones, ADR D29; suite 274 tests verde).
 
 > **Migración Laravel 11 → 13 (01-sep-2026):** Hasta **Sprint 11 inclusive** se trabajó en **Laravel 11 / PHP 8.2.31** (Sprint 12 planeado en L11 — `31bcebd` *planeacion de sprint 12 finalizada*). Migrado directo a **Laravel 13 / PHP 8.3.30** antes de ejecutar Sprint 12. `composer.json` bump: `laravel/framework ^13.0`, `maatwebsite/excel ^4.0`, `phpunit ^12.0`, `collision ^9.0`, `tinker ^3.0`. Frontend intacto (Inertia v2 / React 18 / Tailwind v3). Tags: `pre-laravel13: 01bcc42` → `laravel-13: b91e404`. Ver `Notas Migración Laravel 13 - Cierre.md`.
 

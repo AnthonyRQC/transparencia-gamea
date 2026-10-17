@@ -112,11 +112,15 @@
 | B4 | OWASP + E2E Playwright | 21 | `owasp-security`, `e2e-playwright-testing` |
 | B5 | Avatar: color paleta oficial + hash fallback | ✅ 18A/18B | Hook `creating` + picker Perfil + safelist + seeds a paleta. `InvestigadorAvatar` recibe clase; hash fallback sigue pendiente menor |
 | B6 | Auditoría backend (`owen-it/laravel-auditing`) + UI | 21 | Fusionada del Sprint 17 (17-sep-2026). Incluye User y Delegacion |
-| B7 | **Panel administrativo de auditoría** (consulta sin SQL directo) | 21 (sin confirmar) | Pedido por Sistemas. **No decidido**; si se confirma, entra junto a B6 |
+| B7 | **Panel administrativo de auditoría** + extractos role-aware (D29) | ✅ Fase C (17-oct-2026) | Implementado en `/admin/auditoria`, extractos operativos/técnicos y constancias individuales con proyección anti-fuga (D29). |
 | B8 | Seeds split prod/dev + `.env.production.example` + gitignore backups | 21 | `AdminInicialSeeder` con password por env; demo123 solo dev |
 | B9 | Dashboard 2 modos (unidad / personal); registrador ve unidad | Futuro, no 16 | D25. Hoy 4 ramas por rol |
 | B10 | Impersonation / simular páginas como otro rol | No Fase 1 | `Notas - Admin simulacion (futuro).md`. Consultar Sistemas |
 | B11 | `AlertasPlazo` en `share()`: 376 ms medidos por request autenticado | 21 o pre-producción | Cache por usuario / plazos SQL-side; ver sección **Rendimiento** |
+
+> **Candidatos post-Fase C (2026-10-17, decisión del usuario — NO incluidos en Fase C):**
+> (a) mensaje explícito en la UI al eliminar una denuncia (hoy la renombración DEN-→DEL- y el
+> reciclaje del correlativo no se explican al usuario); (b) registro de anulaciones consultable.
 
 **Guardarraíl pre-13 (no arrastrar deuda contagiosa):** no nuevos wrappers
 `formatDate`, no avatares manuales, importar de `constants/semantica.ts`,

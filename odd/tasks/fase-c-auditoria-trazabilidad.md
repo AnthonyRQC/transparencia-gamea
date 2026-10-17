@@ -435,18 +435,18 @@ from per-case extracts — the cotejo row set stays clean by construction):
 
 ## 10. Acceptance criteria (executable)
 
-- [ ] `php artisan migrate:status` → new migration listed as ran (local dev DB).
-- [ ] Console-skip smoke (F1): `php artisan tinker --execute "var_dump(app()->runningInConsole() && ! app()->runningUnitTests());"` → `bool(true)` (capture skipped in genuine console; seeder/tinker rows keep `user_agent` null).
-- [ ] `php artisan test --filter=BitacoraEnriquecidaTest` → OK: `user_agent` present on all three write paths via HTTP (F1 guard lets capture run under PHPUnit); append-only throws on update/delete; UA >512 truncated safely; operative payloads do NOT contain `user_agent` — props-level assertion on the `bitacora` entries of `/denuncias`, `/mis-casos`, `/consultar` (plus response-level `assertDontSee`).
-- [ ] `php artisan test --filter=ArchivosCasoAuditoriaTest` → OK: `archivo_descargado` with `entidad_tipo = DenunciaArchivo` + minimized detalle; `archivo_eliminado` after soft-delete; NO false events on failures (CasoAuth denial, missing storage, eliminated file → 404).
-- [ ] `php artisan test --filter=AuditoriaPanelTest` → OK: admin OK; other roles redirect `/dashboard`; projection WITHOUT `detalle` (props-level check of `eventos.data` rows + `assertDontSee('"detalle"')`); `user_agent` exposed on the panel only; `auditoria_panel` written on view/filter navigations and NOT on pure pagination (`?page=2` visit adds no event); date-range filter is boundary-inclusive (events at 00:00 and 23:59 of the edges included); unknown `accion` filter → empty list, no error; `tipo=descargas` with and without data; row of a soft-deleted case keeps its CURRENT ticket.
-- [ ] `php artisan test --filter=AuditoriaExtractoTest` → OK: both projections expose IDENTICAL `N°` id sequences for the same fixture (not just counts); technical has `user_agent` and no `detalle`; operative has `detalle` and no `user_agent`; zero-event case → `SIN EVENTOS REGISTRADOS`, still 200; extracts work for a `cerrada` case and for a soft-deleted case (`withTrashed`, via its current DEL- ticket); meta contains `Caso #{denuncia.id}`, `Generado por`, `Registros: N`, `Rango: {X}–{Y}`; unauthorized roles redirect; unknown ticket → 404; `auditoria_extracto` logged per export (not on 404/redirect); invalid `formato` rejected; Excel asserted via `Excel::fake()` + direct `ExtractoExcel::collection()` inspection (sanitization locked).
-- [ ] `php artisan test --filter=ConstanciaTest` → OK: investigador/jefe/registrador; only own rows (a reassigned-away investigator still gets own actions); zero-own-actions case → valid PDF with `SIN ACCIONES REGISTRADAS`; `constancia_generada` logged; `assertDownload()` filename ASCII (`constancia-{ticket}-{username}-{fecha}.pdf`).
-- [ ] Volume smoke: a case with ~200 events renders both formats (PDF real render → 200; Excel via `Excel::fake()`); panel `paginate(50)` handles multi-page.
-- [ ] `php artisan test` → full suite green (baseline 239 + new).
-- [ ] `npm run build` → clean (tsc + vite).
-- [ ] Parity intact: `RolesAccesoTest` + `EnumsParidadTest` green.
-- [ ] Manual: row-by-row cotejo of a real case (operative vs technical extract, same ticket / same order).
+- [x] `php artisan migrate:status` → new migration listed as ran (local dev DB).
+- [x] Console-skip smoke (F1): `php artisan tinker --execute "var_dump(app()->runningInConsole() && ! app()->runningUnitTests());"` → `bool(true)` (capture skipped in genuine console; seeder/tinker rows keep `user_agent` null).
+- [x] `php artisan test --filter=BitacoraEnriquecidaTest` → OK: `user_agent` present on all three write paths via HTTP (F1 guard lets capture run under PHPUnit); append-only throws on update/delete; UA >512 truncated safely; operative payloads do NOT contain `user_agent` — props-level assertion on the `bitacora` entries of `/denuncias`, `/mis-casos`, `/consultar` (plus response-level `assertDontSee`).
+- [x] `php artisan test --filter=ArchivosCasoAuditoriaTest` → OK: `archivo_descargado` with `entidad_tipo = DenunciaArchivo` + minimized detalle; `archivo_eliminado` after soft-delete; NO false events on failures (CasoAuth denial, missing storage, eliminated file → 404).
+- [x] `php artisan test --filter=AuditoriaPanelTest` → OK: admin OK; other roles redirect `/dashboard`; projection WITHOUT `detalle` (props-level check of `eventos.data` rows + `assertDontSee('"detalle"')`); `user_agent` exposed on the panel only; `auditoria_panel` written on view/filter navigations and NOT on pure pagination (`?page=2` visit adds no event); date-range filter is boundary-inclusive (events at 00:00 and 23:59 of the edges included); unknown `accion` filter → empty list, no error; `tipo=descargas` with and without data; row of a soft-deleted case keeps its CURRENT ticket.
+- [x] `php artisan test --filter=AuditoriaExtractoTest` → OK: both projections expose IDENTICAL `N°` id sequences for the same fixture (not just counts); technical has `user_agent` and no `detalle`; operative has `detalle` and no `user_agent`; zero-event case → `SIN EVENTOS REGISTRADOS`, still 200; extracts work for a `cerrada` case and for a soft-deleted case (`withTrashed`, via its current DEL- ticket); meta contains `Caso #{denuncia.id}`, `Generado por`, `Registros: N`, `Rango: {X}–{Y}`; unauthorized roles redirect; unknown ticket → 404; `auditoria_extracto` logged per export (not on 404/redirect); invalid `formato` rejected; Excel asserted via `Excel::fake()` + direct `ExtractoExcel::collection()` inspection (sanitization locked).
+- [x] `php artisan test --filter=ConstanciaTest` → OK: investigador/jefe/registrador; only own rows (a reassigned-away investigator still gets own actions); zero-own-actions case → valid PDF with `SIN ACCIONES REGISTRADAS`; `constancia_generada` logged; `assertDownload()` filename ASCII (`constancia-{ticket}-{username}-{fecha}.pdf`).
+- [x] Volume smoke: a case with ~200 events renders both formats (PDF real render → 200; Excel via `Excel::fake()`); panel `paginate(50)` handles multi-page.
+- [x] `php artisan test` → full suite green (baseline 239 + new = 274 tests, 2092 assertions).
+- [x] `npm run build` → clean (tsc + vite, built in 7.33s).
+- [x] Parity intact: `RolesAccesoTest` + `EnumsParidadTest` green.
+- [x] Manual: row-by-row cotejo of a real case (operative vs technical extract, same ticket / same order).
 
 ## 11. Verification (record during implementation)
 
@@ -488,6 +488,8 @@ genuine-console behavior.
   - U2: `3979e05` `feat(auditoria): registrar descarga y eliminación de archivos del caso` (2 files changed, 167 insertions(+))
   - U3: `35a2a2d` `feat(auditoria): permisos, panel técnico /admin/auditoria y huella de consultas` (11 files changed, 872 insertions(+), 1 deletion(-))
   - U4: `043b73b` `feat(auditoria): extractos role-aware por caso (operativo/técnico) con PDF y Excel` (9 files changed, 1414 insertions(+), 14 deletions(-))
+  - U5: `4406c7b` `feat(auditoria): constancias personales de acciones por caso` (6 files changed, 496 insertions(+), 30 deletions(-))
+  - U6: `a2b020e` `docs(odd): cerrar Fase C con evidencia, ADR D29 y contexto actualizado` (5 files changed, 71 insertions(+), 13 deletions(-))
 - Engram mirror: topic_key `odd/fase-c-auditoria-trazabilidad/tasks` updated at close.
 - Spec freeze pass 2026-10-17: F1–F3 + hostile edge hardening (§14); mirror updated after the pass.
 - Final amendment 2026-10-17 (user decisions): IP addresses not persisted; `user_agent`
