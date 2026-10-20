@@ -46,15 +46,9 @@ class AuditoriaController extends Controller
 
         $usuarios = User::orderBy('name')->get(['id', 'name']);
 
-        $acciones = Bitacora::distinct()
-            ->pluck('accion')
-            ->filter()
-            ->sort()
+        $acciones = collect(ExtractoService::MAPA_ACCIONES)
+            ->map(fn ($label, $val) => ['value' => $val, 'label' => $label])
             ->values()
-            ->map(fn ($acc) => [
-                'value' => $acc,
-                'label' => ExtractoService::etiquetaAccion($acc),
-            ])
             ->all();
 
         return Inertia::render('Admin/Auditoria', [

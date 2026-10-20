@@ -122,6 +122,19 @@
 > (a) mensaje explícito en la UI al eliminar una denuncia (hoy la renombración DEN-→DEL- y el
 > reciclaje del correlativo no se explican al usuario); (b) registro de anulaciones consultable.
 
+> **Backlog de pulido post-Fase C (2026-10-20 — hallazgos de la verificación manual en navegador):**
+> 1. **Auditoría — búsqueda flexible de ticket:** aceptar coincidencias parciales (`LIKE %…%`) o
+>    normalización de prefijo (p. ej. escribir `0018` encuentra `DEN-2026-0018`). Hoy
+>    `AuditoriaIndexQuery` exige ticket exacto (normalizado con `mb_strtoupper(trim())`).
+> 2. **Auditoría — dropdown de Acción completo:** alimentarlo desde `ExtractoService::MAPA_ACCIONES`
+>    en vez de `Bitacora::distinct()`, para exhibir todas las acciones posibles aunque tengan 0 eventos.
+> 3. **Bandeja — filtro por Investigador para la Jefatura:** hoy la UI solo ofrece el orden
+>    "Investigador A–Z" (`BandejaFiltros.tsx`); la query ya soporta `investigador_id`
+>    (`DenunciaListQuery::base()`), falta exponer el filtro en la Bandeja.
+> 4. **Seeders — fidelidad del ciclo de vida:** blindar la generación (`DenunciaSeeder` /
+>    `DenunciaMasivaSeeder`) para impedir secuencias `admitida` → `rechazada` sin `reapertura`
+>    intermedia en los datos demo.
+
 **Guardarraíl pre-13 (no arrastrar deuda contagiosa):** no nuevos wrappers
 `formatDate`, no avatares manuales, importar de `constants/semantica.ts`,
 `helpers/fechas.ts` y shared nuevos; chips/badges solo vía mapas semánticos.

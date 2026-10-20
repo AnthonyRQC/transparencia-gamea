@@ -480,6 +480,10 @@ genuine-console behavior.
 - `php artisan test`: `PASS` (274 tests, 2092 assertions — suite completa verde).
 - `npm.cmd run build`: `clean` (tsc + vite, DenunciaSheet-Cqpu_vCw.js 79.92 kB, built in 7.33s).
 
+### Verificación manual en navegador (2026-10-19/20)
+- Recorrido completo del panel de auditoría, filtros, extractos (PDF/Excel) y constancias: verificado manualmente (Mentor + Usuario) de punta a punta.
+- **Error 500 observado → correlacionado y descartado como defecto de código:** ocurrió el `2026-10-18 01:45:22` (timestamp del log) por `MissingAppKeyException` — `production.ERROR: No application encryption key has been specified`; requests corriendo en un arranque/entorno **sin `APP_KEY`** (canal `production`, transitorio; coincide con la ventana de pruebas de esa noche). No es un fallo de Fase C y no deja acción de código pendiente. Estado posterior verificado: `APP_ENV=local`, `APP_KEY` presente, sin cache de config; panel, extractos y constancias responden OK y cada acceso queda asentado en bitácora.
+
 ## 12. Evidence (record at close)
 
 - Branch: `feat/fase-c-auditoria` (created before file changes; per `AGENTS.md §2`).
@@ -489,7 +493,7 @@ genuine-console behavior.
   - U3: `35a2a2d` `feat(auditoria): permisos, panel técnico /admin/auditoria y huella de consultas` (11 files changed, 872 insertions(+), 1 deletion(-))
   - U4: `043b73b` `feat(auditoria): extractos role-aware por caso (operativo/técnico) con PDF y Excel` (9 files changed, 1414 insertions(+), 14 deletions(-))
   - U5: `4406c7b` `feat(auditoria): constancias personales de acciones por caso` (6 files changed, 496 insertions(+), 30 deletions(-))
-  - U6: `a2b020e` `docs(odd): cerrar Fase C con evidencia, ADR D29 y contexto actualizado` (5 files changed, 71 insertions(+), 13 deletions(-))
+  - U6: `59e7d5d` `docs(odd): cerrar Fase C con evidencia, ADR D29 y contexto actualizado` (5 files changed, 71 insertions(+), 13 deletions(-))
 - Engram mirror: topic_key `odd/fase-c-auditoria-trazabilidad/tasks` updated at close.
 - Spec freeze pass 2026-10-17: F1–F3 + hostile edge hardening (§14); mirror updated after the pass.
 - Final amendment 2026-10-17 (user decisions): IP addresses not persisted; `user_agent`

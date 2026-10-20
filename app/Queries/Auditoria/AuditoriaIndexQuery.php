@@ -45,7 +45,7 @@ class AuditoriaIndexQuery
 
         if (! empty($filtros['ticket'])) {
             $ticket = mb_strtoupper(trim((string) $filtros['ticket']));
-            $query->whereHas('denuncia', fn ($q) => $q->withTrashed()->where('ticket', $ticket));
+            $query->whereHas('denuncia', fn ($q) => $q->withTrashed()->where('ticket', 'like', "%{$ticket}%"));
         }
 
         if (($filtros['tipo'] ?? null) === 'descargas') {
