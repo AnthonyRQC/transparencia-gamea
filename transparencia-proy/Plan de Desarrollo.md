@@ -147,6 +147,8 @@ Al seleccionar, se renderiza el formulario correspondiente.
 | Pruebas/Testigos | Bloque dinámico: tipo (select: Archivo / Prueba Física / Testigo), inputs condicionales, +Añadir | `BloquePrueba.tsx` |
 | Pie | Checkbox declaración jurada + Botón Enviar | `PieFormulario.tsx` |
 
+> **Estado real (2026-10-20):** la confidencialidad son tres escenarios (`revelada`, `reservada`, `anonimo` — ver `app/Enums/EscenarioDenuncia.php`), no un toggle SÍ/NO. Se conserva la tabla original.
+
 **Lógica del BloqueDenunciado:**
 - Switch principal: "¿Conoce la identidad de esta persona?" — SÍ / NO
 - SÍ → muestra campos: Nombres y Apellidos + Cargo y/o área de trabajo
@@ -672,7 +674,9 @@ Cuando se implementen roles reales (Sprint 16), el dropdown se elimina y se reem
 
 ---
 
-### Sprint 7.A — Cierre SITPRECO Sprint 7 (NUEVO — Julio 2026) ⏳ URGENTE
+### Sprint 7.A — Cierre SITPRECO Sprint 7 (NUEVO — Julio 2026) ✅ CERRADO
+
+> **Estado real (2026-10-20):** cerrado — `sitpreco_rechazo` nullable en BD (`2026_07_26_165000_create_denuncias_table.php`), modelo y `AdmisionController@rechazar` (L95); ver `Esquema BD - Negocio.md`. Se conserva el texto original abajo.
 
 **Objetivo:** Ajustar el bloque SITPRECO del Sprint 7 al nuevo lineamiento del cliente: solo en informe final + opcional al rechazar. Eliminar toda referencia a SITPRECO obligatorio al admitir y SITPRECO heredado en cierre.
 
@@ -684,7 +688,9 @@ Ver detalle: `Sprint 7.A - Cierre SITPRECO Sprint 7.md`.
 
 ---
 
-### Sprint 7.5 — Ajustes UX Urgentes pre-cliente (NUEVO — Julio 2026) ⏳ URGENTE
+### Sprint 7.5 — Ajustes UX Urgentes pre-cliente (NUEVO — Julio 2026) ✅ CERRADO
+
+> **Estado real (2026-10-20):** cerrado — catálogo de permisos (`app/Data/PermisosCatalogo.php` + `useCan`), MAYÚSCULAS vía `UppercaseText`, `ModalEditarDenuncia.tsx` y dos modales de conciliación (`ModalConciliarAdmision`/`ModalConciliarRechazo`). Se conserva el texto original abajo.
 
 **Objetivo:** Ajustes urgentes solicitados por el cliente para antes de la próxima reunión. Cubre 6 áreas: catálogo de permisos, MAYÚSCULAS, CRUD de denuncia raíz, medio de notificación libre, solicitud con calendario, eliminación de acomp/intervención, hechos 8000 chars.
 
@@ -706,7 +712,9 @@ Ver detalle: `Sprint 7.5 - Ajustes UX Urgentes pre-cliente.md`.
 
 ---
 
-### Sprint 7.6 — Repositorio de Archivos del Caso (NUEVO — Julio 2026) ⏳ URGENTE
+### Sprint 7.6 — Repositorio de Archivos del Caso (NUEVO — Julio 2026) ✅ CERRADO
+
+> **Estado real (2026-10-20):** cerrado — `ArchivosCasoController` (subida/descarga/eliminación) con acciones de bitácora `archivo_descargado`/`archivo_eliminado` (L76-107). Se conserva el texto original abajo.
 
 **Objetivo:** Crear un repositorio unificado de archivos por denuncia. Los archivos se suben al final de la investigación (no por paso) y también pueden adjuntarse en cualquier momento. Soft delete: archivo "eliminado" desaparece de UI pero archivo físico se preserva para auditoría.
 
@@ -728,7 +736,9 @@ Ver detalle: `Sprint 7.6 - Repositorio de Archivos del Caso.md`.
 
 ---
 
-### Sprint 7.7 — Búsqueda y Consulta para Registrador (NUEVO — Julio 2026) ⏳ URGENTE
+### Sprint 7.7 — Búsqueda y Consulta para Registrador (NUEVO — Julio 2026) ✅ CERRADO
+
+> **Estado real (2026-10-20):** cerrado - ConsultaCasosController con 7 filtros, ConsultarCasos.tsx y ModalConsultarCodigo; ya figuraba como completado al inicio del documento.
 
 **Objetivo:** Nueva página `/denuncias/consultar` solo para Registrador. Permite buscar casos con 7 filtros esenciales, ver el detalle (read-only) y consultar el código (ticket + PIN) cuando un denunciante lo solicita presencialmente. Sin bitácora para la consulta de código (decisión del cliente).
 
@@ -943,6 +953,8 @@ dinámicas y lenguaje acorde al personal (licenciados/abogados).
 
 ### Sprint 17 — Auditoría Backend Detallada 🔀 FUSIONADO EN SPRINT 21 (17-sep-2026)
 
+> **Estado real (2026-10-20):** parcialmente entregado en Fase C: panel técnico, bitácora de expedientes y constancias. No cubre User ni Delegación. Se conserva el texto original abajo.
+
 **Estado:** 🔀 **Fusionado en Sprint 21.** La auditoría (`owen-it/laravel-auditing`) es
 transversal (roles, usuarios, delegaciones) y se aplica al final junto al hardening, para no
 re-auditar tras 16/18A/18C. Incluye el posible panel administrativo de auditoría pedido por
@@ -1047,6 +1059,8 @@ sigue activo · cascada solo delegaciones recibidas · paquete bandeja incluye c
 
 ### Sprint 21 — Cierre Fase 1 / Ajustes Finales
 
+> **Estado real (2026-10-20):** parcialmente abordado en Fase C: solo el módulo de auditoría y trazabilidad (D29). Testing E2E, seeds prod/dev, manuales de usuario y deploy siguen pendientes. Se conserva el texto original abajo.
+
 **Objetivo:** Testing integral, auditoría, limpieza técnica, documentación de usuario y deploy a producción. **No incluye funcionalidad nueva.**
 
 **Actividades:**
@@ -1120,9 +1134,11 @@ sigue activo · cascada solo delegaciones recibidas · paquete bandeja incluye c
 
 ---
 
-### Sprint 24 — Migración de Casos Legacy (NUEVO — DIFERIDO)
+### Sprint 24 — Migración de Casos Legacy (NUEVO — PARCIAL FASE B)
 
-**Estado:** ⏸️ **Diferido.** Detalle a definir en Sprint 10 (BD real). Anotación temprana para no perder el requerimiento.
+> **Estado real (2026-10-20):** parcialmente entregado en Fase B — `investigador_referencia`, high-water mark condicionado y `created_at` backdateado. Se conserva el texto original abajo.
+
+**Estado:** Parcialmente entregado en Fase B (expediente legacy, investigador_referencia, backdateo y high-water mark condicionado); digitalización masiva diferida.
 
 **Origen:** Duda del cliente Julio 2026 — la UTLCC tiene actualmente **46 denuncias físicas** que necesitan migrarse al sistema nuevo. Casos legacy no tendrán historial (bitácora) pero sí opción de digitalizar archivos.
 
@@ -1300,6 +1316,8 @@ resources/js/
       KPICards.tsx
       GraficosDashboard.tsx
 ```
+
+> **Estado real (2026-10-20):** la conciliación de fechas son dos modales — `ModalConciliarAdmision.tsx` y `ModalConciliarRechazo.tsx` (`Components/Denuncias/Modales/General/`), no un único `ModalConciliarFechas.tsx`. Se conserva el inventario original.
 
 ### Modificados
 

@@ -12,6 +12,7 @@ El Alto (GAMEA, Bolivia). Cumple con la Ley 974.
 - Investigación, solicitudes de información y descargos con plazos legales.
 - Ampliaciones de plazo, informes finales y cierres con archivo.
 - Dashboard con KPIs operativos y reportes exportables a Excel y PDF.
+- Auditoría y trazabilidad: panel técnico (`/admin/auditoria`), extractos por rol (operativo/técnico) y constancia personal de acciones.
 - Seguimiento público de denuncias (ticket + token, sin cuenta).
 - Notificaciones internas, catálogos administrables y muro informativo.
 - Gestión de usuarios, roles y dependencias (organigrama GAMEA).
@@ -20,7 +21,7 @@ El Alto (GAMEA, Bolivia). Cumple con la Ley 974.
 
 | Rol | Acceso |
 | --- | ------ |
-| Administrador (Sistemas) | Usuarios, catálogos y reportes. No opera casos. |
+| Administrador (Sistemas) | Usuarios, catálogos, reportes y panel técnico de auditoría (`/admin/auditoria` + extracto técnico). No tramita causas Ley 974 ni emite constancia propia. |
 | Jefe de Unidad | Opera el flujo completo y administra a su equipo. |
 | Investigador | Solo sus casos asignados. |
 | Registrador | Registra y consulta denuncias. |
@@ -136,6 +137,8 @@ transparencia-proy/ Documentación del proyecto y marco legal (Ley 974)
 ## Seguridad y privacidad
 
 - La identidad del denunciante está protegida (Ley 974, Art. 24/29).
+- Bitácora append-only: los registros de auditoría no se editan ni eliminan; se captura `user_agent` (truncado a 512) y no se persiste la dirección IP.
+- Exportaciones con sanitización anti-fórmulas (CWE-1236); las descargas y eliminaciones de adjuntos quedan registradas en bitácora.
 - Las pruebas se ejecutan aisladas en SQLite en memoria, sin tocar
   la base de desarrollo.
 

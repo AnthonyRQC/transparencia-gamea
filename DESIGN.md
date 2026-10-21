@@ -1,6 +1,6 @@
 # DESIGN.md — Sistema UTLCC / GAMEA
 
-> Fuente de verdad visual. Actualizado post Sprint 12.5 R1 (Sep 2026). Modo impeccable: **Operate**.
+> Fuente de verdad visual. Actualizado Fase C (oct-2026; base: post Sprint 12.5 R1, Sep 2026). Modo impeccable: **Operate**.
 > Audiencia: Jefe de Unidad e investigadores, abogados no-técnicos. Hardware: 15" 1280×720 sin scroll + Full HD, light y dark.
 
 ---
@@ -55,7 +55,7 @@ Todos usan **`Button` de Shadcn/UI** (`resources/js/Components/ui/button.tsx`).
 > Los wrappers Breeze fueron **eliminados en Sprint 12.4** (cero imports vivos). Solo `Button` Shadcn.
 
 ### Cabeceras
-- **`PageHeader`** (`Components/Layout/PageHeader.tsx`): cabecera canónica interna. Props `icon`, `titulo`, `tituloExtra?` (contador/badge junto al título), `subtitulo?`, `acciones?`. La usan las 12 páginas con `AppLayout` (Dashboard, Bandeja, MisCasos, MiResumen, Evaluaciones, ConsultarCasos, RegistroDenuncia, Reportes, Notificaciones, Catálogos, Perfil, Dev/Tiempo).
+- **`PageHeader`** (`Components/Layout/PageHeader.tsx`): cabecera canónica interna. Props `icon`, `titulo`, `tituloExtra?` (contador/badge junto al título), `subtitulo?`, `acciones?`. La usan las 16 páginas con `AppLayout` (Dashboard, Bandeja, MisCasos, MiResumen, Evaluaciones, ConsultarCasos, RegistroDenuncia, Reportes, Notificaciones, Catálogos, Perfil, Dev/Tiempo, Auditoría, Usuarios, Delegaciones, Publicaciones).
 - **`PublicHeader`** (`Components/Publico/PublicHeader.tsx`): cabecera pública canónica (`bg-sidebar` #1E0A33). Prop `acciones`. La usan Welcome y Seguimiento/Buscar.
 
 ### Formularios (Login / Perfil)
@@ -97,6 +97,7 @@ Mapas: `PLAZO_COLOR`, `CLASIFICACION_COLOR`, `SOLICITUD_ESTADO`, `DESCARGO_ESTAD
 `ETIQUETAS_TIPO` vive en `resources/js/constants/estados.ts` (re-export en `types/dashboard.ts`).
 Regla fija: **`pink-600 -> destructive` en badges** (el magenta queda solo para graficos Recharts).
 Excepciones: barra solida `PlazoProgress` (por diseno) y tabs de `MisCasos` (no son estados).
+Badge `PREEXISTENTE` en el header de `DenunciaSheet.tsx` (L235-239): pill gris cuando `denuncia.es_legacy` (casos cargados como preexistentes, Fase B). No es un estado del flujo.
 
 ### Avatares
 Unico: **`resources/js/Components/Denuncias/Shared/InvestigadorAvatar.tsx`** (R1.3; 16.1 rename).
@@ -137,6 +138,10 @@ Primera migración: Admin Publicaciones. Próxima: Catálogos (`TablaCatalogo`).
 Texto y búsqueda avanzada = **draft + botón Buscar/Enter** (no reactivo por tecla).
 Selects/segmentos/orden = inmediatos. Resetear a página 1 al filtrar.
 Contador "N avisos" + `Paginacion` compartida en modo client.
+
+### Panel de auditoría (Fase C)
+Patrón: `PageHeader` + tabla de acciones de bitácora con filtros + `Paginacion` compartida + exportación por fila (PDF/XLSX vía `route('admin.auditoria.extracto')`).
+La query (`AuditoriaIndexQuery`) excluye el detalle pesado; el guard anti-huella vive en el controlador.
 
 ## 4. Layout
 
@@ -184,3 +189,4 @@ Usar siempre tokens semánticos (`text-foreground`, `bg-card`, `border-border`, 
 5. **Un batch = un commit + build + tests + visto bueno visual.** Todo reversible con `git revert`.
 6. **Modo impeccable: Operate.** Comandos: `critique`, `clarify`, `layout`, `colorize`, `distill`, `polish`, `adapt`, `audit`, `harden`, `typeset`. No `bolder`, `overdrive`, `delight`, `animate` (tono institucional serio).
 7. **Jerarquía de logos:** GAMEA (`logo_url`) es principal (header + banner sidebar, intactos). UTLCC (`utlcc_logo_url`, SVG canónico + fallback PNG) es secundario: footer del sidebar expandido y pie de login, siempre sobre pastilla blanca (el morado del logo no contrasta sobre el sidebar oscuro). Nunca en el header interno.
+8. **Reglas Fase A (11-oct-2026):** header móvil, errores inline, desbordes controlados.

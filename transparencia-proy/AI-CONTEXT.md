@@ -11,7 +11,7 @@ Tailwind v3 · shadcn/ui (New York) · Laragon (Windows local, PHP 8.3.30)
 
 > **Histórico:** Proyecto nació en **Laravel 11 / PHP 8.2** (Sprint 0 → Sprint 11, Julio 2026). Migrado a **Laravel 13 / PHP 8.3** el 01-sep-2026 antes de ejecutar Sprint 12. Ver `Notas Migración Laravel 13 - Cierre.md`. Tags: `pre-laravel13: 01bcc42` → `laravel-13: b91e404`.
 
-## Estado Actual (Septiembre 2026)
+## Estado Actual (Septiembre-Octubre 2026)
 
 **Fase 0 (Maqueta Frontend)** — Cerrada ✅
 **Sprint 0 al 9.1** (funcionalidades frontend + mock data) — Cerrados ✅
@@ -24,7 +24,9 @@ Tailwind v3 · shadcn/ui (New York) · Laragon (Windows local, PHP 8.3.30)
 **Sprint 13 — Portal Panel Informativo** — Cerrado ✅ (14-sep-2026)
 **Planificación Sprint 16 + 18A + 18C** — Cerrada ✅ (17-sep-2026; **replan tarde D18–D25** — docs `Sprint 16`, `18A`, `18C`; decisiones D11–D25 en `Decisiones 12.5 - 13 (Log).md`)
 **Programa de Hallazgos del Análisis Completo** — Cerrado ✅ (20–21-sep-2026; 5 hallazgos resueltos + fix dropdowns/aria-hidden — ver `Análisis Completo - App (Sep 2026).md`)
-**Fase C — Panel de Auditoría y Trazabilidad (Doble Llave)** — Cerrada ✅ (17-oct-2026; panel técnico `/admin/auditoria`, bitácora enriquecida append-only con `user_agent`, extractos operativos y técnicos en PDF/Excel con proyecciones anti-fuga, constancias individuales de actuaciones, ADR D29; suite 274 tests verde).
+**Fase A — Reglas UI móviles y de robustez** — Cerrada ✅ (11-oct-2026; header móvil, errores inline, desbordes controlados).
+**Fase B — Carga legacy** — Cerrada ✅ (14-oct-2026; `es_legacy`, `investigador_referencia`, high-water mark condicionado, `created_at` backdateado).
+**Fase C — Panel de Auditoría y Trazabilidad (Doble Llave)** — Cerrada ✅ (merge 17-oct-2026; verificación manual y cierre documental 20-oct-2026; panel técnico `/admin/auditoria`, bitácora enriquecida append-only con `user_agent`, extractos operativos y técnicos en PDF/Excel con proyecciones anti-fuga, constancias individuales de actuaciones, ADR D29; suite 274 tests verde).
 
 > **Migración Laravel 11 → 13 (01-sep-2026):** Hasta **Sprint 11 inclusive** se trabajó en **Laravel 11 / PHP 8.2.31** (Sprint 12 planeado en L11 — `31bcebd` *planeacion de sprint 12 finalizada*). Migrado directo a **Laravel 13 / PHP 8.3.30** antes de ejecutar Sprint 12. `composer.json` bump: `laravel/framework ^13.0`, `maatwebsite/excel ^4.0`, `phpunit ^12.0`, `collision ^9.0`, `tinker ^3.0`. Frontend intacto (Inertia v2 / React 18 / Tailwind v3). Tags: `pre-laravel13: 01bcc42` → `laravel-13: b91e404`. Ver `Notas Migración Laravel 13 - Cierre.md`.
 
@@ -69,7 +71,7 @@ Ver `Sprints Pendientes - Contexto.md` + planes ejecutados en `archivo/sprints-c
 > Ver `Sprint 12.3 - Cierre Pulido pre-13.md`.
 
 ## Roles (actualizado 17-sep-2026, replan D18–D25)
-- **Admin** (Sistemas, Sprint 16) — gestiona usuarios (incl. otros admins), catálogos y reportes. NO opera casos. Nunca un login compartido.
+- **Admin** (Sistemas, Sprint 16) — gestiona usuarios (incl. otros admins), catálogos y reportes; accede al panel técnico de auditoría (`/admin/auditoria`) y al extracto técnico. NO tramita causas Ley 974 ni emite constancia propia. Nunca un login compartido.
 - **Jefe de Unidad** — opera el flujo; administra jefes, investigadores y registradores (no admins). 2–3 jefes a la vez es lo normal.
 - **Investigador** (antes "Técnico"; rename 16.1, incl. `evaluaciones_tecnicas.investigador_id`) — solo sus casos.
 - **Registrador** — registra y consulta; **sin campana**. Puede recibir 18C (bandeja/reportes) en la misma cuenta (CI único).
@@ -150,12 +152,13 @@ Ver `Sprints Pendientes - Contexto.md` + planes ejecutados en `archivo/sprints-c
   - Catálogos: `CategoriaDenuncia`, `Clasificacion`, `MedioNotificacion`, `DependenciaExterna`, `Feriado`, `ConfiguracionSistema`
   - Auth: `User` (extendido con username, rol, iniciales, color, activo, telefono, preferencias)
   - Negocio: `Denuncia` (SoftDeletes), `Denunciante`, `Denunciado`, `Prueba`, `DenunciaArchivo` (polimórfico), `EvaluacionTecnica`, `SolicitudInformacion`, `Descargo`, `Ampliacion` (polimórfico), `InformeFinal`, `Cierre`, `Bitacora`, `Notificacion`
+- `app/Models/Bitacora.php` — append-only (`updating`/`deleting` lanzan excepción); `user_agent` en fillable truncado a 512, `ip_address` no se persiste; acciones `archivo_descargado`/`archivo_eliminado` disparadas desde `ArchivosCasoController` (no son eventos Laravel)
 - `app/Traits/UppercaseText.php` — Trait `Str::upper()` en `saving`
 - `app/Helpers/DiasHabiles.php` — Días hábiles lun-vie sin feriados (cache `feriados:fechas` global, deduplica sáb/dom, día 1 = mañana)
 - `config/plantilla_feriados.php` — 14 refs neutra (fijos/móviles/dept 16-jul/mun 06-mar) guía manual, anticipa traslados jue→vie
 - `app/Enums/{EstadoDenuncia,TipoDenuncia,EscenarioDenuncia,RolUsuario}.php` — Enums del dominio
-- `app/Queries/` — `Dashboard/{Kpi,Operativo,Resultados,Rendimiento}Query` (plazos con agregados SQL), `Catalogo/CatalogoIndexQuery`, `Usuario/UsuarioIndexQuery`, `Publicacion/{Muro,PublicacionAdmin}Query`
-- `app/Services/` — `CasoAuth`, `PermisosEfectivos`, `BitacoraService`, `CatalogoService`, `CatalogoConfigStore`, `UsuarioAdminService`, `PublicacionArchivoService`
+- `app/Queries/` — `Dashboard/{Kpi,Operativo,Resultados,Rendimiento}Query` (plazos con agregados SQL), `Catalogo/CatalogoIndexQuery`, `Usuario/UsuarioIndexQuery`, `Publicacion/{Muro,PublicacionAdmin}Query`, `Auditoria/AuditoriaIndexQuery` (excluye detalle)
+- `app/Services/` — `CasoAuth`, `PermisosEfectivos`, `BitacoraService`, `CatalogoService`, `CatalogoConfigStore`, `UsuarioAdminService`, `PublicacionArchivoService`, `ExtractoService` (extractos role-aware; N = `bitacora.id` como ancla de cotejo)
 - `app/Http/Requests/` — `DashboardRequest`, `GuardarInformeRequest`, `Usuario{Store,Update,Desactivar,Masivo}Request`, `PublicacionRequest`
 - `app/Support/CatalogoRules.php` — Reglas dinámicas por tipo de catálogo
 - `app/Data/PermisosCatalogo.php` — Catálogo de permisos (se mantiene, no depende de BD)
@@ -169,6 +172,8 @@ Ver `Sprints Pendientes - Contexto.md` + planes ejecutados en `archivo/sprints-c
 - `MisCasosController` — Mis Casos (técnico, solo lectura)
 - `MiResumenController` — Contadores del técnico
 - `ArchivosCasoController` — Subida/descarga reales de archivos del caso (storage local privado; CasoAuth + `archivo.ver`)
+- `AuditoriaController` — Panel técnico `/admin/auditoria` (guard anti-huella si `! $request->has('page')`) + extracto técnico `/admin/auditoria/extracto/{ticket}`
+- `ExtractoController` — extracto operativo `/denuncias/{ticket}/extracto`; `ConstanciaController` — constancia personal `/denuncias/{ticket}/constancia` (rango de IDs de intervención del propio usuario)
 - `NotificacionController` — CRUD notificaciones
 - `EvaluacionController` — Devolver evaluación
 - `ConsultaCasosController` — 7 filtros de búsqueda
@@ -210,13 +215,13 @@ Ver `Sprints Pendientes - Contexto.md` + planes ejecutados en `archivo/sprints-c
 3. **Sprint 13** - Portal Panel Informativo COMPLETADO (Sep 2026 - muro + catalogos + admin + avisos de caso; ver `Sprint 13 - Cierre Portal Panel Informativo.md`)
 
 4. **Sprint 14** — Tiempos entre Fases ⏸️ **APARCADO** (17-sep-2026 — agregado no pedido por el cliente; si se retoma: `TiemposQuery` sobre `bitacora`/fechas de dominio, sin migración)
-5. **Sprint 16** — Rename (`técnico`→`investigador`, incl. FK de evaluación) + Roles (`admin`, `can:` + `EnsureActive` **sin** RoleMiddleware, `CasoAuth`, `lockForUpdate`, split rutas) — **planificado (D18–D25)**
-6. **Sprint 18A/18B/18C** — Panel Usuarios (CI + username fórmula) / Mi Cuenta (force-change password) / Delegaciones recortadas (misma cuenta, sin `usuario.*`) — **planificados**
-7. **Sprint 19/20** — pulidos (mora; 20 casi hecho) · **Sprint 21** — cierre Fase 1 + auditoría forense `owen-it/laravel-auditing`
+5. **Sprint 16** — Rename (`técnico`→`investigador`, incl. FK de evaluación) + Roles (`admin`, `can:` + `EnsureActive` **sin** RoleMiddleware, `CasoAuth`, `lockForUpdate`, split rutas) — **ejecutado (17-sep-2026, D18–D25)**
+6. **Sprint 18A/18B/18C** — Panel Usuarios (CI + username fórmula) / Mi Cuenta (force-change password) / Delegaciones recortadas (misma cuenta, sin `usuario.*`) — **ejecutados (17-sep-2026)**
+7. **Sprint 19/20** — pulidos (mora; 20 casi hecho) · **Sprint 21** — cierre Fase 1 + auditoría (resuelta en Fase C con bitácora propia append-only, D29 — ver `Deuda Tecnica y Riesgos.md` B6; no se adoptó `owen-it/laravel-auditing`)
 
-> R1 ejecutado pre-13; R2 + auditoría backend van a Sprint 21. Decisiones D1–D25 en `Decisiones 12.5 - 13 (Log).md`.
+> R1 ejecutado pre-13; R2 va a Sprint 21; la auditoría se resolvió en Fase C (D29). Decisiones D1–D25 en `Decisiones 12.5 - 13 (Log).md`.
 
-**Estado inmediato (21-sep-2026):** **Programa de Hallazgos cerrado** — archivos del caso con subida/descarga reales, dashboard con plazos en SQL (query count constante), Bandeja 1061→478L, contrato único de exportación + barrels eliminados, controllers 715/491/632→38/126/317L; fix dropdowns/aria-hidden/hover incluido. Suite **182 tests + tsc + build verdes**. **Review visual pendiente** de 16/18A/18B/18C. Siguiente: **pre-defensa técnica ante ingenieros de la institución** y luego Sprint 19/20/21.
+**Estado inmediato (21-sep-2026):** **Programa de Hallazgos cerrado** — archivos del caso con subida/descarga reales, dashboard con plazos en SQL (query count constante), Bandeja 1061→478L, contrato único de exportación + barrels eliminados, controllers 715/491/632→38/126/317L; fix dropdowns/aria-hidden/hover incluido. Suite **182 tests** + tsc + build verdes. **Review visual pendiente** de 16/18A/18B/18C. Siguiente: **pre-defensa técnica ante ingenieros de la institución** y luego Sprint 19/20/21. (Baseline de septiembre: 182 tests; 274 tests / 2.092 aserciones al cierre de Fase C, 2026-10-20).
 **Demo fresca (Sep 2026):** seeders con fechas relativas a hoy — 124 casos (85 activos: ~95% en plazo; 31 cerradas, 29 cumplidas). Siguiente ticket: 125. Time Machine solo-local en `/dev/tiempo` (+ enlace Sidebar dev-only) + alertas derivadas vivas (`AlertasPlazo`). Deuda/riesgos en `Deuda Tecnica y Riesgos.md`. Banco de 22 preguntas probadas en `Banco de Preguntas - Dashboard.md`. Rediseño visual con impeccable en `archivo/roadmap/Roadmap Disenio Visual.md` (Fase 0 tokens hecha).
 
 > Archivos del Sprint 13: en `archivo/sprints-cerrados/` (plan + cierre) + `Decisiones 12.5 - 13 (Log).md`. Dashboard usa `Queries/Dashboard/*` y `DiasHabiles` con feriados.

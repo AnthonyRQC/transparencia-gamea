@@ -1,7 +1,7 @@
 # Deuda Técnica y Riesgos
 
 > **Propósito:** Registro vivo de deuda, riesgos y mejoras diferidas para trabajar a futuro. No es roadmap de sprints.
-> **Actualizado:** 2026-09-23. Stack: Laravel 13 / PHP 8.3. Suite 191 tests (1369 aserciones).
+> **Actualizado:** 2026-10-20. Stack: Laravel 13 / PHP 8.3. Suite 274 tests (2.092 aserciones).
 
 ## Planificado 17-sep-2026 (Sprint 16 / 18A / 18C)
 
@@ -25,7 +25,7 @@
 
 | # | Deuda / riesgo | Dónde | Impacto | Fix sugerido | Esfuerzo |
 |---|---|---|---|---|---|
-| 1 | Seeders con fechas fijas Feb-Jun 2026 → 100% mora hoy | `database/seeders/DenunciaSeeder.php:141-1073` | Dashboard KPIs 3/4 y urgentes inutilizables | Fechas relativas a `hoy` con `DiasHabiles::agregar()` (ver plan Sep 2026) | M |
+| 1 | ~~Seeders con fechas fijas Feb-Jun 2026 → 100% mora hoy~~ ✅ resuelto en Sprint 12.1 | `database/seeders/DenunciaSeeder.php:141-1073` | Dashboard KPIs 3/4 y urgentes inutilizables | Fechas relativas a `hoy` con `DiasHabiles::agregar()` (ver plan Sep 2026). **Estado real (2026-10-20):** resuelto; se conserva la fila como referencia. | M |
 | 2 | `escenario='anonima'` ≠ enum `'anonimo'` | `database/seeders/DenunciaMasivaSeeder.php:164` | Seed falla / datos inválidos | `anonima` → `anonimo` | S |
 | 3 | `prueba tipo='archivo'` ≠ enum `fisica/testigo` | `database/seeders/DenunciaMasivaSeeder.php:250` | Seed falla (pruebas) | Quitar `archivo`, solo `fisica/testigo` (archivos van a `denuncias_archivos`) | S |
 | 4 | `random_int` sin seed | `DenunciaMasivaSeeder.php:192,224,438` | Demo no reproducible | `srand(2026)` / faker seed | S |
@@ -111,12 +111,14 @@
 | B3 | `43× as any` resto | 21 | Layouts ya hechos en 12.3; split `web.php` se adelanta a 16.2 |
 | B4 | OWASP + E2E Playwright | 21 | `owasp-security`, `e2e-playwright-testing` |
 | B5 | Avatar: color paleta oficial + hash fallback | ✅ 18A/18B | Hook `creating` + picker Perfil + safelist + seeds a paleta. `InvestigadorAvatar` recibe clase; hash fallback sigue pendiente menor |
-| B6 | Auditoría backend (`owen-it/laravel-auditing`) + UI | 21 | Fusionada del Sprint 17 (17-sep-2026). Incluye User y Delegacion |
+| B6 | Auditoría backend (`owen-it/laravel-auditing`) + UI | Parcial Fase C | Fusionada del Sprint 17 (17-sep-2026). Incluye User y Delegacion. **Estado real (2026-10-20):** parcialmente entregado en Fase C (D29): bitácora append-only para denuncias, publicaciones y catálogos. Auditoría de User y Delegación NO implementada; se descartó `owen-it/laravel-auditing`. |
 | B7 | **Panel administrativo de auditoría** + extractos role-aware (D29) | ✅ Fase C (17-oct-2026) | Implementado en `/admin/auditoria`, extractos operativos/técnicos y constancias individuales con proyección anti-fuga (D29). |
 | B8 | Seeds split prod/dev + `.env.production.example` + gitignore backups | 21 | `AdminInicialSeeder` con password por env; demo123 solo dev |
 | B9 | Dashboard 2 modos (unidad / personal); registrador ve unidad | Futuro, no 16 | D25. Hoy 4 ramas por rol |
 | B10 | Impersonation / simular páginas como otro rol | No Fase 1 | `Notas - Admin simulacion (futuro).md`. Consultar Sistemas |
 | B11 | `AlertasPlazo` en `share()`: 376 ms medidos por request autenticado | 21 o pre-producción | Cache por usuario / plazos SQL-side; ver sección **Rendimiento** |
+
+> **Decisiones Fase C (2026-10-20):** no se persiste `ip_address` en bitácora (fundamento: DHCP institucional y minimización de datos; `ip()` solo se usa en rate-limit) y se captura `user_agent` truncado a 512 caracteres (D29).
 
 > **Candidatos post-Fase C (2026-10-17, decisión del usuario — NO incluidos en Fase C):**
 > (a) mensaje explícito en la UI al eliminar una denuncia (hoy la renombración DEN-→DEL- y el
@@ -143,4 +145,4 @@
 
 - Archivar = ¿subestado `cerrada` o flujo propio?
 - C7 destino Ministerio, C8 plazo reapertura.
-- Panel usuarios → 18A (planificado). Impersonation / panel auditoría → consulta Sistemas.
+- Panel usuarios ejecutado en 18A; panel de auditoría entregado en Fase C; impersonation sigue a consulta de Sistemas.
