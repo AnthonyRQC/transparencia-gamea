@@ -17,7 +17,7 @@
 ## 3. Terminal States, Reversals, and Reopening
 
 - [ ] 3.1 Verify case closure in `CierreController`, draft publication generation, and terminal state deadline nullification (`plazo` is null) and run `php artisan test tests/Feature/DenunciaFlowTest.php`
-- [ ] 3.2 Add tests for `archivada` substate toggle on closed complaints, and require mandatory justification on closure deletion (`eliminarCierre`) in `CierreController`
+- [ ] 3.2 Add tests for `archivada` substate toggle on closed complaints, and enforce mandatory justification (>= 20 characters) with `bitacora` audit on closure deletion (`eliminarCierre`) in `CierreController`
 - [ ] 3.3 Align `Denuncia::calcularVencimiento()` to evaluate `reapertura_json['plazo']` for reopened cases and add regression test verifying reopened expiration computation
 - [ ] 3.4 Add feature tests for case reopening in `tests/Feature/ReaperturaTest.php` verifying 20+ character justification, supervisor authorization, and audit log in `bitacora`
 

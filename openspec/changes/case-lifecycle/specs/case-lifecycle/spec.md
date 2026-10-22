@@ -118,8 +118,12 @@ A case in `informe` state SHALL transition to `cerrada` upon registering closure
 - **THEN** `subestado` toggles between `archivada` and null without altering the closure state.
 
 #### Scenario: Reverting closure with administrative trace
-- **WHEN** an authorized supervisor with permission `cierre.eliminar` deletes closure on an un-archived `cerrada` case
-- **THEN** the closure record is soft-deleted, the state reverts back to `informe`, an audit entry `cierre_eliminado` is logged in `bitacora`, and active deadline calculation resumes.
+- **WHEN** an authorized supervisor with permission `cierre.eliminar` deletes closure on an un-archived `cerrada` case providing a mandatory justification of at least 20 characters
+- **THEN** the closure record is soft-deleted, the state reverts back to `informe`, an audit entry `cierre_eliminado` containing the justification is logged in `bitacora`, and active deadline calculation resumes.
+
+#### Scenario: Reverting closure without justification rejected
+- **WHEN** a user attempts to delete closure without providing a justification of at least 20 characters
+- **THEN** the reversal request is rejected with a validation error and the case remains `cerrada`.
 
 ### Requirement: Case Reopening with Preserved Audit
 An authorized supervisor SHALL be able to reopen a `rechazada` or `cerrada` case back to `ingresada` with mandatory justification of at least 20 characters and a specified deadline.

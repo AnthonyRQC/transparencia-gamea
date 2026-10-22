@@ -33,7 +33,7 @@ The complaint management system operates under Bolivia's Ley N° 974 (anticorrup
   - `EstadoDenuncia::terminales()` defines `rechazada` and `cerrada`. In these states, active deadline computing ceases (`Denuncia::getPlazoAttribute()` returns `null`).
   - Terminal states are **not immutable dead ends**: controlled supervisory exits exist:
     1. **Supervisory Reopening (`reabrir`)**: Transitions `rechazada` or `cerrada` back to `ingresada`. Requires permission `caso.reabrir`, mandatory justification ($\ge 20$ characters), a valid future limit date, clears `subestado`, resets investigator, and acquires an exclusive row lock (`lockForUpdate`).
-    2. **Closure Reversal (`eliminarCierre`)**: Transitions `cerrada` back to `informe`. Requires permission `cierre.eliminar`. Soft-deletes `cierre`, reverts state to `informe`, and reactivates deadline counting.
+    2. **Closure Reversal (`eliminarCierre`)**: Transitions `cerrada` back to `informe`. Requires permission `cierre.eliminar` and mandatory administrative justification ($\ge 20$ characters) audited in `bitacora`. Soft-deletes `cierre`, reverts state to `informe`, and reactivates deadline counting.
 - **Transitions Matrix**:
   - `ingresada` → `evaluacion_tecnica` (delegarEvaluacion)
   - `evaluacion_tecnica` → `ingresada` (devolver / reasumir)
