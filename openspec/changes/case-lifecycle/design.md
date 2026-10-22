@@ -66,7 +66,7 @@ The complaint management system operates under Bolivia's Ley N° 974 (anticorrup
 - **Decision**: Date reconciliation allows authorized users with permission `caso.conciliar` to rectify operational timestamps (`created_at`, `fecha_admitida`, `fecha_asignada`) with mandatory $\ge 20$ character justification audited in `conciliacion_json` and `bitacora`.
 - **State Window Invariant**:
   - Permitted strictly on active pre-closure states (`ingresada`, `evaluacion_tecnica`, `admitida`, `asignada`, `investigacion`, `informe`).
-  - **Prohibited on terminal states (`rechazada` and `cerrada`)**: Modifying operational dates on terminal cases alters settled historical facts and corrupts compliance KPI indicators. The sole lawful path to modify dates of a terminal case is via formal reopening (`reabrir` → `ingresada`), subsequent date reconciliation in an active state under full audit trace, and re-qualification.
+  - **Prohibited on terminal states (`rechazada` and `cerrada`)**: Modifying operational dates on terminal cases alters settled historical facts and corrupts compliance KPI indicators. La reapertura formal crea un ciclo activo nuevo; las fechas de rechazo/cierre previas quedan como registro historico inmutable. La conciliacion posterior solo alcanza `created_at`, `fecha_admitida` y `fecha_asignada`.
 
 ### 5. Concurrency Protection with Pessimistic Locking
 - **Decision**: All state and substate mutating endpoints (`admitir`, `rechazar`, `asignar`, `iniciarInvestigacion`, `saltarFase`, `guardarCierre`, `eliminarCierre`, `toggleArchivar`, `reabrir`) MUST execute inside `DB::transaction()` acquiring an exclusive row lock: `Denuncia::where('ticket', $ticket)->lockForUpdate()->first()`.

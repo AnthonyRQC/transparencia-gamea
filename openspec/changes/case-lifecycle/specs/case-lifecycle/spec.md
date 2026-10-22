@@ -133,7 +133,7 @@ An authorized user with permission `caso.reabrir` SHALL be able to reopen a `rec
 - **THEN** the complaint state transitions to `ingresada`, `subestado` is cleared, `investigador_id` and `investigador_anterior_id` are reset to null, reopening details are stored in `reapertura_json`, and an audit entry is logged in `bitacora`.
 
 ### Requirement: Controlled Date Reconciliation State Window
-The system SHALL permit reconciling legal case dates (`created_at`, `fecha_admitida`, `fecha_asignada`) only on active pre-closure states (`ingresada`, `evaluacion_tecnica`, `admitida`, `asignada`, `investigacion`, `informe`), requiring mandatory 20+ character justification and structured audit logging. Terminal states (`rechazada`, `cerrada`) SHALL be strictly prohibited from date reconciliation.
+The system SHALL permit reconciling legal case dates (`created_at`, `fecha_admitida`, `fecha_asignada`) only on active pre-closure states, requiring mandatory 20+ character justification and structured audit logging. Terminal states (`rechazada`, `cerrada`) SHALL be strictly prohibited from date reconciliation. The reconciliation payload SHALL NOT include `fecha_rechazada`; that field is set only by the rejection transition and remains immutable.
 
 #### Scenario: Reconciling admission date on active case
 - **WHEN** an authorized user with permission `caso.conciliar` submits updated dates and justification on an active pre-closure complaint (`ingresada`, `evaluacion_tecnica`, `admitida`, `asignada`, `investigacion`, `informe`)

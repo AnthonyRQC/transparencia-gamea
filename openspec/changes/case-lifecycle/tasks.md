@@ -23,7 +23,7 @@
 
 ## 4. Controlled Date Reconciliation and Audit Invariants
 
-- [ ] 4.1 Implement state-window guard in `DenunciaController::conciliarFechas` (strictly allowing active pre-closure states; rejecting terminal `rechazada` and `cerrada` cases) with >= 20 characters justification, permission check (`caso.conciliar`), `conciliacion_json` audit, and test coverage
+- [ ] 4.1 Implement state-window guard in `DenunciaController::conciliarFechas` (strictly allowing active pre-closure states; rejecting terminal `rechazada` and `cerrada` cases), reject `fecha_rechazada` in payload limiting reconciliation strictly to `created_at`, `fecha_admitida`, and `fecha_asignada`, with >= 20 characters justification, permission check (`caso.conciliar`), `conciliacion_json` audit, and test coverage
 - [ ] 4.2 Verify append-only non-repudiation logging across all state mutations without user IP persistence and run `php artisan test tests/Feature/BitacoraEnriquecidaTest.php`
 
 ## 5. Integration Verification
