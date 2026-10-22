@@ -26,6 +26,9 @@ conserva como referencia y no se modifica.
 | D27 | Enums de dominio sin casts de modelo | Vigente | [Ver](D27-enums-sin-casts.md) |
 | D28 | Semántica de plazos unificada y compilación de clases en `.ts` | Vigente | [Ver](D28-plazos-ui-unificados.md) |
 | D29 | Proyecciones de doble llave para auditoría y trazabilidad | Vigente | [Ver](D29-auditoria-proyecciones-doble-llave.md) |
+| D30 | Jerarquía de fuentes de verdad documental y técnica | Vigente | [Ver](D30-jerarquia-fuentes-de-verdad.md) |
+| D31 | Estrategia de cobertura y backfill formal en OpenSpec | Vigente | [Ver](D31-estrategia-cobertura-openspec.md) |
+| D32 | Delimitación del alcance de auditoría y tratamiento de usuarios y delegaciones | Vigente | [Ver](D32-alcance-auditoria-usuarios-delegaciones.md) |
 
 Nota: el log anterior se mantiene como documento histórico. No se copia
 su contenido en este índice; se enlaza como referencia.

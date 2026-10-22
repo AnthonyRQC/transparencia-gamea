@@ -1,32 +1,25 @@
 schema: spec-driven
 
-# Project context (optional)
-# Add only constraints that should guide OpenSpec artifacts and workflows.
-# Include constraints an agent cannot infer by reading the code.
-# Keep general project documentation and discoverable codebase facts out.
-# Example:
-#   context: |
-#     Designs and tasks must cover Windows, macOS, and Linux
-#     Write all artifacts in Spanish
+context: |
+  Sistema de Gestión de Denuncias para la UTLCC / GAMEA bajo el marco de la Ley N° 974.
+  Marco legal y de privacidad:
+  - Reserva de identidad y confidencialidad del denunciante (Arts. 24 y 29, Ley 974).
+  - Plazos legales fatales: 5 días hábiles para admisión/rechazo, 45 días hábiles para investigación (corrupción), 20 días hábiles (negación de información), más ampliaciones autorizadas.
+  - Bitácora append-only: no admite edición ni borrado; prohibido persistir dirección IP (capturar solo user_agent truncado a 512).
+  
+  Stack técnico y convenciones:
+  - Stack: Laravel 13, PHP 8.3, React 18, Inertia.js v2, Tailwind CSS v3, Shadcn UI.
+  - Tests: Verificación automatizada con PHPUnit (SQLite en memoria).
+  - Idioma: Especificaciones OpenSpec en inglés; interfaces de usuario (UI), labels, mensajes y textos de dominio en español.
+  - Documentación: Jerarquía de verdad formal en DOCS.md y ADR D30; no leer notas históricas ni archivo/ para contexto operativo.
 
-# Per-artifact rules (optional)
-# Add custom rules for specific artifacts.
-# Example:
-#   rules:
-#     proposal:
-#       - Keep proposals under 500 words
-#       - Always state what is out of scope
-#     tasks:
-#       - Break tasks into chunks of max 2 hours
-
-# Per-operation guidance (optional)
-# Add advisory guidance for how apply and archive work should be conducted.
-# This is separate from artifact rules above.
-# Example:
-#   operations:
-#     apply:
-#       guidance:
-#         - Keep test summaries concise
-#     archive:
-#       guidance:
-#         - Summarize the archive outcome before finishing
+rules:
+  spec:
+    - Write specifications in English with clear Requirements and Scenarios.
+    - Enforce Ley 974 constraints (confidentiality Arts. 24/29, statutory deadlines 5/45/20, append-only traceability).
+  proposal:
+    - Explicitly state problem, scope, constraints, and non-goals.
+    - Do not read historical files or closed sprint archives for operational context.
+  tasks:
+    - Define focused PHPUnit test and build verification for each task.
+    - Mark all tasks as completed before running openspec archive.

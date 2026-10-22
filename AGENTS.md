@@ -7,14 +7,12 @@ completa vive en este archivo para evitar duplicación y divergencia.
 
 ## 1. Arranque
 
-1. Al iniciar, leer primero `transparencia-proy/AI-CONTEXT.md` completo.
-2. Continuar con carga diferida: abrir solamente la sección o el archivo
-   que corresponda a la tarea actual. No abrir `archivo/` por defecto.
-3. Si la tarea toca base de datos, consultar además el esquema
-   correspondiente (`Esquema BD - Negocio.md` o `Esquema BD - Catalogos.md`).
-4. Si la tarea puede haberse tratado antes, buscar en Engram
-   (`mem_context`, luego `mem_search`) antes de proponer un enfoque nuevo.
-5. Antes de concluir, verificar el resultado según la sección 5.
+1. Al iniciar, leer primero `transparencia-proy/AI-CONTEXT.md` completo, y a continuación `DOCS.md` y `GLOSSARY.md`.
+2. La jerarquía formal de fuentes de verdad ante cualquier discrepancia está definida en `DOCS.md` y en el ADR D30 (`Ley 974 > ADR/OpenSpec > Código > Tests`).
+3. Continuar con carga diferida: abrir solamente la sección o el archivo que corresponda a la tarea actual. Consultar la spec OpenSpec del dominio en `openspec/specs/` si existe. No abrir `archivo/` ni notas de sprints cerrados por defecto.
+4. Si la tarea toca base de datos, consultar además el esquema correspondiente (`Esquema BD - Negocio.md` o `Esquema BD - Catalogos.md`).
+5. Si la tarea puede haberse tratado antes, buscar en Engram (`mem_context`, luego `mem_search`) antes de proponer un enfoque nuevo.
+6. Antes de concluir, verificar el resultado según la sección 5.
 
 ## 2. Desarrollo con documento de tarea
 
