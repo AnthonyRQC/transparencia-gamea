@@ -14,7 +14,7 @@ context: |
   - Documentación: Jerarquía de verdad formal en DOCS.md y ADR D30; no leer notas históricas ni archivo/ para contexto operativo.
 
 rules:
-  spec:
+  specs:
     - Write specifications in English with clear Requirements and Scenarios.
     - Enforce Ley 974 constraints (confidentiality Arts. 24/29, statutory deadlines 5/45/20, append-only traceability).
   proposal:
