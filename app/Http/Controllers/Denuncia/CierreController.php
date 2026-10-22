@@ -43,6 +43,7 @@ class CierreController extends Controller
             $medioId = $medio?->id;
         }
 
+        $aplicado = false;
         DB::transaction(function () use ($ticket, $validated, $medioId, &$aplicado) {
             $denuncia = Denuncia::where('ticket', $ticket)->lockForUpdate()->first();
 

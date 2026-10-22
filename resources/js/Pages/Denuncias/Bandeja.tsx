@@ -407,17 +407,19 @@ export default function Bandeja({ denuncias, contadores, investigadores, cargaIn
                     </button>
                   )}
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMenuMasAbierto(false);
-                      setModalConciliarDenuncia(selectedDenuncia);
-                    }}
-                    className="w-full flex items-center gap-2 px-2 py-1.5 text-xs text-left rounded-sm hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer"
-                  >
-                    <CalendarArrowUp className="w-4 h-4 text-muted-foreground" />
-                    <span>Conciliar fechas</span>
-                  </button>
+                  {['ingresada', 'evaluacion_tecnica', 'admitida', 'asignada', 'investigacion', 'informe'].includes(selectedDenuncia.estado) && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMenuMasAbierto(false);
+                        setModalConciliarDenuncia(selectedDenuncia);
+                      }}
+                      className="w-full flex items-center gap-2 px-2 py-1.5 text-xs text-left rounded-sm hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer"
+                    >
+                      <CalendarArrowUp className="w-4 h-4 text-muted-foreground" />
+                      <span>Conciliar fechas</span>
+                    </button>
+                  )}
 
                   {selectedDenuncia.estado === 'ingresada' && (
                     <>
