@@ -79,6 +79,11 @@ class Denuncia extends Model
      */
     public function calcularVencimiento(): Carbon
     {
+        if (in_array($this->estado, ['ingresada', 'evaluacion_tecnica'], true)
+            && ! empty($this->reapertura_json['plazo'])) {
+            return Carbon::parse($this->reapertura_json['plazo']);
+        }
+
         $baseFecha = $this->fecha_admitida
             ? Carbon::parse($this->fecha_admitida)
             : Carbon::parse($this->created_at);
