@@ -9,4 +9,5 @@
 | Laravel | 13.30.0 |
 | Node | v24.18.0 |
 | Tests (storage/test-results/junit.xml) | 277 |
+| Assertions | 2110 |
 

@@ -1,7 +1,7 @@
 # Deuda Técnica y Riesgos
 
 > **Propósito:** Registro vivo de deuda, riesgos y mejoras diferidas para trabajar a futuro. No es roadmap de sprints.
-> **Actualizado:** 2026-10-20. Stack: Laravel 13 / PHP 8.3. Suite 274 tests (2.092 aserciones).
+> **Actualizado:** 2026-10-20. Stack: Laravel 13 / PHP 8.3. Suite: ver docs/STATUS.md (ultima corrida: 277 tests / 2.110 aserciones).
 
 ## Planificado 17-sep-2026 (Sprint 16 / 18A / 18C)
 

@@ -47,7 +47,7 @@ La consistencia documental se fiscaliza en dos niveles complementarios:
 2. **Nivel Generado desde código (herramienta interna propia):**
    - `composer docs`: script para regenerar automáticamente `docs/ROUTES.md`, `docs/PERMISSIONS.md`, `docs/SCHEMA.md` y `docs/STATUS.md`.
    - `composer docs:check`: gate portátil para hook local o CI; verifica solo `docs/ROUTES.md` y `docs/PERMISSIONS.md`, que dependen únicamente del código.
-    - `composer docs:check:full`: verificación completa de los 4 archivos; requiere el entorno real porque `docs/SCHEMA.md` depende del motor de BD y `docs/STATUS.md` de rama/versiones.
-    - `docs/STATUS.md` es informativo (rama, versiones, conteo de tests del reporte JUnit o `no disponible` si no existe) y no entra en el check exacto portátil.
+   - `composer docs:check:full`: verificación completa de los 4 archivos; requiere el entorno real porque `docs/SCHEMA.md` depende del motor de BD y `docs/STATUS.md` de rama/versiones.
+   - `docs/STATUS.md` es informativo (rama, versiones, conteo de tests del reporte JUnit o `no disponible` si no existe) y no entra en el check exacto portátil.
 
 Ninguna rama de feature se mergea sin su delta spec correspondiente en OpenSpec y sus documentos derivados regenerados.

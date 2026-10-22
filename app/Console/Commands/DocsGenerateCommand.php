@@ -243,7 +243,7 @@ class DocsGenerateCommand extends Command
     {
         $branch = $this->runQuietly('git rev-parse --abbrev-ref HEAD');
         $node = $this->runQuietly('node -v');
-        [$tests, $source] = $this->testCount();
+        [$tests, $assertions, $source] = $this->testCount();
 
         $lines = [
             '# STATUS.md — Estado generado desde el codigo',
@@ -257,6 +257,7 @@ class DocsGenerateCommand extends Command
             '| Laravel | '.$this->cell(Application::VERSION).' |',
             '| Node | '.$this->cell($node).' |',
             '| Tests'.($source ? " ({$source})" : '').' | '.$this->cell($tests).' |',
+            '| Assertions | '.$this->cell($assertions).' |',
             '',
         ];
 
@@ -278,23 +279,31 @@ class DocsGenerateCommand extends Command
                 continue;
             }
 
-            $count = $this->countTestCases($path);
+            [$tests, $assertions] = $this->readTestSuiteTotals($path);
 
-            return [$count === null ? 'no disponible' : (string) $count, $relative];
+            if ($tests === null || $assertions === null) {
+                continue;
+            }
+
+            return [$tests, $assertions, $relative];
         }
 
-        return ['no disponible', null];
+        return ['no disponible', 'no disponible', null];
     }
 
-    private function countTestCases(string $path): ?int
+    private function readTestSuiteTotals(string $path): array
     {
         try {
             $xml = new \SimpleXMLElement(file_get_contents($path));
-            $cases = $xml->xpath('//testcase');
+            $suite = $xml->getName() === 'testsuites' ? $xml->testsuite[0] : $xml;
 
-            return $cases === null ? null : count($cases);
+            if ($suite === null || ! isset($suite['tests']) || ! isset($suite['assertions'])) {
+                return [null, null];
+            }
+
+            return [(string) $suite['tests'], (string) $suite['assertions']];
         } catch (\Throwable) {
-            return null;
+            return [null, null];
         }
     }
 
