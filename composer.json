@@ -40,6 +40,9 @@
         }
     },
     "scripts": {
+        "docs": "@php artisan docs:generate",
+        "docs:check": "@php artisan docs:generate --check",
+        "tests:junit": "vendor/bin/phpunit --log-junit storage/test-results/junit.xml",
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi"
