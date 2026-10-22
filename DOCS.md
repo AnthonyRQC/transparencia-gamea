@@ -16,7 +16,7 @@ La definición y fundamentación completa de la jerarquía de verdad vive en est
 | **Leyes y Fundamento** | `transparencia-proy/RESUMEN LEY 974.md` | Legal / UTLCC | Promulgación o reglamentación normativa. |
 | **Decisiones y Contratos** | `transparencia-proy/decisiones/D*.md`, `openspec/` | Arquitecto / Tech Lead | Todo cambio estructural, de límites o de contrato. |
 | **Glosario y Dominio** | `GLOSSARY.md` | Analista / Dominio | Aparición o aclaración de términos institucionales. |
-| **Generado desde código** | `docs/ROUTES.md`, `docs/PERMISSIONS.md`, `docs/SCHEMA.md`, `docs/STATUS.md` | Tooling / Constructor | Cambio en `routes/`, migraciones o `PermisosCatalogo`. No editar a mano; se regenera con `composer docs` y se verifica con `composer docs:check` *(pendiente de implementación en docs/generacion-documental)*. |
+| **Generado desde código** | `docs/ROUTES.md`, `docs/PERMISSIONS.md`, `docs/SCHEMA.md`, `docs/STATUS.md` | Tooling / Constructor | Cambio en `routes/`, migraciones o `PermisosCatalogo`. No editar a mano; se regenera con `composer docs` y se verifica con `composer docs:check`. |
 | **Diseño y Producto** | `PRODUCT.md`, `DESIGN.md`, `README.md` | Producto / UI-UX | Nuevas superficies, roles o tokens visuales. |
 | **Contexto Técnico Vivo** | `transparencia-proy/AI-CONTEXT.md`, `transparencia-proy/Deuda Tecnica y Riesgos.md` | Equipo de desarrollo | Cierre de fase, hallazgo o bump de dependencias. |
 | **Memoria Histórica (Inmutable)** | `transparencia-proy/Plan de Desarrollo.md`, `Notas * Cierre.md`, `archivo/` | Histórico | **NUNCA.** Son registros testimoniales cerrados. |
@@ -46,6 +46,6 @@ La consistencia documental se fiscaliza en dos niveles complementarios:
    - `openspec validate --archived`: verifica que ningún change archivado conserve tareas pendientes (`- [ ]`).
 2. **Nivel Generado desde código (herramienta interna propia):**
    - `composer docs`: script para regenerar automáticamente `docs/ROUTES.md`, `docs/PERMISSIONS.md`, `docs/SCHEMA.md` y `docs/STATUS.md`.
-   - `composer docs:check`: script para verificar en hook local o CI que los archivos generados coincidan exactamente con el código *(pendiente de implementación en docs/generacion-documental)*.
+   - `composer docs:check`: script para verificar en hook local o CI que los archivos generados coincidan exactamente con el código.
 
 Ninguna rama de feature se mergea sin su delta spec correspondiente en OpenSpec y sus documentos derivados regenerados.
