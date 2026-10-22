@@ -51,4 +51,25 @@ class DocsGenerateTest extends TestCase
 
         $this->artisan('docs:generate', ['--check' => true, '--output' => $this->tmp])->assertFailed();
     }
+
+    public function test_check_is_portable_but_full_covers_env_files(): void
+    {
+        $this->artisan('docs:generate', ['--output' => $this->tmp])->assertOk();
+
+        // Alterar ROUTES.md hace fallar el check portatil.
+        File::append($this->tmp.'/ROUTES.md', "\n<!-- alterado -->\n");
+        $this->artisan('docs:generate', ['--check' => true, '--output' => $this->tmp])->assertFailed();
+
+        // Restaurar: el check portatil y el full pasan en el mismo entorno.
+        $this->artisan('docs:generate', ['--output' => $this->tmp])->assertOk();
+        $this->artisan('docs:generate', ['--check' => true, '--output' => $this->tmp])->assertOk();
+        $this->artisan('docs:generate', ['--check' => true, '--full' => true, '--output' => $this->tmp])->assertOk();
+
+        // Alterar STATUS.md o SCHEMA.md NO hace fallar el check portatil,
+        // pero si el check full.
+        File::append($this->tmp.'/STATUS.md', "\n<!-- alterado -->\n");
+        File::append($this->tmp.'/SCHEMA.md', "\n<!-- alterado -->\n");
+        $this->artisan('docs:generate', ['--check' => true, '--output' => $this->tmp])->assertOk();
+        $this->artisan('docs:generate', ['--check' => true, '--full' => true, '--output' => $this->tmp])->assertFailed();
+    }
 }
