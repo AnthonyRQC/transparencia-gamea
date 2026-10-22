@@ -270,18 +270,24 @@ class DenunciaController extends Controller
             'created_at' => 'nullable|date',
             'fecha_admitida' => 'nullable|date',
             'fecha_asignada' => 'nullable|date',
-            'fecha_rechazada' => 'nullable|date',
             'justificacion' => 'required|string|min:20|max:2000',
         ]);
 
+        if ($request->filled('fecha_rechazada')) {
+            return redirect()->back()->with('error', 'La fecha de rechazo no es conciliable: solo la fija el rechazo y es inmutable.');
+        }
+
         $denuncia = Denuncia::where('ticket', $ticket)->firstOrFail();
+
+        if (! in_array($denuncia->estado, ['ingresada', 'evaluacion_tecnica', 'admitida', 'asignada', 'investigacion', 'informe'], true)) {
+            return redirect()->back()->with('error', 'No se pueden conciliar fechas en casos rechazados o cerrados.');
+        }
 
         DB::transaction(function () use ($denuncia, $validated) {
             $updates = [];
-            if ($validated['created_at']) $updates['created_at'] = $validated['created_at'];
-            if ($validated['fecha_admitida']) $updates['fecha_admitida'] = $validated['fecha_admitida'];
-            if ($validated['fecha_asignada']) $updates['fecha_asignada'] = $validated['fecha_asignada'];
-            if ($validated['fecha_rechazada']) $updates['fecha_rechazada'] = $validated['fecha_rechazada'];
+            if (! empty($validated['created_at'])) $updates['created_at'] = $validated['created_at'];
+            if (! empty($validated['fecha_admitida'])) $updates['fecha_admitida'] = $validated['fecha_admitida'];
+            if (! empty($validated['fecha_asignada'])) $updates['fecha_asignada'] = $validated['fecha_asignada'];
 
             if (!empty($updates)) {
                 $denuncia->update($updates);
