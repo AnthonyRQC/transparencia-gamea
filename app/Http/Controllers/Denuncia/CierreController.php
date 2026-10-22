@@ -43,7 +43,13 @@ class CierreController extends Controller
             $medioId = $medio?->id;
         }
 
-        DB::transaction(function () use ($denuncia, $validated, $medioId) {
+        DB::transaction(function () use ($ticket, $validated, $medioId, &$aplicado) {
+            $denuncia = Denuncia::where('ticket', $ticket)->lockForUpdate()->first();
+
+            if (! $denuncia || $denuncia->estado !== 'informe') {
+                return;
+            }
+
             $cierre = new Cierre([
                 'notificado_denunciante' => (bool) $validated['notificado_denunciante'],
                 'notificacion_medio_id' => $medioId,
@@ -65,7 +71,13 @@ class CierreController extends Controller
                 'usuario_id' => Auth::id(),
                 'fecha' => now(),
             ]);
+
+            $aplicado = true;
         });
+
+        if (! $aplicado) {
+            return redirect()->back()->with('error', CasoAuth::mensajeCarrera($ticket));
+        }
 
         AvisoCaso::borradorPara($denuncia->fresh(), 'cerrada', [
             'referencia_externa' => $denuncia->informe?->sitpreco,
@@ -138,8 +150,12 @@ class CierreController extends Controller
         return redirect()->back()->with('success', "Cierre actualizado para {$ticket}.");
     }
 
-    public function eliminarCierre(string $ticket)
+    public function eliminarCierre(string $ticket, Request $request)
     {
+        $validated = $request->validate([
+            'justificacion' => 'required|string|min:20|max:2000',
+        ]);
+
         $denuncia = Denuncia::where('ticket', $ticket)->firstOrFail();
 
         if (! CasoAuth::puedeOperar(Auth::user(), $denuncia, 'cierre.eliminar')) {
@@ -150,7 +166,18 @@ class CierreController extends Controller
             return redirect()->back()->with('error', 'No se puede eliminar el cierre de esta denuncia.');
         }
 
-        DB::transaction(function () use ($denuncia) {
+        if ($denuncia->subestado === 'archivada') {
+            return redirect()->back()->with('error', 'Un caso archivado no puede revertir su cierre.');
+        }
+
+        $aplicado = false;
+        DB::transaction(function () use ($ticket, $validated, &$aplicado) {
+            $denuncia = Denuncia::where('ticket', $ticket)->lockForUpdate()->first();
+
+            if (! $denuncia || $denuncia->estado !== 'cerrada' || $denuncia->subestado === 'archivada') {
+                return;
+            }
+
             if ($denuncia->cierre) {
                 $denuncia->cierre->update([
                     'eliminado' => true,
@@ -162,11 +189,17 @@ class CierreController extends Controller
 
             $denuncia->bitacora()->create([
                 'accion' => 'cierre_eliminado',
-                'detalle' => 'CIERRE ELIMINADO. DENUNCIA VUELVE A INFORME FINAL',
+                'detalle' => 'CIERRE ELIMINADO. DENUNCIA VUELVE A INFORME FINAL. JUSTIFICACIÓN: ' . $validated['justificacion'],
                 'usuario_id' => Auth::id(),
                 'fecha' => now(),
             ]);
+
+            $aplicado = true;
         });
+
+        if (! $aplicado) {
+            return redirect()->back()->with('error', CasoAuth::mensajeCarrera($ticket));
+        }
 
         return redirect()->back()->with('success', "Cierre eliminado. Denuncia {$ticket} vuelve a Informe Final.");
     }
@@ -179,18 +212,34 @@ class CierreController extends Controller
             return redirect()->back()->with('error', 'Solo se pueden archivar denuncias cerradas.');
         }
 
-        $nuevoSubestado = $denuncia->subestado === 'archivada' ? null : 'archivada';
-        $denuncia->update(['subestado' => $nuevoSubestado]);
+        $aplicado = false;
+        $nuevoSubestado = null;
+        DB::transaction(function () use ($ticket, &$aplicado, &$nuevoSubestado) {
+            $denuncia = Denuncia::where('ticket', $ticket)->lockForUpdate()->first();
 
-        $accion = $nuevoSubestado === 'archivada' ? 'denuncia_archivada' : 'denuncia_desarchivada';
-        $detalle = $nuevoSubestado === 'archivada' ? 'CASO ARCHIVADO EN CIERRE' : 'CASO DESARCHIVADO EN CIERRE';
+            if (! $denuncia || $denuncia->estado !== 'cerrada') {
+                return;
+            }
 
-        $denuncia->bitacora()->create([
-            'accion' => $accion,
-            'detalle' => $detalle,
-            'usuario_id' => Auth::id(),
-            'fecha' => now(),
-        ]);
+            $nuevoSubestado = $denuncia->subestado === 'archivada' ? null : 'archivada';
+            $denuncia->update(['subestado' => $nuevoSubestado]);
+
+            $accion = $nuevoSubestado === 'archivada' ? 'denuncia_archivada' : 'denuncia_desarchivada';
+            $detalle = $nuevoSubestado === 'archivada' ? 'CASO ARCHIVADO EN CIERRE' : 'CASO DESARCHIVADO EN CIERRE';
+
+            $denuncia->bitacora()->create([
+                'accion' => $accion,
+                'detalle' => $detalle,
+                'usuario_id' => Auth::id(),
+                'fecha' => now(),
+            ]);
+
+            $aplicado = true;
+        });
+
+        if (! $aplicado) {
+            return redirect()->back()->with('error', CasoAuth::mensajeCarrera($ticket));
+        }
 
         $msg = $nuevoSubestado === 'archivada' ? "Caso {$ticket} archivado correctamente." : "Caso {$ticket} desarchivado correctamente.";
         return redirect()->back()->with('success', $msg);
