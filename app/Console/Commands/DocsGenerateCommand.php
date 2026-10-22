@@ -13,11 +13,14 @@ class DocsGenerateCommand extends Command
 {
     protected $signature = 'docs:generate
         {--check : Regenerate in memory and compare with committed files without writing (exit 1 on differences)}
+        {--full : With --check, also verify SCHEMA.md and STATUS.md (require the real environment)}
         {--output= : Target directory for generated docs (defaults to docs/)}';
 
     protected $description = 'Generate docs/ROUTES.md, PERMISSIONS.md, SCHEMA.md and STATUS.md from code';
 
-    private const FILES = ['ROUTES.md', 'PERMISSIONS.md', 'SCHEMA.md', 'STATUS.md'];
+    private const PORTABLE_FILES = ['ROUTES.md', 'PERMISSIONS.md'];
+
+    private const ENV_FILES = ['SCHEMA.md', 'STATUS.md'];
 
     public function handle(): int
     {
@@ -65,6 +68,14 @@ class DocsGenerateCommand extends Command
 
     private function check(string $target, array $generated): int
     {
+        // Portable gate: ROUTES.md and PERMISSIONS.md only depend on code.
+        // SCHEMA.md depends on the DB engine and STATUS.md on branch/versions,
+        // so they are only verified with --full in the target environment.
+        if (! $this->option('full')) {
+            $generated = array_intersect_key($generated, array_flip(self::PORTABLE_FILES));
+            $this->info('Omite '.implode(' y ', self::ENV_FILES).' (dependen del entorno). Usa --full para incluirlos.');
+        }
+
         $differ = [];
 
         foreach ($generated as $file => $content) {
@@ -85,7 +96,7 @@ class DocsGenerateCommand extends Command
             return 1;
         }
 
-        $this->info('docs:check OK: los 4 archivos coinciden con el codigo.');
+        $this->info('docs:check OK: '.count($generated).' archivos coinciden con el codigo.');
 
         return 0;
     }
