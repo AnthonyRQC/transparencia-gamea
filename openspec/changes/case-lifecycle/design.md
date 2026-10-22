@@ -8,9 +8,11 @@ The complaint management system operates under Bolivia's Ley N° 974 (anticorrup
 
 **Goals:**
 - Provide a rigorous, formal specification of the 8 case states, transitions, and substate `archivada`.
-- Formalize business-day computation, statutory extension caps (45d/90d for corruption; 20d/30d for denial of information), and semaphore color thresholds (ADR D28).
-- Document invariants: pessimistic row locking (`lockForUpdate`), append-only audit tracking (`bitacora`), and controlled date reconciliation (`conciliarFechas`).
-- Document existing codebase discrepancies and edge cases to establish a sound foundation for Phase D (due-date calendar and delay indicators).
+- Distinguish statutory terminality (cessation of deadline counting) from physical immutability (supervised reversal and reopening).
+- Formalize business-day computation for base deadlines and statutory extension caps (45d/90d for corruption; 20d/30d for denial of information) integrating with holiday tables.
+- Establish the allowed state window for controlled date reconciliation (`conciliarFechas`).
+- Document invariants: pessimistic row locking (`lockForUpdate`), append-only audit tracking (`bitacora`), and two-mode legacy intake routing.
+- Document codebase discrepancies and technical debt to establish a sound foundation for Phase D (due-date calendar and delay indicators).
 
 **Non-Goals:**
 - Visual calendar UI, Gantt views, or frontend interactive widgets (reserved for Phase D).
@@ -19,44 +21,70 @@ The complaint management system operates under Bolivia's Ley N° 974 (anticorrup
 
 ## Decisions
 
-### 1. Business Days Computation Engine (`DiasHabiles`)
-- **Decision**: Deadlines are computed strictly using `DiasHabiles::agregar()` and `DiasHabiles::diasRestantes()`.
-- **Legal Principle (Ley 2341)**: Day 1 starts on the first business day following the trigger event (intake or admission). Saturdays, Sundays, and active holidays in `feriados` table are skipped. Weekend checks precede holiday checks to prevent double deduction.
-- **Alternatives Considered**: Calendar day arithmetic (violates statutory norms of Ley 974) and on-the-fly un-cached SQL holiday lookups (causes severe N+1 query amplification).
+### 1. Business Days Computation Engine (`DiasHabiles`) and Holiday Integration
+- **Decision**: Deadlines and extensions are computed strictly in business days using `DiasHabiles::agregar()` and `DiasHabiles::diasRestantes()`.
+- **Legal Principle (Ley 2341)**: Day 1 starts on the first business day following the trigger event (`created_at` for intake, `fecha_admitida` for investigation). Saturdays, Sundays, and active holidays registered in the `feriados` database table are skipped. Weekend checks precede holiday checks to prevent double deduction.
+- **Holiday Cache**: Employs a 1-hour cache TTL invalidated automatically on holiday catalogue mutations via `DiasHabiles::olvidarCache()`.
 
-### 2. State Machine Topology and Terminal State Definition
+### 2. State Machine Topology, Terminality vs. Reversibility, and Legacy Ingestion
 - **Decision**: Eight explicit states: `ingresada`, `evaluacion_tecnica`, `admitida`, `rechazada`, `asignada`, `investigacion`, `informe`, and `cerrada`.
+- **Substate**: `archivada` is an orthogonal substate toggle exclusively on `cerrada` complaints (`toggleArchivar`).
+- **Terminal for Deadlines vs. Immutability**:
+  - `EstadoDenuncia::terminales()` defines `rechazada` and `cerrada`. In these states, active deadline computing ceases (`Denuncia::getPlazoAttribute()` returns `null`).
+  - Terminal states are **not immutable dead ends**: controlled supervisory exits exist:
+    1. **Supervisory Reopening (`reabrir`)**: Transitions `rechazada` or `cerrada` back to `ingresada`. Requires permission `caso.reabrir`, mandatory justification ($\ge 20$ characters), a valid future limit date, clears `subestado`, resets investigator, and acquires an exclusive row lock (`lockForUpdate`).
+    2. **Closure Reversal (`eliminarCierre`)**: Transitions `cerrada` back to `informe`. Requires permission `cierre.eliminar`. Soft-deletes `cierre`, reverts state to `informe`, and reactivates deadline counting.
 - **Transitions Matrix**:
   - `ingresada` → `evaluacion_tecnica` (delegarEvaluacion)
   - `evaluacion_tecnica` → `ingresada` (devolver / reasumir)
   - `ingresada` → `admitida` (admitir)
-  - `ingresada` → `rechazada` (rechazar - terminal)
+  - `ingresada` → `rechazada` (rechazar - terminal for deadlines)
   - `admitida` → `asignada` (asignar)
+  - `asignada` → `asignada` (reasignar / traspasar)
   - `asignada` → `investigacion` (iniciarInvestigacion)
   - `investigacion` → `informe` (saltarFase / regular advance)
-  - `informe` → `cerrada` (guardarCierre - terminal)
-  - `cerrada` → `informe` (eliminarCierre - closure reversal)
+  - `informe` → `informe` (guardarInforme / editarInforme)
+  - `informe` → `cerrada` (guardarCierre - terminal for deadlines)
+  - `cerrada` → `informe` (eliminarCierre - supervisory reversal)
   - `rechazada` / `cerrada` → `ingresada` (reabrir - supervisory reopening)
-- **Substate**: `archivada` is an orthogonal substate toggle on `cerrada` complaints (`toggleArchivar`).
-- **Terminal States**: `EstadoDenuncia::terminales()` defines `rechazada` and `cerrada`. In terminal states, active deadline computing ceases (`plazo` returns `null`).
+  - `cerrada (subestado: null)` ↔ `cerrada (subestado: 'archivada')` (toggleArchivar)
+- **Legacy Ingestion Entry Points** (governed by `openspec/specs/legacy-case-loading`):
+  - Pre-existing complaints do not initialize in `ingresada`:
+    - `modo=historico`: Initialized directly in `cerrada` (`investigador_id` null, deadline null).
+    - `modo=en_curso`: Initialized directly in `investigacion` or `informe` (`created_at` and `fecha_admitida` backdated, bypassing intake qualification deadline).
 
-### 3. Concurrency Protection with Pessimistic Locking
+### 3. Statutory Deadline Extensions in Business Days and Ceilings
+- **Decision**: All extension units approved via `AmpliacionController` are strictly **business days** (`días hábiles`).
+- **Calculation**: In `Denuncia::calcularVencimiento()`, accumulated extension days are added to base business days:
+  `DiasHabiles::agregar($diasBase + $diasAmpliados, $baseFecha)`.
+- **Ceilings**:
+  - `corrupcion`: Base 45 business days + maximum 45 business days extension = statutory maximum 90 business days.
+  - `negacion`: Base 20 business days + maximum 10 business days extension = statutory maximum 30 business days.
+
+### 4. Date Reconciliation State Window (`conciliarFechas`)
+- **Decision**: Date reconciliation allows authorized supervisors (`caso.conciliar`) to rectify operational timestamps (`created_at`, `fecha_admitida`, `fecha_asignada`, `fecha_rechazada`) with mandatory $\ge 20$ character justification audited in `conciliacion_json` and `bitacora`.
+- **State Window Invariant**:
+  - Permitted on active pre-closure states (`ingresada`, `evaluacion_tecnica`, `admitida`, `asignada`, `investigacion`, `informe`) for intake, admission, and assignment dates.
+  - Permitted on terminal `rechazada` for rejection and intake dates.
+  - **Prohibited on terminal `cerrada`**: Modifying operational dates on closed cases without a formal reopening corrupts historical closure integrity and KPI compliance statistics.
+
+### 5. Concurrency Protection with Pessimistic Locking
 - **Decision**: All state-mutating endpoints (`admitir`, `rechazar`, `asignar`, `iniciarInvestigacion`, `saltarFase`, `reabrir`) wrap logic inside `DB::transaction()` with `Denuncia::where('ticket', $ticket)->lockForUpdate()->first()`.
-- **Rationale**: Prevents Time-of-Check to Time-of-Use (TOCTOU) race conditions between multiple concurrent supervisors (e.g., two supervisors admitting or rejecting the same case simultaneously).
+- **Rationale**: Prevents Time-of-Check to Time-of-Use (TOCTOU) race conditions between concurrent supervisors.
 
-### 4. Unified Semaphore Semantics (ADR D28)
-- **Decision**: Three standard visual tiers based on business days remaining:
+### 6. Unified Semaphore Semantics (ADR D28)
+- **Decision**: Three standard visual tiers based on remaining business days:
   - `red`: $\le 3$ business days remaining (or overdue $< 0$)
   - `yellow`: $4$ to $8$ business days remaining
   - `green`: $> 8$ business days remaining
-- **Rationale**: Replaced fragmented controller-specific thresholds with a unified, predictable scale.
 
-### 5. Identified Code Discrepancies and Clarifications
-- **Reopening Base Date & Plazo**: `ReaperturaController::reabrir` records `'nueva_fecha_limite'` into `reapertura_json`, but `Denuncia::calcularVencimiento()` does not reference `reapertura_json` and continues checking `fecha_admitida ? ... : created_at`. When Phase D implements explicit expiration tracking, reopened case calculation will need a consolidated calculation path.
-- **Final Report State**: Calling `InformeController::guardarInforme()` records the report model but does not mutate `denuncia.estado` (the case remains in `informe`). The state only advances to `cerrada` upon `CierreController::guardarCierre()`.
+### 7. Identified Code Discrepancies and Debt for Phase D
+- **Reopened Case Deadline Discrepancy**: `ReaperturaController::reabrir` stores `nueva_fecha_limite` into `reapertura_json['plazo']`, but `Denuncia::calcularVencimiento()` ignores it and calculates from `fecha_admitida`. Phase D must align calculation to respect reopened deadlines.
+- **Unjustified Closure Deletion**: `CierreController::eliminarCierre` currently requires no justification parameter in the HTTP request. As an administrative correction under Ley 974, it should require mandatory justification ($\ge 20$ characters) audited in `bitacora`.
+- **Missing Date Reconciliation State Guard**: `DenunciaController::conciliarFechas` currently lacks state validation, permitting date edits on `cerrada` cases. Phase D must add a state-window guard.
 
 ## Risks / Trade-offs
 
 - **[Risk: Holiday cache staleness]** → **Mitigation**: `DiasHabiles` utilizes a 1-hour cache TTL and provides `olvidarCache()` triggered whenever holidays are added or updated in `CatalogoService`.
 - **[Risk: Concurrency lock exhaustion]** → **Mitigation**: Slow I/O operations (emails, notifications, file storage) are executed outside of the `lockForUpdate` database transaction boundary.
-- **[Risk: Reopened case deadline discrepancy]** → **Mitigation**: The specification documents `reapertura_json` behavior and tasks Phase D with aligning `calcularVencimiento()` to evaluate reopened limits.
+- **[Risk: Historical KPI distortion]** → **Mitigation**: Date reconciliation on `cerrada` cases is barred; historical metrics remain stable unless formal reopening occurs.
