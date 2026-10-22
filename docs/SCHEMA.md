@@ -542,4 +542,3 @@
 | telefono | varchar(20) | si | - |
 | updated_at | timestamp | si | - |
 | username | varchar(50) | no | - |
-

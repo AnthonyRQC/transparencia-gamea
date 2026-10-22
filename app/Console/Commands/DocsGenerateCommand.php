@@ -236,6 +236,10 @@ class DocsGenerateCommand extends Command
             $lines[] = '';
         }
 
+        while (end($lines) === '') {
+            array_pop($lines);
+        }
+
         return implode("\n", $lines)."\n";
     }
 
@@ -258,8 +262,11 @@ class DocsGenerateCommand extends Command
             '| Node | '.$this->cell($node).' |',
             '| Tests'.($source ? " ({$source})" : '').' | '.$this->cell($tests).' |',
             '| Assertions | '.$this->cell($assertions).' |',
-            '',
         ];
+
+        while (end($lines) === '') {
+            array_pop($lines);
+        }
 
         return implode("\n", $lines)."\n";
     }
