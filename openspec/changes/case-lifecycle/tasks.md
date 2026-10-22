@@ -16,20 +16,20 @@
 
 ## 3. Terminal States, Reversals, and Reopening
 
-- [ ] 3.1 Verify case closure in `CierreController`, draft publication generation, terminal deadline nullification (`plazo` is null), add `lockForUpdate` inside `DB::transaction()`, and run `php artisan test tests/Feature/DenunciaFlowTest.php`
-- [ ] 3.2 Add tests for `archivada` substate toggle on closed complaints, enforce mandatory justification (>= 20 characters) with `bitacora` audit on closure deletion (`eliminarCierre`), add `lockForUpdate` inside `DB::transaction()` to `eliminarCierre` and `toggleArchivar`, and verify concurrency tests pass
-- [ ] 3.3 Align `Denuncia::calcularVencimiento()` to evaluate `reapertura_json['plazo']` for reopened cases and add regression test verifying reopened expiration computation
+- [x] 3.1 Verify case closure in `CierreController`, draft publication generation, terminal deadline nullification (`plazo` is null), add `lockForUpdate` inside `DB::transaction()`, and run `php artisan test tests/Feature/DenunciaFlowTest.php`
+- [x] 3.2 Add tests for `archivada` substate toggle on closed complaints, enforce mandatory justification (>= 20 characters) with `bitacora` audit on closure deletion (`eliminarCierre`), add `lockForUpdate` inside `DB::transaction()` to `eliminarCierre` and `toggleArchivar`, and verify concurrency tests pass
+- [x] 3.3 Align `Denuncia::calcularVencimiento()` to evaluate `reapertura_json['plazo']` for reopened cases and add regression test verifying reopened expiration computation
 - [ ] 3.4 Add feature tests for case reopening in `tests/Feature/ReaperturaTest.php` verifying 20+ character justification, authorized permission check (`caso.reabrir`), and audit log in `bitacora`
 
 ## 4. Controlled Date Reconciliation and Audit Invariants
 
-- [ ] 4.1 Implement state-window guard in `DenunciaController::conciliarFechas` (strictly allowing active pre-closure states; rejecting terminal `rechazada` and `cerrada` cases), reject `fecha_rechazada` in payload limiting reconciliation strictly to `created_at`, `fecha_admitida`, and `fecha_asignada`, with >= 20 characters justification, permission check (`caso.conciliar`), `conciliacion_json` audit, and test coverage
+- [x] 4.1 Implement state-window guard in `DenunciaController::conciliarFechas` (strictly allowing active pre-closure states; rejecting terminal `rechazada` and `cerrada` cases), reject `fecha_rechazada` in payload limiting reconciliation strictly to `created_at`, `fecha_admitida`, and `fecha_asignada`, with >= 20 characters justification, permission check (`caso.conciliar`), `conciliacion_json` audit, and test coverage
 - [ ] 4.2 Verify append-only non-repudiation logging across all state mutations without user IP persistence and run `php artisan test tests/Feature/BitacoraEnriquecidaTest.php`
 
 ## 5. Integration Verification
 
-- [ ] 5.1 Run full PHPUnit test suite (`php artisan test`) and verify green baseline across all tests
-- [ ] 5.2 Validate OpenSpec change integrity with `cmd /c openspec validate case-lifecycle`
+- [x] 5.1 Run full PHPUnit test suite (`php artisan test`) and verify green baseline across all tests
+- [x] 5.2 Validate OpenSpec change integrity with `cmd /c openspec validate case-lifecycle`
 
 ## Workflow follow-up
 
