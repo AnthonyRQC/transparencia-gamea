@@ -10,7 +10,7 @@ The complaint management system operates under Bolivia's Ley N° 974 (anticorrup
 - Provide a rigorous, formal specification of the 8 case states, transitions, and substate `archivada`.
 - Distinguish statutory terminality (cessation of deadline counting) from physical immutability (supervised reversal and reopening).
 - Formalize business-day computation for base deadlines and statutory extension caps (45d/90d for corruption; 20d/30d for denial of information) integrating with holiday tables.
-- Establish the allowed state window for controlled date reconciliation (`conciliarFechas`).
+- Establish the allowed state window for controlled date reconciliation (`conciliarFechas`), freezing terminal states.
 - Document invariants: pessimistic row locking (`lockForUpdate`), append-only audit tracking (`bitacora`), and two-mode legacy intake routing.
 - Document codebase discrepancies and technical debt to establish a sound foundation for Phase D (due-date calendar and delay indicators).
 
@@ -31,9 +31,10 @@ The complaint management system operates under Bolivia's Ley N° 974 (anticorrup
 - **Substate**: `archivada` is an orthogonal substate toggle exclusively on `cerrada` complaints (`toggleArchivar`).
 - **Terminal for Deadlines vs. Immutability**:
   - `EstadoDenuncia::terminales()` defines `rechazada` and `cerrada`. In these states, active deadline computing ceases (`Denuncia::getPlazoAttribute()` returns `null`).
-  - Terminal states are **not immutable dead ends**: controlled supervisory exits exist:
-    1. **Supervisory Reopening (`reabrir`)**: Transitions `rechazada` or `cerrada` back to `ingresada`. Requires permission `caso.reabrir`, mandatory justification ($\ge 20$ characters), a valid future limit date, clears `subestado`, resets investigator, and acquires an exclusive row lock (`lockForUpdate`).
+  - Terminal states are **not immutable dead ends**: controlled exits exist:
+    1. **Case Reopening (`reabrir`)**: Transitions `rechazada` or `cerrada` back to `ingresada`. Requires permission `caso.reabrir`, mandatory justification ($\ge 20$ characters), a valid future limit date, clears `subestado`, resets investigator, and acquires an exclusive row lock (`lockForUpdate`).
     2. **Closure Reversal (`eliminarCierre`)**: Transitions `cerrada` back to `informe`. Requires permission `cierre.eliminar` and mandatory administrative justification ($\ge 20$ characters) audited in `bitacora`. Soft-deletes `cierre`, reverts state to `informe`, and reactivates deadline counting.
+- **Note on Permissions vs Roles**: `PermisosCatalogo` defines capabilities such as `cierre.eliminar` (granted to both `jefe` and `investigador`), `caso.admitir`/`caso.rechazar`/`caso.reabrir` (granted to `jefe`), and `caso.iniciar` (granted to `investigador`). The case lifecycle specification defines state transitions and invariants in terms of effective permissions (`CasoAuth`), while exact role matrices are governed by the RBAC specification.
 - **Transitions Matrix**:
   - `ingresada` → `evaluacion_tecnica` (delegarEvaluacion)
   - `evaluacion_tecnica` → `ingresada` (devolver / reasumir)
@@ -45,8 +46,8 @@ The complaint management system operates under Bolivia's Ley N° 974 (anticorrup
   - `investigacion` → `informe` (saltarFase / regular advance)
   - `informe` → `informe` (guardarInforme / editarInforme)
   - `informe` → `cerrada` (guardarCierre - terminal for deadlines)
-  - `cerrada` → `informe` (eliminarCierre - supervisory reversal)
-  - `rechazada` / `cerrada` → `ingresada` (reabrir - supervisory reopening)
+  - `cerrada` → `informe` (eliminarCierre - closure reversal)
+  - `rechazada` / `cerrada` → `ingresada` (reabrir - case reopening)
   - `cerrada (subestado: null)` ↔ `cerrada (subestado: 'archivada')` (toggleArchivar)
 - **Legacy Ingestion Entry Points** (governed by `openspec/specs/legacy-case-loading`):
   - Pre-existing complaints do not initialize in `ingresada`:
@@ -62,15 +63,14 @@ The complaint management system operates under Bolivia's Ley N° 974 (anticorrup
   - `negacion`: Base 20 business days + maximum 10 business days extension = statutory maximum 30 business days.
 
 ### 4. Date Reconciliation State Window (`conciliarFechas`)
-- **Decision**: Date reconciliation allows authorized supervisors (`caso.conciliar`) to rectify operational timestamps (`created_at`, `fecha_admitida`, `fecha_asignada`, `fecha_rechazada`) with mandatory $\ge 20$ character justification audited in `conciliacion_json` and `bitacora`.
+- **Decision**: Date reconciliation allows authorized users with permission `caso.conciliar` to rectify operational timestamps (`created_at`, `fecha_admitida`, `fecha_asignada`) with mandatory $\ge 20$ character justification audited in `conciliacion_json` and `bitacora`.
 - **State Window Invariant**:
-  - Permitted on active pre-closure states (`ingresada`, `evaluacion_tecnica`, `admitida`, `asignada`, `investigacion`, `informe`) for intake, admission, and assignment dates.
-  - Permitted on terminal `rechazada` for rejection and intake dates.
-  - **Prohibited on terminal `cerrada`**: Modifying operational dates on closed cases without a formal reopening corrupts historical closure integrity and KPI compliance statistics.
+  - Permitted strictly on active pre-closure states (`ingresada`, `evaluacion_tecnica`, `admitida`, `asignada`, `investigacion`, `informe`).
+  - **Prohibited on terminal states (`rechazada` and `cerrada`)**: Modifying operational dates on terminal cases alters settled historical facts and corrupts compliance KPI indicators. The sole lawful path to modify dates of a terminal case is via formal reopening (`reabrir` → `ingresada`), subsequent date reconciliation in an active state under full audit trace, and re-qualification.
 
 ### 5. Concurrency Protection with Pessimistic Locking
-- **Decision**: All state-mutating endpoints (`admitir`, `rechazar`, `asignar`, `iniciarInvestigacion`, `saltarFase`, `reabrir`) wrap logic inside `DB::transaction()` with `Denuncia::where('ticket', $ticket)->lockForUpdate()->first()`.
-- **Rationale**: Prevents Time-of-Check to Time-of-Use (TOCTOU) race conditions between concurrent supervisors.
+- **Decision**: All state and substate mutating endpoints (`admitir`, `rechazar`, `asignar`, `iniciarInvestigacion`, `saltarFase`, `guardarCierre`, `eliminarCierre`, `toggleArchivar`, `reabrir`) MUST execute inside `DB::transaction()` acquiring an exclusive row lock: `Denuncia::where('ticket', $ticket)->lockForUpdate()->first()`.
+- **Rationale**: Prevents Time-of-Check to Time-of-Use (TOCTOU) race conditions between concurrent users (e.g., simultaneous closure and report edits, concurrent archive toggles, or race conditions during closure reversal).
 
 ### 6. Unified Semaphore Semantics (ADR D28)
 - **Decision**: Three standard visual tiers based on remaining business days:
@@ -81,10 +81,11 @@ The complaint management system operates under Bolivia's Ley N° 974 (anticorrup
 ### 7. Identified Code Discrepancies and Debt for Phase D
 - **Reopened Case Deadline Discrepancy**: `ReaperturaController::reabrir` stores `nueva_fecha_limite` into `reapertura_json['plazo']`, but `Denuncia::calcularVencimiento()` ignores it and calculates from `fecha_admitida`. Phase D must align calculation to respect reopened deadlines.
 - **Unjustified Closure Deletion**: `CierreController::eliminarCierre` currently requires no justification parameter in the HTTP request. As an administrative correction under Ley 974, it should require mandatory justification ($\ge 20$ characters) audited in `bitacora`.
-- **Missing Date Reconciliation State Guard**: `DenunciaController::conciliarFechas` currently lacks state validation, permitting date edits on `cerrada` cases. Phase D must add a state-window guard.
+- **Missing Date Reconciliation State Guard**: `DenunciaController::conciliarFechas` currently lacks state validation, permitting date edits on `cerrada` and `rechazada` cases. Phase D must add a guard restricting reconciliation strictly to active pre-closure states.
+- **Missing Pessimistic Locking on Closure & Archive Endpoints**: `CierreController::guardarCierre`, `CierreController::eliminarCierre`, and `CierreController::toggleArchivar` currently lack `lockForUpdate()` (and `toggleArchivar` lacks `DB::transaction()`). Phase D must enforce the universal locking invariant across these methods.
 
 ## Risks / Trade-offs
 
 - **[Risk: Holiday cache staleness]** → **Mitigation**: `DiasHabiles` utilizes a 1-hour cache TTL and provides `olvidarCache()` triggered whenever holidays are added or updated in `CatalogoService`.
 - **[Risk: Concurrency lock exhaustion]** → **Mitigation**: Slow I/O operations (emails, notifications, file storage) are executed outside of the `lockForUpdate` database transaction boundary.
-- **[Risk: Historical KPI distortion]** → **Mitigation**: Date reconciliation on `cerrada` cases is barred; historical metrics remain stable unless formal reopening occurs.
+- **[Risk: Historical KPI distortion]** → **Mitigation**: Date reconciliation on `rechazada` and `cerrada` cases is barred; historical metrics remain stable unless formal reopening occurs.
