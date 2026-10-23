@@ -69,7 +69,7 @@ class DocsGenerateCommand extends Command
     private function check(string $target, array $generated): int
     {
         // Portable gate: ROUTES.md and PERMISSIONS.md only depend on code.
-        // SCHEMA.md depends on the DB engine and STATUS.md on branch/versions,
+        // SCHEMA.md depends on the DB engine and STATUS.md on versions/test counts,
         // so they are only verified with --full in the target environment.
         if (! $this->option('full')) {
             $generated = array_intersect_key($generated, array_flip(self::PORTABLE_FILES));
@@ -245,7 +245,6 @@ class DocsGenerateCommand extends Command
 
     private function buildStatus(): string
     {
-        $branch = $this->runQuietly('git rev-parse --abbrev-ref HEAD');
         $node = $this->runQuietly('node -v');
         [$tests, $assertions, $source] = $this->testCount();
 
@@ -256,7 +255,6 @@ class DocsGenerateCommand extends Command
             '',
             '| Dato | Valor |',
             '| --- | --- |',
-            '| Rama | '.$this->cell($branch).' |',
             '| PHP | '.$this->cell(PHP_VERSION).' |',
             '| Laravel | '.$this->cell(Application::VERSION).' |',
             '| Node | '.$this->cell($node).' |',
