@@ -26,15 +26,19 @@ class DelegacionController extends Controller
             return redirect()->back()->with('error', 'No se puede delegar la evaluación de esta denuncia.');
         }
 
+        $investigador = User::findOrFail($validated['investigador_id']);
+
+        if (! $investigador->activo) {
+            return redirect()->back()->with('error', 'SOLO SE PUEDE DELEGAR A UN INVESTIGADOR ACTIVO.');
+        }
+
         $aplicado = false;
-        DB::transaction(function () use ($ticket, $validated, &$aplicado) {
+        DB::transaction(function () use ($ticket, $validated, $investigador, &$aplicado) {
             $denuncia = Denuncia::where('ticket', $ticket)->lockForUpdate()->first();
 
             if (! $denuncia || $denuncia->estado !== 'ingresada') {
                 return;
             }
-
-            $investigador = User::findOrFail($validated['investigador_id']);
 
             $denuncia->evaluaciones()->create([
                 'investigador_id' => $investigador->id,
@@ -92,6 +96,10 @@ class DelegacionController extends Controller
             }
 
             $evaluacionPendiente = $denuncia->evaluaciones()->where('estado', 'pendiente')->latest()->first();
+
+            if ($evaluacionPendiente) {
+                $evaluacionPendiente->update(['estado' => 'cancelada']);
+            }
 
             $denuncia->update(['estado' => 'ingresada']);
 
