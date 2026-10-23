@@ -4,9 +4,9 @@
 
 | Dato | Valor |
 | --- | --- |
-| Rama | fix/case-lifecycle-contract |
+| Rama | work/panel3-etapa0-verificacion |
 | PHP | 8.3.30 |
 | Laravel | 13.30.0 |
 | Node | v24.18.0 |
-| Tests (storage/test-results/junit.xml) | 290 |
-| Assertions | 2150 |
+| Tests (storage/test-results/junit.xml) | 310 |
+| Assertions | 2246 |
