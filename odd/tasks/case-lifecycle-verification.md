@@ -24,12 +24,12 @@ fixes, verify the contract, mark tasks, and archive `case-lifecycle`.
 
 ## Acceptance criteria
 
-- [ ] Tasks 1.1–1.4, 2.1–2.4, 3.4, 4.2 marked with evidence in `tasks.md`.
-- [ ] Both authorized production fixes applied and covered by tests.
-- [ ] Full suite green; tests and assertions recorded below.
-- [ ] `docs/STATUS.md` regenerated; `composer docs:check` exit 0.
-- [ ] `case-lifecycle` archived; `openspec validate --archived` and `--all` green.
-- [ ] No production changes beyond the two authorized fixes; no push/merge.
+- [x] Tasks 1.1–1.4, 2.1–2.4, 3.4, 4.2 marked with evidence in `tasks.md`.
+- [x] Both authorized production fixes applied and covered by tests.
+- [x] Full suite green; tests and assertions recorded below.
+- [x] `docs/STATUS.md` regenerated; `composer docs:check` exit 0.
+- [x] `case-lifecycle` archived; `openspec validate --archived` and `--all` green.
+- [x] No production changes beyond the two authorized fixes; no push/merge.
 
 ## Production diffs (authorized only)
 
@@ -86,9 +86,9 @@ File: `app/Http/Controllers/Denuncia/DelegacionController.php` (same commit).
 - `composer tests:junit` (`php vendor/phpunit/phpunit/phpunit --log-junit storage/test-results/junit.xml`): OK (310 tests, 2246 assertions).
 - `composer docs`: regeneró ROUTES/PERMISSIONS/SCHEMA/STATUS (STATUS: rama `work/panel3-etapa0-verificacion`, 310 tests, 2246 assertions).
 - `composer docs:check`: OK, exit 0 (`docs:check OK: 2 archivos coinciden con el codigo.`).
-- `cmd /c openspec archive case-lifecycle --yes`: (resultado abajo).
-- `cmd /c openspec validate --archived`: (resultado abajo).
-- `cmd /c openspec validate --all`: (resultado abajo).
+- `cmd /c openspec archive case-lifecycle --yes`: OK — `Change 'case-lifecycle' archived as '2026-10-23-case-lifecycle'` (spec `case-lifecycle` creada, +12 added).
+- `cmd /c openspec validate --archived`: 5 passed, 0 failed (incluye `2026-10-23-case-lifecycle`).
+- `cmd /c openspec validate --all`: 11 passed, 0 failed.
 
 ## Observations (non-blocking)
 
