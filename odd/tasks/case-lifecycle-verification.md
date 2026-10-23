@@ -40,7 +40,7 @@ File: `app/Http/Controllers/Denuncia/DelegacionController.php`
 
 ```diff
              $evaluacionPendiente = $denuncia->evaluaciones()->where('estado', 'pendiente')->latest()->first();
- 
+
 +            if ($evaluacionPendiente) {
 +                $evaluacionPendiente->update(['estado' => 'cancelada']);
 +            }
@@ -56,7 +56,7 @@ File: `app/Http/Controllers/Denuncia/DelegacionController.php` (same commit).
          if ($denuncia->estado !== 'ingresada') {
              return redirect()->back()->with('error', 'No se puede delegar la evaluación de esta denuncia.');
          }
- 
+
 +        $investigador = User::findOrFail($validated['investigador_id']);
 +
 +        if (! $investigador->activo) {
@@ -67,11 +67,11 @@ File: `app/Http/Controllers/Denuncia/DelegacionController.php` (same commit).
 -        DB::transaction(function () use ($ticket, $validated, &$aplicado) {
 +        DB::transaction(function () use ($ticket, $validated, $investigador, &$aplicado) {
              $denuncia = Denuncia::where('ticket', $ticket)->lockForUpdate()->first();
- 
+
              if (! $denuncia || $denuncia->estado !== 'ingresada') {
                  return;
              }
- 
+
 -            $investigador = User::findOrFail($validated['investigador_id']);
 -
              $denuncia->evaluaciones()->create([
@@ -92,16 +92,7 @@ File: `app/Http/Controllers/Denuncia/DelegacionController.php` (same commit).
 
 ## Observations (non-blocking)
 
-- O1 — Matriz 1.2 pedía `evaluacion_tecnica_texto`/`evaluacion_tecnica_recomendacion`
-  "persistidos en denuncia", pero `denuncias` no tiene esas columnas ni están en
-  `$fillable`; `EvaluacionController::devolver` los descarta en silencio
-  (mass-assignment guard) y el texto/recomendación quedan registrados en
-  `evaluaciones_tecnicas` (`texto_evaluacion`, `recomendacion`), que es lo que la
-  spec exige ("recorded"). `BandejaController` los rehidrata en memoria para
-  display. El test verifica el contrato real (registro en evaluación +
-  `ingresada` + bitácora). Sin cambio de producción (fuera de las dos
-  autorizadas). Si Panel 1/2 quiere snapshot en `denuncias`, requiere migración
-  nueva (decisión de ellos).
+- O1 — Resuelto: se eliminó el update muerto; la evaluación queda en `evaluaciones_tecnicas`.
 - O2 — SQLite no simula carrera real: el doble intento secuencial más inspección
   de `DB::transaction` + `lockForUpdate` es la evidencia (sin test de
   concurrencia inventado).

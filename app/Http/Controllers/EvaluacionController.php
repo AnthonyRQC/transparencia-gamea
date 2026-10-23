@@ -42,9 +42,6 @@ class EvaluacionController extends Controller
             if ($denuncia) {
                 $denuncia->update([
                     'estado' => 'ingresada',
-                    'evaluacion_tecnica_texto' => $validated['texto_evaluacion'],
-                    'evaluacion_tecnica_recomendacion' => $validated['recomendacion'],
-                    'evaluacion_tecnica_investigador_nombre' => Auth::user()->name,
                 ]);
 
                 $denuncia->bitacora()->create([
