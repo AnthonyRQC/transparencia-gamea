@@ -3,11 +3,13 @@
 namespace Tests\Feature;
 
 use App\Models\Bitacora;
+use App\Models\CategoriaDenuncia;
 use App\Models\Denuncia;
 use App\Models\User;
 use App\Services\BitacoraService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Schema;
 use Inertia\Testing\AssertableInertia as Assert;
 use LogicException;
 use Tests\TestCase;
@@ -198,6 +200,46 @@ class BitacoraEnriquecidaTest extends TestCase
         $this->expectExceptionMessage('La bitácora es append-only: no admite edición ni borrado.');
 
         $b->delete();
+    }
+
+    public function test_bitacora_no_persiste_ip_address(): void
+    {
+        $this->assertFalse(Schema::hasColumn('bitacora', 'ip_address'));
+
+        $bitacora = new Bitacora();
+        $this->assertNotContains('ip_address', $bitacora->getFillable());
+        $this->assertArrayNotHasKey('ip_address', $bitacora->toArray());
+    }
+
+    public function test_rechazo_y_reapertura_registran_bitacora(): void
+    {
+        CategoriaDenuncia::create([
+            'clave' => 'cohecho',
+            'nombre' => 'COHECHO (SOBORNO)',
+            'tipo_denuncia' => 'corrupcion',
+            'activa' => true,
+        ]);
+
+        $denuncia = Denuncia::factory()->create([
+            'ticket' => 'DEN-2026-0600',
+            'token_consulta' => '5600',
+            'tipo' => 'corrupcion',
+            'estado' => 'ingresada',
+        ]);
+
+        $this->actingAs($this->jefe);
+        $this->post("/denuncias/{$denuncia->ticket}/rechazar", [
+            'justificacion' => 'RECHAZO DE PRUEBA PARA AUDITORÍA',
+        ]);
+
+        $this->assertNotNull($denuncia->bitacora()->where('accion', 'rechazada')->first());
+
+        $this->post("/denuncias/{$denuncia->ticket}/reabrir", [
+            'justificacion' => 'JUSTIFICACIÓN VÁLIDA DE PRUEBA PARA REABRIR EL CASO',
+            'nueva_fecha_limite' => now()->addDays(10)->format('Y-m-d'),
+        ]);
+
+        $this->assertNotNull($denuncia->bitacora()->where('accion', 'reapertura')->first());
     }
 
     public function test_proyeccion_operativa_no_expone_user_agent_en_bandeja_mis_casos_y_consultar(): void

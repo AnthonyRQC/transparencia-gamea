@@ -115,6 +115,50 @@ class DiasHabilesTest extends TestCase
         $this->assertSame(2, $sinFeriado['dias_restantes']);
     }
 
+    public function test_agregar_dia_uno_es_siguiente_habil_y_salta_fin_de_semana(): void
+    {
+        // Vie 2026-09-11 + 1 día hábil = lun 2026-09-14 (día 1 es mañana hábil).
+        $this->assertSame(
+            '2026-09-14',
+            DiasHabiles::agregar(1, Carbon::parse('2026-09-11'), [])->toDateString()
+        );
+    }
+
+    public function test_feriado_en_fin_de_semana_no_descuenta_doble(): void
+    {
+        // Feriado sábado 2026-09-12 con base viernes: sigue siendo lun 2026-09-14.
+        $this->assertSame(
+            '2026-09-14',
+            DiasHabiles::agregar(1, Carbon::parse('2026-09-11'), ['2026-09-12' => true])->toDateString()
+        );
+    }
+
+    public function test_feriado_entre_semana_descuenta_dia_habil(): void
+    {
+        // Feriado lunes 2026-09-14 con base viernes: martes 2026-09-15.
+        $this->assertSame(
+            '2026-09-15',
+            DiasHabiles::agregar(1, Carbon::parse('2026-09-11'), ['2026-09-14' => true])->toDateString()
+        );
+    }
+
+    public function test_transcurridos_cuenta_dias_habiles(): void
+    {
+        // Vie 2026-09-11 → mar 2026-09-15: lun + mar = 2 días hábiles.
+        $this->assertSame(2, DiasHabiles::transcurridos(
+            Carbon::parse('2026-09-11'),
+            Carbon::parse('2026-09-15'),
+            []
+        ));
+
+        // Con feriado lunes 2026-09-14: solo 1.
+        $this->assertSame(1, DiasHabiles::transcurridos(
+            Carbon::parse('2026-09-11'),
+            Carbon::parse('2026-09-15'),
+            ['2026-09-14' => true]
+        ));
+    }
+
     public function test_plazo_info_estructura_y_formato_de_fecha(): void
     {
         $info = $this->plazoInfo('2026-09-15', '2026-09-14');

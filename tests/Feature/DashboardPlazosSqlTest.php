@@ -105,6 +105,47 @@ class DashboardPlazosSqlTest extends TestCase
         ]);
     }
 
+    public function test_plazos_estatutarios_calificacion_corrupcion_y_negacion(): void
+    {
+        $ingresada = $this->denuncia([
+            'tipo' => 'corrupcion',
+            'estado' => 'ingresada',
+            'created_at' => Carbon::parse('2026-09-11 10:00:00'),
+            'updated_at' => Carbon::parse('2026-09-11 10:00:00'),
+        ]);
+
+        $corrupcion = $this->denuncia([
+            'tipo' => 'corrupcion',
+            'estado' => 'investigacion',
+            'created_at' => Carbon::parse('2026-09-01 10:00:00'),
+            'updated_at' => Carbon::parse('2026-09-01 10:00:00'),
+            'fecha_admitida' => Carbon::parse('2026-09-08 10:00:00'),
+        ]);
+
+        $negacion = $this->denuncia([
+            'tipo' => 'negacion',
+            'estado' => 'investigacion',
+            'created_at' => Carbon::parse('2026-09-01 10:00:00'),
+            'updated_at' => Carbon::parse('2026-09-01 10:00:00'),
+            'fecha_admitida' => Carbon::parse('2026-09-08 10:00:00'),
+        ]);
+
+        $this->assertSame(
+            DiasHabiles::agregar(5, $ingresada->created_at)->toDateString(),
+            $ingresada->calcularVencimiento()->toDateString()
+        );
+
+        $this->assertSame(
+            DiasHabiles::agregar(45, $corrupcion->fecha_admitida)->toDateString(),
+            $corrupcion->calcularVencimiento()->toDateString()
+        );
+
+        $this->assertSame(
+            DiasHabiles::agregar(20, $negacion->fecha_admitida)->toDateString(),
+            $negacion->calcularVencimiento()->toDateString()
+        );
+    }
+
     public function test_numero_de_consultas_constante_entre_5_y_40_activas(): void
     {
         $this->denunciaActiva('corrupcion', now()->subDays(3), 10);

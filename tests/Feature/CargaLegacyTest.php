@@ -71,6 +71,8 @@ class CargaLegacyTest extends TestCase
 
         $this->assertTrue($denuncia->es_legacy);
         $this->assertSame('investigacion', $denuncia->estado);
+        $this->assertSame('2024-03-10', $denuncia->fecha_admitida->format('Y-m-d'));
+        $this->assertNotNull($denuncia->plazo);
         $this->assertStringStartsWith('DEN-' . now()->year . '-', $denuncia->ticket);
         $this->assertSame('2024-03-10', $denuncia->created_at->format('Y-m-d'));
         $this->assertSame('JUAN PÉREZ', $denuncia->denunciante->nombres);
@@ -92,6 +94,8 @@ class CargaLegacyTest extends TestCase
         $denuncia = Denuncia::where('investigador_id', $this->inv->id)->firstOrFail();
 
         $this->assertSame('informe', $denuncia->estado);
+        $this->assertSame('2024-03-10', $denuncia->fecha_admitida->format('Y-m-d'));
+        $this->assertNotNull($denuncia->plazo);
         $this->assertSame($this->penal->id, $denuncia->informe->clasificacion_id);
         $this->assertSame($this->jefe->id, $denuncia->informe->clasificado_por_id);
     }
